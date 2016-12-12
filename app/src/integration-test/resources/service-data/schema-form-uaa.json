@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "grantTypes": {
+      "type": "array",
+      "title": "Grant types",
+      "required": true,
+      "items": {
+        "enum": [
+          "authorization_code",
+          "implicit",
+          "refresh_token",
+          "client_credentials"
+        ]
+      }
+    },
+    "redirectUris": {
+      "type": "string",
+      "title": "Redirect URI"
+    },
+    "accessTokenValidity": {
+      "type": "number",
+      "title": "Access token validity in seconds"
+    }
+  }
+}

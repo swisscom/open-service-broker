@@ -1,0 +1,63 @@
+{
+  "guid": "781e8f8c-c753-4a93-95eb-17c1f745b229",
+  "name": "redisent",
+  "description": "Redis Enterprise v3.2.3",
+  "bindable": true,
+  "asyncRequired": true,
+  "internalName": "redisClusterV2",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "3.2.3",
+    "displayName": "Redis Enterprise"
+  },
+  "plans": [
+    {
+      "guid": "ea4b1b7d-3060-4ac6-836b-e134de0e7d9b",
+      "name": "large",
+      "description": "Redis Sentinel Cluster with 3 data bearing nodes with 8 GB memory, 8 GB storage, unlimited concurrent connections",
+      "templateId": "sc1-redisha-bosh-template-sm",
+      "free": false,
+      "displayIndex": 0,
+      "containerParams": [
+        {
+          "name": "plan",
+          "value": "redisha.large"
+        },
+        {
+          "name": "databases",
+          "value": "32"
+        },
+        {
+          "name": "maxclients",
+          "value": "60000"
+        },
+        {
+          "name": "konsul-version",
+          "value": ""
+        },
+        {
+          "name": "prefix",
+          "value": ""
+        },
+        {
+          "name": "release-version",
+          "value": ""
+        },
+        {
+          "name": "stemcell-version",
+          "value": ""
+        }
+      ],
+      "metadata": {
+        "storageCapacity": "8GB",
+        "memory": "8GB",
+        "nodes": "3",
+        "maximumConcurrentConnections": "unlimited",
+        "dedicatedService": true,
+        "highAvailability": true,
+        "displayName": "large"
+      }
+    }
+  ]
+}

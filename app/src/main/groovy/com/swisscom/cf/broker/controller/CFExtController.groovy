@@ -1,0 +1,63 @@
+package com.swisscom.cf.broker.controller
+
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat
+import com.google.common.base.Optional
+import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.filterextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.filterextensions.endpoint.EndpointLookup
+import com.swisscom.cf.broker.filterextensions.serviceusage.ServiceUsage
+import com.swisscom.cf.broker.filterextensions.serviceusage.ServiceUsageLookup
+import com.swisscom.cf.broker.model.ServiceInstance
+import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
+import groovy.transform.CompileStatic
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.*
+
+@CompileStatic
+@Api(value = "cf-ext", description = "Additional operations for filter")
+@RestController
+class CFExtController extends BaseController {
+    public static final String PARAM_END_DATE = 'end_date'
+
+    @Autowired
+    protected ServiceUsageLookup serviceUsageLookup
+
+    @Autowired
+    protected EndpointLookup endpointLookup
+
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository
+
+    @ApiOperation(value = "Get service instance usage for atmos", response = ServiceUsage.class)
+    @RequestMapping(value = '/v2/cf-ext/{service_instance}/usage', method = RequestMethod.GET)
+    def usage(
+            @PathVariable('service_instance') String serviceInstanceId,
+            @RequestParam(value = 'end_date', required = false) String enddate) {
+        return serviceUsageLookup.usage(findServiceInstance(serviceInstanceId), parseEnddate(enddate))
+    }
+
+    private Optional<Date> parseEnddate(String enddate) {
+        if (enddate) {
+            return Optional.of(new ISO8601DateFormat().parse(enddate))
+        } else {
+            return Optional.absent()
+        }
+    }
+
+    @ApiOperation(value = "Get endpoint information about a service", response = EndpointDto.class,
+            notes = "provides information to create security groups for a given service instance", responseContainer = "List")
+    @RequestMapping(value = '/v2/cf-ext/{service_instance}/endpoint', method = RequestMethod.GET)
+    def endpoint(@PathVariable('service_instance') String serviceInstanceId) {
+        endpointLookup.lookup(findServiceInstance(serviceInstanceId))
+    }
+
+    private ServiceInstance findServiceInstance(String serviceInstanceGuid) {
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        if (!serviceInstance) {
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        }
+        return serviceInstance
+    }
+}

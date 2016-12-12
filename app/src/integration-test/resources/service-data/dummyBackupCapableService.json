@@ -1,0 +1,29 @@
+{
+  "guid": "fa0f5576-2732-42c5-99f5-30777a0bffdd",
+  "name": "backupDummy",
+  "description": "This service has synchronous provision/deprovision, binding/unbinding is not allowed and takes around a minute to reach the success state after backup/restore actions",
+  "bindable": false,
+  "internalName": "dummySynchronousBackupCapable",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "0.0.1",
+    "displayName": "Async service manager based service imitator"
+  },
+  "plans": [
+    {
+      "guid": "3ed6eab0-533a-4e11-a6a0-2fa6a0330b92",
+      "name": "aplan",
+      "description": "some description",
+      "templateId": "",
+      "free": true,
+      "displayIndex": 0,
+      "containerParams": [],
+      "maxBackups": 5,
+      "metadata": {
+        "displayName": "A plan",
+        "maxBackups": 5
+      }
+    }
+  ]
+}

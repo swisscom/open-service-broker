@@ -1,0 +1,50 @@
+{
+  "guid": "781e8f8c-c753-4a93-95eb-17c1f745b229",
+  "name": "redisCluster",
+  "description": "Redis HA v3.2.1",
+  "bindable": true,
+  "asyncRequired": true,
+  "internalName": "redisCluster",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "3.2.1",
+    "displayName": "Redis HA ???"
+  },
+  "plans": [
+    {
+      "guid": "ea4b1b7d-3060-4ac6-836b-e134de0e7d9b",
+      "name": "small",
+      "description": "?",
+      "templateId": "redisha-v3_2_1-v4",
+      "free": false,
+      "displayIndex": 0,
+      "containerParams": [
+        {
+          "template": "redisha-yaml",
+          "name": "plan",
+          "value": "m1.small"
+        },
+        {
+          "template": "redisha-yaml",
+          "name": "databases",
+          "value": "10"
+        },
+        {
+          "template": "redisha-yaml",
+          "name": "maxclients",
+          "value": "100"
+        }
+      ],
+      "metadata": {
+        "storageCapacity": "?GB",
+        "memory": "?GB",
+        "nodes": "?",
+        "maximumConcurrentConnections": "?",
+        "dedicatedService": true,
+        "highAvailability": true,
+        "displayName": "?"
+      }
+    }
+  ]
+}

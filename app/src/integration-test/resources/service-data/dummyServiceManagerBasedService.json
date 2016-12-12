@@ -1,0 +1,27 @@
+{
+  "guid": "a47e15ea-2be0-48db-ba1c-474eaa910440",
+  "name": "async",
+  "description": "This service only allows provision/deprovision and takes around  a minute to reach the success state after action is triggered",
+  "bindable": false,
+  "internalName": "dummyServiceManagerBased",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "0.0.1",
+    "displayName": "Async service manager based service imitator"
+  },
+  "plans": [
+    {
+      "guid": "853040c0-8194-4c21-bc80-75538f7f1d2b",
+      "name": "aplan",
+      "description": "some description",
+      "templateId": "",
+      "free": true,
+      "displayIndex": 0,
+      "containerParams": [],
+      "metadata": {
+        "displayName": "A plan"
+      }
+    }
+  ]
+}

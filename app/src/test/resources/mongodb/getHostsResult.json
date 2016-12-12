@@ -1,0 +1,92 @@
+{
+  "links": [
+    {
+      "href": "http://10.19.28.64:8080/api/public/v1.0/groups/573272f1e4b0e501273389b5/hosts?null&pageNum=1&itemsPerPage=100",
+      "rel": "self"
+    }
+  ],
+  "results": [
+    {
+      "alertsEnabled": true,
+      "authMechanismName": "MONGODB_CR",
+      "created": "2016-05-10T23:51:47Z",
+      "deactivated": false,
+      "groupId": "573272f1e4b0e501273389b5",
+      "hasStartupWarnings": false,
+      "hidden": false,
+      "hostEnabled": true,
+      "hostname": "eab6fe4a-d89b-4396-b454-982f5140d06e-0.service.consul",
+      "id": "756da0fb332ee8b47a24d3564aedfc5e",
+      "journalingEnabled": false,
+      "links": [
+        {
+          "href": "http://10.19.28.64:8080/api/public/v1.0/groups/573272f1e4b0e501273389b5/hosts/756da0fb332ee8b47a24d3564aedfc5e",
+          "rel": "self"
+        }
+      ],
+      "logsEnabled": false,
+      "lowUlimit": false,
+      "muninEnabled": false,
+      "port": 27000,
+      "profilerEnabled": false,
+      "sslEnabled": false,
+      "typeName": "NO_DATA",
+      "username": "mms-monitoring-agent"
+    },
+    {
+      "alertsEnabled": true,
+      "authMechanismName": "MONGODB_CR",
+      "created": "2016-05-10T23:51:47Z",
+      "deactivated": false,
+      "groupId": "573272f1e4b0e501273389b5",
+      "hasStartupWarnings": false,
+      "hidden": false,
+      "hostEnabled": true,
+      "hostname": "eab6fe4a-d89b-4396-b454-982f5140d06e-1.service.consul",
+      "id": "e4fdbf2b2583fb415d2c0f16536459fd",
+      "journalingEnabled": false,
+      "links": [
+        {
+          "href": "http://10.19.28.64:8080/api/public/v1.0/groups/573272f1e4b0e501273389b5/hosts/e4fdbf2b2583fb415d2c0f16536459fd",
+          "rel": "self"
+        }
+      ],
+      "logsEnabled": false,
+      "lowUlimit": false,
+      "muninEnabled": false,
+      "port": 27000,
+      "profilerEnabled": false,
+      "sslEnabled": false,
+      "typeName": "NO_DATA",
+      "username": "mms-monitoring-agent"
+    },
+    {
+      "alertsEnabled": true,
+      "authMechanismName": "MONGODB_CR",
+      "created": "2016-05-10T23:51:47Z",
+      "deactivated": false,
+      "groupId": "573272f1e4b0e501273389b5",
+      "hasStartupWarnings": false,
+      "hidden": false,
+      "hostEnabled": true,
+      "hostname": "eab6fe4a-d89b-4396-b454-982f5140d06e-2.service.consul",
+      "id": "8ae51f4ca5bcc485cc2c6c38bab61d4e",
+      "journalingEnabled": false,
+      "links": [
+        {
+          "href": "http://10.19.28.64:8080/api/public/v1.0/groups/573272f1e4b0e501273389b5/hosts/8ae51f4ca5bcc485cc2c6c38bab61d4e",
+          "rel": "self"
+        }
+      ],
+      "logsEnabled": false,
+      "lowUlimit": false,
+      "muninEnabled": false,
+      "port": 27000,
+      "profilerEnabled": false,
+      "sslEnabled": false,
+      "typeName": "NO_DATA",
+      "username": "mms-monitoring-agent"
+    }
+  ],
+  "totalCount": 3
+}

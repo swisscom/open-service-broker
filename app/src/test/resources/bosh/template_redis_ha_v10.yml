@@ -1,0 +1,81 @@
+director_uuid: BOSH_UID #STACK LEVEL
+name: {{.Prefix}}-{{.Guid}} #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+instance_groups:
+- azs:
+  - z1
+  instances: 3
+  jobs:
+  - name: redis
+    properties:
+      redis-server:
+        databases: {{.BoshParam "databases" }} #SERVICE-INSTANCE LEVEL
+        instances: 3
+        master-name: {{.Guid}} #SERVICE-INSTANCE LEVEL
+        maxclients: {{.BoshParam "maxclients" }} #SERVICE-INSTANCE LEVEL
+        port: {{.BoshParam "redis-server-port" }} #SERVICE-INSTANCE LEVEL
+        security:
+          require_pass: {{.BoshParam "password" }} #SERVICE-TEMPLATE LEVEL
+        sentinel-port: {{.BoshParam "redis-sentinel-port" }} #SERVICE-INSTANCE LEVEL
+        service-name: {{.Guid}} #SERVICE-INSTANCE LEVEL
+        timeout: 10
+        config-command: {{.BoshParam "config-command" }} #SERVICE-INSTANCE LEVEL
+        slaveof-command: {{.BoshParam "slaveof-command" }} #SERVICE-INSTANCE LEVEL
+
+    release: redis-ha
+  - name: redis-sentinel
+    properties:
+      redis-sentinel:
+        announce-port: {{.BoshParam "redis-sentinel-port" }} #SERVICE-INSTANCE LEVEL
+        auth-pass: {{.BoshParam "password" }} #SERVICE-TEMPLATE LEVEL
+        down-after-millisecond: 5000
+        failover-timeout: 20000
+        master-name: {{.Guid}} #SERVICE-INSTANCE LEVEL
+        master-port: {{.BoshParam "redis-server-port" }} #SERVICE-INSTANCE LEVEL
+        parallel-syncs: 1
+        port: {{.BoshParam "redis-sentinel-port" }} #SERVICE-INSTANCE LEVEL
+        quorum: 2
+        service-name: {{.Guid}} #SERVICE-INSTANCE LEVEL
+        config-command: {{.BoshParam "config-command" }} #SERVICE-INSTANCE LEVEL
+        slaveof-command: {{.BoshParam "slaveof-command" }} #SERVICE-INSTANCE LEVEL
+    release: redis-ha
+  - name: consul
+    properties:
+      consul:
+        acl_datacenter:  #STACK LEVEL
+        acl_token:       #STACK LEVEL
+        datacenter:      #STACK LEVEL
+        encrypt:         #STACK LEVEL
+        join_hosts:
+        - 10.0.22.50     #STACK LEVEL
+        - 10.0.22.51     #STACK LEVEL
+        - 10.0.22.52     #STACK LEVEL
+        server: false
+    release: konsul
+  migrated_from:
+  - az: z1
+    name: redis-ha_{{.Guid}}_z1 #SERVICE-INSTANCE LEVEL
+  name: redis-ha_{{.Guid}} #SERVICE-INSTANCE LEVEL
+  networks:
+  - default:
+    - dns
+    - gateway
+    name: #STACK LEVEL
+  persistent_disk_type: {{.BoshParam "plan" }} #SERVICE-INSTANCE LEVEL
+  stemcell: bosh-openstack-kvm-ubuntu-trusty-go_agent
+  vm_type: {{.Guid}} #SERVICE-INSTANCE LEVEL
+properties: {}
+releases:
+- name: redis-ha
+  version: {{.BoshParam "release-version" }} #SERVICE-TEMPLATE LEVEL
+- name: konsul
+  version: {{.BoshParam "konsul-version" }}  #SERVICE_TEMPLATE LEVEL
+stemcells:
+- alias: bosh-openstack-kvm-ubuntu-trusty-go_agent
+  name: bosh-openstack-kvm-ubuntu-trusty-go_agent
+  version: {{.BoshParam "stemcell-version" }} #SERVICE-TEMPLATE LEVEL
+update:
+  canaries: 1
+  canary_watch_time: 30000-180000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 30000-180000

@@ -1,0 +1,30 @@
+{
+  "guid": "0fe43da4-fe32-4317-af32-4e5c9b71b5ba",
+  "name": "sms",
+  "description": "Sms(sending) api",
+  "bindable": true,
+  "asyncRequired": true,
+  "internalName": "apigee",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "3.2.1",
+    "displayName": "Sms(sending) api"
+  },
+  "plans": [
+    {
+      "guid": "1e94ea98-81ab-4295-9ebf-f0f92acc8f18",
+      "name": "usage",
+      "description": "charge per transaction",
+      "templateId": "",
+      "free": false,
+      "displayIndex": 0,
+      "metadata": {
+        "dedicatedService": false,
+        "highAvailability": true,
+        "displayName": "sms",
+        "apigee.product-name": "Service-Broker-Integration-Tests-Manual"
+      }
+    }
+  ]
+}

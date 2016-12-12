@@ -1,0 +1,47 @@
+{
+  "guid": "service1GuidIntegrationTest",
+  "name": "service1Name",
+  "description": "description",
+  "bindable": true,
+  "internalName": "dummySynchronousBackupCapable",
+  "displayIndex": 1,
+  "tags": [
+    "tag1",
+    "tag2"
+  ],
+  "metadata": {
+    "key1": "value1",
+    "key2": true
+  },
+  "requires": [
+    "syslog_drain"
+  ],
+  "plans": [
+    {
+      "guid": "plan1GuidIntegrationTest",
+      "name": "small",
+      "description": "planDescription",
+      "templateId": "templateV1",
+      "free": false,
+      "displayIndex": 1,
+      "internalName": "dummySynchronousBackupCapable",
+      "asyncRequired": true,
+      "containerParams": [
+        {
+          "template": "template1",
+          "name": "memory",
+          "value": "2g"
+        },
+        {
+          "template": "template2",
+          "name": "cpu",
+          "value": "1"
+        }
+      ],
+      "metadata": {
+        "key1": "value1",
+        "key2": true
+      }
+    }
+  ]
+}
