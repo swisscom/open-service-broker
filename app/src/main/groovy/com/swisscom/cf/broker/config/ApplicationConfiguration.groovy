@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker
+package com.swisscom.cf.broker.config
 
 import com.swisscom.cf.broker.model.repository.BaseRepositoryImpl
 import groovy.transform.CompileStatic
@@ -14,11 +14,11 @@ import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
+@CompileStatic
 @Configuration
 @EnableJpaRepositories(value = 'com.swisscom.cf.broker.model.repository', repositoryBaseClass = BaseRepositoryImpl.class)
 @ImportResource(value = 'classpath:beans.groovy')
 @EnableSwagger2
-@CompileStatic
 @EnableTransactionManagement
 class ApplicationConfiguration {
 

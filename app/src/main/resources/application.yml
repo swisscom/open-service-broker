@@ -20,6 +20,12 @@ info:
   build:
     version: ${version}
 
+com.swisscom.cf.broker.security:
+  cfUsername: "cc_admin"
+  cfPassword: "FCnvRZCW28qnfB"
+  cfExtUsername: "cf_admin"
+  cfExtPassword: "7V4qzp"
+
 com.swisscom.cf.broker.service.mongodbent:
   opsManagerUrl: 'http://localhost:55000'
   opsManagerUrlForAutomationAgent: 'http://10.19.28.64:8080'

@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker
+package com.swisscom.cf.broker.config
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
@@ -10,6 +10,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final AuthenticationConfig authenticationConfig
+
+    @Autowired
+    WebSecurityConfig(AuthenticationConfig authenticationConfig) {
+        this.authenticationConfig = authenticationConfig
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
