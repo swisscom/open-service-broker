@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.functional
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
 
-class VersionFunctionalSpec extends BaseFunctionalSpec {
+class GetVersionFunctionalSpec extends BaseFunctionalSpec {
 
     def "version controller returns 200 and valid version"() {
         when:
