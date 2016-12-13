@@ -3,8 +3,8 @@ package com.swisscom.cf.broker.controller
 import com.swisscom.cf.broker.backup.BackupService
 import com.swisscom.cf.broker.backup.converter.BackupDtoConverter
 import com.swisscom.cf.broker.backup.converter.RestoreDtoConverter
-import com.swisscom.cf.broker.backup.dto.BackupDto
-import com.swisscom.cf.broker.backup.dto.RestoreDto
+import com.swisscom.cf.servicebroker.model.backup.BackupDto
+import com.swisscom.cf.servicebroker.model.backup.RestoreDto
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation

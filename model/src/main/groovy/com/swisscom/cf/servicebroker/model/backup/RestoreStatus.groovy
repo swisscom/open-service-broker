@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.backup
+package com.swisscom.cf.servicebroker.model.backup
 
 import groovy.transform.CompileStatic
 

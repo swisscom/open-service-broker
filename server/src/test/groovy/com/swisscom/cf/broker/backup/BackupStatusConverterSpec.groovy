@@ -1,5 +1,6 @@
 package com.swisscom.cf.broker.backup
 
+import com.swisscom.cf.servicebroker.model.backup.BackupStatus
 import spock.lang.Specification
 
 import static com.swisscom.cf.broker.model.Backup.Operation.CREATE

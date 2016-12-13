@@ -1,6 +1,5 @@
-package com.swisscom.cf.broker.backup.dto
+package com.swisscom.cf.servicebroker.model.backup
 
-import com.swisscom.cf.broker.backup.RestoreStatus
 import groovy.transform.CompileStatic
 
 @CompileStatic
