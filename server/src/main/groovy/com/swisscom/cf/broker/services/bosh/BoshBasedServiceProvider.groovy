@@ -5,7 +5,7 @@ import com.swisscom.cf.broker.async.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
 import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
-import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
+import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance

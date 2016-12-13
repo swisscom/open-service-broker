@@ -9,7 +9,7 @@ import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
 import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
 import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
-import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
+import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*

@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.cfextensions.endpoint
+package com.swisscom.cf.servicebroker.model.endpoint
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties

@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.controller
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
+import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.cfextensions.endpoint.EndpointService
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageLookup
