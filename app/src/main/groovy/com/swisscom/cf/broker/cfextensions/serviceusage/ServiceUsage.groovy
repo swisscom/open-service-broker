@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.filterextensions.serviceusage
+package com.swisscom.cf.broker.cfextensions.serviceusage
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonFormat

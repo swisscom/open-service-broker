@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.services.common.endpoint
 
-import com.swisscom.cf.broker.filterextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.util.ServiceDetailType
 import com.swisscom.cf.broker.util.ServiceDetailsHelper

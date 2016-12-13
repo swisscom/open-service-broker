@@ -3,10 +3,10 @@ package com.swisscom.cf.broker.controller
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.filterextensions.endpoint.EndpointDto
-import com.swisscom.cf.broker.filterextensions.endpoint.EndpointLookup
-import com.swisscom.cf.broker.filterextensions.serviceusage.ServiceUsage
-import com.swisscom.cf.broker.filterextensions.serviceusage.ServiceUsageLookup
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup
+import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
+import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageLookup
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic

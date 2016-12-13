@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.filterextensions.serviceusage
+package com.swisscom.cf.broker.cfextensions.serviceusage
 
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions

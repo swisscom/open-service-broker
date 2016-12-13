@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.util.test
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
-import com.swisscom.cf.broker.filterextensions.serviceusage.ServiceUsage
+import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance

@@ -2,9 +2,8 @@ package com.swisscom.cf.broker.functional
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cf.broker.filterextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.broker.util.HttpHelper
 import com.swisscom.cf.broker.util.ServiceLifeCycler
 import com.swisscom.cf.broker.util.test.DummyServiceProvider
 import com.swisscom.cf.broker.util.test.DummySynchronousServiceProvider

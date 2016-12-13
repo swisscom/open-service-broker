@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.filterextensions.endpoint
+package com.swisscom.cf.broker.cfextensions.endpoint
 
 import com.google.common.base.Preconditions
 import com.swisscom.cf.broker.model.ServiceInstance

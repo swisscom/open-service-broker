@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.filterextensions.endpoint
+package com.swisscom.cf.broker.cfextensions.endpoint
 
 import com.swisscom.cf.broker.model.CFService
 import com.swisscom.cf.broker.model.Plan
