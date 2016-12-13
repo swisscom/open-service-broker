@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.services.bosh.client
 
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ServiceBrokerException
 
 
 class BoshResourceNotFoundException extends ServiceBrokerException {

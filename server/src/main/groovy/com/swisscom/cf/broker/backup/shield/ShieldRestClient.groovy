@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.backup.shield
 
 import com.swisscom.cf.broker.backup.shield.dto.*
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Log4j

@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.exception
+package com.swisscom.cf.broker.error
 
 import com.google.common.base.Strings
 import groovy.transform.CompileStatic

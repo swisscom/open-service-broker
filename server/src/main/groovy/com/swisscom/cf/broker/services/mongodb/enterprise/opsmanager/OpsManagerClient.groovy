@@ -17,7 +17,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 import static com.google.common.base.Strings.isNullOrEmpty
-import static com.swisscom.cf.broker.exception.ErrorCode.MONGODB_OPS_MANAGER_AUTHENTICATION_FAILED
+import static com.swisscom.cf.broker.error.ErrorCode.MONGODB_OPS_MANAGER_AUTHENTICATION_FAILED
 import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 

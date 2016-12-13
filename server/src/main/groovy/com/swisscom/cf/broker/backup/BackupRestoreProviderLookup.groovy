@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.backup
 
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.services.common.BackupRestoreProvider
 import com.swisscom.cf.broker.services.common.ServiceProvider

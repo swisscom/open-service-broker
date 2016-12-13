@@ -2,8 +2,8 @@ package com.swisscom.cf.broker.controller
 
 import com.swisscom.cf.broker.cfapi.converter.ErrorDtoConverter
 import com.swisscom.cf.broker.cfapi.dto.ErrorDto
-import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ErrorCode
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository

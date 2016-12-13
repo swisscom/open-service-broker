@@ -8,7 +8,7 @@ import com.swisscom.cf.broker.backup.job.RestoreJob
 import com.swisscom.cf.broker.backup.job.config.BackupCreationJobConfig
 import com.swisscom.cf.broker.backup.job.config.BackupDeletionJobConfig
 import com.swisscom.cf.broker.backup.job.config.RestoreJobConfig
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.Backup
 import com.swisscom.cf.broker.model.Restore
 import com.swisscom.cf.broker.model.ServiceInstance

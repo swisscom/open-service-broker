@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.exception
+package com.swisscom.cf.broker.error
 
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus

@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.util.test
 
-import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ErrorCode
+import com.swisscom.cf.broker.error.ServiceBrokerException
 
 class ErrorCodeHelper {
     public static boolean assertServiceBrokerException(ServiceBrokerException ex, ErrorCode errorCode) {

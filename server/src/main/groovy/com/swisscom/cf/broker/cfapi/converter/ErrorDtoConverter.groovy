@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.cfapi.converter
 
 import com.swisscom.cf.broker.cfapi.dto.ErrorDto
 import com.swisscom.cf.broker.converter.AbstractGenericConverter
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component
 

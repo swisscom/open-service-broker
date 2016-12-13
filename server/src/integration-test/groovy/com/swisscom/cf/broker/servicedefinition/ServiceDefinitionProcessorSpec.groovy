@@ -2,8 +2,8 @@ package com.swisscom.cf.broker.servicedefinition
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cf.broker.BaseTransactionalSpecification
-import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ErrorCode
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cf.broker.util.DBTestUtil

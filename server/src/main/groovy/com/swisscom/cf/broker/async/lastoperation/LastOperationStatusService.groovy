@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.async.lastoperation
 
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic

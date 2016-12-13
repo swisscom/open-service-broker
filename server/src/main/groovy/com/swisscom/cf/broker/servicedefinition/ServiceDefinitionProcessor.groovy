@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.servicedefinition
 
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cf.broker.servicedefinition.converter.ServiceDtoConverter

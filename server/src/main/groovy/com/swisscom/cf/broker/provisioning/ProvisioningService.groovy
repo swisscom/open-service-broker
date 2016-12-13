@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.provisioning
 
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ProvisionRequest

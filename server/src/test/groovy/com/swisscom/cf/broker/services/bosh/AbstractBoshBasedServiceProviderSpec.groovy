@@ -2,8 +2,8 @@ package com.swisscom.cf.broker.services.bosh
 
 import com.swisscom.cf.broker.async.AsyncProvisioningService
 import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
-import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ErrorCode
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup

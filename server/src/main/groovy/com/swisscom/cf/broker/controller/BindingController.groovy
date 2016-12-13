@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.controller
 import com.swisscom.cf.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cf.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cf.broker.cfapi.dto.UnbindingDto
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.CFService
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ServiceBinding

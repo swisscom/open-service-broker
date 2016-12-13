@@ -3,7 +3,7 @@ import com.mongodb.MongoCredential
 import com.mongodb.MongoTimeoutException
 import com.mongodb.ServerAddress
 
-import static com.swisscom.cf.broker.exception.ErrorCode.MONGODB_NOT_READY_YET
+import static com.swisscom.cf.broker.error.ErrorCode.MONGODB_NOT_READY_YET
 import static com.swisscom.cf.broker.util.StringGenerator.randomAlphaNumericOfLength16
 
 class MongoDbClient {

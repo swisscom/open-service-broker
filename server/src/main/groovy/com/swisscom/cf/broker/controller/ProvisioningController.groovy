@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cf.broker.async.lastoperation.LastOperationResponseDto
 import com.swisscom.cf.broker.async.lastoperation.LastOperationStatusService
 import com.swisscom.cf.broker.cfapi.dto.ProvisioningDto
-import com.swisscom.cf.broker.exception.ErrorCode
+import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.CFServiceRepository
 import com.swisscom.cf.broker.model.repository.PlanRepository

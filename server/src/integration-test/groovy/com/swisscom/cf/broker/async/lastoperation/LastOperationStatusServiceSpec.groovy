@@ -1,8 +1,8 @@
 package com.swisscom.cf.broker.async.lastoperation
 
 import com.swisscom.cf.broker.BaseTransactionalSpecification
-import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.exception.ServiceBrokerException
+import com.swisscom.cf.broker.error.ErrorCode
+import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.util.DBTestUtil
 import com.swisscom.cf.broker.util.test.ErrorCodeHelper
