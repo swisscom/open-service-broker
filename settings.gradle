@@ -1,2 +1,4 @@
 include 'client'
-include 'app'
+include 'server'
+include 'model'
+
