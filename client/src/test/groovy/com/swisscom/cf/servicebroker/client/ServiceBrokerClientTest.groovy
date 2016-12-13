@@ -30,7 +30,7 @@ class ServiceBrokerClientTest {
     @BeforeClass
     static void setup(){
         SpringApplication.run(Application.class)
-        serviceBrokerClient = new ServiceBrokerClient('http://localhost:8080','user','password')
+        serviceBrokerClient = new ServiceBrokerClient('http://localhost:8080','user','cfExtPassword')
         Catalog catalog = new ObjectMapper().readValue(new File(this.getClass().getResource('/demo-service-definition.json').getFile()).text, Catalog.class)
         serviceDefinition = catalog.serviceDefinitions.first()
         plan = serviceDefinition.plans.first()

@@ -16,8 +16,8 @@ import java.nio.charset.Charset
 
 @CompileStatic
 class ServiceBrokerClient implements IServiceBrokerClient {
-    private final RestTemplate restTemplate
-    private final String baseUrl
+    protected final RestTemplate restTemplate
+    protected final String baseUrl
     private final String username
     private final String password
 
@@ -34,47 +34,47 @@ class ServiceBrokerClient implements IServiceBrokerClient {
 
     @Override
     ResponseEntity<Catalog> getCatalog() {
-        return restTemplate.exchange(createUrl('/v2/catalog'), HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), Catalog.class)
+        return restTemplate.exchange(appendPath('/v2/catalog'), HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), Catalog.class)
     }
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}/last_operation"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation"),
                 HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), LastOperationResponse.class,
                 serviceInstanceId)
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
                 HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
                 CreateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
                 HttpMethod.PATCH, new HttpEntity<UpdateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
                 UpdateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstance(DeleteServiceInstanceRequest request) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
                 HttpMethod.DELETE, new HttpEntity<?>(createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.serviceId, request.planId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceAppBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}"),
                 HttpMethod.PUT, new HttpEntity<CreateServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
                 CreateServiceInstanceAppBindingResponse.class, request.serviceInstanceId, request.bindingId)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
-        return restTemplate.exchange(createUrl("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
                 HttpMethod.DELETE, new HttpEntity<DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
@@ -90,7 +90,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         return result
     }
 
-    private String createUrl(String path) {
+    protected String appendPath(String path) {
         return baseUrl + path
     }
 }
