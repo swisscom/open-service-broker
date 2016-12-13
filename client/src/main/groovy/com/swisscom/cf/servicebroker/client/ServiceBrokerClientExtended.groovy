@@ -22,7 +22,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
 
     @Override
     ResponseEntity<List<Endpoint>> getEndpoint(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/v2/cf-ext/{service_instance_id}/endpoint'),HttpMethod.GET,
+        return restTemplate.exchange(appendPath('/custom/service_instances/{service_instance_id}/endpoint'),HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),
                 new ParameterizedTypeReference<List<Endpoint>>(){},serviceInstanceId)
     }

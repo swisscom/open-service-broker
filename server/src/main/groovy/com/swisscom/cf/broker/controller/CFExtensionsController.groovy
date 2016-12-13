@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @CompileStatic
-@Api(value = "cf-ext", description = "Additional operations for filter")
+@Api(value = "cf-extensions", description = "Additional operations for service instances")
 @RestController
-class CFExtController extends BaseController {
+class CFExtensionsController extends BaseController {
     public static final String PARAM_END_DATE = 'end_date'
 
     @Autowired
@@ -31,7 +31,9 @@ class CFExtController extends BaseController {
     private ServiceInstanceRepository serviceInstanceRepository
 
     @ApiOperation(value = "Get service instance usage for atmos", response = ServiceUsage.class)
-    @RequestMapping(value = '/v2/cf-ext/{service_instance}/usage', method = RequestMethod.GET)
+    @RequestMapping(value = ['/v2/cf-ext/{service_instance}/usage', //deprecated, prefer the path below
+                            '/custom/service_instances/{service_instance}/usage'],
+            method = RequestMethod.GET)
     def usage(
             @PathVariable('service_instance') String serviceInstanceId,
             @RequestParam(value = 'end_date', required = false) String enddate) {
@@ -48,7 +50,9 @@ class CFExtController extends BaseController {
 
     @ApiOperation(value = "Get endpoint information about a service", response = Endpoint.class,
             notes = "provides information to create security groups for a given service instance", responseContainer = "List")
-    @RequestMapping(value = '/v2/cf-ext/{service_instance}/endpoint', method = RequestMethod.GET)
+    @RequestMapping(value = ['/v2/cf-ext/{service_instance}/endpoint',//deprecated, prefer the path below
+                            '/custom/service_instances/{service_instance}/endpoint'],
+                    method = RequestMethod.GET)
     def endpoint(@PathVariable('service_instance') String serviceInstanceId) {
         endpointLookup.lookup(findServiceInstance(serviceInstanceId))
     }
