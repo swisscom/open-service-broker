@@ -46,8 +46,8 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
                 ", com_swisscom_cf_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder='" + com_swisscom_cf_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder + '\'' +
                 ", com_swisscom_cf_broker_services_bosh_BoshConfig__boshDirectorBaseUrl='" + com_swisscom_cf_broker_services_bosh_BoshConfig__boshDirectorBaseUrl + '\'' +
                 ", com_swisscom_cf_broker_services_bosh_BoshConfig__boshDirectorUsername='" + com_swisscom_cf_broker_services_bosh_BoshConfig__boshDirectorUsername + '\'' +
-                ", com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__ipRange='" + com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__ipRange + '\'' +
-                ", com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__protocols='" + com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__protocols + '\'' +
+                ", com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__ipRange='" + com_swisscom_cf_broker_cfextensions_endpoint_EndpointConfig__ipRange + '\'' +
+                ", com_swisscom_cf_broker_services_common_endpoint_EndpointConfig__protocols='" + com_swisscom_cf_broker_cfextensions_endpoint_EndpointConfig__protocols + '\'' +
                 ", opsManagerUrl='" + opsManagerUrl + '\'' +
                 ", opsManagerUrlForAutomationAgent='" + opsManagerUrlForAutomationAgent + '\'' +
                 ", opsManagerUser='" + opsManagerUser + '\'' +

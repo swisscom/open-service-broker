@@ -5,7 +5,7 @@ import com.swisscom.cf.broker.async.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
 import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
-import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance
@@ -13,7 +13,7 @@ import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*
 import com.swisscom.cf.broker.services.common.async.AsyncServiceDeprovisioner
 import com.swisscom.cf.broker.services.common.async.AsyncServiceProvisioner
-import com.swisscom.cf.broker.services.common.endpoint.EndpointDtoGenerator
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +29,7 @@ abstract class BoshBasedServiceProvider<T extends BoshBasedServiceConfig> implem
     @Autowired
     protected T serviceConfig
     @Autowired
-    protected EndpointDtoGenerator endpointDtoGenerator
+    protected EndpointLookup endpointLookup
     @Autowired
     protected BoshFacadeFactory boshFacadeFactory
 
@@ -52,8 +52,8 @@ abstract class BoshBasedServiceProvider<T extends BoshBasedServiceConfig> implem
     }
 
     @Override
-    Collection<EndpointDto> findEndpoints(ServiceInstance serviceInstance) {
-        return endpointDtoGenerator.findEndpoints(serviceInstance, serviceConfig)
+    Collection<Endpoint> findEndpoints(ServiceInstance serviceInstance) {
+        return endpointLookup.findEndpoints(serviceInstance, serviceConfig)
     }
 
     BoshFacade getBoshFacade() {

@@ -6,7 +6,7 @@ import com.swisscom.cf.broker.exception.ErrorCode
 import com.swisscom.cf.broker.exception.ServiceBrokerException
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
-import com.swisscom.cf.broker.services.common.endpoint.EndpointDtoGenerator
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup
 import com.swisscom.cf.broker.util.test.ErrorCodeHelper
 import spock.lang.Specification
 
@@ -23,7 +23,7 @@ abstract class AbstractBoshBasedServiceProviderSpec<T extends BoshBasedServicePr
                 getGenericSuperclass()).getActualTypeArguments()[0]).newInstance()
         serviceProvider.asyncProvisioningService = Mock(AsyncProvisioningService)
         serviceProvider.provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        serviceProvider.endpointDtoGenerator = Mock(EndpointDtoGenerator)
+        serviceProvider.endpointLookup = Mock(EndpointLookup)
         serviceProvider.serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
         and:
         boshFacade = Mock(BoshFacade)

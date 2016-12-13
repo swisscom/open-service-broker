@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common.endpoint
+package com.swisscom.cf.broker.cfextensions.endpoint
 
 import com.swisscom.cf.broker.config.Config
 

@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.functional
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.broker.util.ServiceLifeCycler
 import com.swisscom.cf.broker.util.test.DummyServiceProvider
@@ -33,7 +33,7 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
         def response = getEndpoint(serviceLifeCycler.serviceInstanceId)
         then:
         response.statusCode.'2xxSuccessful'
-        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<EndpointDto>>() {})
+        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<Endpoint>>() {})
         endpoints.size() > 0
 
         cleanup:
@@ -49,7 +49,7 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
         def response = getEndpoint(lifeCycler.serviceInstanceId)
         then:
         response.statusCode.'2xxSuccessful'
-        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<EndpointDto>>() {})
+        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<Endpoint>>() {})
         endpoints.size() == 0
 
         cleanup:

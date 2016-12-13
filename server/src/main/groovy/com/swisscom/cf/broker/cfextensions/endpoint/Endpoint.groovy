@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class EndpointDto implements Serializable {
+class Endpoint implements Serializable {
     @JsonSerialize
     @JsonProperty("destination")
     String destination

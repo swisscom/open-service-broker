@@ -9,7 +9,7 @@ import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
 import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
 import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
-import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
+import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*
@@ -102,7 +102,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     }
 
     @Override
-    Collection<EndpointDto> findEndpoints(ServiceInstance serviceInstance) {
-        return [new EndpointDto(protocol: 'tcp', destination: '127.0.0.1', ports: '666')]
+    Collection<Endpoint> findEndpoints(ServiceInstance serviceInstance) {
+        return [new Endpoint(protocol: 'tcp', destination: '127.0.0.1', ports: '666')]
     }
 }

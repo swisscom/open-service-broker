@@ -10,10 +10,10 @@ import spock.lang.Specification
 
 class EndpointLookupSpec extends Specification {
 
-    private EndpointLookup endpointLookup
+    private EndpointService endpointLookup
 
     def setup() {
-        endpointLookup = new EndpointLookup()
+        endpointLookup = new EndpointService()
     }
 
     def 'getting endpoint for a *NON* EndpointProvider based service instance functions correctly'() {
@@ -34,7 +34,7 @@ class EndpointLookupSpec extends Specification {
         and:
         endpointLookup.serviceProviderLookup = Mock(ServiceProviderLookup)
         def serviceProvider = Mock(ServiceProviderWithEndpointProvider)
-        serviceProvider.findEndpoints(serviceInstance) >> [new EndpointDto()]
+        serviceProvider.findEndpoints(serviceInstance) >> [new Endpoint()]
         endpointLookup.serviceProviderLookup.findServiceProvider(serviceInstance.plan) >> serviceProvider
         when:
         def list = endpointLookup.lookup(serviceInstance)

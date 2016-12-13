@@ -3,8 +3,8 @@ package com.swisscom.cf.broker.controller
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.exception.ErrorCode
-import com.swisscom.cf.broker.cfextensions.endpoint.EndpointDto
-import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup
+import com.swisscom.cf.broker.cfextensions.endpoint.Endpoint
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointService
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageLookup
 import com.swisscom.cf.broker.model.ServiceInstance
@@ -25,7 +25,7 @@ class CFExtController extends BaseController {
     protected ServiceUsageLookup serviceUsageLookup
 
     @Autowired
-    protected EndpointLookup endpointLookup
+    protected EndpointService endpointLookup
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
@@ -46,7 +46,7 @@ class CFExtController extends BaseController {
         }
     }
 
-    @ApiOperation(value = "Get endpoint information about a service", response = EndpointDto.class,
+    @ApiOperation(value = "Get endpoint information about a service", response = Endpoint.class,
             notes = "provides information to create security groups for a given service instance", responseContainer = "List")
     @RequestMapping(value = '/v2/cf-ext/{service_instance}/endpoint', method = RequestMethod.GET)
     def endpoint(@PathVariable('service_instance') String serviceInstanceId) {
