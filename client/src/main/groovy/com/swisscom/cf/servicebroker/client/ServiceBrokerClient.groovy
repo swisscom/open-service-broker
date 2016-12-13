@@ -79,7 +79,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
 
-    private static HttpHeaders createSimpleAuthHeaders(String username, String password) {
+    static HttpHeaders createSimpleAuthHeaders(String username, String password) {
         def result = new HttpHeaders()
         if (password) {
             String auth = username + ":" + password

@@ -3,10 +3,12 @@ package com.swisscom.cf.broker.functional
 import com.swisscom.cf.broker.config.AuthenticationConfig
 import com.swisscom.cf.broker.util.ServiceLifeCycler
 import com.swisscom.cf.servicebroker.client.ServiceBrokerClient
+import com.swisscom.cf.servicebroker.client.ServiceBrokerClientExtended
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.context.WebApplicationContext
 import spock.lang.Shared
 import spock.lang.Specification
@@ -25,7 +27,7 @@ abstract class BaseFunctionalSpec extends Specification {
     @Shared
     protected ServiceLifeCycler serviceLifeCycler
     @Shared
-    protected ServiceBrokerClient serviceBrokerClient
+    protected ServiceBrokerClientExtended serviceBrokerClient
 
     @Shared
     boolean initialized
@@ -33,7 +35,6 @@ abstract class BaseFunctionalSpec extends Specification {
     protected String appBaseUrl = 'http://localhost:8080'
 
     protected String serviceDefinitionUrl = appBaseUrl + "/service-definition/{id}"
-    protected String cfExtEndpointUrl = appBaseUrl + "/v2/cf-ext/{service_instance_id}/endpoint"
 
     protected String cfExtUser
     protected String cfExtPassword
@@ -51,7 +52,7 @@ abstract class BaseFunctionalSpec extends Specification {
     void init(ServiceLifeCycler serviceLifeCycler) {
         if (!initialized) {
             this.serviceLifeCycler = serviceLifeCycler
-            serviceBrokerClient = new ServiceBrokerClient(appBaseUrl, 'cc_admin', 'change_me')
+            serviceBrokerClient = new ServiceBrokerClientExtended(new RestTemplate(), appBaseUrl, 'cc_admin', 'change_me','cf_ext','change_me')
             initialized = true
         }
     }

@@ -1,19 +1,9 @@
 package com.swisscom.cf.broker.functional
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.broker.util.ServiceLifeCycler
 import com.swisscom.cf.broker.util.test.DummyServiceProvider
 import com.swisscom.cf.broker.util.test.DummySynchronousServiceProvider
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
-import org.springframework.web.client.RestTemplate
-
-import static com.swisscom.cf.broker.util.HttpHelper.createSimpleAuthHeaders
-
 
 class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
@@ -30,11 +20,10 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceInstanceAndAssert(false, false)
 
         when:
-        def response = getEndpoint(serviceLifeCycler.serviceInstanceId)
+        def response = serviceBrokerClient.getEndpoint(serviceLifeCycler.serviceInstanceId)
         then:
         response.statusCode.'2xxSuccessful'
-        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<Endpoint>>() {})
-        endpoints.size() > 0
+        response.body.size() > 0
 
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(false)
@@ -46,18 +35,14 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
         lifeCycler.createServiceIfDoesNotExist('SynchronousDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
         lifeCycler.createServiceInstanceAndAssert(false, false)
         when:
-        def response = getEndpoint(lifeCycler.serviceInstanceId)
+        def response = serviceBrokerClient.getEndpoint(lifeCycler.serviceInstanceId)
         then:
         response.statusCode.'2xxSuccessful'
-        List endpoints = new ObjectMapper().readValue(response.body, new TypeReference<List<Endpoint>>() {})
-        endpoints.size() == 0
+        response.body.size() == 0
 
         cleanup:
         lifeCycler.deleteServiceInstanceAndAssert(false)
         lifeCycler.cleanup()
     }
 
-    private ResponseEntity getEndpoint(String serviceInstanceGuid) {
-        new RestTemplate().exchange(cfExtEndpointUrl,HttpMethod.GET,new HttpEntity(createSimpleAuthHeaders(cfExtUser,cfExtPassword)) , String.class, serviceInstanceGuid)
-    }
 }
