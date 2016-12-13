@@ -2,6 +2,7 @@ package com.swisscom.cf.broker.functional
 
 import com.swisscom.cf.servicebroker.client.ServiceBrokerClient
 import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 
 class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
 
@@ -10,7 +11,8 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
         def response = new ServiceBrokerClient(appBaseUrl,null,null).getCatalog()
 
         then:
-        response.statusCode == HttpStatus.UNAUTHORIZED
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.UNAUTHORIZED
     }
 
     def "catalog controller returns 401 when wrong credentials provided"() {
@@ -18,7 +20,8 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
         def response = new ServiceBrokerClient(appBaseUrl,'SomeUsername','WrongPassword').getCatalog()
 
         then:
-        response.statusCode == HttpStatus.UNAUTHORIZED
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.UNAUTHORIZED
     }
 
     def "catalog controller returns 200 when correct credentials provided"() {

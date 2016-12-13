@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    public static final String ROLE_CF_ADMIN = 'CF_ADMIN'
+    public static final String ROLE_CF_EXT_ADMIN = 'CF_EXT_ADMIN'
 
     private final AuthenticationConfig authenticationConfig
 
@@ -21,14 +23,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("*").permitAll()
+                .antMatchers('/version', '/v2/api-docs','/swagger-ui.html','/swagger-resources/**').permitAll()
+                .antMatchers('/v2/cf-ext/**/*','/custom/**/*').hasRole(ROLE_CF_EXT_ADMIN)
+                .antMatchers('/v2/**/*').hasRole(ROLE_CF_ADMIN)
+                .anyRequest().authenticated().and()
+                .httpBasic()
         http.csrf().disable()
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER");
+        auth.inMemoryAuthentication().withUser(authenticationConfig.cfUsername).password(authenticationConfig.cfPassword).roles(ROLE_CF_ADMIN)
+        auth.inMemoryAuthentication().withUser(authenticationConfig.cfExtUsername).password(authenticationConfig.cfExtPassword).roles(ROLE_CF_EXT_ADMIN)
     }
 }

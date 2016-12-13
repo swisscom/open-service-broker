@@ -2,11 +2,12 @@ package com.swisscom.cf.broker.functional
 
 import com.swisscom.cf.broker.services.bosh.BoshFacade
 import com.swisscom.cf.broker.services.mongodb.enterprise.v2.MongoDbEnterpriseV2ServiceProvider
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
 import static com.swisscom.cf.broker.services.common.ServiceProviderLookup.findInternalName
 
-@IgnoreIf({ Boolean.valueOf(System.properties['spock.ignore.longRunning']) })
+@Ignore
 class MongoDbEnterpriseV2FunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {

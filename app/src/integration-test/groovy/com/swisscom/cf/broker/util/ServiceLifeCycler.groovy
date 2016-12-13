@@ -1,6 +1,7 @@
 package com.swisscom.cf.broker.util
 
 import com.google.common.collect.Sets
+import com.swisscom.cf.broker.config.AuthenticationConfig
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cf.servicebroker.client.ServiceBrokerClient
@@ -54,6 +55,9 @@ public class ServiceLifeCycler {
 
     @Autowired
     private ParameterRepository parameterRepository
+
+    @Autowired
+    private AuthenticationConfig authenticationConfig
 
     private Map<String, Object> credentials
 
@@ -209,7 +213,7 @@ public class ServiceLifeCycler {
     }
 
     private ServiceBrokerClient createServiceBrokerClient() {
-        return new ServiceBrokerClient('http://localhost:8080', null, null)
+        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
     }
 
     public static def pauseExecution(int seconds) {

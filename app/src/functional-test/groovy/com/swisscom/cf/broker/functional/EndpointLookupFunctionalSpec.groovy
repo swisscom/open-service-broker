@@ -4,11 +4,16 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cf.broker.filterextensions.endpoint.EndpointDto
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
+import com.swisscom.cf.broker.util.HttpHelper
 import com.swisscom.cf.broker.util.ServiceLifeCycler
 import com.swisscom.cf.broker.util.test.DummyServiceProvider
 import com.swisscom.cf.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
+
+import static com.swisscom.cf.broker.util.HttpHelper.createSimpleAuthHeaders
 
 
 class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
@@ -54,6 +59,6 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
     }
 
     private ResponseEntity getEndpoint(String serviceInstanceGuid) {
-        new RestTemplate().getForEntity(cfExtEndpointUrl, String.class, serviceInstanceGuid)
+        new RestTemplate().exchange(cfExtEndpointUrl,HttpMethod.GET,new HttpEntity(createSimpleAuthHeaders(cfExtUser,cfExtPassword)) , String.class, serviceInstanceGuid)
     }
 }
