@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.openstack
+package com.swisscom.cf.broker.services.mongodb.enterprise.openstack
 
 import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component

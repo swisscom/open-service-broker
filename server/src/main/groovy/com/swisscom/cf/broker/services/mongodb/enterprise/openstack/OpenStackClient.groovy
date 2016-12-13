@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.openstack
+package com.swisscom.cf.broker.services.mongodb.enterprise.openstack
 
 import com.google.common.base.Optional
 import org.openstack4j.api.OSClient

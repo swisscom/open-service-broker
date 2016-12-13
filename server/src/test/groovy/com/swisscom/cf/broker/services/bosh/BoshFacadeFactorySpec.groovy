@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.services.bosh
 
-import com.swisscom.cf.broker.openstack.OpenStackClientFactory
+import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cf.broker.services.bosh.client.BoshClientFactory
 import spock.lang.Specification
 
