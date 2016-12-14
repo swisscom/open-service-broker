@@ -1,9 +1,9 @@
 package com.swisscom.cf.broker.async
 
 import com.swisscom.cf.broker.async.job.JobManager
-import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
-import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
-import com.swisscom.cf.broker.async.lastoperation.LastOperationPersistenceService
+import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
+import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import org.springframework.beans.factory.annotation.Autowired

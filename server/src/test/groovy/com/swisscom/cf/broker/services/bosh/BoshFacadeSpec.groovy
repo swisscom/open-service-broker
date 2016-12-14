@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.bosh
 
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory

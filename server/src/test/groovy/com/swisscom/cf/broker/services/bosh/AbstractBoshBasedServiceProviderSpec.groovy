@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.bosh
 
 import com.swisscom.cf.broker.async.AsyncProvisioningService
-import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
+import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.ProvisionRequest

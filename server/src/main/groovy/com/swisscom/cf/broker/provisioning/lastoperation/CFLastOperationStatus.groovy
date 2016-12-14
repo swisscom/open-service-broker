@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.async.lastoperation
+package com.swisscom.cf.broker.provisioning.lastoperation
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonValue

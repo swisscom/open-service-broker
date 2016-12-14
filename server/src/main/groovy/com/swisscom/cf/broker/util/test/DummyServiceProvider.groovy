@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.async.AsyncProvisioningService
-import com.swisscom.cf.broker.async.job.ServiceDeprovisioningJob
-import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
-import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
-import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
+import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
+import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService

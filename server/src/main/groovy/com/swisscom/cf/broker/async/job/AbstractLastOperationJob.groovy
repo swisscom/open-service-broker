@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.async.job
 
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContextService
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContextService
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.async.AsyncOperationResult

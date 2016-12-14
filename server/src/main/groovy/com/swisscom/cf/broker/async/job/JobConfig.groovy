@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.async.job.config
+package com.swisscom.cf.broker.async.job
 
 import com.google.common.base.Preconditions
 import com.swisscom.cf.broker.async.job.AbstractJob

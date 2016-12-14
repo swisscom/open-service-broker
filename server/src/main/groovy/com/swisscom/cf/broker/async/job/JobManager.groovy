@@ -1,6 +1,5 @@
 package com.swisscom.cf.broker.async.job
 
-import com.swisscom.cf.broker.async.job.config.JobConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.quartz.*

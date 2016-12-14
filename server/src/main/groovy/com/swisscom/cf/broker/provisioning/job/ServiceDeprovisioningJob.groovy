@@ -1,7 +1,10 @@
-package com.swisscom.cf.broker.async.job
+package com.swisscom.cf.broker.provisioning.job
 
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.async.job.AbstractLastOperationJob
+import com.swisscom.cf.broker.async.job.JobManager
+import com.swisscom.cf.broker.async.job.JobResult
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.repository.DeprovisionRequestRepository

@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.backup.job.config
 
 import com.swisscom.cf.broker.async.job.AbstractJob
-import com.swisscom.cf.broker.async.job.config.JobConfig
+import com.swisscom.cf.broker.async.job.JobConfig
 import com.swisscom.cf.broker.model.Restore
 import groovy.transform.CompileStatic
 

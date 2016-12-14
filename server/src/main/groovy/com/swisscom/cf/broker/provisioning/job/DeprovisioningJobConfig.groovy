@@ -1,6 +1,7 @@
-package com.swisscom.cf.broker.async.job.config
+package com.swisscom.cf.broker.provisioning.job
 
 import com.swisscom.cf.broker.async.job.AbstractJob
+import com.swisscom.cf.broker.async.job.JobConfig
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import groovy.transform.CompileStatic
 

@@ -1,10 +1,10 @@
 package com.swisscom.cf.broker.services.bosh
 
 import com.swisscom.cf.broker.async.AsyncProvisioningService
-import com.swisscom.cf.broker.async.job.ServiceDeprovisioningJob
-import com.swisscom.cf.broker.async.job.ServiceProvisioningJob
-import com.swisscom.cf.broker.async.job.config.DeprovisioningJobConfig
-import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
+import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
+import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
+import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest

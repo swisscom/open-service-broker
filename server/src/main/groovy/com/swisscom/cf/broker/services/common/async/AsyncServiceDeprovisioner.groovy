@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.common.async
 
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import groovy.transform.CompileStatic
 
 @CompileStatic

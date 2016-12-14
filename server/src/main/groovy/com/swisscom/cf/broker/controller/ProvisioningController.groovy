@@ -1,8 +1,8 @@
 package com.swisscom.cf.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cf.broker.async.lastoperation.LastOperationResponseDto
-import com.swisscom.cf.broker.async.lastoperation.LastOperationStatusService
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationResponseDto
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationStatusService
 import com.swisscom.cf.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.*

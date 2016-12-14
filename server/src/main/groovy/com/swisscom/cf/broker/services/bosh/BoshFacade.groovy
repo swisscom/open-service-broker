@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.bosh
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
-import com.swisscom.cf.broker.async.lastoperation.LastOperationJobContext
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.Parameter
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceDetail

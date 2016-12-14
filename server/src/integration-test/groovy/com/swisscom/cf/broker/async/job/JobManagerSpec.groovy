@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.async.job
 
 import com.swisscom.cf.broker.BaseSpecification
 import com.swisscom.cf.broker.async.AsyncProvisioningService
-import com.swisscom.cf.broker.async.job.config.ProvisioningjobConfig
+import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cf.broker.model.CFService
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.ProvisionRequest
