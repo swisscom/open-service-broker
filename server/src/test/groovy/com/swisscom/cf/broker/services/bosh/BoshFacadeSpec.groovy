@@ -91,7 +91,7 @@ class BoshFacadeSpec extends Specification {
         1 * boshClient.postDeployment(_) >> boshTaskId
         and:
         BoshTemplateCustomizer templateCustomizer = Mock(BoshTemplateCustomizer)
-        1 * templateCustomizer.customize(_, context.provisionRequest)
+        1 * templateCustomizer.customizeBoshTemplate(_, context.provisionRequest)
         and:
         1 * boshClient.fetchBoshInfo() >> new BoshInfoDto(uuid: "adsfasdfasdf")
         when:

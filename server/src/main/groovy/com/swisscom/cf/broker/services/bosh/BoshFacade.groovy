@@ -126,7 +126,7 @@ class BoshFacade {
         template.replace(PARAM_BOSH_DIRECTOR_UUID, createBoshClient().fetchBoshInfo().uuid)
 
         updateTemplateFromDatabaseConfiguration(template, provisionRequest)
-        def serviceDetails = templateCustomizer.customize(template, provisionRequest)
+        def serviceDetails = templateCustomizer.customizeBoshTemplate(template, provisionRequest)
 
         if (!serviceDetails) {
             serviceDetails = []

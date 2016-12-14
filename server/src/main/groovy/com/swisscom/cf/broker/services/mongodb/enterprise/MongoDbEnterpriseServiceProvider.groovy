@@ -60,7 +60,7 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     }
 
     @Override
-    Collection<ServiceDetail> customize(BoshTemplate template, ProvisionRequest provisionRequest) {
+    Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, ProvisionRequest provisionRequest) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(provisionRequest.serviceInstanceGuid)
 
         String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID)

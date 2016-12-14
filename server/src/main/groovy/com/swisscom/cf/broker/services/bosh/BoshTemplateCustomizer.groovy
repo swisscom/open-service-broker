@@ -5,5 +5,5 @@ import com.swisscom.cf.broker.model.ServiceDetail
 
 
 interface BoshTemplateCustomizer {
-    Collection<ServiceDetail> customize(BoshTemplate template, ProvisionRequest provisionRequest)
+    Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, ProvisionRequest provisionRequest)
 }
