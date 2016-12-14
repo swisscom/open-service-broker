@@ -11,9 +11,9 @@ import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.model.repository.CFServiceRepository
 import com.swisscom.cf.broker.model.repository.PlanRepository
 import com.swisscom.cf.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cf.broker.services.common.BindRequest
-import com.swisscom.cf.broker.services.common.BindResponse
-import com.swisscom.cf.broker.services.common.UnbindRequest
+import com.swisscom.cf.broker.binding.BindRequest
+import com.swisscom.cf.broker.binding.BindResponse
+import com.swisscom.cf.broker.binding.UnbindRequest
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

@@ -1,6 +1,9 @@
 package com.swisscom.cf.broker.cfextensions.serviceusage
 
 import com.google.common.base.Optional
+import com.swisscom.cf.broker.binding.BindRequest
+import com.swisscom.cf.broker.binding.BindResponse
+import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance

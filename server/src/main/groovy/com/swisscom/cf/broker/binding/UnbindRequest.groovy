@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.binding
 
 import com.swisscom.cf.broker.model.ServiceBinding
 import com.swisscom.cf.broker.model.ServiceInstance

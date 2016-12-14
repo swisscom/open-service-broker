@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.services.mongodb
 
-import com.swisscom.cf.broker.services.common.BindResponseDto
+import com.swisscom.cf.broker.binding.BindResponseDto
 import groovy.json.JsonBuilder
 
 class MongoDbBindResponseDto implements BindResponseDto {

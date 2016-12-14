@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.async.AsyncProvisioningService
+import com.swisscom.cf.broker.binding.BindRequest
+import com.swisscom.cf.broker.binding.BindResponse
+import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig

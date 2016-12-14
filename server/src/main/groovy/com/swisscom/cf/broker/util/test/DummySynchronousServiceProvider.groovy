@@ -2,6 +2,10 @@ package com.swisscom.cf.broker.util.test
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
+import com.swisscom.cf.broker.binding.BindRequest
+import com.swisscom.cf.broker.binding.BindResponse
+import com.swisscom.cf.broker.binding.BindResponseDto
+import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest

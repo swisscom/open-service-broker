@@ -1,5 +1,7 @@
 package com.swisscom.cf.broker.services.common
 
+import com.swisscom.cf.broker.binding.BindResponseDto
+
 
 class AbstractBindResponseDto implements BindResponseDto {
     String syslog_drain_url
