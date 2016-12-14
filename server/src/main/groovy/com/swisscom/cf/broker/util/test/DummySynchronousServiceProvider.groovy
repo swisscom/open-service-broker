@@ -7,6 +7,7 @@ import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.BindResponseDto
 import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
+import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance

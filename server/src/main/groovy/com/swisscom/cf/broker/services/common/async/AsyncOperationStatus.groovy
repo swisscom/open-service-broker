@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.services.common.async
 
 import groovy.transform.CompileStatic
 

@@ -5,6 +5,7 @@ import com.swisscom.cf.broker.binding.BindRequest
 import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
+import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.services.common.*
 import groovy.transform.CompileStatic

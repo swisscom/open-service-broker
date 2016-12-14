@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.cfextensions.serviceusage
 
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsage
