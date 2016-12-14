@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.provisioning
 
 import groovy.transform.CompileStatic
 

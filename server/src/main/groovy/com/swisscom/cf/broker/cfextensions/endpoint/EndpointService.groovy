@@ -2,7 +2,6 @@ package com.swisscom.cf.broker.cfextensions.endpoint
 
 import com.google.common.base.Preconditions
 import com.swisscom.cf.broker.model.ServiceInstance
-import com.swisscom.cf.broker.services.common.EndpointProvider
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import groovy.transform.CompileStatic

@@ -9,8 +9,8 @@ import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.repository.DeprovisionRequestRepository
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
-import com.swisscom.cf.broker.services.common.async.AsyncServiceDeprovisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceDeprovisioner
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

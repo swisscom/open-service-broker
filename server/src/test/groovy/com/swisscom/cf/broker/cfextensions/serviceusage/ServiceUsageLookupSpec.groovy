@@ -7,6 +7,8 @@ import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.*
 import spock.lang.Specification
 

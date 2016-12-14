@@ -3,7 +3,6 @@ package com.swisscom.cf.broker.cfextensions.endpoint
 import com.swisscom.cf.broker.model.CFService
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ServiceInstance
-import com.swisscom.cf.broker.services.common.EndpointProvider
 import com.swisscom.cf.broker.services.common.ServiceProvider
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.servicebroker.model.endpoint.Endpoint

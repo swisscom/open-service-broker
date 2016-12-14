@@ -11,9 +11,9 @@ import com.swisscom.cf.broker.model.repository.PlanRepository
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.provisioning.ProvisioningService
-import com.swisscom.cf.broker.services.common.DeprovisionResponse
-import com.swisscom.cf.broker.services.common.ProvisionResponse
-import com.swisscom.cf.broker.services.common.ProvisionResponseDto
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

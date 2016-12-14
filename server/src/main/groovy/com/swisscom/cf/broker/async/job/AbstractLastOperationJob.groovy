@@ -4,7 +4,7 @@ import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContextService
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.quartz.JobExecutionContext

@@ -7,6 +7,9 @@ import com.swisscom.cf.broker.async.AsyncProvisioningService
 import com.swisscom.cf.broker.binding.BindRequest
 import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.UnbindRequest
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointProvider
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
@@ -16,9 +19,9 @@ import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
-import com.swisscom.cf.broker.services.common.async.AsyncServiceDeprovisioner
-import com.swisscom.cf.broker.services.common.async.AsyncServiceProvisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceDeprovisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
 import groovy.util.logging.Log4j

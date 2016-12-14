@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.backup
 
 import com.swisscom.cf.broker.model.Backup
 import com.swisscom.cf.broker.model.Restore

@@ -14,7 +14,7 @@ import com.swisscom.cf.broker.services.bosh.BoshDeprovisionState
 import com.swisscom.cf.broker.services.bosh.BoshProvisionState
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup

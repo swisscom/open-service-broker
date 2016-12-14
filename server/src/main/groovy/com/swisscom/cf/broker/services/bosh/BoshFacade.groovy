@@ -12,7 +12,7 @@ import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackCli
 import com.swisscom.cf.broker.services.bosh.client.BoshClient
 import com.swisscom.cf.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cf.broker.services.bosh.dto.TaskDto
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic

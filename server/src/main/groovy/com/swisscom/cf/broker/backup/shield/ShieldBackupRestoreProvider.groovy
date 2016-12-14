@@ -4,7 +4,7 @@ import com.swisscom.cf.broker.backup.shield.dto.JobStatus
 import com.swisscom.cf.broker.model.Backup
 import com.swisscom.cf.broker.model.Restore
 import com.swisscom.cf.broker.model.ServiceInstance
-import com.swisscom.cf.broker.services.common.BackupRestoreProvider
+import com.swisscom.cf.broker.backup.BackupRestoreProvider
 import org.springframework.beans.factory.annotation.Autowired
 
 trait ShieldBackupRestoreProvider implements BackupRestoreProvider {

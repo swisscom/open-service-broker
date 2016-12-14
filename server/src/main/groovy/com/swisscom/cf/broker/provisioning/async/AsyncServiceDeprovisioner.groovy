@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common.async
+package com.swisscom.cf.broker.provisioning.async
 
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext

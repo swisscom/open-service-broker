@@ -7,10 +7,10 @@ import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cf.broker.services.common.ProvisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
-import com.swisscom.cf.broker.services.common.async.AsyncServiceProvisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceProvisioner
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

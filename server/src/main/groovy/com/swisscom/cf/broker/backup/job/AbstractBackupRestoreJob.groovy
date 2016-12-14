@@ -4,7 +4,7 @@ import com.swisscom.cf.broker.async.job.AbstractJob
 import com.swisscom.cf.broker.backup.BackupPersistenceService
 import com.swisscom.cf.broker.backup.BackupRestoreProviderLookup
 import com.swisscom.cf.broker.model.Backup
-import com.swisscom.cf.broker.services.common.BackupRestoreProvider
+import com.swisscom.cf.broker.backup.BackupRestoreProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.quartz.JobExecutionContext

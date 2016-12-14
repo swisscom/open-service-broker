@@ -5,6 +5,8 @@ import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.UnbindRequest
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 
 interface ServiceProvider {
     ProvisionResponse provision(ProvisionRequest request)

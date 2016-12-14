@@ -8,7 +8,6 @@ import com.swisscom.cf.broker.model.repository.DeprovisionRequestRepository
 import com.swisscom.cf.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cf.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cf.broker.services.common.ProvisionResponse
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

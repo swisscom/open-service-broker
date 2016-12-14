@@ -4,8 +4,6 @@ import com.swisscom.cf.broker.error.ErrorCode
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ProvisionRequest
-import com.swisscom.cf.broker.services.common.DeprovisionResponse
-import com.swisscom.cf.broker.services.common.ProvisionResponse
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

@@ -1,6 +1,9 @@
 package com.swisscom.cf.broker.services.bosh
 
 import com.swisscom.cf.broker.async.AsyncProvisioningService
+import com.swisscom.cf.broker.cfextensions.endpoint.EndpointProvider
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
@@ -11,8 +14,8 @@ import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cf.broker.services.common.async.AsyncServiceDeprovisioner
-import com.swisscom.cf.broker.services.common.async.AsyncServiceProvisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceDeprovisioner
+import com.swisscom.cf.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cf.broker.cfextensions.endpoint.EndpointLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j

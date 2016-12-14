@@ -5,7 +5,7 @@ import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cf.broker.servicedefinition.converter.ServiceDtoConverter
 import com.swisscom.cf.broker.servicedefinition.dto.ServiceDto
-import com.swisscom.cf.broker.services.common.BackupRestoreProvider
+import com.swisscom.cf.broker.backup.BackupRestoreProvider
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import groovy.json.JsonSlurper
 import groovy.util.logging.Log4j

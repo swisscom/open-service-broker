@@ -11,6 +11,8 @@ import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance
+import com.swisscom.cf.broker.provisioning.DeprovisionResponse
+import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.*
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
