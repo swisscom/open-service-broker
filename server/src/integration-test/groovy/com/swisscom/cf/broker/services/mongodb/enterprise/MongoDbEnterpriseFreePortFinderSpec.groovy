@@ -7,7 +7,6 @@ import com.swisscom.cf.broker.model.repository.CFServiceRepository
 import com.swisscom.cf.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.broker.services.mongodb.enterprise.v2.MongoDbEnterpriseV2ServiceProvider
 import com.swisscom.cf.broker.util.DBTestUtil
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +35,7 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         and:
         def plan = dbTestUtil.createPlan('plan1', UUID.randomUUID().toString(), true, 'test', 'id')
         and:
-        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderLookup.findInternalName(MongoDbEnterpriseV2ServiceProvider)))
+        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderLookup.findInternalName(MongoDbEnterpriseServiceProvider)))
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:
@@ -55,7 +54,7 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         and:
         def plan = dbTestUtil.createPlan('plan1', UUID.randomUUID().toString(), true, 'test', 'id')
         and:
-        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderLookup.findInternalName(MongoDbEnterpriseV2ServiceProvider)))
+        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderLookup.findInternalName(MongoDbEnterpriseServiceProvider)))
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:

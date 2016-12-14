@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.mongodb.enterprise.v2
+package com.swisscom.cf.broker.services.mongodb.enterprise
 
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
@@ -12,10 +12,6 @@ import com.swisscom.cf.broker.services.bosh.BoshProvisionState
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
 import com.swisscom.cf.broker.services.common.*
 import com.swisscom.cf.broker.services.common.async.AsyncOperationResult
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseBindResponseDto
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup
@@ -31,7 +27,7 @@ import javax.annotation.PostConstruct
 
 import static com.google.common.base.Strings.isNullOrEmpty
 import static com.swisscom.cf.broker.model.ServiceDetail.from
-import static com.swisscom.cf.broker.services.mongodb.enterprise.v2.MongoDbEnterpriseProvisionStateV2.*
+import static MongoDbEnterpriseProvisionState.*
 import static com.swisscom.cf.broker.util.ServiceDetailKey.*
 import static com.swisscom.cf.broker.util.StringGenerator.randomAlphaNumeric
 import static java.lang.String.valueOf
@@ -39,7 +35,7 @@ import static java.lang.String.valueOf
 @Component
 @CompileStatic
 @Log4j
-class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoDbEnterpriseConfig> {
+class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbEnterpriseConfig> {
     public static final String PARAM_MMS_BASE_URL = "mms-base-url"
     public static final String PARAM_MMS_API_KEY = "mms-api-key"
     public static final String MMS_GROUP_ID = "mms-group-id"
@@ -76,7 +72,7 @@ class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoD
         template.replace(PARAM_MMS_BASE_URL, getOpsManagerUrl())
         template.replace(PARAM_MMS_API_KEY, agentApiKey)
         template.replace(MMS_GROUP_ID, opsManagerGroupId)
-        template.replace(MongoDbEnterpriseV2ServiceProvider.PORT, ServiceDetailsHelper.from(serviceInstance.details).getValue(PORT))
+        template.replace(MongoDbEnterpriseServiceProvider.PORT, ServiceDetailsHelper.from(serviceInstance.details).getValue(PORT))
         template.replace(MONGODB_BINARY_PATH, ((MongoDbEnterpriseConfig) serviceConfig).libFolder + '/bin/')
         template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
         template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
@@ -181,9 +177,9 @@ class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoD
     private ServiceState getProvisionState(LastOperationJobContext context) {
         ServiceState provisionState = null
         if (!context.lastOperation.internalState) {
-            provisionState = MongoDbEnterpriseProvisionStateV2.INITIAL
+            provisionState = MongoDbEnterpriseProvisionState.INITIAL
         } else {
-            provisionState = MongoDbEnterpriseProvisionStateV2.of(context.lastOperation.internalState)
+            provisionState = MongoDbEnterpriseProvisionState.of(context.lastOperation.internalState)
         }
         return provisionState
     }
@@ -193,7 +189,7 @@ class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoD
         Collection<ServiceDetail> details = []
         ServiceState deprovisionState = getDeprovisionState(context)
 
-        if (MongoDbEnterpriseDeprovisionStateV2.INITIAL == deprovisionState) {
+        if (MongoDbEnterpriseDeprovisionState.INITIAL == deprovisionState) {
             String groupId = getMongoDbGroupId(context)
             Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.serviceInstance.details).findValue(MONGODB_ENTERPRISE_REPLICA_SET)
             if (optionalReplicaSet.present) {
@@ -203,26 +199,26 @@ class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoD
                         "the previous provisioning attempt must have failed.")
             }
             opsManagerFacade.undeploy(groupId)
-            deprovisionState = MongoDbEnterpriseDeprovisionStateV2.AUTOMATION_UPDATE_REQUESTED
-        } else if (MongoDbEnterpriseDeprovisionStateV2.AUTOMATION_UPDATE_REQUESTED == deprovisionState) {
+            deprovisionState = MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED
+        } else if (MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED == deprovisionState) {
             def groupId = getMongoDbGroupId(context)
             if (opsManagerFacade.isAutomationUpdateComplete(groupId)) {
-                deprovisionState = MongoDbEnterpriseDeprovisionStateV2.AUTOMATION_UPDATED
+                deprovisionState = MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED
             } else {
                 log.info("Automation update not finished for group:${groupId}")
             }
-        } else if (MongoDbEnterpriseDeprovisionStateV2.AUTOMATION_UPDATED == deprovisionState) {
+        } else if (MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED == deprovisionState) {
             opsManagerFacade.deleteAllHosts(getMongoDbGroupId(context))
-            deprovisionState = MongoDbEnterpriseDeprovisionStateV2.HOSTS_DELETED
-        } else if (MongoDbEnterpriseDeprovisionStateV2.HOSTS_DELETED == deprovisionState) {
+            deprovisionState = MongoDbEnterpriseDeprovisionState.HOSTS_DELETED
+        } else if (MongoDbEnterpriseDeprovisionState.HOSTS_DELETED == deprovisionState) {
             deprovisionState = BoshDeprovisionState.BOSH_INITIAL
         } else if (BoshDeprovisionState.CLOUD_PROVIDER_SERVER_GROUP_DELETED == deprovisionState) {
             if (dnsBasedStatusCheck.isGone(context.serviceInstance)) {
-                deprovisionState = MongoDbEnterpriseDeprovisionStateV2.NODE_NAMES_GONE_FROM_DNS
+                deprovisionState = MongoDbEnterpriseDeprovisionState.NODE_NAMES_GONE_FROM_DNS
             }
-        } else if (MongoDbEnterpriseDeprovisionStateV2.NODE_NAMES_GONE_FROM_DNS == deprovisionState) {
+        } else if (MongoDbEnterpriseDeprovisionState.NODE_NAMES_GONE_FROM_DNS == deprovisionState) {
             opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID))
-            deprovisionState = MongoDbEnterpriseDeprovisionStateV2.DEPROVISION_SUCCESS
+            deprovisionState = MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS
         } else {
             Optional<AsyncOperationResult> maybeBoshDeprovisionResult = getBoshFacade().handleBoshDeprovisioning(context)
             if (maybeBoshDeprovisionResult.present) {
@@ -237,9 +233,9 @@ class MongoDbEnterpriseV2ServiceProvider extends BoshBasedServiceProvider<MongoD
     private ServiceState getDeprovisionState(LastOperationJobContext context) {
         ServiceState deprovisionState = null
         if (!context.lastOperation.internalState) {
-            deprovisionState = MongoDbEnterpriseDeprovisionStateV2.INITIAL
+            deprovisionState = MongoDbEnterpriseDeprovisionState.INITIAL
         } else {
-            deprovisionState = MongoDbEnterpriseDeprovisionStateV2.of(context.lastOperation.internalState)
+            deprovisionState = MongoDbEnterpriseDeprovisionState.of(context.lastOperation.internalState)
         }
         return deprovisionState
     }
