@@ -1,7 +1,22 @@
 # Cloud Foundry Service Broker
 
 ##Introduction
+######Cloud Foundry Service Broker implements Cloud Foundry Service Broker API and enables user triggered deployment of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
+Cloud Foundry is a popular choice for enterprises to build hybrid clouds. 
+Cloud Foundry Service Broker is a modular implementation of the Cloud Foundry Service Broker API. It enables Cloud Foundry customers to provision and manage services according to their requirements.
+Cloud Foundry Service Broker is built in a modular way.
+It provides API endpoints for Catalog, Provisioning, Binding and Billing.
+Services are integrated trough SP Plugins, which either provision their service synchronous or asynchronous.
+
+![SB](./img/SB.png)
+In the image above shows the basic workflow.
+Users interact trough the Cloud Foundry API with the Service Broker.
+Users can request service plans (Catalog), provision and bind services to apps. Additionally, Service Broker provides an API for billing purposes.
+
+The following flow chart shows the interactions for service provisioning and service binding for MongoDB Enterprise. Please note, that this is generalised and does not represent actual calls.
+
+![](./img/MongoDB-Enterprise_ServiceProvisioning-Binding.png)
 
 ## Development
 ## Prerequisite
