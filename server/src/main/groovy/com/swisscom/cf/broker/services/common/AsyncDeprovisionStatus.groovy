@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.services.common
 
-import com.swisscom.cf.broker.services.common.async.AsyncOperationStatus
+import com.swisscom.cf.broker.provisioning.async.AsyncOperationStatus
 import groovy.transform.CompileStatic
 
 @CompileStatic

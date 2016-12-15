@@ -30,7 +30,7 @@ class CFExtensionsController extends BaseController {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
-    @ApiOperation(value = "Get service instance usage for atmos", response = ServiceUsage.class)
+    @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
     @RequestMapping(value = ['/v2/cf-ext/{service_instance}/usage', //deprecated, prefer the path below
                             '/custom/service_instances/{service_instance}/usage'],
             method = RequestMethod.GET)
