@@ -20,9 +20,7 @@ The following flow chart shows the interactions for service provisioning and ser
 
 ## Development
 ## Prerequisite
-Java 1.8 
-Gradle 
-Any Java / Grails IDE, IntelliJ is recommended by the author.
+Java 1.8
 
 ## Deployment
 
