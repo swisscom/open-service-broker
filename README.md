@@ -43,7 +43,7 @@ curl -u "username:password" -X GET 'http://localhost:8080/cf-broker/service-defi
 
 ## Add service definition
 
-Service broker provides a way to update service definition via http calls. The service definition files are in project https://gitlab.swisscloud.io/appc-cf-services/appc-cf-service-manager-templates.
+Service broker provides a way to update service definition via http calls.
 
 Here is an example: curl -u "username:password" -X POST -H "Content-Type: application/json" --data-binary "@path/to/definition/file" 'http://localhost:8080/cf-broker/service-definition'
 
