@@ -58,9 +58,7 @@ class LastOperation extends BaseModel{
     static enum Operation {
         PROVISION("provision"),
         DEPROVISION("deprovision"),
-        UPDATE("update"),
-        BIND("bind"),
-        UNBIND("unbind")
+        UPDATE("update")
 
         final String action
 
