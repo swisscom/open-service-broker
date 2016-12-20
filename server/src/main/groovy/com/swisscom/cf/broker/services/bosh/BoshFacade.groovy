@@ -39,31 +39,6 @@ class BoshFacade {
         this.boshTemplateFactory = boshTemplateFactory
     }
 
-    Optional<AsyncOperationResult> handleBoshProvisioning(LastOperationJobContext context, BoshTemplateCustomizer templateCustomizer) {
-        def optionalProvisionState = getProvisionState(context)
-        if (!optionalProvisionState.present) {
-            return Optional.absent()
-        }
-
-        def provisionState = optionalProvisionState.get()
-        Collection<ServiceDetail> details = []
-        if (BoshProvisionState.BOSH_INITIAL == provisionState) {
-            String serverGroupId = createOpenStackServerGroup(context.provisionRequest.serviceInstanceGuid)
-            details.add(ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId))
-            provisionState = BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED
-        } else if (BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED == provisionState) {
-            addOrUpdateVmInBoshCloudConfig(context)
-            provisionState = BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED
-        } else if (BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED == provisionState) {
-            details = handleTemplatingAndCreateDeployment(context.provisionRequest, templateCustomizer)
-            provisionState = BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED
-        } else if (BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED == provisionState) {
-            if (isBoshTaskSuccessful(findBoshTaskIdForDeploy(context))) {
-                provisionState = BoshProvisionState.BOSH_TASK_SUCCESSFULLY_FINISHED
-            }
-        }
-        return Optional.of(new AsyncOperationResult(status: provisionState.status, internalStatus: provisionState.name(), details: details))
-    }
 
     private Optional<BoshProvisionState> getProvisionState(LastOperationJobContext context) {
         Optional<BoshProvisionState> provisionState = null
@@ -75,7 +50,7 @@ class BoshFacade {
         return provisionState
     }
 
-    private String createOpenStackServerGroup(String name) {
+    String createOpenStackServerGroup(String name) {
         return createOpenstackClient().createAntiAffinityServerGroup(name).id
     }
 
@@ -84,7 +59,7 @@ class BoshFacade {
                 serviceConfig.openstackUsername, serviceConfig.openstackPassword, serviceConfig.openstackTenantName)
     }
 
-    private def addOrUpdateVmInBoshCloudConfig(LastOperationJobContext context) {
+    def addOrUpdateVmInBoshCloudConfig(LastOperationJobContext context) {
         createBoshClient().addOrUpdateVmInCloudConfig(context.provisionRequest.serviceInstanceGuid, findBoshVmInstanceType(context), findServerGroupId(context).get())
     }
 
@@ -119,7 +94,7 @@ class BoshFacade {
         return instanceTypeParam.value
     }
 
-    private Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
+    Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
         BoshTemplate template = boshTemplateFactory.build(readTemplate(provisionRequest.plan.templateUniqueIdentifier))
         template.replace('guid', provisionRequest.serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
@@ -165,7 +140,11 @@ class BoshFacade {
         provisionRequest.plan.parameters?.each { Parameter p -> template.replace(p.name, p.value) }
     }
 
-    private boolean isBoshTaskSuccessful(String taskId) {
+    boolean isBoshTaskSuccessful(LastOperationJobContext context) {
+        return isBoshTaskSuccessful(findBoshTaskIdForDeploy(context))
+    }
+
+    boolean isBoshTaskSuccessful(String taskId) {
         def task = createBoshClient().getTask(taskId)
         if (task.state == null) {
             throw new RuntimeException("Unknown bosh task state:${task.toString()}")
