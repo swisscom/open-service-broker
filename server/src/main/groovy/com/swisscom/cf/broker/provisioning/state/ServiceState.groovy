@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.common
+package com.swisscom.cf.broker.provisioning.state
 
 import com.swisscom.cf.broker.model.LastOperation
 

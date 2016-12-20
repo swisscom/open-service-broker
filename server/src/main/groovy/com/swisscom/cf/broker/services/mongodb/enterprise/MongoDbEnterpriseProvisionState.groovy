@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.services.mongodb.enterprise
 
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.services.bosh.BoshProvisionState
-import com.swisscom.cf.broker.services.common.ServiceState
+import com.swisscom.cf.broker.provisioning.state.ServiceState
 
 enum MongoDbEnterpriseProvisionState implements ServiceState {
     INITIAL(LastOperation.Status.IN_PROGRESS),

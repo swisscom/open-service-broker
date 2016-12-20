@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.services.bosh
 
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.model.LastOperation
-import com.swisscom.cf.broker.services.common.ServiceState
+import com.swisscom.cf.broker.provisioning.state.ServiceState
 import groovy.transform.CompileStatic
 
 @CompileStatic
