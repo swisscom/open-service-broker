@@ -1,7 +1,6 @@
 package com.swisscom.cf.broker.provisioning.job
 
 import com.swisscom.cf.broker.async.job.AbstractLastOperationJob
-import com.swisscom.cf.broker.async.job.JobResult
 import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.ProvisionRequest
@@ -38,7 +37,7 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
     }
 
     @Override
-    protected JobResult handleJob(LastOperationJobContext context) {
+    protected AsyncOperationResult handleJob(LastOperationJobContext context) {
         log.info("About to request service provision, ${context.lastOperation.toString()}")
         AsyncOperationResult provisionResult = findServiceProvisioner(context).requestProvision(context)
         provisioningPersistenceService.createServiceInstanceOrUpdateDetails(context.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))

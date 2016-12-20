@@ -42,11 +42,7 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
                     log.warn("Giving up on job with id:${id}")
                     dequeueFailed(lastOperationContext, id)
                 } else {
-                    if (jobStatus instanceof AsyncOperationResult) {
-                        lastOperationContext.notifyProgress(jobStatus.description, ((AsyncOperationResult) jobStatus).internalStatus)
-                    } else {
-                        lastOperationContext.notifyProgress(jobStatus.description)
-                    }
+                    lastOperationContext.notifyProgress(jobStatus.description, ((AsyncOperationResult) jobStatus).internalStatus)
                 }
             }
         } catch (Exception e) {
@@ -57,7 +53,7 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
 
     protected LastOperationJobContext enrichContext(LastOperationJobContext context) { return context }
 
-    protected abstract JobResult handleJob(LastOperationJobContext context)
+    protected abstract AsyncOperationResult handleJob(LastOperationJobContext context)
 
     private void dequeueFailed(LastOperationJobContext lastOperationContext, String id, String description = null) {
         lastOperationContext.notifyFailure(description)

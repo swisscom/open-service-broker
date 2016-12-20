@@ -1,6 +1,5 @@
 package com.swisscom.cf.broker.services.bosh
 
-import groovy.transform.CompileStatic
 import org.yaml.snakeyaml.Yaml
 
 import java.util.regex.Pattern
