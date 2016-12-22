@@ -267,7 +267,7 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
             }
         }
 
-        return Optional.of(new AsyncOperationResult(status: deprovisionState.lastOperationStatus, internalStatus: deprovisionState.serviceState, details: details))
+        return Optional.of(new AsyncOperationResult(status: deprovisionState.lastOperationStatus, internalStatus: deprovisionState.serviceInternalState, details: details))
     }
 
 

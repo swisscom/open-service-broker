@@ -4,7 +4,5 @@ import com.swisscom.cf.broker.model.LastOperation
 
 interface ServiceState {
     LastOperation.Status getLastOperationStatus()
-    String getServiceState()
-
-
+    String getServiceInternalState()
 }

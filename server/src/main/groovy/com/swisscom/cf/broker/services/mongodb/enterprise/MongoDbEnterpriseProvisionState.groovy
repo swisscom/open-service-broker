@@ -15,10 +15,10 @@ enum MongoDbEnterpriseProvisionState implements ServiceState {
 
     static {
         for (ServiceState serviceState : values() + BoshProvisionState.values()) {
-            if (map.containsKey(serviceState.getServiceState())) {
-                throw new RuntimeException("Enum:${serviceState.getServiceState()} already exists in:${MongoDbEnterpriseProvisionState.class.getSimpleName()}!")
+            if (map.containsKey(serviceState.getServiceInternalState())) {
+                throw new RuntimeException("Enum:${serviceState.getServiceInternalState()} already exists in:${MongoDbEnterpriseProvisionState.class.getSimpleName()}!")
             } else {
-                map.put(serviceState.getServiceState(), serviceState);
+                map.put(serviceState.getServiceInternalState(), serviceState);
             }
         }
     }
@@ -35,7 +35,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceState {
     }
 
     @Override
-    String getServiceState() {
+    String getServiceInternalState() {
         return name()
     }
 

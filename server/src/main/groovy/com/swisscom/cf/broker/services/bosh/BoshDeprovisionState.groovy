@@ -25,7 +25,7 @@ enum BoshDeprovisionState implements ServiceState {
     }
 
     @Override
-    String getServiceState() {
+    String getServiceInternalState() {
         return name()
     }
 

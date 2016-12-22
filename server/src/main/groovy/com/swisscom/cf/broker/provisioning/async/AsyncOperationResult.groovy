@@ -14,6 +14,6 @@ class AsyncOperationResult {
 
     static AsyncOperationResult of(ServiceState serviceState,Collection<ServiceDetail> details = []){
         return new AsyncOperationResult(status: serviceState.lastOperationStatus,
-                                        internalStatus: serviceState.serviceState, details:details)
+                                        internalStatus: serviceState.serviceInternalState, details:details)
     }
 }
