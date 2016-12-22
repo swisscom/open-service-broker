@@ -6,10 +6,10 @@ import static java.util.Optional.of
 
 
 @CompileStatic
-class StateFlow {
+class StateMachine {
     private LinkedHashMap states = new LinkedHashMap<ServiceState,OnStateChange> ()
 
-    StateFlow withStateAndAction(ServiceState serviceState, OnStateChange action ){
+    StateMachine withStateAndAction(ServiceState serviceState, OnStateChange action ){
         states.put(serviceState,action)
         return this
     }
@@ -29,7 +29,7 @@ class StateFlow {
         return states.get(serviceState)
     }
 
-    StateFlow addFlow(StateFlow flow) {
+    StateMachine addFlow(StateMachine flow) {
         states.putAll(flow.states)
         return this
     }

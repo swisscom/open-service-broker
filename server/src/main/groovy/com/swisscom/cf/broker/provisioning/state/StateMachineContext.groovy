@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
 
 
 @CompileStatic
-abstract class StateContext {
+abstract class StateMachineContext {
     LastOperationJobContext lastOperationJobContext
     BoshFacade boshFacade
     BoshTemplateCustomizer boshTemplateCustomizer

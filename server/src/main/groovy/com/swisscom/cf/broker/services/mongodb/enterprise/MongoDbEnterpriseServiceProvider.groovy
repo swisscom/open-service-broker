@@ -12,11 +12,11 @@ import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.provisioning.state.ActionResult
 import com.swisscom.cf.broker.provisioning.state.OnStateChange
 import com.swisscom.cf.broker.provisioning.state.ServiceState
-import com.swisscom.cf.broker.provisioning.state.StateContext
-import com.swisscom.cf.broker.provisioning.state.StateFlow
+import com.swisscom.cf.broker.provisioning.state.StateMachineContext
+import com.swisscom.cf.broker.provisioning.state.StateMachine
 import com.swisscom.cf.broker.services.bosh.BoshBasedServiceProvider
 import com.swisscom.cf.broker.services.bosh.BoshDeprovisionState
-import com.swisscom.cf.broker.services.bosh.BoshStateFlow
+import com.swisscom.cf.broker.services.bosh.BoshStateMachine
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
 import com.swisscom.cf.broker.services.common.*
 import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
@@ -97,11 +97,11 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
         Collection<ServiceDetail> details = []
         ServiceState provisionState = getProvisionState(context)
-        StateFlow flow = getStateFlow(context)
-        def action = flow.getAction(provisionState)
+        StateMachine stateMachine = getStateMachine(context)
+        def action = stateMachine.getAction(provisionState)
         def actionResult = action.triggerAction(createContext(context))
 
-        return AsyncOperationResult.of(actionResult.success ? flow.nextState(provisionState).get() : provisionState, actionResult.details)
+        return AsyncOperationResult.of(actionResult.success ? stateMachine.nextState(provisionState).get() : provisionState, actionResult.details)
 
 //
 //        if (INITIAL == provisionState) {
@@ -153,14 +153,14 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
 //        return new AsyncOperationResult(status: provisionState.lastOperationStatus, internalStatus: provisionState.serviceState, details: details)
     }
 
-    StateContext createContext(LastOperationJobContext lastOperationJobContext) {
+    StateMachineContext createContext(LastOperationJobContext lastOperationJobContext) {
         return null
     }
 
-    private StateFlow getStateFlow(LastOperationJobContext context) {
-        StateFlow flow = new StateFlow().withStateAndAction(INITIAL, new OnStateChange() {
+    private StateMachine getStateMachine(LastOperationJobContext context) {
+        StateMachine flow = new StateMachine().withStateAndAction(INITIAL, new OnStateChange() {
             @Override
-            ActionResult triggerAction(StateContext stateContext) {
+            ActionResult triggerAction(StateMachineContext stateContext) {
                 OpsManagerGroup groupAndUser = opsManagerFacade.createGroup(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid)
                 return new ActionResult(success: true, details: [
                         from(MONGODB_ENTERPRISE_GROUP_ID, groupAndUser.groupId),
@@ -174,7 +174,7 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
         })
 
 
-        flow.addFlow(BoshStateFlow.createProvisioningStateFlow(true))
+        flow.addFlow(BoshStateMachine.createProvisioningStateFlow(true))
 
 
         //TODO add all the remaining provisioning steps
