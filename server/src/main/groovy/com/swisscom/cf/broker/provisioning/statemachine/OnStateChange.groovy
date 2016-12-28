@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.provisioning.state
+package com.swisscom.cf.broker.provisioning.statemachine
 
 import groovy.transform.CompileStatic
 

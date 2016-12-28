@@ -1,10 +1,10 @@
 package com.swisscom.cf.broker.services.bosh
 
 import com.swisscom.cf.broker.model.ServiceDetail
-import com.swisscom.cf.broker.provisioning.state.ActionResult
-import com.swisscom.cf.broker.provisioning.state.OnStateChange
-import com.swisscom.cf.broker.provisioning.state.StateMachineContext
-import com.swisscom.cf.broker.provisioning.state.StateMachine
+import com.swisscom.cf.broker.provisioning.statemachine.ActionResult
+import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 

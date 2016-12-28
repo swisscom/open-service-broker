@@ -9,11 +9,11 @@ import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceDetail
 import com.swisscom.cf.broker.model.ServiceInstance
-import com.swisscom.cf.broker.provisioning.state.ActionResult
-import com.swisscom.cf.broker.provisioning.state.OnStateChange
-import com.swisscom.cf.broker.provisioning.state.ServiceState
-import com.swisscom.cf.broker.provisioning.state.StateMachineContext
-import com.swisscom.cf.broker.provisioning.state.StateMachine
+import com.swisscom.cf.broker.provisioning.statemachine.ActionResult
+import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
+import com.swisscom.cf.broker.provisioning.statemachine.ServiceState
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cf.broker.services.bosh.BoshBasedServiceProvider
 import com.swisscom.cf.broker.services.bosh.BoshDeprovisionState
 import com.swisscom.cf.broker.services.bosh.BoshStateMachine

@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.provisioning.async
 
 import com.swisscom.cf.broker.model.LastOperation
 import com.swisscom.cf.broker.model.ServiceDetail
-import com.swisscom.cf.broker.provisioning.state.ServiceState
+import com.swisscom.cf.broker.provisioning.statemachine.ServiceState
 import groovy.transform.CompileStatic
 
 @CompileStatic
