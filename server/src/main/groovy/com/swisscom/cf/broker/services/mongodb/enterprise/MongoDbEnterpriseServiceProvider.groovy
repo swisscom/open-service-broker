@@ -174,7 +174,7 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
         })
 
 
-        flow.addFlow(BoshStateMachine.createProvisioningStateFlow(true))
+        flow.addAllFromStateMachine(BoshStateMachine.createProvisioningStateFlow(true))
 
 
         //TODO add all the remaining provisioning steps
