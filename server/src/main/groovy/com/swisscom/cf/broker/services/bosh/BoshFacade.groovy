@@ -39,7 +39,6 @@ class BoshFacade {
         this.boshTemplateFactory = boshTemplateFactory
     }
 
-
     private Optional<BoshProvisionState> getProvisionState(LastOperationJobContext context) {
         Optional<BoshProvisionState> provisionState = null
         if (!context.lastOperation.internalState) {
@@ -140,7 +139,7 @@ class BoshFacade {
         provisionRequest.plan.parameters?.each { Parameter p -> template.replace(p.name, p.value) }
     }
 
-    boolean isBoshTaskSuccessful(LastOperationJobContext context) {
+    boolean isBoshDeployTaskSuccessful(LastOperationJobContext context) {
         return isBoshTaskSuccessful(findBoshTaskIdForDeploy(context))
     }
 
@@ -159,39 +158,6 @@ class BoshFacade {
         return boshClientFactory.build(serviceConfig)
     }
 
-    Optional<AsyncOperationResult> handleBoshDeprovisioning(LastOperationJobContext context) {
-        Optional<BoshDeprovisionState> optionalDeprovisionState = getDeprovisionState(context)
-        if (!optionalDeprovisionState.present) {
-            return Optional.absent()
-        }
-        def deprovisionState = optionalDeprovisionState.get()
-        Collection<ServiceDetail> details = []
-        if (BoshDeprovisionState.BOSH_INITIAL == deprovisionState) {
-            Optional<String> optionalTaskId = deleteBoshDeploymentIfExists(findBoshDeploymentId(context))
-            if (optionalTaskId.present) {
-                details.add(ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get()))
-                deprovisionState = BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED
-            } else {
-                deprovisionState = BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED
-            }
-        } else if (BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED == deprovisionState) {
-            if (isBoshTaskSuccessful(findBoshTaskIdForUndeploy(context))) {
-                deprovisionState = BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED
-            }
-        } else if (BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED == deprovisionState) {
-            removeVmInBoshCloudConfig(context)
-            deprovisionState = BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED
-        } else if (BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED == deprovisionState) {
-            def maybeServerGroupId = findServerGroupId(context)
-            if (maybeServerGroupId.present) {
-                deleteOpenStackServerGroup(maybeServerGroupId.get())
-            }
-            deprovisionState = BoshDeprovisionState.CLOUD_PROVIDER_SERVER_GROUP_DELETED
-        }
-        return Optional.of(new AsyncOperationResult(status: deprovisionState.status,
-                internalStatus: deprovisionState.name(), details: details))
-    }
-
     private static Optional<BoshDeprovisionState> getDeprovisionState(LastOperationJobContext context) {
         Optional<BoshDeprovisionState> state = null
         if (!context.lastOperation.internalState) {
@@ -206,16 +172,27 @@ class BoshFacade {
         return ServiceDetailsHelper.from(context.serviceInstance.details).findValue(ServiceDetailKey.BOSH_DEPLOYMENT_ID).or(generateDeploymentId(context.serviceInstance.guid))
     }
 
-    private Optional<String> deleteBoshDeploymentIfExists(String id) {
+    Optional<String> deleteBoshDeploymentIfExists(LastOperationJobContext lastOperationJobContext) {
+        return deleteBoshDeployment(findBoshTaskIdForUndeploy(lastOperationJobContext))
+    }
+
+    private Optional<String> deleteBoshDeployment(String id) {
         return createBoshClient().deleteDeploymentIfExists(id)
     }
 
-    private void removeVmInBoshCloudConfig(LastOperationJobContext context) {
+    void removeVmInBoshCloudConfig(LastOperationJobContext context) {
         createBoshClient().removeVmInCloudConfig(context.deprovisionRequest.serviceInstanceGuid)
     }
 
-    private String deleteOpenStackServerGroup(String serverGroupId) {
-        return createOpenstackClient().deleteServerGroup(serverGroupId)
+    void deleteOpenStackServerGroup(String serverGroupId) {
+        createOpenstackClient().deleteServerGroup(serverGroupId)
+    }
+
+    void deleteOpenStackServerGroupIfExists(LastOperationJobContext context) {
+        def maybeServerGroupId = findServerGroupId(context)
+        if (maybeServerGroupId.present) {
+            deleteOpenStackServerGroup(maybeServerGroupId.get())
+        }
     }
 
     BoshClientFactory getBoshClientFactory() {
@@ -232,5 +209,14 @@ class BoshFacade {
 
     BoshTemplateFactory getBoshTemplateFactory() {
         return boshTemplateFactory
+    }
+
+    boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
+        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
+        if(maybe.present){
+            return isBoshTaskSuccessful(maybe.get())
+        }else{
+            return true
+        }
     }
 }
