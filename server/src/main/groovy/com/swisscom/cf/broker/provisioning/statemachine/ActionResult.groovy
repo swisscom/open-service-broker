@@ -7,5 +7,4 @@ import groovy.transform.CompileStatic
 class ActionResult {
     Collection<ServiceDetail> details
     boolean success
-    String message
 }
