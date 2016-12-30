@@ -11,7 +11,7 @@ enum BoshDeprovisionState implements ServiceState {
     BOSH_DEPLOYMENT_DELETION_REQUESTED(LastOperation.Status.IN_PROGRESS),
     BOSH_TASK_SUCCESSFULLY_FINISHED(LastOperation.Status.IN_PROGRESS),
     BOSH_CLOUD_CONFIG_UPDATED(LastOperation.Status.IN_PROGRESS),
-    CLOUD_PROVIDER_SERVER_GROUP_DELETED(LastOperation.Status.IN_PROGRESS)
+    BOSH_FINAL(LastOperation.Status.IN_PROGRESS)
 
     final LastOperation.Status status
 

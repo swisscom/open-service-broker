@@ -6,6 +6,7 @@ import com.swisscom.cf.broker.provisioning.statemachine.ActionResult
 import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
+import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
@@ -84,7 +85,7 @@ class BoshStateMachine {
                     context.boshFacade.deleteOpenStackServerGroupIfExists(context.lastOperationJobContext)
                     return new ActionResult(success: true)
                }
-            })
+            }).withStateAndAction(BoshDeprovisionState.BOSH_FINAL, new NoOp())
         }else{
             new StateMachine().withStateAndAction(BoshDeprovisionState.BOSH_INITIAL, new OnStateChange() {
                 @Override
@@ -101,7 +102,7 @@ class BoshStateMachine {
                 ActionResult triggerAction(StateMachineContext context) {
                     return new ActionResult(success: context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext))
                 }
-            })
+            }).withStateAndAction(BoshDeprovisionState.BOSH_FINAL, new NoOp())
         }
     }
 

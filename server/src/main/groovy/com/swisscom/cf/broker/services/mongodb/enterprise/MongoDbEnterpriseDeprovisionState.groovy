@@ -9,7 +9,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceState {
     AUTOMATION_UPDATE_REQUESTED(LastOperation.Status.IN_PROGRESS),
     AUTOMATION_UPDATED(LastOperation.Status.IN_PROGRESS),
     HOSTS_DELETED(LastOperation.Status.IN_PROGRESS),
-    NODE_NAMES_GONE_FROM_DNS(LastOperation.Status.IN_PROGRESS),
+    CLEAN_UP_GROUP(LastOperation.Status.IN_PROGRESS),
     DEPROVISION_SUCCESS(LastOperation.Status.SUCCESS)
 
     public static final Map<String, ServiceState> map = new TreeMap<String, ServiceState>()
