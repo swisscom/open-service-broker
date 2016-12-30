@@ -5,10 +5,7 @@ import com.swisscom.cf.broker.services.bosh.BoshFacade
 import com.swisscom.cf.broker.services.bosh.BoshTemplateCustomizer
 import groovy.transform.CompileStatic
 
-
 @CompileStatic
 abstract class StateMachineContext {
     LastOperationJobContext lastOperationJobContext
-    BoshFacade boshFacade
-    BoshTemplateCustomizer boshTemplateCustomizer
 }

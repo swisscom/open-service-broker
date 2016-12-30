@@ -4,6 +4,6 @@ import groovy.transform.CompileStatic
 
 
 @CompileStatic
-interface OnStateChange {
-    ActionResult triggerAction(StateMachineContext context)
+interface OnStateChange<T extends StateMachineContext> {
+    ActionResult triggerAction(T context)
 }

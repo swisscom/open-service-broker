@@ -7,6 +7,7 @@ import com.swisscom.cf.broker.model.repository.CFServiceRepository
 import com.swisscom.cf.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
+import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseServiceProvider
 import com.swisscom.cf.broker.util.DBTestUtil
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
