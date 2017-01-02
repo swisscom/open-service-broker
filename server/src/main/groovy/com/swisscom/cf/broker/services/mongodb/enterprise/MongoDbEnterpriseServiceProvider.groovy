@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.mongodb.enterprise.statemachine
+package com.swisscom.cf.broker.services.mongodb.enterprise
 
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
@@ -16,15 +16,10 @@ import com.swisscom.cf.broker.services.bosh.BoshBasedServiceProvider
 import com.swisscom.cf.broker.services.bosh.BoshProvisionState
 import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachine
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseBindResponseDto
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseDeprovisionState
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
-import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseProvisionState
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup
+import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailType
 import com.swisscom.cf.broker.util.ServiceDetailsHelper

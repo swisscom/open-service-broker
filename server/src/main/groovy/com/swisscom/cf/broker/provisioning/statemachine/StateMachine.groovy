@@ -31,6 +31,8 @@ class StateMachine {
         return states.get(serviceState)
     }
 
+
+
     StateMachine addAllFromStateMachine(StateMachine stateMachine) {
         states.putAll(stateMachine.states)
         return this
@@ -38,5 +40,10 @@ class StateMachine {
 
     LinkedHashMap<ServiceState, OnStateChange> getStates() {
         return states
+    }
+
+    @Override
+    public String toString() {
+        return "StateMachine{" + "states=" + states.keySet().join(',') + '}'
     }
 }

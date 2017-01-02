@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.functional
 
 import com.swisscom.cf.broker.services.bosh.BoshFacade
-import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseServiceProvider
+import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceProvider
 import spock.lang.Ignore
 
 import static com.swisscom.cf.broker.services.common.ServiceProviderLookup.findInternalName
