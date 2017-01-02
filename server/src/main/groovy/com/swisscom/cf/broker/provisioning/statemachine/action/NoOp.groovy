@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.provisioning.statemachine.action
 
-import com.swisscom.cf.broker.provisioning.statemachine.ActionResult
+import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
 import groovy.transform.CompileStatic
@@ -9,7 +9,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class NoOp implements OnStateChange<StateMachineContext> {
     @Override
-    ActionResult triggerAction(StateMachineContext context) {
-        return new ActionResult(success: true)
+    StateChangeActionResult triggerAction(StateMachineContext context) {
+        return new StateChangeActionResult(go2NextState: true)
     }
 }

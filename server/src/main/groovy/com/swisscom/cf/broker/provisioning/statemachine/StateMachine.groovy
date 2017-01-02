@@ -1,45 +1,53 @@
 package com.swisscom.cf.broker.provisioning.statemachine
 
+import com.google.common.base.Preconditions
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
-
-import static java.util.Optional.of
-
 
 @CompileStatic
 @TypeChecked
 class StateMachine {
-    private LinkedHashMap states = new LinkedHashMap<ServiceState, OnStateChange>()
+    private final Map states = new LinkedHashMap<ServiceState, OnStateChange>()
+    private ServiceState currentState
 
     StateMachine withStateAndAction(ServiceState serviceState, OnStateChange action) {
+        Preconditions.checkNotNull(serviceState)
+        Preconditions.checkNotNull(action)
+
         states.put(serviceState, action)
         return this
     }
 
-    Optional<ServiceState> nextState(ServiceState state) {
-        def it = states.keySet().iterator()
+    synchronized StateChangeActionResult setCurrentState(ServiceState serviceState,StateMachineContext context){
+        Preconditions.checkNotNull(serviceState,'ServiceState can not be null')
+        Preconditions.checkArgument(states.keySet().contains(serviceState),"Invalid state:${serviceState.toString()}")
+        currentState = serviceState
+
+        return getAction(currentState).triggerAction(context)
+    }
+
+    synchronized ServiceState nextState(ServiceState state) {
+        Iterator<ServiceState> it = states.keySet().iterator()
         while (it.hasNext()) {
-            def current = it.next()
+            ServiceState current = it.next()
             if (current == state) {
-                return of(it.next() as ServiceState)
+                if(!it.hasNext()){throw new RuntimeException("Current state:${current.toString()} is the final state!")}
+                return it.next()
             }
         }
-        return Optional.empty()
     }
 
-    OnStateChange getAction(ServiceState serviceState) {
+    private OnStateChange getAction(ServiceState serviceState) {
         return states.get(serviceState)
     }
-
-
 
     StateMachine addAllFromStateMachine(StateMachine stateMachine) {
         states.putAll(stateMachine.states)
         return this
     }
 
-    LinkedHashMap<ServiceState, OnStateChange> getStates() {
-        return states
+    Map<ServiceState, OnStateChange> getStates() {
+        return Collections.unmodifiableMap(states)
     }
 
     @Override

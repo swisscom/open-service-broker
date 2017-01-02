@@ -4,7 +4,7 @@ import com.swisscom.cf.broker.model.ServiceDetail
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class ActionResult {
+class StateChangeActionResult {
     Collection<ServiceDetail> details
-    boolean success
+    boolean go2NextState
 }
