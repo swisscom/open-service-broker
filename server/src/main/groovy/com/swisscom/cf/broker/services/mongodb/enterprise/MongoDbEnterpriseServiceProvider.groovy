@@ -109,40 +109,8 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
         flow.addState(PROVISION_SUCCESS)
     }
 
-    private void updateBackupConfigurationIfEnabled(String groupId, String replicaSetName) {
-        if (serviceConfig.configureDefaultBackupOptions) {
-            def success = false
-            int counter = 0
-            while (!success && counter++ < 5) {
-                success = updateBackupConfiguration(groupId, replicaSetName)
-                if (!success) {
-                    try {
-                        log.info("Waiting for ${serviceConfig.backupConfigRetryInMilliseconds} ms before retrying to update the backup config")
-                        Thread.sleep(serviceConfig.backupConfigRetryInMilliseconds)
-                    } catch (InterruptedException e) {
-                        log.error(e)
-                    }
-                }
-            }
-            if (!success) {
-                log.error("Backup configuration for groupId:${groupId} , replicaSet:${replicaSetName} failed")
-            }
-        }
-    }
 
-    private boolean updateBackupConfiguration(String groupId, String replicaSetName) {
-        try {
-            if (serviceConfig.opsManagerIpWhiteList) {
-                opsManagerFacade.whiteListIpsForUser(serviceConfig.opsManagerUser, [serviceConfig.opsManagerIpWhiteList])
-            }
-            opsManagerFacade.enableBackupAndSetStorageEngine(groupId, replicaSetName)
-            opsManagerFacade.updateSnapshotSchedule(groupId, replicaSetName)
-            return true
-        } catch (Exception e) {
-            log.warn("OpsManager backup related call failed.", e)
-            return false
-        }
-    }
+
 
     private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
