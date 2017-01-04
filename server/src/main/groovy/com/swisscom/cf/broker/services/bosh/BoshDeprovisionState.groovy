@@ -6,6 +6,7 @@ import com.swisscom.cf.broker.model.ServiceDetail
 import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
+import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
 import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachineContext
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
@@ -43,7 +44,7 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    BOSH_FINAL(LastOperation.Status.IN_PROGRESS,null)
+    BOSH_FINAL(LastOperation.Status.IN_PROGRESS,new NoOp())
 
     final LastOperation.Status status
     final OnStateChange<BoshStateMachineContext> onStateChange

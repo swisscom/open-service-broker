@@ -7,9 +7,9 @@ import groovy.transform.CompileStatic
 
 
 @CompileStatic
-class NoOp implements OnStateChange<StateMachineContext> {
+class NoOp<T extends StateMachineContext> implements OnStateChange<T> {
     @Override
-    StateChangeActionResult triggerAction(StateMachineContext context) {
+    StateChangeActionResult triggerAction(T context) {
         return new StateChangeActionResult(go2NextState: true)
     }
 }
