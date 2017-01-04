@@ -10,16 +10,17 @@ import com.swisscom.cf.broker.model.ServiceDetail
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cf.broker.provisioning.statemachine.*
-import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
+import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachine
+import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
 import com.swisscom.cf.broker.services.bosh.BoshBasedServiceProvider
-import com.swisscom.cf.broker.services.bosh.BoshProvisionState
-import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachine
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
+import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachine
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
-import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup
 import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
+import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
+import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailType
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
@@ -32,9 +33,8 @@ import javax.annotation.PostConstruct
 
 import static com.google.common.base.Strings.isNullOrEmpty
 import static com.swisscom.cf.broker.model.ServiceDetail.from
-import static com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseProvisionState.*
+import static com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
 import static com.swisscom.cf.broker.util.ServiceDetailKey.*
-import static com.swisscom.cf.broker.util.StringGenerator.randomAlphaNumeric
 
 @Component
 @CompileStatic
@@ -90,69 +90,23 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
         StateMachine stateMachine = getProvisionStateMachine(context)
-        ServiceState currentState = getProvisionState(context)
+        ServiceStateWithAction currentState = getProvisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState,createStateMachineContext())
         return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
     }
 
     StateMachineContext createStateMachineContext() {
-        return new MongoDbEnterperiseStateMachineContext(opsManagerFacade: opsManagerFacade,boshFacade:getBoshFacade() ,boshTemplateCustomizer: this)
+        return new MongoDbEnterperiseStateMachineContext(opsManagerFacade: opsManagerFacade,boshFacade:getBoshFacade() ,
+                                                            boshTemplateCustomizer: this,mongoDbEnterpriseFreePortFinder: mongoDbEnterpriseFreePortFinder)
     }
 
     private StateMachine getProvisionStateMachine(LastOperationJobContext context) {
-        StateMachine flow = new StateMachine().withStateAndAction(INITIAL, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-                OpsManagerGroup groupAndUser = opsManagerFacade.createGroup(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid)
-                return new StateChangeActionResult(go2NextState: true, details: [
-                        from(MONGODB_ENTERPRISE_GROUP_ID, groupAndUser.groupId),
-                        from(MONGODB_ENTERPRISE_GROUP_NAME, groupAndUser.groupName),
-                        from(MONGODB_ENTERPRISE_AGENT_API_KEY, groupAndUser.agentApiKey),
-                        from(ServiceDetailKey.PORT, mongoDbEnterpriseFreePortFinder.findFreePorts(1).first().toString()),
-                        from(MONGODB_ENTERPRISE_HEALTH_CHECK_USER, randomAlphaNumeric(32)),
-                        from(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, randomAlphaNumeric(32))])
-
-            }
-        })
-
+        StateMachine flow = new StateMachine().addState(INITIAL)
         flow.addAllFromStateMachine(BoshStateMachine.createProvisioningStateFlow(serviceConfig.opestackCreateServerGroup))
-        flow.withStateAndAction(BoshProvisionState.BOSH_TASK_SUCCESSFULLY_FINISHED, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-                int targetAgentCount = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) as int
-                return new StateChangeActionResult(go2NextState: opsManagerFacade.areAgentsReady(getMongoDbGroupId(context), targetAgentCount))
-            }
-        })
-        flow.withStateAndAction(AGENTS_READY, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-                String groupId = getMongoDbGroupId(context)
-                int initialAutomationVersion = opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId)
-                MongoDbEnterpriseDeployment deployment = opsManagerFacade.deployReplicaSet(groupId, stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid, ServiceDetailsHelper.from(context.serviceInstance.details).getValue(PORT) as int, ServiceDetailsHelper.from(context.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER), ServiceDetailsHelper.from(context.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
-
-                return new StateChangeActionResult(go2NextState: true,details: [from(DATABASE, deployment.database),
-                                                                                from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion + 1)),
-                                                                                from(MONGODB_ENTERPRISE_REPLICA_SET, deployment.replicaSet),
-                                                                                from(MONGODB_ENTERPRISE_MONITORING_AGENT_USER, deployment.monitoringAgentUser),
-                                                                                from(MONGODB_ENTERPRISE_MONITORING_AGENT_PASSWORD, deployment.monitoringAgentPassword),
-                                                                                from(MONGODB_ENTERPRISE_BACKUP_AGENT_USER, deployment.backupAgentUser),
-                                                                                from(MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD, deployment.backupAgentPassword)])
-            }
-        })
-        flow.withStateAndAction(AUTOMATION_UPDATE_REQUESTED, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-                String groupId = getMongoDbGroupId(stateContext.lastOperationJobContext)
-                int targetAutomationGoalVersion = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) as int
-                String replicaSet = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_REPLICA_SET)
-                if (opsManagerFacade.isAutomationUpdateComplete(groupId, targetAutomationGoalVersion)) {
-                    updateBackupConfigurationIfEnabled(groupId, replicaSet)
-                    return new StateChangeActionResult(go2NextState: true)
-                }else{
-                    return new StateChangeActionResult(go2NextState: false)
-                }
-            }
-        })
+        flow.addState(CHECK_AGENTS)
+        flow.addState(AGENTS_READY)
+        flow.addState(AUTOMATION_UPDATE_REQUESTED)
+        flow.addState(PROVISION_SUCCESS)
     }
 
     private void updateBackupConfigurationIfEnabled(String groupId, String replicaSetName) {
@@ -190,8 +144,8 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
         }
     }
 
-    private ServiceState getProvisionState(LastOperationJobContext context) {
-        ServiceState provisionState = null
+    private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
+        ServiceStateWithAction provisionState = null
         if (!context.lastOperation.internalState) {
             provisionState = MongoDbEnterpriseProvisionState.INITIAL
         } else {
@@ -203,54 +157,24 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
         StateMachine stateMachine = getDeprovisionStateMachine()
-        ServiceState currentState = getDeprovisionState(context)
+        ServiceStateWithAction currentState = getDeprovisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState,createStateMachineContext())
         return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details))
     }
 
     private StateMachine getDeprovisionStateMachine(){
-        StateMachine stateMachine = new StateMachine().withStateAndAction(MongoDbEnterpriseDeprovisionState.INITIAL, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-                String groupId = getMongoDbGroupId(context.lastOperationJobContext)
-                Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MONGODB_ENTERPRISE_REPLICA_SET)
-                if (optionalReplicaSet.present) {
-                    opsManagerFacade.disableAndTerminateBackup(groupId, optionalReplicaSet.get())
-                } else {
-                    log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
-                            "the previous provisioning attempt must have failed.")
-                }
-                opsManagerFacade.undeploy(groupId)
-                return new StateChangeActionResult(go2NextState: true)
-            }
-        }).withStateAndAction(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-                return new StateChangeActionResult(go2NextState:  opsManagerFacade.isAutomationUpdateComplete(getMongoDbGroupId(context.lastOperationJobContext)))
-
-            }
-        }).withStateAndAction(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-                opsManagerFacade.deleteAllHosts(getMongoDbGroupId(context.lastOperationJobContext))
-            }
-        })
+        StateMachine stateMachine = new StateMachine().addState(MongoDbEnterpriseDeprovisionState.INITIAL)
+                                                        .addState(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED)
+                                                        .addState(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED)
         stateMachine.addAllFromStateMachine(BoshStateMachine.createDeprovisioningStateFlow(serviceConfig.opestackCreateServerGroup))
-
-        stateMachine.withStateAndAction(MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP, new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
-            @Override
-            StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-                opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID))
-                return new StateChangeActionResult(go2NextState: true)
-            }
-        })
-        stateMachine.withStateAndAction(MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS,new NoOp())
+        stateMachine.addState(MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP)
+        stateMachine.addState(MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS)
 
         return stateMachine
     }
 
-    private ServiceState getDeprovisionState(LastOperationJobContext context) {
-        ServiceState deprovisionState = null
+    private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
+        ServiceStateWithAction deprovisionState = null
         if (!context.lastOperation.internalState) {
             deprovisionState = MongoDbEnterpriseDeprovisionState.INITIAL
         } else {

@@ -7,27 +7,25 @@ import groovy.transform.TypeChecked
 @CompileStatic
 @TypeChecked
 class StateMachine {
-    private final Map states = new LinkedHashMap<ServiceState, OnStateChange>()
-    private ServiceState currentState
+    private final List states = new ArrayList<ServiceStateWithAction>()
+    private ServiceStateWithAction currentState
 
-    StateMachine withStateAndAction(ServiceState serviceState, OnStateChange action) {
+    StateMachine addState(ServiceStateWithAction serviceState) {
         Preconditions.checkNotNull(serviceState)
-        Preconditions.checkNotNull(action)
-
-        states.put(serviceState, action)
+        states.add(serviceState)
         return this
     }
 
-    synchronized StateChangeActionResult setCurrentState(ServiceState serviceState,StateMachineContext context){
+    synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState,StateMachineContext context){
         Preconditions.checkNotNull(serviceState,'ServiceState can not be null')
-        Preconditions.checkArgument(states.keySet().contains(serviceState),"Invalid state:${serviceState.toString()}")
+        Preconditions.checkArgument(states.contains(serviceState),"Invalid state:${serviceState.toString()}")
         currentState = serviceState
 
-        return getAction(currentState).triggerAction(context)
+        return currentState.triggerAction(context)
     }
 
-    synchronized ServiceState nextState(ServiceState state) {
-        Iterator<ServiceState> it = states.keySet().iterator()
+    synchronized ServiceState nextState(ServiceStateWithAction state) {
+        Iterator<ServiceState> it = states.iterator()
         while (it.hasNext()) {
             ServiceState current = it.next()
             if (current == state) {
@@ -37,21 +35,17 @@ class StateMachine {
         }
     }
 
-    private OnStateChange getAction(ServiceState serviceState) {
-        return states.get(serviceState)
-    }
-
     StateMachine addAllFromStateMachine(StateMachine stateMachine) {
-        states.putAll(stateMachine.states)
+        states.addAll(stateMachine.states)
         return this
     }
 
-    Map<ServiceState, OnStateChange> getStates() {
-        return Collections.unmodifiableMap(states)
+    List<ServiceStateWithAction> getStates() {
+        return Collections.unmodifiableList(states)
     }
 
     @Override
     public String toString() {
-        return "StateMachine{" + "states=" + states.keySet().join(',') + '}'
+        return "StateMachine{" + "states=" + states.join(',') + '}'
     }
 }
