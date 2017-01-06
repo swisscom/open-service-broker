@@ -7,7 +7,7 @@ import com.swisscom.cf.broker.provisioning.statemachine.ServiceState
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
-import com.swisscom.cf.broker.services.bosh.BoshDeprovisionState
+import com.swisscom.cf.broker.services.bosh.statemachine.BoshDeprovisionState
 import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceProvider
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
 import groovy.util.logging.Log4j

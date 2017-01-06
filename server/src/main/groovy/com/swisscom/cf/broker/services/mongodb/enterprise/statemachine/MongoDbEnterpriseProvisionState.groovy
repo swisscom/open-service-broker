@@ -5,7 +5,7 @@ import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
-import com.swisscom.cf.broker.services.bosh.BoshProvisionState
+import com.swisscom.cf.broker.services.bosh.statemachine.BoshProvisionState
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceState
 import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
 import com.swisscom.cf.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceProvider

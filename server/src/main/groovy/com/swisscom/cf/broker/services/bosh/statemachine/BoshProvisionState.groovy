@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.bosh
+package com.swisscom.cf.broker.services.bosh.statemachine
 
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.model.LastOperation
@@ -7,7 +7,6 @@ import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
-import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachineContext
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 

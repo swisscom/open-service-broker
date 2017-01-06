@@ -15,7 +15,7 @@ import com.swisscom.cf.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cf.broker.provisioning.statemachine.StateMachineContext
 import com.swisscom.cf.broker.services.bosh.BoshBasedServiceProvider
 import com.swisscom.cf.broker.services.bosh.BoshTemplate
-import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachine
+import com.swisscom.cf.broker.services.bosh.statemachine.BoshStateMachineFactory
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cf.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cf.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
@@ -101,16 +101,10 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     }
 
     private StateMachine getProvisionStateMachine(LastOperationJobContext context) {
-        StateMachine flow = new StateMachine().addState(INITIAL)
-        flow.addAllFromStateMachine(BoshStateMachine.createProvisioningStateFlow(serviceConfig.opestackCreateServerGroup))
-        flow.addState(CHECK_AGENTS)
-        flow.addState(AGENTS_READY)
-        flow.addState(AUTOMATION_UPDATE_REQUESTED)
-        flow.addState(PROVISION_SUCCESS)
+        StateMachine stateMachine = new StateMachine([INITIAL])
+        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow(serviceConfig.opestackCreateServerGroup))
+        stateMachine.addAll([CHECK_AGENTS,AGENTS_READY,AUTOMATION_UPDATE_REQUESTED,PROVISION_SUCCESS])
     }
-
-
-
 
     private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
@@ -131,14 +125,11 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     }
 
     private StateMachine getDeprovisionStateMachine(){
-        StateMachine stateMachine = new StateMachine().addState(MongoDbEnterpriseDeprovisionState.INITIAL)
-                                                        .addState(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED)
-                                                        .addState(MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED)
-        stateMachine.addAllFromStateMachine(BoshStateMachine.createDeprovisioningStateFlow(serviceConfig.opestackCreateServerGroup))
-        stateMachine.addState(MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP)
-        stateMachine.addState(MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS)
-
-        return stateMachine
+        StateMachine stateMachine = new StateMachine([MongoDbEnterpriseDeprovisionState.INITIAL,
+                                                        MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED,
+                                                        MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED])
+        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createDeprovisioningStateFlow(serviceConfig.opestackCreateServerGroup))
+        stateMachine.addAll([MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP,MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS])
     }
 
     private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {

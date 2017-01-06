@@ -2,13 +2,15 @@ package com.swisscom.cf.broker.provisioning.statemachine
 
 import com.google.common.base.Preconditions
 import groovy.transform.CompileStatic
-import groovy.transform.TypeChecked
 
 @CompileStatic
-@TypeChecked
 class StateMachine {
     private final List states = new ArrayList<ServiceStateWithAction>()
     private ServiceStateWithAction currentState
+
+    StateMachine(List<? extends ServiceStateWithAction> states) {
+        states.addAll(states)
+    }
 
     StateMachine addState(ServiceStateWithAction serviceState) {
         Preconditions.checkNotNull(serviceState)
@@ -36,7 +38,11 @@ class StateMachine {
     }
 
     StateMachine addAllFromStateMachine(StateMachine stateMachine) {
-        states.addAll(stateMachine.states)
+        addAll(stateMachine.states)
+    }
+
+    StateMachine addAll(List<? extends ServiceStateWithAction> states){
+        states.addAll(states)
         return this
     }
 
