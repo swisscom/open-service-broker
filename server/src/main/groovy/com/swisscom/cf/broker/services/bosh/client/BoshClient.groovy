@@ -22,13 +22,9 @@ class BoshClient {
     private final BoshRestClient boshRestClient
     private final MutexFactory mutexFactory
 
-    static final String VM_TYPES = 'vm_types'
+    public static final String VM_TYPES = 'vm_types'
 
-    static BoshClient create(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
-        new BoshClient(boshRestClient, mutexFactory)
-    }
-
-    private BoshClient(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
+    BoshClient(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
         this.boshConfig = boshRestClient.getBoshConfig()
         this.boshRestClient = boshRestClient
         this.mutexFactory = mutexFactory

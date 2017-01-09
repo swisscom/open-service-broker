@@ -26,11 +26,7 @@ class BoshRestClient {
     private final BoshConfig boshConfig
     private final RestTemplateFactory restTemplateFactory
 
-    static BoshRestClient create(BoshConfig boshConfig, RestTemplateFactory restBuilderFactory) {
-        return new BoshRestClient(boshConfig, restBuilderFactory)
-    }
-
-    private BoshRestClient(BoshConfig boshConfig, RestTemplateFactory restTemplateFactory) {
+    BoshRestClient(BoshConfig boshConfig, RestTemplateFactory restTemplateFactory) {
         this.boshConfig = boshConfig
         this.restTemplateFactory = restTemplateFactory
     }
@@ -47,7 +43,6 @@ class BoshRestClient {
     private HttpHeaders createAuthHeaders() {
         return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
     }
-
 
     String postDeployment(String data) {
         log.trace("Posting new bosh deployment: \n${data}")
@@ -116,7 +111,7 @@ class BoshRestClient {
         public void handleError(ClientHttpResponse response) throws IOException {
             // your error handling here
             if(response.statusCode == HttpStatus.NOT_FOUND){
-                throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND.value())
+                throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
             }
             super.handleError(response)
         }

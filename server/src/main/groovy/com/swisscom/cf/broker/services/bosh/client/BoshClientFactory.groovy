@@ -21,7 +21,7 @@ class BoshClientFactory {
     }
 
     BoshClient build(BoshConfig boshConfig) {
-        return BoshClient.create(BoshRestClient.create(boshConfig, restTemplateFactory), mutexFactory)
+        return new BoshClient(new BoshRestClient(boshConfig, restTemplateFactory), mutexFactory)
     }
 
     RestTemplateFactory getRestTemplateFactory() {

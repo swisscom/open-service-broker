@@ -7,7 +7,4 @@ import spock.lang.Specification
 @ContextConfiguration
 @SpringBootTest
 abstract class BaseSpecification extends Specification {
-    protected String readTestFileContent(String testResource) {
-        return new File(this.getClass().getResource(testResource).getFile()).text
-    }
 }
