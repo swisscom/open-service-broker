@@ -6,6 +6,7 @@ import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 
+@Ignore
 class BoshRestClientTest extends BaseSpecification {
     BoshRestClient client
     @Autowired
@@ -38,7 +39,7 @@ class BoshRestClientTest extends BaseSpecification {
 
     def "get task"(){
         when:
-        def task = client.getTask("1306")
+        def task = client.getTask("2857986")
         then:
         noExceptionThrown()
     }
