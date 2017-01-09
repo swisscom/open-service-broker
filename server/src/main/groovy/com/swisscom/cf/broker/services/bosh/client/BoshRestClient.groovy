@@ -97,18 +97,18 @@ class BoshRestClient {
         return boshConfig.boshDirectorBaseUrl + path
     }
 
-    private RestTemplate createRestTemplate() {
-        def result = restTemplateFactory.buildWithSSLValidationDisabled()
-        result.setErrorHandler(new CustomErrorHandler())
-        return result
-    }
-
     BoshConfig getBoshConfig() {
         return boshConfig
     }
 
     RestTemplateFactory getRestTemplateFactory() {
         return restTemplateFactory
+    }
+
+    private RestTemplate createRestTemplate() {
+        def result = restTemplateFactory.buildWithSSLValidationDisabled()
+        result.setErrorHandler(new CustomErrorHandler())
+        return result
     }
 
     private class CustomErrorHandler extends DefaultResponseErrorHandler {

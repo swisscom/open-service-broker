@@ -40,16 +40,6 @@ class BoshFacade {
         this.boshTemplateFactory = boshTemplateFactory
     }
 
-    private Optional<BoshProvisionState> getProvisionState(LastOperationJobContext context) {
-        Optional<BoshProvisionState> provisionState = null
-        if (!context.lastOperation.internalState) {
-            provisionState = Optional.of(BoshProvisionState.BOSH_INITIAL)
-        } else {
-            provisionState = BoshProvisionState.of(context.lastOperation.internalState)
-        }
-        return provisionState
-    }
-
     String createOpenStackServerGroup(String name) {
         return createOpenstackClient().createAntiAffinityServerGroup(name).id
     }
@@ -157,16 +147,6 @@ class BoshFacade {
 
     private BoshClient createBoshClient() {
         return boshClientFactory.build(serviceConfig)
-    }
-
-    private static Optional<BoshDeprovisionState> getDeprovisionState(LastOperationJobContext context) {
-        Optional<BoshDeprovisionState> state = null
-        if (!context.lastOperation.internalState) {
-            state = Optional.of(BoshDeprovisionState.BOSH_INITIAL)
-        } else {
-            state = BoshDeprovisionState.of(context.lastOperation.internalState)
-        }
-        return state
     }
 
     private static String findBoshDeploymentId(LastOperationJobContext context) {
