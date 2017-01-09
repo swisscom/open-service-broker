@@ -121,10 +121,6 @@ class BoshClient {
         return new Gson().fromJson(result, BoshInfoDto)
     }
 
-    static Collection<VmDto> parseVMSectionOfCloudConfigYml(String yml) {
-        return parseVMSection(parseMapFromYml(yml))
-    }
-
     private static Map parseMapFromYml(String yml) {
         return (Map) new Yaml().load(yml)
     }
@@ -169,5 +165,4 @@ class BoshClient {
         vms.remove(existingVmDto)
         return vms
     }
-
 }

@@ -2,10 +2,12 @@ package com.swisscom.cf.broker.services.bosh.client
 
 import com.swisscom.cf.broker.services.bosh.BoshConfig
 import com.swisscom.cf.broker.util.MutexFactory
+import groovy.json.JsonSlurper
 import org.springframework.http.HttpStatus
 import org.yaml.snakeyaml.Yaml
 import spock.lang.Specification
 import com.swisscom.cf.broker.util.Resource
+import springfox.documentation.spring.web.json.Json
 
 class BoshClientSpec extends Specification {
     private BoshClient client
@@ -64,7 +66,24 @@ class BoshClientSpec extends Specification {
     }
 
     def "RemoveVmInCloudConfig"() {
+        given:
+        def vm = 'us2agejk5bmuya7s'
+        and:
+        client.mutexFactory.getNamedMutex(_) >> new Object()
+        and:
+        def initialCloudConfig = Resource.readTestFileContent("/bosh/cloud_config.json")
+        1 * client.boshRestClient.getCloudConfig() >> initialCloudConfig
 
+
+        when:
+        client.removeVmInCloudConfig(vm)
+
+        then:
+        1 * client.boshRestClient.postCloudConfig(_)>> {String s ->
+            def given = (Map) new Yaml().load(s)
+            def initial = (Map) new Yaml().load(new JsonSlurper().parseText(initialCloudConfig).first().properties as String)
+            assert ((List)given['vm_types']).size() == (((List)initial['vm_types']).size() - 1)
+        }
     }
 
     def "PostDeployment fails for non valid yml"() {
