@@ -3,17 +3,15 @@ package com.swisscom.cf.broker.services.bosh
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
-import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.model.Parameter
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceDetail
-import com.swisscom.cf.broker.services.bosh.statemachine.BoshDeprovisionState
-import com.swisscom.cf.broker.services.bosh.statemachine.BoshProvisionState
-import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClient
-import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
+import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cf.broker.services.bosh.client.BoshClient
 import com.swisscom.cf.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cf.broker.services.bosh.dto.TaskDto
+import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClient
+import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
@@ -154,7 +152,7 @@ class BoshFacade {
     }
 
     Optional<String> deleteBoshDeploymentIfExists(LastOperationJobContext lastOperationJobContext) {
-        return deleteBoshDeployment(findBoshTaskIdForUndeploy(lastOperationJobContext))
+        return deleteBoshDeployment(findBoshDeploymentId(lastOperationJobContext))
     }
 
     private Optional<String> deleteBoshDeployment(String id) {
