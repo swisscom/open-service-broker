@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineContext> {
-    BOSH_INITIAL(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
+    DELETE_BOSH_DEPLOYMENT(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             Optional<String> optionalTaskId = context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext)
@@ -23,20 +23,20 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
             return new StateChangeActionResult(go2NextState: true,details: details)
         }
     }),
-    BOSH_DEPLOYMENT_DELETION_REQUESTED(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    CHECK_BOSH_UNDEPLOY_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext))
         }
     }),
-    BOSH_TASK_SUCCESSFULLY_FINISHED(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             context.boshFacade.removeVmInBoshCloudConfig(context.lastOperationJobContext)
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    BOSH_CLOUD_CONFIG_UPDATED(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    DELETE_OPEN_STACK_SERVER_GROUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             context.boshFacade.deleteOpenStackServerGroupIfExists(context.lastOperationJobContext)

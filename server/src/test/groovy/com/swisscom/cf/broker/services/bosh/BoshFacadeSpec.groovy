@@ -150,13 +150,13 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshDeprovisioning(context)
         then:
-        result.get().internalStatus == BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED.toString()
+        result.get().internalStatus == BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE.toString()
         ServiceDetailsHelper.from(result.get().details).getValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY) == boshTaskId
     }
 
     def "requestDeprovision(internalState: BOSH_DEPLOYMENT_DELETION_REQUESTED and bosh task state is ongoing)"() {
         given:
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'serviceInstanceGuid'),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, boshTaskId)]))
         and:
@@ -164,12 +164,12 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshDeprovisioning(context)
         then:
-        result.get().internalStatus == BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED.toString()
+        result.get().internalStatus == BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE.toString()
     }
 
     def "requestDeprovision(internalState: BOSH_DEPLOYMENT_DELETION_REQUESTED and bosh task state is done)"() {
         given:
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'serviceInstanceGuid'),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, boshTaskId)]))
         and:
@@ -177,25 +177,25 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshDeprovisioning(context)
         then:
-        result.get().internalStatus == BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED.toString()
+        result.get().internalStatus == BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG.toString()
     }
 
     def "requestDeprovision(internalState: BOSH_TASK_SUCCESSFULLY_FINISHED)"() {
         given:
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG.toString()),
                 deprovisionRequest: new DeprovisionRequest(serviceInstanceGuid: 'serviceInstanceGuid'))
         and:
         1 * boshClient.removeVmInCloudConfig(context.deprovisionRequest.serviceInstanceGuid)
         when:
         def result = boshFacade.handleBoshDeprovisioning(context)
         then:
-        result.get().internalStatus == BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED.toString()
+        result.get().internalStatus == BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP.toString()
     }
 
 
     def "requestDeprovision(internalState: BOSH_CLOUD_CONFIG_UPDATED)"() {
         given:
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'serviceInstanceGuid'),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
         and:

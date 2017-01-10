@@ -24,7 +24,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext) >> Optional.of(taskId)
         when:
-        def result = BoshDeprovisionState.BOSH_INITIAL.triggerAction(context)
+        def result = BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT.triggerAction(context)
         then:
         result.go2NextState
         result.details.find({it.key ==  ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY.key}).value == taskId
@@ -36,7 +36,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext) >> Optional.absent()
         when:
-        def result = BoshDeprovisionState.BOSH_INITIAL.triggerAction(context)
+        def result = BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT.triggerAction(context)
         then:
         result.go2NextState
         result.details.find({it.key ==  ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY.key}) == null
@@ -48,7 +48,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext)>>isBoshUndeploySuccessful
         when:
-        def result = BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED.triggerAction(context)
+        def result = BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE.triggerAction(context)
         then:
         result.go2NextState == go2NextState
         !result.details
@@ -64,7 +64,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.removeVmInBoshCloudConfig(context.lastOperationJobContext)
         when:
-        def result = BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED.triggerAction(context)
+        def result = BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG.triggerAction(context)
         then:
         result.go2NextState
         !result.details
@@ -76,7 +76,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.deleteOpenStackServerGroupIfExists(context.lastOperationJobContext)
         when:
-        def result = BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED.triggerAction(context)
+        def result = BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
         then:
         result.go2NextState
         !result.details

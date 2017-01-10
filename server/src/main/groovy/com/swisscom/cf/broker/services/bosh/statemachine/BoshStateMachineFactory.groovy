@@ -21,14 +21,14 @@ class BoshStateMachineFactory {
 
     static StateMachine createDeprovisioningStateFlow(boolean shouldCreateOpenStackServerGroup) {
         if (shouldCreateOpenStackServerGroup) {
-            new StateMachine([BoshDeprovisionState.BOSH_INITIAL,
-                              BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED,
-                              BoshDeprovisionState.BOSH_TASK_SUCCESSFULLY_FINISHED,
-                              BoshDeprovisionState.BOSH_CLOUD_CONFIG_UPDATED,
+            new StateMachine([BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
+                              BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE,
+                              BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG,
+                              BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP,
                               BoshDeprovisionState.BOSH_FINAL])
         } else {
-            new StateMachine([BoshDeprovisionState.BOSH_INITIAL,
-                              BoshDeprovisionState.BOSH_DEPLOYMENT_DELETION_REQUESTED,
+            new StateMachine([BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
+                              BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE,
                               BoshDeprovisionState.BOSH_FINAL])
         }
     }
