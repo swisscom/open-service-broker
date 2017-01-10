@@ -16,7 +16,7 @@ class BoshDeprovisionStateSpec extends Specification {
         context.boshFacade = Mock(BoshFacade)
     }
 
-    def "BOSH_INITIAL with existing deployment"(){
+    def "DELETE_BOSH_DEPLOYMENT with existing deployment"(){
         given:
         def deploymentId = 'deploymentId'
         def taskId = 'taskId'
@@ -30,7 +30,7 @@ class BoshDeprovisionStateSpec extends Specification {
         result.details.find({it.key ==  ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY.key}).value == taskId
     }
 
-    def "BOSH_INITIAL with *N0* existing deployment"(){
+    def "DELETE_BOSH_DEPLOYMENT with *N0* existing deployment"(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
         and:
@@ -42,7 +42,7 @@ class BoshDeprovisionStateSpec extends Specification {
         result.details.find({it.key ==  ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY.key}) == null
     }
 
-    def "BOSH_DEPLOYMENT_DELETION_REQUESTED "(){
+    def "CHECK_BOSH_UNDEPLOY_TASK_STATE "(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
         and:
@@ -58,7 +58,7 @@ class BoshDeprovisionStateSpec extends Specification {
         false | false
     }
 
-    def "BOSH_TASK_SUCCESSFULLY_FINISHED "(){
+    def "UPDATE_BOSH_CLOUD_CONFIG "(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
         and:
@@ -70,7 +70,7 @@ class BoshDeprovisionStateSpec extends Specification {
         !result.details
     }
 
-    def "BOSH_CLOUD_CONFIG_UPDATED"(){
+    def "DELETE_OPEN_STACK_SERVER_GROUP"(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
         and:

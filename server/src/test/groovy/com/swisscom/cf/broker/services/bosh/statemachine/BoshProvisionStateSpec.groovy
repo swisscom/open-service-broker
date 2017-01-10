@@ -17,7 +17,7 @@ class BoshProvisionStateSpec extends Specification {
         context.boshFacade = Mock(BoshFacade)
     }
 
-    def "BOSH_INITIAL"(){
+    def "CREATE_OPEN_STACK_SERVER_GROUP"(){
         given:
         def openStackGroupId = 'openStackGroupId'
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
@@ -30,7 +30,7 @@ class BoshProvisionStateSpec extends Specification {
         result.details.find({it.key ==  ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
     }
 
-    def "CLOUD_PROVIDER_SERVER_GROUP_CREATED"(){
+    def "UPDATE_BOSH_CLOUD_CONFIG"(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
@@ -42,7 +42,7 @@ class BoshProvisionStateSpec extends Specification {
         !result.details
     }
 
-    def "BOSH_CLOUD_CONFIG_UPDATED"(){
+    def "CREATE_DEPLOYMENT"(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         context.boshTemplateCustomizer = Mock(BoshTemplateCustomizer)
@@ -72,7 +72,7 @@ class BoshProvisionStateSpec extends Specification {
         false                  | false
     }
 
-    def "BOSH_FINAL"(){
+    def "BOSH_TASK_SUCCESSFULLY_FINISHED"(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
 
