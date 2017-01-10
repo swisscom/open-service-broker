@@ -32,13 +32,12 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
             new StateChangeActionResult(go2NextState: true, details: context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer))
         }
     }),
-    BOSH_DEPLOYMENT_TRIGGERED(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    CHECK_BOSH_DEPLOYMENT_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext))
         }
-    }),
-    BOSH_TASK_SUCCESSFULLY_FINISHED(LastOperation.Status.IN_PROGRESS,new NoOp())
+    })
 
     final LastOperation.Status status
     final OnStateChange<BoshStateMachineContext> onStateChange

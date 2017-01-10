@@ -99,14 +99,14 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshProvisioning(context, templateCustomizer)
         then:
-        result.get().internalStatus == BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED.toString()
+        result.get().internalStatus == BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.toString()
         ServiceDetailsHelper.from(result.get().details).getValue(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY) == boshTaskId
     }
 
     def "requestProvision(internalState: BOSH_DEPLOYMENT_TRIGGERED but not successful)"() {
         given:
         def boshTaskId = 'boshTaskId'
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, boshTaskId)]))
         and:
@@ -115,13 +115,13 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshProvisioning(context, null)
         then:
-        result.get().internalStatus == BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED.toString()
+        result.get().internalStatus == BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.toString()
     }
 
     def "requestProvision(internalState: BOSH_TASK_SUCCESSFULLY_FINISHED)"() {
         given:
         def boshTaskId = 'boshTaskId'
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, boshTaskId)]))
         and:

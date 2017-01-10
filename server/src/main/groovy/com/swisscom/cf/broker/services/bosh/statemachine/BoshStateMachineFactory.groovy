@@ -12,10 +12,10 @@ class BoshStateMachineFactory {
             new StateMachine([BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP,
                               BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG,
                               BoshProvisionState.CREATE_DEPLOYMENT,
-                              BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED])
+                              BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE])
         } else {
             new StateMachine([BoshProvisionState.CREATE_DEPLOYMENT,
-                              BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED])
+                              BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE])
         }
     }
 
@@ -24,12 +24,10 @@ class BoshStateMachineFactory {
             new StateMachine([BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
                               BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE,
                               BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG,
-                              BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP,
-                              BoshDeprovisionState.BOSH_FINAL])
+                              BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP])
         } else {
             new StateMachine([BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
-                              BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE,
-                              BoshDeprovisionState.BOSH_FINAL])
+                              BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE])
         }
     }
 }

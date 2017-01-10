@@ -81,17 +81,4 @@ class BoshDeprovisionStateSpec extends Specification {
         result.go2NextState
         !result.details
     }
-
-    def "BOSH_FINAL"(){
-        given:
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
-
-        when:
-        def result = BoshDeprovisionState.BOSH_FINAL.triggerAction(context)
-        then:
-        result.go2NextState
-        !result.details
-        0 * _._
-    }
-
 }

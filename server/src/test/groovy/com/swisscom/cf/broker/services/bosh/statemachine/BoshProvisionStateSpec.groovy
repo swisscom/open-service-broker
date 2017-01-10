@@ -56,13 +56,13 @@ class BoshProvisionStateSpec extends Specification {
         result.details == details
     }
 
-    def "BOSH_DEPLOYMENT_DELETION_REQUESTED "(){
+    def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "(){
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
         1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext)>>isBoshDeploySuccessful
         when:
-        def result = BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED.triggerAction(context)
+        def result = BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.triggerAction(context)
         then:
         result.go2NextState == go2NextState
         !result.details
@@ -71,17 +71,4 @@ class BoshProvisionStateSpec extends Specification {
         true                   | true
         false                  | false
     }
-
-    def "BOSH_TASK_SUCCESSFULLY_FINISHED"(){
-        given:
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
-
-        when:
-        def result = BoshProvisionState.BOSH_TASK_SUCCESSFULLY_FINISHED.triggerAction(context)
-        then:
-        result.go2NextState
-        !result.details
-        0 * _._
-    }
-
 }
