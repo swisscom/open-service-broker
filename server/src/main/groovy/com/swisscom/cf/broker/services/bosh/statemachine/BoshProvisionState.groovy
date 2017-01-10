@@ -12,21 +12,21 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContext> {
-    BOSH_INITIAL(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    CREATE_OPEN_STACK_SERVER_GROUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             String serverGroupId = context.boshFacade.createOpenStackServerGroup(context.lastOperationJobContext.provisionRequest.serviceInstanceGuid)
             new StateChangeActionResult(go2NextState: true, details:[ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)])
         }
     }),
-    CLOUD_PROVIDER_SERVER_GROUP_CREATED(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
+    UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             context.boshFacade.addOrUpdateVmInBoshCloudConfig(context.lastOperationJobContext)
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    BOSH_CLOUD_CONFIG_UPDATED(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+    CREATE_DEPLOYMENT(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             new StateChangeActionResult(go2NextState: true, details: context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer))

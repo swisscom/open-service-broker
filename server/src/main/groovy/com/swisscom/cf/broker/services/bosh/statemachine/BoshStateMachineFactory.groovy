@@ -9,12 +9,12 @@ import groovy.transform.TypeChecked
 class BoshStateMachineFactory {
     static StateMachine createProvisioningStateFlow(boolean shouldCreateOpenStackServerGroup) {
         if (shouldCreateOpenStackServerGroup) {
-            new StateMachine([BoshProvisionState.BOSH_INITIAL,
-                              BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED,
-                              BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED,
+            new StateMachine([BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP,
+                              BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG,
+                              BoshProvisionState.CREATE_DEPLOYMENT,
                               BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED])
         } else {
-            new StateMachine([BoshProvisionState.BOSH_INITIAL,
+            new StateMachine([BoshProvisionState.CREATE_DEPLOYMENT,
                               BoshProvisionState.BOSH_DEPLOYMENT_TRIGGERED])
         }
     }

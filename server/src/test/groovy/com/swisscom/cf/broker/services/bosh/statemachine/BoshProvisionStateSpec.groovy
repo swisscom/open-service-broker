@@ -24,7 +24,7 @@ class BoshProvisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.createOpenStackServerGroup('guid') >> openStackGroupId
         when:
-        def result = BoshProvisionState.BOSH_INITIAL.triggerAction(context)
+        def result = BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
         then:
         result.go2NextState
         result.details.find({it.key ==  ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
@@ -36,7 +36,7 @@ class BoshProvisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.addOrUpdateVmInBoshCloudConfig(context.lastOperationJobContext)
         when:
-        def result = BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED.triggerAction(context)
+        def result = BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG.triggerAction(context)
         then:
         result.go2NextState
         !result.details
@@ -50,7 +50,7 @@ class BoshProvisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest,context.boshTemplateCustomizer) >> details
         when:
-        def result = BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED.triggerAction(context)
+        def result = BoshProvisionState.CREATE_DEPLOYMENT.triggerAction(context)
         then:
         result.go2NextState
         result.details == details

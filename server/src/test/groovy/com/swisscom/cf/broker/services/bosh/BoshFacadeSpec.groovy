@@ -63,14 +63,14 @@ class BoshFacadeSpec extends Specification {
         when:
         def result = boshFacade.handleBoshProvisioning(new LastOperationJobContext(lastOperation: new LastOperation(internalState: null), provisionRequest: new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid)), null)
         then:
-        result.get().internalStatus == BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED.toString()
+        result.get().internalStatus == BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG.toString()
         ServiceDetailsHelper.from(result.get().details).getValue(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID) == serverGroupId
     }
 
     def "requestProvision(internalState: CLOUD_PROVIDER_SERVER_GROUP_CREATED)"() {
         given:
         def vmType = "small"
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.CLOUD_PROVIDER_SERVER_GROUP_CREATED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]),
                 plan: new Plan(parameters: [new Parameter(name: BoshFacade.PARAM_BOSH_VM_INSTANCE_TYPE, value: vmType)]))
@@ -79,12 +79,12 @@ class BoshFacadeSpec extends Specification {
         def result = boshFacade.handleBoshProvisioning(context, null)
         then:
         1 * boshClient.addOrUpdateVmInCloudConfig(context.provisionRequest.serviceInstanceGuid, vmType, serverGroupId)
-        result.get().internalStatus == BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED.toString()
+        result.get().internalStatus == BoshProvisionState.CREATE_DEPLOYMENT.toString()
     }
 
     def "requestProvision(internalState: BOSH_CLOUD_CONFIG_UPDATED)"() {
         given:
-        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.BOSH_CLOUD_CONFIG_UPDATED.toString()),
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: BoshProvisionState.CREATE_DEPLOYMENT.toString()),
                 provisionRequest: new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid, plan: new Plan(templateUniqueIdentifier: 'src/test/resources/bosh/template_redis_ha_v10.yml')),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
 
