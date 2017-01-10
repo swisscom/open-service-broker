@@ -31,7 +31,7 @@ class BoshClient {
     }
 
     CloudConfigContainerDto fetchCloudConfig() {
-        Collection<CloudConfigContainerDto> result = (Collection<CloudConfigContainerDto>) new Gson().fromJson(boshRestClient.getCloudConfig(), new TypeToken<Collection<CloudConfigContainerDto>>() {
+        Collection<CloudConfigContainerDto> result = (Collection<CloudConfigContainerDto>) new Gson().fromJson(boshRestClient.fetchCloudConfig(), new TypeToken<Collection<CloudConfigContainerDto>>() {
         }.getType())
         return result.first()
     }
@@ -117,7 +117,7 @@ class BoshClient {
     }
 
     BoshInfoDto fetchBoshInfo() {
-        def result = boshRestClient.getBoshInfo()
+        def result = boshRestClient.fetchBoshInfo()
         return new Gson().fromJson(result, BoshInfoDto)
     }
 

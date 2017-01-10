@@ -1,5 +1,6 @@
 package com.swisscom.cf.broker.services.bosh.client
 
+import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.bosh.BoshConfig
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
@@ -22,6 +23,7 @@ class BoshRestClient {
     public static final String CLOUD_CONFIGS = '/cloud_configs'
 
     public static final String CONTENT_TYPE_YAML = "text/yaml"
+    public static final String CLOUD_CONFIG_QUERY = "?limit=1"
 
     private final BoshConfig boshConfig
     private final RestTemplateFactory restTemplateFactory
@@ -31,7 +33,7 @@ class BoshRestClient {
         this.restTemplateFactory = restTemplateFactory
     }
 
-    String getBoshInfo() {
+    String fetchBoshInfo() {
         createRestTemplate().getForEntity(prependBaseUrl(INFO),String.class).body
     }
 
@@ -72,8 +74,8 @@ class BoshRestClient {
         return handleRedirectonAndExtractTaskId(response)
     }
 
-    String getCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + "?limit=1"),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
+    String fetchCloudConfig() {
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
     }
 
     void postCloudConfig(String data) {
@@ -88,6 +90,7 @@ class BoshRestClient {
         createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity( createAuthHeaders()), String.class).body
     }
 
+    @VisibleForTesting
     private String prependBaseUrl(String path) {
         return boshConfig.boshDirectorBaseUrl + path
     }

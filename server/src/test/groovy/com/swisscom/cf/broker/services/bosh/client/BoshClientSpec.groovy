@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus
 import org.yaml.snakeyaml.Yaml
 import spock.lang.Specification
 import com.swisscom.cf.broker.util.Resource
-import springfox.documentation.spring.web.json.Json
 
 class BoshClientSpec extends Specification {
     private BoshClient client
@@ -22,7 +21,7 @@ class BoshClientSpec extends Specification {
 
     def "happy path: FetchCloudConfig"() {
         given:
-        1 * client.boshRestClient.getCloudConfig() >> Resource.readTestFileContent("/bosh/cloud_config.json")
+        1 * client.boshRestClient.fetchCloudConfig() >> Resource.readTestFileContent("/bosh/cloud_config.json")
         when:
         def result = client.fetchCloudConfig()
         then:
@@ -48,7 +47,7 @@ class BoshClientSpec extends Specification {
         and:
         client.mutexFactory.getNamedMutex(_) >> new Object()
         and:
-        1 * client.boshRestClient.getCloudConfig() >> Resource.readTestFileContent("/bosh/cloud_config.json")
+        1 * client.boshRestClient.fetchCloudConfig() >> Resource.readTestFileContent("/bosh/cloud_config.json")
         and:
         def expectedInput = Resource.readTestFileContent("/bosh/cloud_config_with_test_vm.yml")
 
@@ -72,7 +71,7 @@ class BoshClientSpec extends Specification {
         client.mutexFactory.getNamedMutex(_) >> new Object()
         and:
         def initialCloudConfig = Resource.readTestFileContent("/bosh/cloud_config.json")
-        1 * client.boshRestClient.getCloudConfig() >> initialCloudConfig
+        1 * client.boshRestClient.fetchCloudConfig() >> initialCloudConfig
 
 
         when:
@@ -138,7 +137,7 @@ class BoshClientSpec extends Specification {
 
     def "happy path: fetchBoshInfo"() {
         given:
-        1 * client.boshRestClient.getBoshInfo() >> Resource.readTestFileContent('/bosh/bosh_info.json')
+        1 * client.boshRestClient.fetchBoshInfo() >> Resource.readTestFileContent('/bosh/bosh_info.json')
         when:
         def result = client.fetchBoshInfo()
         then:

@@ -16,9 +16,10 @@ class BoshRestClientTest extends BaseSpecification {
     def setup() {
         client = new BoshRestClient(config, new RestTemplateFactory())
     }
+
     def "get info works correctly"() {
         when:
-        def info = client.boshInfo
+        def info = client.fetchBoshInfo()
         then:
         noExceptionThrown()
     }
@@ -32,7 +33,7 @@ class BoshRestClientTest extends BaseSpecification {
 
     def "get cloud config"() {
         when:
-        def cc = client.getCloudConfig()
+        def cc = client.fetchCloudConfig()
         then:
         noExceptionThrown()
     }
