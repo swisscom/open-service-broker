@@ -101,15 +101,15 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     }
 
     private StateMachine getProvisionStateMachine(LastOperationJobContext context) {
-        StateMachine stateMachine = new StateMachine([INITIAL])
+        StateMachine stateMachine = new StateMachine([CREATE_OPS_MANAGER_GROUP])
         stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow(serviceConfig.opestackCreateServerGroup))
-        stateMachine.addAll([CHECK_AGENTS,AGENTS_READY,AUTOMATION_UPDATE_REQUESTED,PROVISION_SUCCESS])
+        stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS,ENABLE_BACKUP_IF_CONFIGURED,PROVISION_SUCCESS])
     }
 
     private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
         if (!context.lastOperation.internalState) {
-            provisionState = MongoDbEnterpriseProvisionState.INITIAL
+            provisionState = MongoDbEnterpriseProvisionState.CREATE_OPS_MANAGER_GROUP
         } else {
             provisionState = MongoDbEnterpriseProvisionState.of(context.lastOperation.internalState)
         }
