@@ -125,9 +125,10 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     }
 
     private StateMachine getDeprovisionStateMachine(){
-        StateMachine stateMachine = new StateMachine([MongoDbEnterpriseDeprovisionState.INITIAL,
-                                                        MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATE_REQUESTED,
-                                                        MongoDbEnterpriseDeprovisionState.AUTOMATION_UPDATED])
+        StateMachine stateMachine = new StateMachine([MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED,
+                                                        MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG,
+                                                      MongoDbEnterpriseDeprovisionState.CHECK_AUTOMATION_CONFIG_STATE,
+                                                      MongoDbEnterpriseDeprovisionState.DELETE_HOSTS_ON_OPS_MANAGER])
         stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createDeprovisioningStateFlow(serviceConfig.opestackCreateServerGroup))
         stateMachine.addAll([MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP,MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS])
     }
@@ -135,7 +136,7 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
         ServiceStateWithAction deprovisionState = null
         if (!context.lastOperation.internalState) {
-            deprovisionState = MongoDbEnterpriseDeprovisionState.INITIAL
+            deprovisionState = MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
         } else {
             deprovisionState = MongoDbEnterpriseDeprovisionState.of(context.lastOperation.internalState)
         }

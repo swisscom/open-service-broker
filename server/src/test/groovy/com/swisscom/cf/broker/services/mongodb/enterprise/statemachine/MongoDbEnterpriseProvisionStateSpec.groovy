@@ -50,9 +50,9 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
     }
 
     def "CHECK_AGENTS"() {
+        given:
         def groupId = 'GroupId'
         def agentCount = 3
-        given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, agentCount.toString()),
                                                                                                                      ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId
                                                                                                                      )]))
@@ -73,11 +73,11 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
     }
 
     def "REQUEST_AUTOMATION_UPDATE"() {
+        given:
         def groupId = 'GroupId'
         def port = 666
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
-        given:
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                                                                      ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
                                                                                                                      ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),

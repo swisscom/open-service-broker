@@ -17,7 +17,7 @@ import static com.swisscom.cf.broker.util.ServiceDetailKey.MONGODB_ENTERPRISE_RE
 
 @Log4j
 enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDbEnterperiseStateMachineContext> {
-    INITIAL(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
+    DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
@@ -28,21 +28,28 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
                 log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
                         "the previous provisioning attempt must have failed.")
             }
-            context.opsManagerFacade.undeploy(groupId)
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    AUTOMATION_UPDATE_REQUESTED(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
+    UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
+        @Override
+        StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
+            context.opsManagerFacade.undeploy(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
+            return new StateChangeActionResult(go2NextState: true)
+        }
+    }),
+    CHECK_AUTOMATION_CONFIG_STATE(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             return new StateChangeActionResult(go2NextState:  context.opsManagerFacade.isAutomationUpdateComplete(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)))
 
         }
     }),
-    AUTOMATION_UPDATED(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
+    DELETE_HOSTS_ON_OPS_MANAGER(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             context.opsManagerFacade.deleteAllHosts(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
+            return new StateChangeActionResult(go2NextState: true)
         }
     }),
     CLEAN_UP_GROUP(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
@@ -53,8 +60,6 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         }
     }),
     DEPROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp())
-
-
 
     public static final Map<String, ServiceState> map = new TreeMap<String, ServiceState>()
 
