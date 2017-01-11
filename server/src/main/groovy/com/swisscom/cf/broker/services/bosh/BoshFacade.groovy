@@ -12,6 +12,7 @@ import com.swisscom.cf.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cf.broker.services.bosh.dto.TaskDto
 import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cf.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
+import com.swisscom.cf.broker.util.Resource
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
@@ -50,7 +51,7 @@ class BoshFacade {
     def addOrUpdateVmInBoshCloudConfig(LastOperationJobContext context) {
         createBoshClient().addOrUpdateVmInCloudConfig(context.provisionRequest.serviceInstanceGuid, findBoshVmInstanceType(context), findServerGroupId(context).get())
     }
-
+    @VisibleForTesting
     private Optional<String> findServerGroupId(LastOperationJobContext context) {
         Optional<String> maybeGroupId = ServiceDetailsHelper.from(context.serviceInstance.details).findValue(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID)
         if (maybeGroupId.present) {
@@ -70,10 +71,6 @@ class BoshFacade {
         return ServiceDetailsHelper.from(context.serviceInstance.details).getValue(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY)
     }
 
-    private static String findBoshTaskIdForUndeploy(LastOperationJobContext context) {
-        return ServiceDetailsHelper.from(context.serviceInstance.details).getValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
-    }
-
     private static String findBoshVmInstanceType(LastOperationJobContext context) {
         def instanceTypeParam = context.plan.parameters.find { it.name == PARAM_BOSH_VM_INSTANCE_TYPE }
         if (!instanceTypeParam) {
@@ -83,7 +80,7 @@ class BoshFacade {
     }
 
     Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
-        BoshTemplate template = boshTemplateFactory.build(readTemplate(provisionRequest.plan.templateUniqueIdentifier))
+        BoshTemplate template = boshTemplateFactory.build(readTemplateContent(provisionRequest.plan.templateUniqueIdentifier))
         template.replace('guid', provisionRequest.serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
         template.replace(PARAM_BOSH_DIRECTOR_UUID, createBoshClient().fetchBoshInfo().uuid)
@@ -111,14 +108,19 @@ class BoshFacade {
         }
     }
 
-    @VisibleForTesting
-    private String readTemplate(String templateIdentifier) {
+    private String readTemplateContent(String templateIdentifier) {
         Preconditions.checkNotNull(templateIdentifier, 'Need a valid template name!')
-        File file = new File(serviceConfig.boshManifestFolder, templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml'))
-        log.info("Using template file:${file.absolutePath}")
-        return file.text
+        String fileName = templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml')
+        File file = new File(serviceConfig.boshManifestFolder, fileName)
+        if(file.exists()){
+            log.info("Using template file:${file.absolutePath}")
+            return file.text
+        }
+        log.info("Will try to read file:${fileName} from embedded resources")
+        return Resource.readTestFileContent(fileName)
     }
 
+    @VisibleForTesting
     private static String generateDeploymentId(String serviceInstanceGuid) {
         return DEPLOYMENT_PREFIX + serviceInstanceGuid
     }
@@ -163,14 +165,23 @@ class BoshFacade {
         createBoshClient().removeVmInCloudConfig(context.deprovisionRequest.serviceInstanceGuid)
     }
 
-    void deleteOpenStackServerGroup(String serverGroupId) {
-        createOpenstackClient().deleteServerGroup(serverGroupId)
-    }
-
     void deleteOpenStackServerGroupIfExists(LastOperationJobContext context) {
         def maybeServerGroupId = findServerGroupId(context)
         if (maybeServerGroupId.present) {
             deleteOpenStackServerGroup(maybeServerGroupId.get())
+        }
+    }
+
+    private void deleteOpenStackServerGroup(String serverGroupId) {
+        createOpenstackClient().deleteServerGroup(serverGroupId)
+    }
+
+    boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
+        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
+        if(maybe.present){
+            return isBoshTaskSuccessful(maybe.get())
+        }else{
+            return true
         }
     }
 
@@ -188,14 +199,5 @@ class BoshFacade {
 
     BoshTemplateFactory getBoshTemplateFactory() {
         return boshTemplateFactory
-    }
-
-    boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
-        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
-        if(maybe.present){
-            return isBoshTaskSuccessful(maybe.get())
-        }else{
-            return true
-        }
     }
 }
