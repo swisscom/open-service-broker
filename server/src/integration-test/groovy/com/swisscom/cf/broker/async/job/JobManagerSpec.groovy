@@ -58,7 +58,6 @@ class JobManagerSpec extends BaseSpecification {
         id = 'TEST_' + StringGenerator.randomUuid()
     }
 
-
     @Autowired
     void poorMansSetupSpec(ServiceLifeCycler  serviceLifeCycler,CFServiceRepository cfServiceRepository,DBTestUtil dbTestUtil,ServiceInstanceRepository serviceInstanceRepository) {
         if (!initialized) {
@@ -84,7 +83,6 @@ class JobManagerSpec extends BaseSpecification {
     def injectServiceLifeCycler(ServiceLifeCycler serviceLifeCycler){
         this.serviceLifeCycler = serviceLifeCycler
     }
-
 
     def cleanup() {
         removeLastOperation(id)
