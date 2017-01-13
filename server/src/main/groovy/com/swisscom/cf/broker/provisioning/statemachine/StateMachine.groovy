@@ -5,16 +5,16 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class StateMachine {
-    private final List states = new ArrayList<ServiceStateWithAction>()
+    private final List stateList = new ArrayList<ServiceStateWithAction>()
     private ServiceStateWithAction currentState
 
     StateMachine(List<? extends ServiceStateWithAction> states) {
-        states.addAll(states)
+        stateList.addAll(states)
     }
 
     StateMachine addState(ServiceStateWithAction serviceState) {
         Preconditions.checkNotNull(serviceState)
-        states.add(serviceState)
+        stateList.add(serviceState)
         return this
     }
 
@@ -27,7 +27,7 @@ class StateMachine {
     }
 
     synchronized ServiceState nextState(ServiceStateWithAction state) {
-        Iterator<ServiceState> it = states.iterator()
+        Iterator<ServiceState> it = stateList.iterator()
         while (it.hasNext()) {
             ServiceState current = it.next()
             if (current == state) {
@@ -42,16 +42,16 @@ class StateMachine {
     }
 
     StateMachine addAll(List<? extends ServiceStateWithAction> states){
-        states.addAll(states)
+        stateList.addAll(states)
         return this
     }
 
     List<ServiceStateWithAction> getStates() {
-        return Collections.unmodifiableList(states)
+        return Collections.unmodifiableList(stateList)
     }
 
     @Override
     public String toString() {
-        return "StateMachine{" + "states=" + states.join(',') + '}'
+        return "StateMachine{" + "stateList=" + stateList.join(',') + '}'
     }
 }

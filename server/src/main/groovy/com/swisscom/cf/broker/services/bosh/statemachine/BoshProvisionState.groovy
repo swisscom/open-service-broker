@@ -6,7 +6,6 @@ import com.swisscom.cf.broker.model.ServiceDetail
 import com.swisscom.cf.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cf.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cf.broker.provisioning.statemachine.StateChangeActionResult
-import com.swisscom.cf.broker.provisioning.statemachine.action.NoOp
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 
