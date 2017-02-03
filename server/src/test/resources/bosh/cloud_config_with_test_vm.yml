@@ -1,0 +1,168 @@
+azs:
+- name: z1
+- name: z2
+- name: z3
+compilation:
+  network: mongoenterprise1
+  reuse_compilation_vms: true
+  workers: 2
+  vm_type: mongoenterprise
+  az: z1
+networks:
+- name: opsmanager1
+  subnets:
+  - cloud_properties:
+      net_id: 0a2b5a54-e4d3-4830-9e7f-f33b9ea15bde
+      subnet: 49488acb-0723-4cfd-b64e-64c073b8610a
+      security_groups:
+      - default
+    az: z1
+    dns:
+    - 10.19.21.36
+    - 10.19.21.37
+    gateway: 10.19.28.1
+    name: private
+    range: 10.19.28.0/24
+    reserved:
+    - 10.19.28.2 - 10.19.28.100
+    - 10.19.28.115 - 10.19.28.254
+    static:
+    - 10.19.28.101 - 10.19.28.114
+  type: manual
+- name: mongoenterprise1
+  subnets:
+  - cloud_properties:
+      net_id: 0a2b5a54-e4d3-4830-9e7f-f33b9ea15bde
+      subnet: 49488acb-0723-4cfd-b64e-64c073b8610a
+      security_groups:
+      - default
+    az: z1
+    dns:
+    - 10.19.21.36
+    - 10.19.21.37
+    gateway: 10.19.28.1
+    name: private
+    range: 10.19.28.0/24
+    reserved:
+    - 10.19.28.2 - 10.19.28.115
+    - 10.19.28.250 - 10.19.28.254
+  type: manual
+disk_types:
+- name: mongoent.small
+  disk_size: 227680
+- name: mongoent.medium
+  disk_size: 227680
+- name: mongoent.large
+  disk_size: 227680
+vm_types:
+- name: uueydnjd9a8xdx0z
+  cloud_properties:
+    instance_type: medium_z1
+    scheduler_hints:
+      group: uueydnjd9a8xdx0z
+- name: 40ymkcs0o262exz2
+  cloud_properties:
+    instance_type: m1.medium
+    scheduler_hints:
+      group: 4f2e812d-9a2a-4ae6-b11c-0b4dc3584cc3
+- name: xqsm595t41yoji4l
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: cdf63ec3-9f9c-407a-a583-f401e8d55fe7
+- name: isztodxy4r5gyljg
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 7b184dd8-7cdc-429f-a129-f2acfae6b4ef
+- name: opsmanager
+  cloud_properties:
+    instance_type: m1.xlarge
+- name: mongoenterprise
+  cloud_properties:
+    instance_type: m1.xlarge
+- name: k8be517bc2ep3oqb
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 2a19c42d-585f-461a-a97d-455087c6d89c
+- name: jvw8i7iko5an72ar
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 3e6d9a00-5568-474a-a49e-2e74f4509919
+- name: 8tlihzux5s3nq370
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: e2d7e222-642e-4805-9775-d1840fe7662c
+- name: vbfuqenfbhbnzzcf
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: e945225a-cf13-4664-8dd4-e43258f4ad6d
+- name: 0au5wklmnvau432e
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 72a2ecd8-89d9-42e8-a004-d8342b9a7658
+- name: kyatliiuvcqt5br2
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 8d8fe1be-1448-4b9d-a9db-f6c8a7d5c0b6
+- name: d2x5m0nkarexj9t4
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 385f925b-de52-4c12-89e4-53e66cb1b33c
+- name: x39yj7ihx9bng41t
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 90f22fad-c85f-494e-9b3a-bd728e95866e
+- name: l46khoopexl8hn6y
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: e0e593ca-7652-4d3e-8f0d-2a18edb7cfbb
+- name: 9deb0eqsdvnd9miz
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 0fd773a3-fd86-4a1e-aff8-2109c66f8d3b
+- name: akwkqhe2ihnftwrf
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 7771ca1e-ca65-498f-b8dc-816f1d725082
+- name: 7l7kugmejn13jibp
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 8f845572-2796-43d8-a1da-82ccc850ea9e
+- name: bo2kkgtoui3bj625
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: b3ed1e99-36d5-4baf-be5a-4ea07b3742d1
+- name: av8ie7p2rpzvpqd5
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 20035324-1964-47cb-9b05-f939085b1703
+- name: fwpriy7y8qem4rca
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 5a5efb28-2505-4ea0-97a3-e0a4e3d20867
+- name: us2agejk5bmuya7s
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 641980f6-a1d3-4e8c-81cd-4840c56a3754
+- name: VM_NEW_FOR_TEST
+  cloud_properties:
+    instance_type: instanceType
+    scheduler_hints:
+      group: affinityGroup

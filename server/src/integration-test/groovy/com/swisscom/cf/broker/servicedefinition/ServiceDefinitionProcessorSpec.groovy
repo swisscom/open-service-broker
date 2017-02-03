@@ -7,6 +7,7 @@ import com.swisscom.cf.broker.error.ServiceBrokerException
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cf.broker.util.DBTestUtil
+import com.swisscom.cf.broker.util.Resource
 import com.swisscom.cf.broker.util.test.ErrorCodeHelper
 import groovy.json.JsonSlurper
 import org.skyscreamer.jsonassert.JSONAssert
@@ -54,7 +55,7 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     private DBTestUtil dbTestUtil
 
     def setupSpec() {
-        def json = new JsonSlurper().parseText(readTestFileContent(FILE_SERVICE1))
+        def json = new JsonSlurper().parseText(Resource.readTestFileContent(FILE_SERVICE1))
         serviceGuid = json.guid
         planGuid = json.plans[0].guid
     }
@@ -420,7 +421,7 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     }
 
     private def processServiceDefinition(String fileName = FILE_SERVICE1) {
-        return serviceDefinitionProcessor.createOrUpdateServiceDefinition(readTestFileContent(fileName))
+        return serviceDefinitionProcessor.createOrUpdateServiceDefinition(Resource.readTestFileContent(fileName))
     }
 
     def "service which does not have instances is deleted correctly"() {
@@ -469,6 +470,6 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         when:
         def dto = serviceDefinitionProcessor.getServiceDefinition(serviceGuid)
         then:
-        JSONAssert.assertEquals(readTestFileContent(FILE_SERVICE1), new ObjectMapper().writeValueAsString(dto), JSONCompareMode.LENIENT)
+        JSONAssert.assertEquals(Resource.readTestFileContent(FILE_SERVICE1), new ObjectMapper().writeValueAsString(dto), JSONCompareMode.LENIENT)
     }
 }

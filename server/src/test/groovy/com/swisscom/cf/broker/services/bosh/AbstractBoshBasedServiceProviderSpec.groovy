@@ -53,6 +53,4 @@ abstract class AbstractBoshBasedServiceProviderSpec<T extends BoshBasedServicePr
                     it.guid == serviceInstaceGuid && it.retryIntervalInSeconds == serviceProvider.serviceConfig.retryIntervalInSeconds && it.maxRetryDurationInMinutes == serviceProvider.serviceConfig.maxRetryDurationInMinutes
         })
     }
-
-
 }

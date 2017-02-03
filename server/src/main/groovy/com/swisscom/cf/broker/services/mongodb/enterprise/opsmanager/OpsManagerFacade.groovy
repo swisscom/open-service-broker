@@ -122,6 +122,7 @@ class OpsManagerFacade {
         throw new NotImplementedException()
     }
 
+    //TODO refactor this method ,passing in too many arguments
     def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser = null, String healthPassword = null) {
         final List<String> hosts = findHostsForGroup(groupId)
         final List<HostPort> hostPorts = hosts.collect { String host -> new HostPort(host: host, port: port) }
@@ -306,7 +307,7 @@ class OpsManagerFacade {
                 if (!automationConfigDto.auth.usersDeleted) {
                     automationConfigDto.auth.usersDeleted = []
                 }
-                automationConfigDto.auth.usersDeleted.add(new AuthenticationDto.DbUser2Delete(user: user, allDbs: false, dbs: [database]))
+                automationConfigDto.auth.usersDeleted.add(new AuthenticationDto.DbUser2Delete(user: user, allDbs: true, dbs: [database]))
         })
     }
 

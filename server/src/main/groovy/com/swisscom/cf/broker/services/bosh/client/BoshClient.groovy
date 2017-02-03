@@ -22,20 +22,16 @@ class BoshClient {
     private final BoshRestClient boshRestClient
     private final MutexFactory mutexFactory
 
-    static final String VM_TYPES = 'vm_types'
+    public static final String VM_TYPES = 'vm_types'
 
-    static BoshClient create(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
-        new BoshClient(boshRestClient, mutexFactory)
-    }
-
-    private BoshClient(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
+    BoshClient(BoshRestClient boshRestClient, MutexFactory mutexFactory) {
         this.boshConfig = boshRestClient.getBoshConfig()
         this.boshRestClient = boshRestClient
         this.mutexFactory = mutexFactory
     }
 
     CloudConfigContainerDto fetchCloudConfig() {
-        Collection<CloudConfigContainerDto> result = (Collection<CloudConfigContainerDto>) new Gson().fromJson(boshRestClient.getCloudConfig(), new TypeToken<Collection<CloudConfigContainerDto>>() {
+        Collection<CloudConfigContainerDto> result = (Collection<CloudConfigContainerDto>) new Gson().fromJson(boshRestClient.fetchCloudConfig(), new TypeToken<Collection<CloudConfigContainerDto>>() {
         }.getType())
         return result.first()
     }
@@ -121,12 +117,8 @@ class BoshClient {
     }
 
     BoshInfoDto fetchBoshInfo() {
-        def result = boshRestClient.getBoshInfo()
+        def result = boshRestClient.fetchBoshInfo()
         return new Gson().fromJson(result, BoshInfoDto)
-    }
-
-    static Collection<VmDto> parseVMSectionOfCloudConfigYml(String yml) {
-        return parseVMSection(parseMapFromYml(yml))
     }
 
     private static Map parseMapFromYml(String yml) {
@@ -173,5 +165,4 @@ class BoshClient {
         vms.remove(existingVmDto)
         return vms
     }
-
 }

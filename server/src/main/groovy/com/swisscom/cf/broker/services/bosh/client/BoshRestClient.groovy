@@ -1,5 +1,6 @@
 package com.swisscom.cf.broker.services.bosh.client
 
+import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.bosh.BoshConfig
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
@@ -22,20 +23,17 @@ class BoshRestClient {
     public static final String CLOUD_CONFIGS = '/cloud_configs'
 
     public static final String CONTENT_TYPE_YAML = "text/yaml"
+    public static final String CLOUD_CONFIG_QUERY = "?limit=1"
 
     private final BoshConfig boshConfig
     private final RestTemplateFactory restTemplateFactory
 
-    static BoshRestClient create(BoshConfig boshConfig, RestTemplateFactory restBuilderFactory) {
-        return new BoshRestClient(boshConfig, restBuilderFactory)
-    }
-
-    private BoshRestClient(BoshConfig boshConfig, RestTemplateFactory restTemplateFactory) {
+    BoshRestClient(BoshConfig boshConfig, RestTemplateFactory restTemplateFactory) {
         this.boshConfig = boshConfig
         this.restTemplateFactory = restTemplateFactory
     }
 
-    String getBoshInfo() {
+    String fetchBoshInfo() {
         createRestTemplate().getForEntity(prependBaseUrl(INFO),String.class).body
     }
 
@@ -47,7 +45,6 @@ class BoshRestClient {
     private HttpHeaders createAuthHeaders() {
         return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
     }
-
 
     String postDeployment(String data) {
         log.trace("Posting new bosh deployment: \n${data}")
@@ -77,8 +74,8 @@ class BoshRestClient {
         return handleRedirectonAndExtractTaskId(response)
     }
 
-    String getCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + "?limit=1"),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
+    String fetchCloudConfig() {
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
     }
 
     void postCloudConfig(String data) {
@@ -93,14 +90,9 @@ class BoshRestClient {
         createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity( createAuthHeaders()), String.class).body
     }
 
+    @VisibleForTesting
     private String prependBaseUrl(String path) {
         return boshConfig.boshDirectorBaseUrl + path
-    }
-
-    private RestTemplate createRestTemplate() {
-        def result = restTemplateFactory.buildWithSSLValidationDisabled()
-        result.setErrorHandler(new CustomErrorHandler())
-        return result
     }
 
     BoshConfig getBoshConfig() {
@@ -111,12 +103,18 @@ class BoshRestClient {
         return restTemplateFactory
     }
 
+    private RestTemplate createRestTemplate() {
+        def result = restTemplateFactory.buildWithSSLValidationDisabled()
+        result.setErrorHandler(new CustomErrorHandler())
+        return result
+    }
+
     private class CustomErrorHandler extends DefaultResponseErrorHandler {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
             // your error handling here
             if(response.statusCode == HttpStatus.NOT_FOUND){
-                throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND.value())
+                throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
             }
             super.handleError(response)
         }
