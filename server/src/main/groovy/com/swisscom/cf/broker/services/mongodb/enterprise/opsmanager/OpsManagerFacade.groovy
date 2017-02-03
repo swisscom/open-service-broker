@@ -307,7 +307,7 @@ class OpsManagerFacade {
                 if (!automationConfigDto.auth.usersDeleted) {
                     automationConfigDto.auth.usersDeleted = []
                 }
-                automationConfigDto.auth.usersDeleted.add(new AuthenticationDto.DbUser2Delete(user: user, allDbs: false, dbs: [database]))
+                automationConfigDto.auth.usersDeleted.add(new AuthenticationDto.DbUser2Delete(user: user, allDbs: true, dbs: [database]))
         })
     }
 
