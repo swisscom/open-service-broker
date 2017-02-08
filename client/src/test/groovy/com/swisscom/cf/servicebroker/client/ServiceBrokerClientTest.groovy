@@ -30,7 +30,7 @@ class ServiceBrokerClientTest {
     @BeforeClass
     static void setup(){
         SpringApplication.run(Application.class)
-        serviceBrokerClient = new ServiceBrokerClient('http://localhost:8080','user','cfExtPassword')
+        serviceBrokerClient = new ServiceBrokerClient('http://localhost:8080','user','password')
         Catalog catalog = new ObjectMapper().readValue(new File(this.getClass().getResource('/demo-service-definition.json').getFile()).text, Catalog.class)
         serviceDefinition = catalog.serviceDefinitions.first()
         plan = serviceDefinition.plans.first()
@@ -83,5 +83,11 @@ class ServiceBrokerClientTest {
     void deleteServiceInstance(){
         def request = new DeleteServiceInstanceRequest(serviceInstanceId, serviceDefinition.id, plan.id, false)
         serviceBrokerClient.deleteServiceInstance(request)
+    }
+
+    @Test
+    void updateServiceInstance(){
+         def request = new UpdateServiceInstanceRequest(serviceDefinition.id,plan.id).withServiceInstanceId(serviceInstanceId)
+        serviceBrokerClient.updateServiceInstance(request)
     }
 }

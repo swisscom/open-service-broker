@@ -10,6 +10,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
 import java.nio.charset.Charset
@@ -29,7 +30,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     ServiceBrokerClient(String baseUrl, String username, String password) {
-        this(new RestTemplate(), baseUrl, username, password)
+        this(new RestTemplate(new HttpComponentsClientHttpRequestFactory()), baseUrl, username, password)
     }
 
     @Override

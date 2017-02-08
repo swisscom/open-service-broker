@@ -31,10 +31,12 @@ dependencies {
 	compile('org.codehaus.groovy:groovy:2.4.7')
 	compile('org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:1.0.0.RELEASE')
 	compile('commons-codec:commons-codec:1.10')
+	compile('org.apache.httpcomponents:httpclient:4.5.2')
 	compile project(':model')
 
 	testCompile ('junit:junit:4.12')
 	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.2.RELEASE'
 	testRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+
 }
 bootRepackage.enabled = false
