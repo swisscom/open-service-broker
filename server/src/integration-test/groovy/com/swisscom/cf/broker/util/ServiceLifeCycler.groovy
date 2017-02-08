@@ -15,10 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.ClientHttpResponse
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.ResponseErrorHandler
+import org.springframework.web.client.RestTemplate
 
 @Component
 @Scope('prototype')
@@ -216,6 +222,13 @@ public class ServiceLifeCycler {
         return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
     }
 
+
+    private ServiceBrokerClient createServiceBrokerClientWithCustomErrorHandler() {
+        def template = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
+        template.setErrorHandler(new NoOpResponseErrorHandler())
+        return new ServiceBrokerClient(template, 'http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+    }
+
     public static def pauseExecution(int seconds) {
         if (seconds > 0) {
 
@@ -227,5 +240,17 @@ public class ServiceLifeCycler {
 
     Map<String, Object> getCredentials() {
         return credentials
+    }
+
+    def requestUpdateServiceInstance(boolean isAsync) {
+        createServiceBrokerClientWithCustomErrorHandler().updateServiceInstance(new UpdateServiceInstanceRequest('ServiceGuid','PlanGuid').withServiceInstanceId(serviceInstanceId))
+    }
+
+    private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
+
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+        }
+
     }
 }

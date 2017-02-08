@@ -4,6 +4,8 @@ import com.google.common.base.Strings
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
 
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+
 @CompileStatic
 enum ErrorCode {
 
@@ -47,7 +49,9 @@ enum ErrorCode {
     OAUTH2_CLIENT_CONFIGURATION_ERROR("69036", "Invalid UAA client configuration.", "SC-SB-OAUTH2", HttpStatus.BAD_REQUEST),
     SERVICE_INSTANCE_DELETED("69037", "Service Instance not found", "SC-SB-SI", HttpStatus.GONE),
     BILLING_INVALID_PARAMETER("69038", "One or more of the input parameters can not be processed.", "SC-SB-BI", HttpStatus.UNPROCESSABLE_ENTITY),
-    BILLING_INFLUX_DB_EMPTY_RESPONSE("69039", "InfluxDB empty result", "SC-SB-BI", HttpStatus.INTERNAL_SERVER_ERROR)
+    BILLING_INFLUX_DB_EMPTY_RESPONSE("69039", "InfluxDB empty result", "SC-SB-BI", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVICE_UPDATE_NOT_ALLOWED("69040", "Service udpate is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY)
+
 
 
     final String code
