@@ -3,11 +3,12 @@
 ##Introduction
 ######Cloud Foundry Service Broker implements Cloud Foundry Service Broker API and enables user triggered deployment of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
-Cloud Foundry is a popular choice for enterprises to build hybrid clouds. 
+Cloud Foundry is a popular choice for cloud application platform. 
 Cloud Foundry Service Broker is a modular implementation of the Cloud Foundry Service Broker API. It enables Cloud Foundry customers to provision and manage services according to their requirements.
-Cloud Foundry Service Broker is built in a modular way.
-It provides API endpoints for Catalog, Provisioning, Binding and Billing.
-Services are integrated trough SP Plugins, which either provision their service synchronous or asynchronous.
+Cloud Foundry Service Broker is built in a modular way and one service broker can host multiple services.
+Service broker implements the Service Broker API defined under https://docs.cloudfoundry.org/services/api.html and it also provides some other extra functionality regarding Billing,etc.
+Services can be provisioned synchronous and/or asynchronously.
+
 
 ![SB](./img/SB.png)
 In the image above shows the basic workflow.
@@ -18,17 +19,20 @@ The following flow chart shows the interactions for service provisioning and ser
 
 ![](./img/MongoDB-Enterprise_ServiceProvisioning-Binding.png)
 
-## Development
-## Prerequisite
-Java 1.8
+# Deployment
 
-## Deployment
+Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
+to Cloud Foundry.
+
+Before a 'cf create-service-broker' or 'update-service-broker' call is made, please make sure that service broker is configured correctly.
+For configuring the catalog, see the service definition section.
 
 ##JAVA_OPTS
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx2048m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC"
 
 
 ##Configuration
+
 
 # Service Definitions
 
@@ -53,8 +57,12 @@ A service and its plan(s), which are not used i.e. have no service instances, ca
 Here is an example to delete a service that has id 'serviceGuid':
 curl -u "username:password" -X DELETE 'http://localhost:8080/cf-broker/service-definition/serviceGuid'
 
-
-
 # Swagger
 
 Swagger api documentation is accessible under http:/localhost:8080/swagger-ui.html
+
+# Development
+## Prerequisite
+Java 1.8
+
+
