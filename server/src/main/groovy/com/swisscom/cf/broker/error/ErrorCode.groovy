@@ -52,8 +52,6 @@ enum ErrorCode {
     BILLING_INFLUX_DB_EMPTY_RESPONSE("69039", "InfluxDB empty result", "SC-SB-BI", HttpStatus.INTERNAL_SERVER_ERROR),
     SERVICE_UPDATE_NOT_ALLOWED("69040", "Service udpate is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY)
 
-
-
     final String code
     final String errorCode
     final String description

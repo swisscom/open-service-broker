@@ -3,11 +3,12 @@
 ##Introduction
 ######Cloud Foundry Service Broker implements Cloud Foundry Service Broker API and enables user triggered deployment of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
-Cloud Foundry is a popular choice for enterprises to build hybrid clouds. 
+Cloud Foundry is a popular choice for cloud application platform. 
 Cloud Foundry Service Broker is a modular implementation of the Cloud Foundry Service Broker API. It enables Cloud Foundry customers to provision and manage services according to their requirements.
-Cloud Foundry Service Broker is built in a modular way.
-It provides API endpoints for Catalog, Provisioning, Binding and Billing.
-Services are integrated trough SP Plugins, which either provision their service synchronous or asynchronous.
+Cloud Foundry Service Broker is built in a modular way and one service broker can host multiple services.
+Service broker implements the Service Broker API defined under https://docs.cloudfoundry.org/services/api.html and it also provides some other extra functionality regarding Billing,etc.
+Services can be provisioned synchronous and/or asynchronously.
+
 
 ![SB](./img/SB.png)
 In the image above shows the basic workflow.
@@ -34,6 +35,14 @@ Build service broker using the gradlew script in the root directory of the repos
 ```bash
 $ gradlew clean build
 ```
+
+# Deployment
+
+Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
+to Cloud Foundry.
+
+Before a 'cf create-service-broker' or 'update-service-broker' call is made, please make sure that service broker is configured correctly.
+For configuring the catalog, see the service definition section.
 
 ##JAVA_OPTS
 ```bash
@@ -68,6 +77,7 @@ The interface can be used for both adding a new service or updating an existing 
 
 A service and its plan(s), which are not used i.e. have no service instances, can be removed via a rest interface.
 Here is an example to delete a service that has id 'serviceGuid':
+
 ```bash
 curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
@@ -121,6 +131,15 @@ curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/servic
 }
 ```
 
+curl -u "username:password" -X DELETE 'http://localhost:8080/cf-broker/service-definition/serviceGuid'
+
 # Swagger
 
 Swagger api documentation is accessible under http:/localhost:8080/swagger-ui.html
+
+# Development
+## Prerequisite
+Java 1.8
+
+
+
