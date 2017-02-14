@@ -1,6 +1,7 @@
 # Cloud Foundry Service Broker
 
 ##Introduction
+
 ######Cloud Foundry Service Broker implements Cloud Foundry Service Broker API and enables user triggered deployment of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
 Cloud Foundry is a popular choice for cloud application platform. 
@@ -10,20 +11,24 @@ Service broker implements the Service Broker API defined under https://docs.clou
 Services can be provisioned synchronous and/or asynchronously.
 
 
-![SB](./img/SB.png)
+![ServiceBroker](./img/SB.png)
 In the image above shows the basic workflow.
 Users interact trough the Cloud Foundry API with the Service Broker.
 Users can request service plans (Catalog), provision and bind services to apps. Additionally, Service Broker provides an API for billing purposes.
 
 The following flow chart shows the interactions for service provisioning and service binding for MongoDB Enterprise. Please note, that this is generalised and does not represent actual calls.
 
-![](./img/MongoDB-Enterprise_ServiceProvisioning-Binding.png)
+![flow chart](./img/MongoDB-Enterprise_ServiceProvisioning-Binding.png)
 
 ## Development
-## Prerequisite
+
+### Preconditions
+
 - Java 1.8
 - MySQL / MariaDB Server
+
 ## Deployment
+
 To get started with Cloudfoundry Servicebroker clone the Git repository.
 
 ```bash
@@ -33,10 +38,10 @@ $ git clone
 Build service broker using the gradlew script in the root directory of the repository.
 
 ```bash
-$ gradlew clean build
+$ `gradlew` clean build
 ```
 
-# Deployment
+## Deployment
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
 to Cloud Foundry.
@@ -44,36 +49,43 @@ to Cloud Foundry.
 Before a 'cf create-service-broker' or 'update-service-broker' call is made, please make sure that service broker is configured correctly.
 For configuring the catalog, see the service definition section.
 
-##JAVA_OPTS
+### JAVA_OPTS
+
 ```bash
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx2048m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC"
 ```
 
+## Configuration
 
-##Configuration
+The configuration file for the service broker is located under 
 
-The configuration file for the service broker is located under ```server/src/main/resources/application.yml```
+```
+server/src/main/resources/application.yml
+```
 
-# Service Definitions
+## Service Definitions
 
-## Get service definition
+### Get service definition
 
 Via the example call below, service definition for a given service id can be retrieved.
+
 ```bash
 curl -u "username:password" -X GET 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
-## Add service definition
+### Add service definition
 
 Service broker provides a way to update service definition via http calls.
 
 Here is an example: 
+
 ```bash
 curl -u "username:password" -X POST -H "Content-Type: application/json" --data-binary "@path/to/definition/file" 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
+
 The interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
 
-## Remove service definition
+### Remove service definition
 
 A service and its plan(s), which are not used i.e. have no service instances, can be removed via a rest interface.
 Here is an example to delete a service that has id 'serviceGuid':
@@ -82,7 +94,8 @@ Here is an example to delete a service that has id 'serviceGuid':
 curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
-## Example Service Definition
+### Example Service Definition
+
 ```json
 {
   "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
@@ -131,15 +144,6 @@ curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/servic
 }
 ```
 
-curl -u "username:password" -X DELETE 'http://localhost:8080/cf-broker/service-definition/serviceGuid'
-
-# Swagger
+## Swagger
 
 Swagger api documentation is accessible under http:/localhost:8080/swagger-ui.html
-
-# Development
-## Prerequisite
-Java 1.8
-
-
-
