@@ -33,7 +33,12 @@ The following flow chart shows the interactions for service provisioning and ser
 Build Service Broker using the `gradlew` script in the root directory of the repository.
 
 ```bash
-$ gradlew clean build
+$ gradlew clean build -x test -x integrationTest -x functionalTest
+```
+
+To run the built artifact:
+```bash
+java -jar server/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
@@ -43,7 +48,6 @@ Before a `cf create-service-broker` or `update-service-broker` call is made, ple
 For configuring the catalog, see the service definition section.
 
 ### JAVA_OPTS
-
 ```bash
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx2048m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC"
 ```
