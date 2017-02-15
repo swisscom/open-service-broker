@@ -26,16 +26,15 @@ The following flow chart shows the interactions for service provisioning and ser
 - MySQL / MariaDB Server
 
 
-
-```bash
-$ gradlew clean build
-```
-
 ## Deployment
 
 ### Build
 
 Build Service Broker using the `gradlew` script in the root directory of the repository.
+
+```bash
+$ gradlew clean build
+```
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
 to Cloud Foundry.
