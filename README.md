@@ -4,10 +4,9 @@
 
 > Cloud Foundry Service Broker implements the Cloud Foundry Service Broker API and enables user triggered deployments of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
-Cloud Foundry is a popular choice for cloud platforms.
 Cloud Foundry Service Broker is a modular implementation of the Cloud Foundry Service Broker API. It enables Cloud Foundry customers to provision and manage services according to their requirements.
 Cloud Foundry Service Broker is built in a modular way and one service broker can host multiple services.
-Service broker implements the Service Broker API defined under https://docs.cloudfoundry.org/services/api.html and it also provides some other extra functionality regarding Billing, etc.
+Service broker implements the Service Broker API defined under <https://docs.cloudfoundry.org/services/api.html> and it also provides some other extra functionality regarding Billing, etc.
 Services can be provisioned synchronously and/or asynchronously.
 
 ![Service Broker](./img/SB.png)
@@ -26,17 +25,17 @@ The following flow chart shows the interactions for service provisioning and ser
 - Java 1.8
 - MySQL / MariaDB Server
 
-## Deployment
 
-To get started with Cloud Foundry Service Broker, clone this repository.
-
-Then build Service Broker using the `gradlew` script in the root directory of the repository.
 
 ```bash
 $ gradlew clean build
 ```
 
 ## Deployment
+
+### Build
+
+Build Service Broker using the `gradlew` script in the root directory of the repository.
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
 to Cloud Foundry.
