@@ -1,22 +1,21 @@
 # Cloud Foundry Service Broker
 
-##Introduction
+## Introduction
 
-######Cloud Foundry Service Broker implements Cloud Foundry Service Broker API and enables user triggered deployment of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
+> Cloud Foundry Service Broker implements the Cloud Foundry Service Broker API and enables user triggered deployments of MongoDB Enterprise Servers trough the Cloud Foundry command line interface. It enables Cloud Foundry customers to create and manage their service instances as needed.
 
-Cloud Foundry is a popular choice for cloud application platform. 
+Cloud Foundry is a popular choice for cloud platforms.
 Cloud Foundry Service Broker is a modular implementation of the Cloud Foundry Service Broker API. It enables Cloud Foundry customers to provision and manage services according to their requirements.
 Cloud Foundry Service Broker is built in a modular way and one service broker can host multiple services.
-Service broker implements the Service Broker API defined under https://docs.cloudfoundry.org/services/api.html and it also provides some other extra functionality regarding Billing,etc.
-Services can be provisioned synchronous and/or asynchronously.
+Service broker implements the Service Broker API defined under https://docs.cloudfoundry.org/services/api.html and it also provides some other extra functionality regarding Billing, etc.
+Services can be provisioned synchronously and/or asynchronously.
 
-
-![ServiceBroker](./img/SB.png)
-In the image above shows the basic workflow.
+![Service Broker](./img/SB.png)
+The image above shows the basic workflow.
 Users interact trough the Cloud Foundry API with the Service Broker.
-Users can request service plans (Catalog), provision and bind services to apps. Additionally, Service Broker provides an API for billing purposes.
+Users can request service plans (Catalog), and provision and bind services to apps. Additionally, the Service Broker provides an API for billing purposes.
 
-The following flow chart shows the interactions for service provisioning and service binding for MongoDB Enterprise. Please note, that this is generalised and does not represent actual calls.
+The following flow chart shows the interactions for service provisioning and service binding for MongoDB Enterprise. Please note, that this is generalized and does not represent actual calls.
 
 ![flow chart](./img/MongoDB-Enterprise_ServiceProvisioning-Binding.png)
 
@@ -29,16 +28,12 @@ The following flow chart shows the interactions for service provisioning and ser
 
 ## Deployment
 
-To get started with Cloudfoundry Servicebroker clone the Git repository.
+To get started with Cloud Foundry Service Broker, clone this repository.
+
+Then build Service Broker using the `gradlew` script in the root directory of the repository.
 
 ```bash
-$ git clone 
-```
-
-Build service broker using the gradlew script in the root directory of the repository.
-
-```bash
-$ `gradlew` clean build
+$ gradlew clean build
 ```
 
 ## Deployment
@@ -46,7 +41,7 @@ $ `gradlew` clean build
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
 to Cloud Foundry.
 
-Before a 'cf create-service-broker' or 'update-service-broker' call is made, please make sure that service broker is configured correctly.
+Before a `cf create-service-broker` or `update-service-broker` call is made, please make sure that Service Broker is configured correctly.
 For configuring the catalog, see the service definition section.
 
 ### JAVA_OPTS
@@ -57,7 +52,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headles
 
 ## Configuration
 
-The configuration file for the service broker is located under 
+The configuration file for the Service Broker is located under
 
 ```
 server/src/main/resources/application.yml
@@ -67,31 +62,31 @@ server/src/main/resources/application.yml
 
 ### Get service definition
 
-Via the example call below, service definition for a given service id can be retrieved.
+Via the example call below, service definitions for a given service id can be retrieved.
 
 ```bash
-curl -u "username:password" -X GET 'http://localhost:8080/custom/admin/service-definition/{service_id}'
+curl -u 'username:password' -X GET 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
 ### Add service definition
 
-Service broker provides a way to update service definition via http calls.
+Service Broker provides a way to update service definitions via HTTP calls.
 
-Here is an example: 
+Here is an example:
 
 ```bash
-curl -u "username:password" -X POST -H "Content-Type: application/json" --data-binary "@path/to/definition/file" 'http://localhost:8080/custom/admin/service-definition/{service_id}'
+curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file' 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
-The interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
+This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
 
 ### Remove service definition
 
-A service and its plan(s), which are not used i.e. have no service instances, can be removed via a rest interface.
-Here is an example to delete a service that has id 'serviceGuid':
+A service and its plan(s), which are not used i.e. which have no service instances, can be removed via a REST interface.
+Here is an example for how to delete a service that has the id `service_id`:
 
 ```bash
-curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
+curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
 ### Example Service Definition
@@ -146,4 +141,4 @@ curl -u "username:password" -X DELETE 'http://localhost:8080/custom/admin/servic
 
 ## Swagger
 
-Swagger api documentation is accessible under http:/localhost:8080/swagger-ui.html
+The Swagger API documentation is accessible at <http:/localhost:8080/swagger-ui.html>
