@@ -28,7 +28,7 @@ com.swisscom.cf.broker.security:
 
 com.swisscom.cf.broker.service.mongodbent:
   opsManagerUrl: 'http://localhost:55000'
-  opsManagerUrlForAutomationAgent: 'http://10.19.28.64:8080'
+  opsManagerUrlForAutomationAgent: '' #This parameter is optional
   opsManagerUser:
   opsManagerApiKey:
   portRange: '27000-40000'
