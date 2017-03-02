@@ -14,31 +14,3 @@ targetCompatibility = 1.8
 repositories {
 	mavenCentral()
 }
-
-// Add integration test source sets
-sourceSets {
-	integrationTest { sourceSet ->
-		["java", "groovy", "scala", "resources"].each {
-			if (!sourceSet.hasProperty(it)) return
-			sourceSet."$it".srcDir file("src/integration-test/${it}")
-		}
-	}
-}
-
-// Setup dependencies for integration testing
-dependencies {
-	integrationTestCompile sourceSets.main.output
-	integrationTestCompile sourceSets.test.output
-	integrationTestCompile configurations.testCompile
-	integrationTestRuntime configurations.testRuntime
-}
-
-// Define integration test task
-task integrationTest(type: Test) {
-	testClassesDir = sourceSets.integrationTest.output.classesDir
-	classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-// Make sure 'check' task calls integration test
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
