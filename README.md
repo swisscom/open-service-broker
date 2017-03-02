@@ -27,19 +27,36 @@ The following flow chart shows the interactions for service provisioning and ser
 
 
 ## Deployment
-
 ### Build
 
 Build Service Broker using the `gradlew` script in the root directory of the repository.
 
 ```bash
-$ gradlew clean build -x test -x integrationTest -x functionalTest
+$ gradlew clean build -x test -x integrationTest -x functionalTest -Ptomcat
 ```
 
-To run the built artifact:
+The parameter called _tomcat_ is for controlling if a tomcat runtime is integrated into the war.
+
+### Database
+
+To run the service broker a mariadb or mysql database with name _cfbroker_ is required.
+The database tables will be generated automatically by the application. See the configuration section for more details.
+
+### Run
+
+To run the built artifact, from the root directory the following commands can be executed:
 ```bash
 java -jar server/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
+
+or
+
+```bash
+gradle server:bootRun
+```
+
+
+### Cloud Foundry interactions
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
 to Cloud Foundry.
