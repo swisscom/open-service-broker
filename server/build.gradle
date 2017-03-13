@@ -70,6 +70,8 @@ dependencies {
 		runtime('org.springframework.boot:spring-boot-starter-tomcat')
 	}
 
+    testCompile("com.amazonaws:aws-java-sdk-s3:1.10.11")
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.spockframework:spock-core:1.0-groovy-2.4')
 	testCompile('cglib:cglib-nodep:3.2.4')

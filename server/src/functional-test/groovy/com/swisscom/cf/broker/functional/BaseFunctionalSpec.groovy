@@ -36,6 +36,7 @@ abstract class BaseFunctionalSpec extends Specification {
 
     protected String serviceDefinitionUrl = appBaseUrl + "/service-definition/{id}"
 
+    protected String cfExtUsageUrl = appBaseUrl + "/v2/cf-ext/@@service_instance_id@@/usage"
     protected String cfExtUser
     protected String cfExtPassword
 
