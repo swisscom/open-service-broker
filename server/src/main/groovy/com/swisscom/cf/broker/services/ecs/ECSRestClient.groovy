@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.ecs.client
+package com.swisscom.cf.broker.services.ecs
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.bosh.client.BoshResourceNotFoundException
@@ -19,8 +19,6 @@ class ECSRestClient {
 
     public static final String INFO = '/info'
     public static final String NAMESPACES = '/namespaces'
-    public static final String VMS = '/vms'
-    public static final String CLOUD_CONFIGS = '/cloud_configs'
 
     public static final String CONTENT_TYPE_YAML = "text/yaml"
     public static final String CLOUD_CONFIG_QUERY = "?limit=1"
