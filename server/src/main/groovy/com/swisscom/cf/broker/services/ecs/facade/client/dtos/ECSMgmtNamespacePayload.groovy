@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.ecs.facade.client.dtos
 
 
-class ECSMgmtNamespace {
+class ECSMgmtNamespacePayload {
 
     String namespace
     String default_data_services_vpool
