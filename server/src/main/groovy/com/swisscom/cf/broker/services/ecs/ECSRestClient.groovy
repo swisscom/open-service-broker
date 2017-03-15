@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.services.ecs
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.bosh.client.BoshResourceNotFoundException
-import com.swisscom.cf.broker.services.ecs.ECSConfig
+import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j

@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component
 class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
     @Override
     BindResponse bind(BindRequest request) {
-
         log.warn("Bind parameters: ${request.parameters?.toString()}")
         return new BindResponse(credentials: new BindResponseDto() {
             @Override

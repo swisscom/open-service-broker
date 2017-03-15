@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker.services.ecs.facade.dtos
+package com.swisscom.cf.broker.services.ecs.facade.client.dtos
 
 
 class ECSMgmtNamespace {
@@ -10,5 +10,6 @@ class ECSMgmtNamespace {
     Integer default_bucket_block_size
     Boolean is_stale_allowed
     Boolean compliance_enabled
-
+    String external_group_admins;
+    String default_object_project
 }

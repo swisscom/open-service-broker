@@ -1,9 +1,9 @@
-package com.swisscom.cf.broker.services.ecs.facade.dtos.client
+package com.swisscom.cf.broker.services.ecs.facade.client
 
 import com.swisscom.cf.broker.services.ecs.domain.Namespace
 import com.swisscom.cf.broker.services.ecs.domain.User
-import com.swisscom.cf.broker.services.ecs.facade.dtos.client.commands.CreateNamespace
-import com.swisscom.cf.broker.services.ecs.facade.dtos.client.commands.CreateUser
+import com.swisscom.cf.broker.services.ecs.facade.client.commands.CreateNamespace
+import com.swisscom.cf.broker.services.ecs.facade.client.commands.CreateUser
 
 class ECSManagementClient {
 
