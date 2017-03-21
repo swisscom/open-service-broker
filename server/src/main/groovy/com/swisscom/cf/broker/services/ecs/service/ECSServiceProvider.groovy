@@ -41,6 +41,7 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
+
         (new ECSManagementFacade()).createNamespace(null)
         return new ProvisionResponse(details: [], isAsync: false)
     }

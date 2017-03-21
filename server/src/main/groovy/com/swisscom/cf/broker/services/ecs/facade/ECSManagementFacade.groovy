@@ -15,14 +15,14 @@ class ECSManagementFacade {
 
     def createNamespace(Namespace namespace) {
         ecsManagementInputFilter.filter(namespace)
-        ecsManagementInputValidator.validiate(namespace)
+        ecsManagementInputValidator.validate(namespace)
         ecsManagementClient.create(namespace)
 
     }
 
     def createUser(User user) {
         ecsManagementInputFilter.filter(user)
-        ecsManagementInputValidator.validiate(user)
+        ecsManagementInputValidator.validate(user)
         ecsManagementClient.create(user)
     }
 

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 
 class NamespaceExistsException extends ServiceBrokerException {
 
-    NamespaceExistsException(String description, String code, String error_code, HttpStatus httpStatus) {
-        super(description, code, error_code, httpStatus)
+    NamespaceExistsException() {
+        super("Namespace already exists", null, null, HttpStatus.IM_USED)
     }
 }

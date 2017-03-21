@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 
 class UserExistsException extends ServiceBrokerException {
 
-    UserExistsException(String description, String code, String error_code, HttpStatus httpStatus) {
-        super(description, code, error_code, httpStatus)
+    UserExistsException() {
+        super("User already exists", null, null, HttpStatus.IM_USED)
     }
 }

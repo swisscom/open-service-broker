@@ -9,4 +9,5 @@ trait ECSConfig implements Config {
     String ecsManagementUsername
     String ecsManagementPassword
     String ecsManagementNamespacePrefix
+    String ecsDefaultDataServicesVpool
 }

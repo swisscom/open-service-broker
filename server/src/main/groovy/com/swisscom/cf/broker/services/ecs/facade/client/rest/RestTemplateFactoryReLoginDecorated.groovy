@@ -1,6 +1,7 @@
 package com.swisscom.cf.broker.services.ecs.facade.client.rest
 
-import com.swisscom.cf.broker.services.ecs.facade.client.details.Login
+import com.google.common.annotations.VisibleForTesting
+import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.exception.ECSManagementAuthenticationException
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.http.HttpEntity
@@ -9,27 +10,28 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
-
 class RestTemplateFactoryReLoginDecorated<BODY, RESPONSE> {
 
-    private final RestTemplate restTemplate
-    private final Login login
+    @VisibleForTesting
+    private RestTemplate restTemplate
+    @VisibleForTesting
+    private TokenManager tokenManager
 
     RestTemplateFactoryReLoginDecorated(RestTemplateFactory restTemplateFactory) {
         this.restTemplate = restTemplateFactory.buildWithSSLValidationDisabled()
     }
 
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
-                                      BODY body, Class<RESPONSE> responseType, Object... uriVariables) {
-        ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, login.getHeaders()), responseType, uriVariables)
+                                      BODY body, Class<RESPONSE> responseType) {
+        ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, tokenManager.getHeaders()), responseType)
         if (isUnauthorized(result)) {
-            return refreshHeadersAndExchange(url, method, body, responseType, uriVariables)
+            return refreshHeadersAndExchange(url, method, body, responseType)
         }
         return result
     }
 
-    private ResponseEntity<RESPONSE> refreshHeadersAndExchange(String url, HttpMethod method, BODY body, Class<RESPONSE> responseType, Object... uriVariables) {
-        ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, login.refreshHeaders().getHeaders()), responseType, uriVariables)
+    private ResponseEntity<RESPONSE> refreshHeadersAndExchange(String url, HttpMethod method, BODY body, Class<RESPONSE> responseType) {
+        ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, tokenManager.refreshHeaders().getHeaders()), responseType)
         if (isUnauthorized(result)) {
             throw new ECSManagementAuthenticationException()
         }
@@ -37,7 +39,7 @@ class RestTemplateFactoryReLoginDecorated<BODY, RESPONSE> {
     }
 
     private boolean isUnauthorized(ResponseEntity<RESPONSE> result) {
-        result.statusCode == HttpStatus.UNAUTHORIZED || result.statusCode == HttpStatus.FORBIDDEN
+        result.statusCode == HttpStatus.FORBIDDEN
     }
 
 
