@@ -12,13 +12,13 @@ import spock.lang.Specification
 
 class RestTemplateFactoryReLoginDecoratedSpec extends Specification {
 
-    RestTemplateFactoryReLoginDecorated<String, String> restTemplate
+    RestTemplateReLoginDecorated<String, String> restTemplate
 
     def setup() {
         RestTemplateFactory restTemplateFactory = Stub()
         TokenManager tokenManager = Stub()
-        tokenManager.refreshHeaders() >> tokenManager
-        restTemplate = new RestTemplateFactoryReLoginDecorated<String, String>(restTemplateFactory,tokenManager)
+        tokenManager.refreshAuthToken() >> tokenManager
+        restTemplate = new RestTemplateReLoginDecorated<String, String>(restTemplateFactory,tokenManager)
         RestTemplate restTemplateSpring = Stub()
         restTemplate.restTemplate = restTemplateSpring
     }

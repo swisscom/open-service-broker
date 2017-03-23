@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
@@ -12,7 +12,7 @@ class UserManager {
     private final static String USER_URL = "/object/users"
 
     @VisibleForTesting
-    private RestTemplateFactoryReLoginDecorated<ECSMgmtUserPayload, String> restTemplateFactoryReLoginDecorated
+    private RestTemplateReLoginDecorated<ECSMgmtUserPayload, String> restTemplateFactoryReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
 

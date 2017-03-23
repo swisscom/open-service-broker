@@ -2,16 +2,15 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyPayload
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 import spock.lang.Specification
 
 class SharedSecretKeyManagerSpec extends Specification {
 
     SharedSecretKeyManager sharedSecretKeyManager
-    RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecorated
+    RestTemplateReLoginDecorated restTemplateFactoryReLoginDecorated
     ECSMgmtUserPayload user
     ECSMgmtSharedSecretKeyPayload sharedSecretKey
     ECSConfig ecsConfig

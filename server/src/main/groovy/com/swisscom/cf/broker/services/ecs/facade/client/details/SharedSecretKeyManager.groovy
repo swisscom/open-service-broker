@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.*
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 
 class SharedSecretKeyManager {
@@ -11,7 +11,7 @@ class SharedSecretKeyManager {
     private final static String SHARED_SECRET_URL = "/object/user-secret-keys"
 
     @VisibleForTesting
-    private RestTemplateFactoryReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtNamespaceResponse> restTemplateFactoryReLoginDecorated
+    private RestTemplateReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtNamespaceResponse> restTemplateFactoryReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
 

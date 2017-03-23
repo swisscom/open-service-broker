@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserResponse
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,7 +12,7 @@ import spock.lang.Specification
 class UserManagerSpec extends Specification {
 
     UserManager userManager
-    RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecorated
+    RestTemplateReLoginDecorated restTemplateFactoryReLoginDecorated
     ECSMgmtUserPayload user
     ECSConfig ecsConfig
 
@@ -45,7 +45,7 @@ class UserManagerSpec extends Specification {
         when:
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         user.user = "idUser"
-        RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
+        RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         responseEntity.getStatusCode() >> HttpStatus.BAD_REQUEST
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/users/idUser", HttpMethod.GET, _, _) >> responseEntity
@@ -58,7 +58,7 @@ class UserManagerSpec extends Specification {
         when:
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         user.user = "idUser"
-        RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
+        RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/Users/idUser", HttpMethod.GET, null, ECSMgmtUserResponse.class) >> responseEntity
         userManager = new UserManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
