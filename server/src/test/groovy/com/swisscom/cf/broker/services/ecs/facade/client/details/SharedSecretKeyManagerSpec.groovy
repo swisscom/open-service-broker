@@ -6,6 +6,8 @@ import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecre
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
 class SharedSecretKeyManagerSpec extends Specification {
@@ -19,27 +21,32 @@ class SharedSecretKeyManagerSpec extends Specification {
     def setup() {
         user = new ECSMgmtUserPayload()
         sharedSecretKey = new ECSMgmtSharedSecretKeyPayload()
-        restTemplateFactoryReLoginDecorated = Mock()
+        restTemplateFactoryReLoginDecorated = Stub()
         ecsConfig = Stub()
         sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecorated)
     }
 
     def "create sharedSecretKey call proper endpoint"() {
         when:
+        ECSMgmtSharedSecretKeyResponse ecsMgmtSharedSecretKeyResponse = new ECSMgmtSharedSecretKeyResponse()
+        ResponseEntity result = new ResponseEntity(ecsMgmtSharedSecretKeyResponse, HttpStatus.ACCEPTED)
+
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         user.user = "idUser"
-        sharedSecretKeyManager.create(user, sharedSecretKey)
+
+        restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/user-secret-keys/idUser", HttpMethod.POST, _, _) >> result
         then:
-        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/user-secret-keys/idUser", HttpMethod.POST, _, _)
+        sharedSecretKeyManager.create(user, sharedSecretKey) == ecsMgmtSharedSecretKeyResponse
     }
 
     def "delete sharedSecretKey call proper endpoint"() {
         when:
+        ResponseEntity result = new ResponseEntity(HttpStatus.ACCEPTED)
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         user.user = "idUser"
-        sharedSecretKeyManager.delete(user, sharedSecretKey)
+        restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/user-secret-keys/idUser/deactivate", HttpMethod.POST, _, _) >> result
         then:
-        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/user-secret-keys/idUser/deactivate", HttpMethod.POST, _, _)
+        sharedSecretKeyManager.delete(user, sharedSecretKey).getStatusCode() == HttpStatus.ACCEPTED
     }
 
 

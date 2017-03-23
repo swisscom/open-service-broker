@@ -19,19 +19,5 @@ class ECSManagementFacadeSpec extends Specification {
         ecsManagementFacade = new ECSManagementFacade(ecsManagementInputFilter: ecsManagementInputFilter, ecsManagementClient: ecsManagementClient)
     }
 
-    def "facade uses filter"() {
-        when:
-        ecsManagementFacade.createNamespace(namespace)
-        then:
-        1 * ecsManagementInputFilter.decorate(namespace)
-    }
-
-    def "facade create namespace"() {
-        when:
-        ecsManagementFacade.createNamespace(namespace)
-        then:
-        1 * ecsManagementClient.create(namespace)
-    }
-
 
 }

@@ -37,14 +37,13 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
 
     @Override
     void unbind(UnbindRequest request) {
-
+        request.getServiceInstance()
     }
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        request.getServiceInstanceGuid()
-        (new ECSManagementFacade()).createNamespace(null)
-        (new ECSManagementFacade()).createUser(null)
+        (new ECSManagementFacade()).provision()
+
         return new ProvisionResponse(details: [], isAsync: false)
     }
 

@@ -59,7 +59,10 @@ enum ServiceDetailKey {
     BOSH_TASK_ID_FOR_UNDEPLOY("bosh_task_id_for_undeploy", ServiceDetailType.OTHER),
     BOSH_DEPLOYMENT_ID("bosh_deployment_id", ServiceDetailType.OTHER),
     MONGODB_ENTERPRISE_HEALTH_CHECK_USER("mongodb_enterprise_health_check_user", ServiceDetailType.OTHER),
-    MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD("mongodb_enterprise_health_check_password", ServiceDetailType.OTHER)
+    MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD("mongodb_enterprise_health_check_password", ServiceDetailType.OTHER),
+    ECS_NAMESPACE_NAME("ecs_namespace_name", ServiceDetailType.OTHER),
+    ECS_NAMESPACE_USER("ecs_namespace_user", ServiceDetailType.OTHER),
+    ECS_NAMESPACE_SECRET("ecs_namespace_secret", ServiceDetailType.OTHER)
 
     private final String key
     private final ServiceDetailType serviceDetailType

@@ -22,7 +22,7 @@ class ECSManagementInputDecoratorSpec extends Specification {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getNamespace() == "PREFIX"
+        namespace.getNamespace().contains("PREFIX")
     }
 
     def "filter for namespace set default_data_services_vpool"() {

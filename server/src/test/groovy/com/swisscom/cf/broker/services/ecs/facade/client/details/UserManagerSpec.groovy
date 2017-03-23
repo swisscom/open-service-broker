@@ -35,10 +35,9 @@ class UserManagerSpec extends Specification {
     def "delete User call proper endpoint"() {
         when:
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
-        user.user = "idUser"
         userManager.delete(user)
         then:
-        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/users/idUser/deactivate", HttpMethod.POST, _, _)
+        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/users/deactivate", HttpMethod.POST, _, _)
     }
 
     def "is exists return false when User not exists"() {

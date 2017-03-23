@@ -2,7 +2,9 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.*
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyPayload
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
 import org.springframework.http.HttpMethod
 
@@ -11,12 +13,12 @@ class SharedSecretKeyManager {
     private final static String SHARED_SECRET_URL = "/object/user-secret-keys"
 
     @VisibleForTesting
-    private RestTemplateFactoryReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtNamespaceResponse> restTemplateFactoryReLoginDecorated
+    private RestTemplateFactoryReLoginDecorated<ECSMgmtUserPayload, ECSMgmtSharedSecretKeyPayload> restTemplateFactoryReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
 
-    def create(ECSMgmtUserPayload user, ECSMgmtSharedSecretKeyPayload sharedSecretKey) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + SHARED_SECRET_URL + "/" + user.getUser(), HttpMethod.POST, sharedSecretKey, ECSMgmtSharedSecretKeyResponse.class)
+    ECSMgmtSharedSecretKeyResponse create(ECSMgmtUserPayload user, ECSMgmtSharedSecretKeyPayload namespace) {
+        return restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + SHARED_SECRET_URL + "/" + user.getUser(), HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class).getBody()
     }
 
     def delete(ECSMgmtUserPayload user, ECSMgmtSharedSecretKeyPayload sharedSecretKey) {
