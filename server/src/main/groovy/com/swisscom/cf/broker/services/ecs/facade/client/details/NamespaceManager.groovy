@@ -2,7 +2,6 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.domain.Namespace
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
 import groovy.transform.CompileStatic

@@ -2,12 +2,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.domain.User
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespaceResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserResponse
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.adapters.UserToECSMgmtUser
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus

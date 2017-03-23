@@ -1,9 +1,8 @@
 package com.swisscom.cf.broker.services.ecs.facade
 
-import com.swisscom.cf.broker.services.ecs.domain.Namespace
 import com.swisscom.cf.broker.services.ecs.facade.client.ECSManagementClient
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.filters.ECSManagementInputDecorator
-
 import spock.lang.Specification
 
 class ECSManagementFacadeSpec extends Specification {
@@ -11,7 +10,7 @@ class ECSManagementFacadeSpec extends Specification {
     ECSManagementFacade ecsManagementFacade
     ECSManagementInputDecorator ecsManagementInputFilter
     ECSManagementClient ecsManagementClient
-    Namespace namespace
+    ECSMgmtNamespacePayload namespace
 
     def setup() {
         ecsManagementInputFilter = Mock()

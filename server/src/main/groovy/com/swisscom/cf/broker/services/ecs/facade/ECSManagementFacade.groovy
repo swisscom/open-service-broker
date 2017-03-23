@@ -1,8 +1,8 @@
 package com.swisscom.cf.broker.services.ecs.facade
 
-import com.swisscom.cf.broker.services.ecs.domain.Namespace
-import com.swisscom.cf.broker.services.ecs.domain.User
 import com.swisscom.cf.broker.services.ecs.facade.client.ECSManagementClient
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.filters.ECSManagementInputDecorator
 
 class ECSManagementFacade {
@@ -11,12 +11,12 @@ class ECSManagementFacade {
     private ECSManagementClient ecsManagementClient
 
 
-    def createNamespace(Namespace namespace) {
+    def createNamespace(ECSMgmtNamespacePayload namespace) {
         ecsManagementInputFilter.decorate(namespace)
         ecsManagementClient.create(namespace)
     }
 
-    def createUser(User user) {
+    def createUser(ECSMgmtUserPayload user) {
         ecsManagementInputFilter.decorate(user)
         ecsManagementClient.create(user)
     }

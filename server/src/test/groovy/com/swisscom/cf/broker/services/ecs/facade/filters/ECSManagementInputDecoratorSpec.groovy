@@ -1,21 +1,21 @@
 package com.swisscom.cf.broker.services.ecs.facade.filters
 
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.domain.Namespace
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import spock.lang.Specification
 
 class ECSManagementInputDecoratorSpec extends Specification {
 
     ECSConfig ecsConfig
     ECSManagementInputDecorator ecsManagementInputFilter
-    Namespace namespace
+    ECSMgmtNamespacePayload namespace
 
     def setup() {
         ecsConfig = Stub()
         ecsConfig.getEcsManagementNamespacePrefix() >> "PREFIX"
         ecsConfig.getEcsDefaultDataServicesVpool() >> "POOL"
         ecsManagementInputFilter = new ECSManagementInputDecorator(ecsConfig: ecsConfig)
-        namespace = new Namespace()
+        namespace = new ECSMgmtNamespacePayload()
     }
 
     def "filter for namespace set PREFIX"() {
@@ -29,35 +29,35 @@ class ECSManagementInputDecoratorSpec extends Specification {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getDefaultDataServicesVpool() == "POOL"
+        namespace.getDefault_data_services_vpool() == "POOL"
     }
 
     def "filter for namespace set encryption"() {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getIsEncryptionEnabled() == false
+        namespace.getIs_encryption_enabled() == false
     }
 
     def "filter for namespace set default_bucket_block_size"() {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getDefaultBucketBlockSize() == -1
+        namespace.getDefault_bucket_block_size() == -1
     }
 
     def "filter for namespace set is_stale_allowed"() {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getIsStaleAllowed() == true
+        namespace.getIs_stale_allowed() == true
     }
 
     def "filter for namespace set compliance_enabled"() {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getComplianceEnabled() == false
+        namespace.getCompliance_enabled() == false
     }
 
 }

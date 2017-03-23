@@ -1,10 +1,7 @@
 package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.domain.Namespace
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespaceResponse
-import com.swisscom.cf.broker.services.ecs.facade.client.dtos.adapters.NamespaceToECSMgmtNamespace
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
