@@ -17,7 +17,8 @@ class RestTemplateFactoryReLoginDecorated<BODY, RESPONSE> {
     @VisibleForTesting
     private TokenManager tokenManager
 
-    RestTemplateFactoryReLoginDecorated(RestTemplateFactory restTemplateFactory) {
+    RestTemplateFactoryReLoginDecorated(RestTemplateFactory restTemplateFactory, TokenManager tokenManager) {
+        this.tokenManager = tokenManager
         this.restTemplate = restTemplateFactory.buildWithSSLValidationDisabled()
     }
 

@@ -5,11 +5,11 @@ import com.swisscom.cf.broker.services.ecs.domain.Namespace
 import com.swisscom.cf.broker.services.ecs.domain.User;
 
 
-class ECSManagementInputFilter {
+class ECSManagementInputDecorator {
 
     ECSConfig ecsConfig
 
-    def filter(Namespace namespace) {
+    def decorate(Namespace namespace) {
         namespace.namespace = ecsConfig.getEcsManagementNamespacePrefix()
         namespace.defaultDataServicesVpool = ecsConfig.getEcsDefaultDataServicesVpool()
         namespace.isEncryptionEnabled = false
@@ -18,7 +18,7 @@ class ECSManagementInputFilter {
         namespace.complianceEnabled = false
     }
 
-    def filter(User namespace) {
+    def decorate(User namespace) {
         
     }
 }

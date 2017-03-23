@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.broker.services.ecs.ECSServiceProvider
 import com.swisscom.cf.broker.util.StringGenerator
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus

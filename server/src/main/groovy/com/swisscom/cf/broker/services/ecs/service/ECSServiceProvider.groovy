@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component
 class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
     @Override
     BindResponse bind(BindRequest request) {
+
         log.warn("Bind parameters: ${request.parameters?.toString()}")
         return new BindResponse(credentials: new BindResponseDto() {
             @Override
@@ -41,8 +42,9 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-
+        request.getServiceInstanceGuid()
         (new ECSManagementFacade()).createNamespace(null)
+        (new ECSManagementFacade()).createUser(null)
         return new ProvisionResponse(details: [], isAsync: false)
     }
 

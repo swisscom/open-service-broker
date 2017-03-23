@@ -5,6 +5,7 @@ import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.domain.User
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespaceResponse
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.adapters.UserToECSMgmtUser
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
@@ -16,21 +17,19 @@ class UserManager {
     private final static String USER_URL = "/object/users"
 
     @VisibleForTesting
-    private RestTemplateFactoryReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtNamespaceResponse> restTemplateFactoryReLoginDecorated
-    @VisibleForTesting
-    private UserToECSMgmtUser userToECSMgmtUser
+    private RestTemplateFactoryReLoginDecorated<ECSMgmtUserPayload, String> restTemplateFactoryReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
 
-    def create(User user) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL, HttpMethod.POST, userToECSMgmtUser.adapt(user), ECSMgmtUserResponse.class)
+    def create(ECSMgmtUserPayload user) {
+        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL, HttpMethod.POST, user, String.class)
     }
 
-    def delete(User user) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser() + "/deactivate", HttpMethod.POST, userToECSMgmtUser.adapt(user), ECSMgmtUserResponse.class)
+    def delete(ECSMgmtUserPayload user) {
+        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser() + "/deactivate", HttpMethod.POST, user, String.class)
     }
 
-    def isExists(User user) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser(), HttpMethod.GET, null, ECSMgmtUserResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
+    def isExists(ECSMgmtUserPayload user) {
+        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser(), HttpMethod.GET, null, String.class).getStatusCode() != HttpStatus.BAD_REQUEST
     }
 }

@@ -16,12 +16,11 @@ class RestTemplateFactoryReLoginDecoratedSpec extends Specification {
 
     def setup() {
         RestTemplateFactory restTemplateFactory = Stub()
-        restTemplate = new RestTemplateFactoryReLoginDecorated<String, String>(restTemplateFactory)
-        RestTemplate restTemplateSpring = Stub()
-        restTemplate.restTemplate = restTemplateSpring
         TokenManager tokenManager = Stub()
         tokenManager.refreshHeaders() >> tokenManager
-        restTemplate.tokenManager = tokenManager
+        restTemplate = new RestTemplateFactoryReLoginDecorated<String, String>(restTemplateFactory,tokenManager)
+        RestTemplate restTemplateSpring = Stub()
+        restTemplate.restTemplate = restTemplateSpring
     }
 
     def "throws exeption for bad creds"() {
