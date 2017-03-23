@@ -4,7 +4,7 @@ import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -13,7 +13,7 @@ import spock.lang.Specification
 class SharedSecretKeyManagerSpec extends Specification {
 
     SharedSecretKeyManager sharedSecretKeyManager
-    RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecorated
+    RestTemplateReLoginDecorated restTemplateFactoryReLoginDecorated
     ECSMgmtUserPayload user
     ECSMgmtSharedSecretKeyPayload sharedSecretKey
     ECSConfig ecsConfig
@@ -23,7 +23,7 @@ class SharedSecretKeyManagerSpec extends Specification {
         sharedSecretKey = new ECSMgmtSharedSecretKeyPayload()
         restTemplateFactoryReLoginDecorated = Stub()
         ecsConfig = Stub()
-        sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecorated)
+        sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecorated)
     }
 
     def "create sharedSecretKey call proper endpoint"() {

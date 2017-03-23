@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -11,7 +11,7 @@ import spock.lang.Specification
 class NamespaceManagerSpec extends Specification {
 
     NamespaceManager namespaceManager
-    RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecorated
+    RestTemplateReLoginDecorated restTemplateFactoryReLoginDecorated
     ECSMgmtNamespacePayload namespace
     ECSConfig ecsConfig
 
@@ -19,7 +19,7 @@ class NamespaceManagerSpec extends Specification {
         namespace = new ECSMgmtNamespacePayload()
         restTemplateFactoryReLoginDecorated = Mock()
         ecsConfig = Stub()
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecorated)
+        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecorated)
     }
 
     def "create namespace call proper endpoint"() {
@@ -52,11 +52,11 @@ class NamespaceManagerSpec extends Specification {
         when:
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         namespace.namespace = "idnamespace"
-        RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
+        RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         responseEntity.getStatusCode() >> HttpStatus.BAD_REQUEST
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, null, _) >> responseEntity
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
         then:
         false == namespaceManager.isExists(namespace)
     }
@@ -65,10 +65,10 @@ class NamespaceManagerSpec extends Specification {
         when:
         ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         namespace.namespace = "idnamespace"
-        RestTemplateFactoryReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
+        RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, null, _) >> responseEntity
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateFactoryReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
         then:
         true == namespaceManager.isExists(namespace)
     }

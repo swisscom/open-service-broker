@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateFactoryReLoginDecorated
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -16,24 +16,24 @@ class NamespaceManager {
     private final static String NAMESPACE_LIST_URL = "/object/namespaces"
 
     @VisibleForTesting
-    private RestTemplateFactoryReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtSharedSecretKeyResponse> restTemplateFactoryReLoginDecorated
+    private RestTemplateReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtSharedSecretKeyResponse> restTemplateReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
 
     def create(ECSMgmtNamespacePayload namespace) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL, HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class)
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL, HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class)
     }
 
     def list() {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_LIST_URL, HttpMethod.GET, null, ECSMgmtSharedSecretKeyResponse.class)
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_LIST_URL, HttpMethod.GET, null, ECSMgmtSharedSecretKeyResponse.class)
     }
 
     def delete(ECSMgmtNamespacePayload namespace) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace() + "/deactivate", HttpMethod.POST, null, ECSMgmtSharedSecretKeyResponse.class)
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace() + "/deactivate", HttpMethod.POST, null, ECSMgmtSharedSecretKeyResponse.class)
     }
 
     def isExists(ECSMgmtNamespacePayload namespace) {
-        restTemplateFactoryReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace(), HttpMethod.GET, null, ECSMgmtSharedSecretKeyResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace(), HttpMethod.GET, null, ECSMgmtSharedSecretKeyResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
     }
 
 

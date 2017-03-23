@@ -41,7 +41,7 @@ class TokenManagerSpec extends Specification {
         })
         ResponseEntity<String> responseEntity = new ResponseEntity(httpHeaders, HttpStatus.ACCEPTED)
         login.restTemplate.exchange(_, _, _, _, _) >> responseEntity
-        login.refreshHeaders()
+        login.refreshAuthToken()
         expect:
         Assert.assertArrayEquals(login.getHeaders().values().toArray(), httpHeaders.values().toArray())
         Assert.assertArrayEquals(login.getHeaders().keySet().toArray(), httpHeaders.keySet().toArray())
@@ -53,7 +53,7 @@ class TokenManagerSpec extends Specification {
         HttpHeaders httpHeaders = new HttpHeaders()
         ResponseEntity<String> responseEntity = new ResponseEntity(httpHeaders, HttpStatus.ACCEPTED)
         login.restTemplate.exchange(_, _, _, _, _) >> responseEntity
-        login.refreshHeaders()
+        login.refreshAuthToken()
         then:
         thrown ECSAuthenticationProblemException
     }
