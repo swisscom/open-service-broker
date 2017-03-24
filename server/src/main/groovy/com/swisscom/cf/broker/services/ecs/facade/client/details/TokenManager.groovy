@@ -15,8 +15,9 @@ class TokenManager {
     @VisibleForTesting
     private static String X_SDS_AUTH_TOKEN = "STARTUP_DEFAULT_TOKEN"
     private static String TOKEN_NAME = "X-SDS-AUTH-TOKEN"
-
+    @VisibleForTesting
     private final ECSConfig ecsConfig
+    @VisibleForTesting
     private final RestTemplateFactory restTemplateFactory
 
     TokenManager(ECSConfig ecsConfig, RestTemplateFactory restTemplateFactory) {
@@ -35,7 +36,7 @@ class TokenManager {
         result.add(param)
         return result
     }
-
+    //TODO perhaps synchronize
     def refreshAuthToken() {
         try {
             HttpHeaders httpHeaders = restTemplateFactory.buildWithBasicAuthentication(ecsConfig.ecsManagementUsername, ecsConfig.ecsManagementPassword).exchange(
@@ -46,7 +47,7 @@ class TokenManager {
             X_SDS_AUTH_TOKEN = httpHeaders.get(TOKEN_NAME).get(0)
             return this
         } catch (HttpClientErrorException clientErrorException) {
-            if (clientErrorException.statusCode.equals(HttpStatus.UNAUTHORIZED)) {
+            if (clientErrorException.statusCode == HttpStatus.UNAUTHORIZED) {
                 throw new ECSAuthenticationProblemException()
             }
             throw clientErrorException

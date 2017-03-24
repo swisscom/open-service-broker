@@ -4,6 +4,7 @@ import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
+import com.swisscom.cf.broker.util.StringGenerator
 
 class ECSManagementInputDecorator {
 
@@ -23,10 +24,12 @@ class ECSManagementInputDecorator {
     }
 
     String get26HexCharsRandomlyGenerated() {
-        return "4816123317e943579636e88e23"
+        //TODO StringGenerator.randomAlphaNumeric(26)
+        return "1fe5ba4816123317e943579636e88e29"
     }
 
     String getRandomlyUserGenerated() {
+        //TODO
         return "user-1"
     }
 }

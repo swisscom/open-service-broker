@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cf.broker.service.ecs')
 class ECSConfig implements Config {
     String ecsManagementBaseUrl
+    String ecsClientURL
     String ecsManagementUsername
     String ecsManagementPassword
     String ecsManagementNamespacePrefix

@@ -5,6 +5,7 @@ import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
+import com.swisscom.cf.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -19,6 +20,11 @@ class NamespaceManager {
     private RestTemplateReLoginDecorated<ECSMgmtNamespacePayload, ECSMgmtSharedSecretKeyResponse> restTemplateReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
+
+    NamespaceManager(ECSConfig ecsConfig) {
+        this.ecsConfig = ecsConfig
+        this.restTemplateReLoginDecorated = new RestTemplateReLoginDecorated<>(new TokenManager(ecsConfig, new RestTemplateFactory()))
+    }
 
     def create(ECSMgmtNamespacePayload namespace) {
         restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL, HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class)

@@ -6,6 +6,7 @@ import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecre
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtSharedSecretKeyResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtUserPayload
 import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
+import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.http.HttpMethod
 
 class SharedSecretKeyManager {
@@ -16,6 +17,11 @@ class SharedSecretKeyManager {
     private RestTemplateReLoginDecorated<ECSMgmtUserPayload, ECSMgmtSharedSecretKeyPayload> restTemplateReLoginDecorated
     @VisibleForTesting
     private ECSConfig ecsConfig
+
+    SharedSecretKeyManager(ECSConfig ecsConfig) {
+        this.ecsConfig = ecsConfig
+        this.restTemplateReLoginDecorated = new RestTemplateReLoginDecorated<>(new TokenManager(ecsConfig, new RestTemplateFactory()))
+    }
 
     ECSMgmtSharedSecretKeyResponse create(ECSMgmtUserPayload user, ECSMgmtSharedSecretKeyPayload namespace) {
         return restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + SHARED_SECRET_URL + "/" + user.getUser(), HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class).getBody()

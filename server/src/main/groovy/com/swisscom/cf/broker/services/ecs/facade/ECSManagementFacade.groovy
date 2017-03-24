@@ -17,6 +17,11 @@ class ECSManagementFacade {
     private ECSManagementInputDecorator ecsManagementInputFilter
     private ECSManagementClient ecsManagementClient
 
+    ECSManagementFacade(ECSManagementInputDecorator ecsManagementInputFilter, ECSManagementClient ecsManagementClient) {
+        this.ecsManagementInputFilter = ecsManagementInputFilter
+        this.ecsManagementClient = ecsManagementClient
+    }
+
 
     ProvisionResponse provision() {
         ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
