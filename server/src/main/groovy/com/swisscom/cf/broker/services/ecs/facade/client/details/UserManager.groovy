@@ -32,6 +32,6 @@ class UserManager {
     }
 
     def isExists(ECSMgmtUserPayload user) {
-        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser(), HttpMethod.GET, null, ECSMgmtUserResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + USER_URL + "/" + user.getUser(), HttpMethod.GET, user, ECSMgmtUserResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
     }
 }

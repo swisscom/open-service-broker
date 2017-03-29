@@ -36,9 +36,10 @@ class TokenManager {
         result.add(param)
         return result
     }
-    //TODO perhaps synchronize
+
     def refreshAuthToken() {
         try {
+            //TODO perhaps synchronize block on class or static X_SDS_AUTH_TOKEN
             HttpHeaders httpHeaders = restTemplateFactory.buildWithBasicAuthentication(ecsConfig.ecsManagementUsername, ecsConfig.ecsManagementPassword).exchange(
                     ecsConfig.getEcsManagementBaseUrl() + "/login",
                     HttpMethod.GET,

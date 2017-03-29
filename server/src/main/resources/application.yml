@@ -68,6 +68,10 @@ com.swisscom.cf.broker.shield:
   retentionName: 'default'
   scheduleName: 'schedu'
 
+com.swisscom.cf.broker.service.ecs:
+  ecsManagementBaseUrl: 'https://ds11mgmt.swisscom.com:8443'
+  ecsClientURL: 'https://ds11s3.swisscom.com'
+
 com.swisscom.cf.broker.backup:
   retryIntervalInSeconds: 10
   maxRetryDurationInMinutes: 30

@@ -35,11 +35,11 @@ class NamespaceManager {
     }
 
     def delete(ECSMgmtNamespacePayload namespace) {
-        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace() + "/deactivate", HttpMethod.POST, null, ECSMgmtSharedSecretKeyResponse.class)
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace() + "/deactivate", HttpMethod.POST, namespace, ECSMgmtSharedSecretKeyResponse.class)
     }
 
     def isExists(ECSMgmtNamespacePayload namespace) {
-        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace(), HttpMethod.GET, null, ECSMgmtSharedSecretKeyResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
+        restTemplateReLoginDecorated.exchange(ecsConfig.getEcsManagementBaseUrl() + NAMESPACE_URL + "/" + namespace.getNamespace(), HttpMethod.GET, namespace, ECSMgmtSharedSecretKeyResponse.class).getStatusCode() != HttpStatus.BAD_REQUEST
     }
 
 

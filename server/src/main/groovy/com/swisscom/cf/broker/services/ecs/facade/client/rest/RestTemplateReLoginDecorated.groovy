@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.exception.ECSManagementAuthenticationException
 import com.swisscom.cf.broker.util.RestTemplateFactory
+import groovy.transform.CompileStatic
+import groovy.util.logging.Log4j
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -12,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 
+@Log4j
 class RestTemplateReLoginDecorated<BODY, RESPONSE> {
 
     @VisibleForTesting
@@ -27,6 +30,7 @@ class RestTemplateReLoginDecorated<BODY, RESPONSE> {
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       BODY body, Class<RESPONSE> responseType) {
         try {
+            log.info("${method} ${url} >>> ${body}")
             ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, tokenManager.getHeaders()), responseType)
             return result
         } catch (HttpClientErrorException e) {
@@ -41,7 +45,7 @@ class RestTemplateReLoginDecorated<BODY, RESPONSE> {
         try {
             ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, tokenManager.refreshAuthToken().getHeaders()), responseType)
             return result
-        } catch (HttpClientErrorException e ) {
+        } catch (HttpClientErrorException e) {
             if (e.statusCode.equals(HttpStatus.FORBIDDEN)) {
                 throw new ECSManagementAuthenticationException()
             }

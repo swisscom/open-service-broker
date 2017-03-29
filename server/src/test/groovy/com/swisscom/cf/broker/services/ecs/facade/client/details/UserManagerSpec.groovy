@@ -20,7 +20,8 @@ class UserManagerSpec extends Specification {
         user = new ECSMgmtUserPayload()
         restTemplateFactoryReLoginDecorated = Mock()
         ecsConfig = Stub()
-        userManager = new UserManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecorated)
+        userManager = new UserManager(ecsConfig)
+        userManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecorated
     }
 
     def "create User call proper endpoint"() {
@@ -48,7 +49,8 @@ class UserManagerSpec extends Specification {
         ResponseEntity responseEntity = Stub()
         responseEntity.getStatusCode() >> HttpStatus.BAD_REQUEST
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/users/idUser", HttpMethod.GET, _, _) >> responseEntity
-        userManager = new UserManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        userManager = new UserManager(ecsConfig)
+        userManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecoratedStubbed
         then:
         false == userManager.isExists(user)
     }
@@ -60,7 +62,8 @@ class UserManagerSpec extends Specification {
         RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/Users/idUser", HttpMethod.GET, null, ECSMgmtUserResponse.class) >> responseEntity
-        userManager = new UserManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        userManager = new UserManager(ecsConfig)
+        userManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecoratedStubbed
         then:
         true == userManager.isExists(user)
     }

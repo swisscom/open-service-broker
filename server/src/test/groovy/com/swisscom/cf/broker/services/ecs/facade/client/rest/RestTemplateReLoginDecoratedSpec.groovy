@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
@@ -15,19 +16,18 @@ class RestTemplateReLoginDecoratedSpec extends Specification {
     RestTemplateReLoginDecorated<String, String> restTemplate
 
     def setup() {
-        RestTemplateFactory restTemplateFactory = Stub()
+        RestTemplate restTemplateSpring = Stub()
         TokenManager tokenManager = Stub()
         tokenManager.refreshAuthToken() >> tokenManager
-        restTemplate = new RestTemplateReLoginDecorated<String, String>(restTemplateFactory,tokenManager)
-        RestTemplate restTemplateSpring = Stub()
+        restTemplate = new RestTemplateReLoginDecorated<String, String>(tokenManager)
         restTemplate.restTemplate = restTemplateSpring
     }
 
     def "throws exeption for bad creds"() {
         when:
-        HttpHeaders httpHeaders = new HttpHeaders()
-        ResponseEntity<String> responseEntity = new ResponseEntity(httpHeaders, HttpStatus.FORBIDDEN)
-        restTemplate.restTemplate.exchange(_, _, _, _, _) >> responseEntity
+        restTemplate.restTemplate.exchange(_, _, _, _, _) >> {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN)
+        }
         restTemplate.exchange("http://localhost", HttpMethod.POST, "", String.class)
         then:
         thrown ECSManagementAuthenticationException

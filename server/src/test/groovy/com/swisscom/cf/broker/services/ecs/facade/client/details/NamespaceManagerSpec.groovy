@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
+
 class NamespaceManagerSpec extends Specification {
 
     NamespaceManager namespaceManager
@@ -17,15 +18,18 @@ class NamespaceManagerSpec extends Specification {
 
     def setup() {
         namespace = new ECSMgmtNamespacePayload()
+        namespace.namespace = "idnamespace"
         restTemplateFactoryReLoginDecorated = Mock()
         ecsConfig = Stub()
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecorated)
+        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
+        namespaceManager = new NamespaceManager(ecsConfig)
+        namespaceManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecorated
     }
 
     def "create namespace call proper endpoint"() {
         when:
-        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
-        namespace.namespace = "idnamespace"
+
+
         namespaceManager.create(namespace)
         then:
         1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces/namespace", HttpMethod.POST, _, _)
@@ -33,42 +37,37 @@ class NamespaceManagerSpec extends Specification {
 
     def "list namespace call proper endpoint"() {
         when:
-        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
         namespaceManager.list()
         then:
-        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces", HttpMethod.GET, null, _)
+        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces", HttpMethod.GET, _, _)
     }
 
     def "delete namespace call proper endpoint"() {
         when:
-        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
-        namespace.namespace = "idnamespace"
         namespaceManager.delete(namespace)
         then:
-        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces/namespace/idnamespace/deactivate", HttpMethod.POST, null, _)
+        1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces/namespace/idnamespace/deactivate", HttpMethod.POST, _, _)
     }
 
     def "is exists return false when namespace not exists"() {
         when:
-        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
-        namespace.namespace = "idnamespace"
         RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
         responseEntity.getStatusCode() >> HttpStatus.BAD_REQUEST
-        restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, null, _) >> responseEntity
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, _, _) >> responseEntity
+        namespaceManager = new NamespaceManager(ecsConfig)
+        namespaceManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecoratedStubbed
         then:
         false == namespaceManager.isExists(namespace)
     }
 
     def "is exists return true when namespace exists"() {
         when:
-        ecsConfig.getEcsManagementBaseUrl() >> "http.server.com"
-        namespace.namespace = "idnamespace"
         RestTemplateReLoginDecorated restTemplateFactoryReLoginDecoratedStubbed = Stub()
         ResponseEntity responseEntity = Stub()
-        restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, null, _) >> responseEntity
-        namespaceManager = new NamespaceManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecoratedStubbed)
+        restTemplateFactoryReLoginDecoratedStubbed.exchange("http.server.com/object/namespaces/namespace/idnamespace", HttpMethod.GET, _, _) >> responseEntity
+        namespaceManager = new NamespaceManager(ecsConfig)
+        namespaceManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecoratedStubbed
         then:
         true == namespaceManager.isExists(namespace)
     }

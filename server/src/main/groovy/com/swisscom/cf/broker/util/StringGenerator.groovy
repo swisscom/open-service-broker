@@ -4,6 +4,7 @@ import java.security.SecureRandom
 
 class StringGenerator {
     public static final char[] alphaNumericCharset = (('a'..'z') + ('A'..'Z') + ('0'..'9')).join().toCharArray()
+    public static final char[] hexadecimalCharset = (('a'..'f') + ('0'..'9')).join().toCharArray()
     public static final char[] lowerAlphaCharset = ('a'..'z').join().toCharArray()
 
     public static String randomAlphaNumericOfLength16() {
@@ -24,5 +25,9 @@ class StringGenerator {
 
     public static String randomUuid() {
         return UUID.randomUUID().toString()
+    }
+
+    static String randomHexadecimal(int length) {
+        random(length, hexadecimalCharset)
     }
 }

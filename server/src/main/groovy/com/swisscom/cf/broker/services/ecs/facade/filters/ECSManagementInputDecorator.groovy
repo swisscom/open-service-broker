@@ -11,7 +11,7 @@ class ECSManagementInputDecorator {
     ECSConfig ecsConfig
 
     def decorate(ECSMgmtNamespacePayload namespace) {
-        namespace.namespace = ecsConfig.getEcsManagementNamespacePrefix() + get26HexCharsRandomlyGenerated()
+        namespace.namespace = ecsConfig.getEcsManagementNamespacePrefix() + ecsConfig.getEcsManagementEnvironentPrefix() + get20HexCharsRandomlyGenerated()
         namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
         namespace.is_encryption_enabled = false
         namespace.default_bucket_block_size = -1
@@ -20,16 +20,11 @@ class ECSManagementInputDecorator {
     }
 
     def decorate(ECSMgmtUserPayload user) {
-        user.user = user.user + getRandomlyUserGenerated()
+        user.user = user.user + "-" + StringGenerator.randomHexadecimal(4)
     }
 
-    String get26HexCharsRandomlyGenerated() {
-        //TODO StringGenerator.randomAlphaNumeric(26)
-        return "1fe5ba4816123317e943579636e88e29"
+    String get20HexCharsRandomlyGenerated() {
+        return StringGenerator.randomHexadecimal(14)
     }
 
-    String getRandomlyUserGenerated() {
-        //TODO
-        return "user-1"
-    }
 }

@@ -23,7 +23,8 @@ class SharedSecretKeyManagerSpec extends Specification {
         sharedSecretKey = new ECSMgmtSharedSecretKeyPayload()
         restTemplateFactoryReLoginDecorated = Stub()
         ecsConfig = Stub()
-        sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig: ecsConfig, restTemplateReLoginDecorated: restTemplateFactoryReLoginDecorated)
+        sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig)
+        sharedSecretKeyManager.restTemplateReLoginDecorated = restTemplateFactoryReLoginDecorated
     }
 
     def "create sharedSecretKey call proper endpoint"() {

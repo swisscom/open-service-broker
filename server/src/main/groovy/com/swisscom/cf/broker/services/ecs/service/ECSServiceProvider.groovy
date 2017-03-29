@@ -19,6 +19,7 @@ import com.swisscom.cf.broker.services.ecs.facade.client.ECSManagementClient
 import com.swisscom.cf.broker.services.ecs.facade.client.details.NamespaceManager
 import com.swisscom.cf.broker.services.ecs.facade.client.details.SharedSecretKeyManager
 import com.swisscom.cf.broker.services.ecs.facade.client.details.UserManager
+import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
 import com.swisscom.cf.broker.services.ecs.facade.filters.ECSManagementInputDecorator
 import com.swisscom.cf.broker.util.ServiceDetailKey
 import com.swisscom.cf.broker.util.ServiceDetailsHelper
@@ -35,18 +36,16 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        ECSManagementInputDecorator ecsManagementInputDecorator = new ECSManagementInputDecorator(ecsConfig: ecsConfig)
-        ECSManagementClient ecsManagementClient = new ECSManagementClient(createNamespace: new NamespaceManager(ecsConfig),
-                createUser: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig))
-        return (new ECSManagementFacade(ecsManagementInputDecorator, ecsManagementClient)).provision()
+        return (new ECSManagementFacade(new ECSManagementInputDecorator(ecsConfig: ecsConfig), new ECSManagementClient(namespaceManager: new NamespaceManager(ecsConfig),
+                userManager: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig)))).provision()
     }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
+        return (new ECSManagementFacade(new ECSManagementInputDecorator(ecsConfig: ecsConfig), new ECSManagementClient(namespaceManager: new NamespaceManager(ecsConfig),
+                userManager: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig)))).deprovision(request)
 
-        return new DeprovisionResponse(isAsync: false)
     }
-
 
     @Override
     BindResponse bind(BindRequest request) {
@@ -60,10 +59,9 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
         request.getServiceInstance()
     }
 
-    //TODO check if /object/billing/namespace/info is in bytes the same units as atmos? and check atmos as well
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        //Date date = enddate.present ? enddate.get() : new Date()
-        return new ServiceUsage(value: 1, type: ServiceUsage.Type.WATERMARK)
+        return new ServiceUsage(value: (new ECSManagementFacade(new ECSManagementInputDecorator(ecsConfig: ecsConfig), new ECSManagementClient(namespaceManager: new NamespaceManager(ecsConfig),
+                userManager: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig)))).getUsageInformation(new ECSMgmtNamespacePayload(namespace: ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_NAME))), type: ServiceUsage.Type.WATERMARK)
     }
 }
