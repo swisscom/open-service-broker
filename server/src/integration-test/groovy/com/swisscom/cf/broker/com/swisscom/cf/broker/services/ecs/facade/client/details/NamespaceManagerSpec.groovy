@@ -37,7 +37,7 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
 
         ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
         namespace.namespace = "8094bd675c663317e943579636e88e30"
-        namespace.default_data_services_vpool = "urn:storageos:ReplicationGroupInfo:e4cf1d55-7f6f-4e64-be95-52c87d3b465d:global"
+        namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
         namespace.is_encryption_enabled = false
         namespace.default_bucket_block_size = -1
         namespace.is_stale_allowed = true
