@@ -31,10 +31,32 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
 
     }
 
-    def "add remove namespace"() {
+    def "add namespace"() {
         given:
         NamespaceManager namespaceManager = new NamespaceManager(ecsConfig)
+        and:
+        ECSMgmtNamespacePayload namespace = getNamespace()
+        when:
+        ResponseEntity response = namespaceManager.create(namespace)
+        then:
+        response.statusCode == HttpStatus.OK
+        cleanup:
+        namespaceManager.delete(namespace)
+    }
 
+    def "remove namespace"() {
+        given:
+        NamespaceManager namespaceManager = new NamespaceManager(ecsConfig)
+        and:
+        ECSMgmtNamespacePayload namespace = getNamespace()
+        when:
+        namespaceManager.create(namespace)
+        ResponseEntity response = namespaceManager.delete(namespace)
+        then:
+        response.statusCode == HttpStatus.OK
+    }
+
+    ECSMgmtNamespacePayload getNamespace() {
         ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
         namespace.namespace = "8094bd675c663317e943579636e88e30"
         namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
@@ -42,13 +64,7 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
         namespace.default_bucket_block_size = -1
         namespace.is_stale_allowed = true
         namespace.compliance_enabled = false
-
-        when:
-        ResponseEntity response = namespaceManager.create(namespace)
-        namespaceManager.delete(namespace)
-        then:
-        response.statusCode == HttpStatus.OK
-
+        namespace
     }
 
 }

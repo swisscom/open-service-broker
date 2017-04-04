@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.facade.client.details.exceptions.ECSAuthenticationProblemException
+import com.swisscom.cf.broker.services.ecs.facade.client.details.exceptions.ECSAuthenticationException
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -49,7 +49,7 @@ class TokenManager {
             return this
         } catch (HttpClientErrorException clientErrorException) {
             if (clientErrorException.statusCode == HttpStatus.UNAUTHORIZED) {
-                throw new ECSAuthenticationProblemException()
+                throw new ECSAuthenticationException()
             }
             throw clientErrorException
         }

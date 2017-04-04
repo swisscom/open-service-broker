@@ -48,7 +48,7 @@ class ECSManagementFacade {
         return new DeprovisionResponse(isAsync: false)
     }
 
-    String getUsageInformation(ECSMgmtNamespacePayload ecsMgmtNamespacePayload) {
+    String getUsageInformationInBytes(ECSMgmtNamespacePayload ecsMgmtNamespacePayload) {
         return (new BigDecimal(ecsManagementClient.getUsage(ecsMgmtNamespacePayload).total_size)).multiply(new BigDecimal("1024")).toPlainString()
     }
 

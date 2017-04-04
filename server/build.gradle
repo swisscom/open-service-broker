@@ -55,6 +55,7 @@ dependencies {
 	compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
 	compile('org.mongodb:mongo-java-driver:2.13.0')
 	compile group: 'org.springframework.statemachine', name: 'spring-statemachine-core', version: '1.2.0.RELEASE'
+	compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.0.002'
 	compile project(':model')
 	compile project(':client')
 

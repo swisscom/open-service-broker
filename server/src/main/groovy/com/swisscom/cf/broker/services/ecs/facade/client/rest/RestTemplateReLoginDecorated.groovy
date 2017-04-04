@@ -30,7 +30,7 @@ class RestTemplateReLoginDecorated<BODY, RESPONSE> {
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       BODY body, Class<RESPONSE> responseType) {
         try {
-            log.info("${method} ${url} >>> ${body}")
+            log.debug("${method} ${url} >>> ${body}")
             ResponseEntity<RESPONSE> result = restTemplate.exchange(url, method, new HttpEntity(body, tokenManager.getHeaders()), responseType)
             return result
         } catch (HttpClientErrorException e) {

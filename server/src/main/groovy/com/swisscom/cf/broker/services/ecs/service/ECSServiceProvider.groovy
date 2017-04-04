@@ -51,7 +51,8 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
     BindResponse bind(BindRequest request) {
         return new BindResponse(credentials: new ECSBindResponse(accessHost: ecsConfig.getEcsClientURL(),
                 accessKey: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_USER),
-                sharedSecret: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_SECRET)))
+                sharedSecret: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_SECRET),
+                namespace: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_NAME)))
     }
 
     @Override
@@ -62,6 +63,6 @@ class ECSServiceProvider implements ServiceProvider, ServiceUsageProvider {
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         return new ServiceUsage(value: (new ECSManagementFacade(new ECSManagementInputDecorator(ecsConfig: ecsConfig), new ECSManagementClient(namespaceManager: new NamespaceManager(ecsConfig),
-                userManager: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig)))).getUsageInformation(new ECSMgmtNamespacePayload(namespace: ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_NAME))), type: ServiceUsage.Type.WATERMARK)
+                userManager: new UserManager(ecsConfig), sharedSecretKeyManager: new SharedSecretKeyManager(ecsConfig)))).getUsageInformationInBytes(new ECSMgmtNamespacePayload(namespace: ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.ECS_NAMESPACE_NAME))), type: ServiceUsage.Type.WATERMARK)
     }
 }

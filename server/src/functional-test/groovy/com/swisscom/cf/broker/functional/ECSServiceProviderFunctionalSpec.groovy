@@ -34,7 +34,7 @@ class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         AmazonS3 s3client = new AmazonS3Client(new BasicAWSCredentials(credentials.accessKey, credentials.sharedSecret))
         s3client.setEndpoint("https://ds11s3.swisscom.com")
         s3client.createBucket("bucket")
-        s3client.putObject(new PutObjectRequest("bucket", "key", new File("/Users/taalyko2/Downloads/gogland-163.12024.32.dmg")))
+        s3client.putObject(new PutObjectRequest("bucket", "key", new File(this.getClass().getResource('/bosh/cloud_config.json').getFile())))
         Thread.sleep(1000)
         cleanup:
         s3client.deleteObject("bucket", "key")
@@ -51,7 +51,7 @@ class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         AmazonS3 s3client = new AmazonS3Client(new BasicAWSCredentials(credentials.accessKey, credentials.sharedSecret))
         s3client.setEndpoint("https://ds11s3.swisscom.com")
         s3client.createBucket("bucket")
-        s3client.putObject(new PutObjectRequest("bucket", "key", new File("/tmp/kokos.txt")))
+        s3client.putObject(new PutObjectRequest("bucket", "key", new File(this.getClass().getResource('/bosh/cloud_config.json').getFile())))
         Thread.sleep(60000)
         and:
         BillingManager billingManager = new BillingManager(ecsConfig)

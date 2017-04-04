@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
-import com.swisscom.cf.broker.services.ecs.facade.client.details.exceptions.ECSAuthenticationProblemException
+import com.swisscom.cf.broker.services.ecs.facade.client.details.exceptions.ECSAuthenticationException
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.junit.Assert
 import org.springframework.http.HttpHeaders
@@ -63,7 +63,7 @@ class TokenManagerSpec extends Specification {
         login.restTemplateFactory.buildWithBasicAuthentication(_, _) >> restTemplate
         login.refreshAuthToken()
         then:
-        thrown ECSAuthenticationProblemException
+        thrown ECSAuthenticationException
     }
 
 

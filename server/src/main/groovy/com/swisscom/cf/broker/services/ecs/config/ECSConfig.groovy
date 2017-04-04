@@ -16,8 +16,7 @@ class ECSConfig implements Config {
     String ecsManagementUsername
     String ecsManagementPassword
     String ecsManagementNamespacePrefix
-    String ecsManagementEnvironentPrefix
+    String ecsManagementEnvironmentPrefix
     String ecsDefaultDataServicesVpool
-
 
 }

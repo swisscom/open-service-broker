@@ -24,13 +24,7 @@ class SharedSecretKeyManagerSpec extends BaseTransactionalSpecification {
         UserManager userManager = new UserManager(ecsConfig)
         SharedSecretKeyManager sharedSecretKeyManager = new SharedSecretKeyManager(ecsConfig)
         and:
-        ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
-        namespace.namespace = "8094bd675c663317e943579636e88e30"
-        namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
-        namespace.is_encryption_enabled = false
-        namespace.default_bucket_block_size = -1
-        namespace.is_stale_allowed = true
-        namespace.compliance_enabled = false
+        ECSMgmtNamespacePayload namespace = getNamespace()
         and:
         ECSMgmtUserPayload ecsMgmtUserPayload = new ECSMgmtUserPayload()
         ecsMgmtUserPayload.namespace = "8094bd675c663317e943579636e88e30"
@@ -47,6 +41,17 @@ class SharedSecretKeyManagerSpec extends BaseTransactionalSpecification {
         userManager.delete(ecsMgmtUserPayload)
         namespaceManager.delete(namespace)
 
+    }
+
+    ECSMgmtNamespacePayload getNamespace(){
+        ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
+        namespace.namespace = "8094bd675c663317e943579636e88e30"
+        namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
+        namespace.is_encryption_enabled = false
+        namespace.default_bucket_block_size = -1
+        namespace.is_stale_allowed = true
+        namespace.compliance_enabled = false
+        namespace
     }
 
 }

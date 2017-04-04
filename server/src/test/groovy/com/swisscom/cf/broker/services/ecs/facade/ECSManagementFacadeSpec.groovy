@@ -26,7 +26,7 @@ class ECSManagementFacadeSpec extends Specification {
         ECSMgmtBillingInformationResponse ecsMgmtBillingInformationResponse = new ECSMgmtBillingInformationResponse(total_size: 23535453)
         ecsManagementClient.getUsage(ecsMgmtNamespacePayload) >> ecsMgmtBillingInformationResponse
         expect:
-        ecsManagementFacade.getUsageInformation(ecsMgmtNamespacePayload) == "24100303872"
+        ecsManagementFacade.getUsageInformationInBytes(ecsMgmtNamespacePayload) == "24100303872"
     }
 
 

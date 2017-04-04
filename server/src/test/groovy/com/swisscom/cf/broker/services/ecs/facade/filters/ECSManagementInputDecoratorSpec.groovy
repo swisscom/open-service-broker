@@ -14,7 +14,7 @@ class ECSManagementInputDecoratorSpec extends Specification {
     def setup() {
         ecsConfig = Stub()
         ecsConfig.getEcsManagementNamespacePrefix() >> "123456"
-        ecsConfig.getEcsManagementEnvironentPrefix() >> "789012"
+        ecsConfig.getEcsManagementEnvironmentPrefix() >> "789012"
         ecsConfig.getEcsDefaultDataServicesVpool() >> "POOL"
         ecsConfig.getEcsDefaultDataServicesVpool() >> "POOL"
         ecsManagementInputFilter = new ECSManagementInputDecorator(ecsConfig: ecsConfig)

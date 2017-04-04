@@ -8,6 +8,7 @@ class ECSBindResponse implements BindResponseDto {
     String accessHost
     String accessKey
     String sharedSecret
+    String namespace
 
     @Override
     String toJson() {
@@ -16,6 +17,7 @@ class ECSBindResponse implements BindResponseDto {
                 accessHost: "${accessHost}",
                 accessKey: "${accessKey}",
                 sharedSecret: "${sharedSecret}",
+                namespace: "${namespace}",
         )
         return jsonBuilder.toPrettyString()
     }

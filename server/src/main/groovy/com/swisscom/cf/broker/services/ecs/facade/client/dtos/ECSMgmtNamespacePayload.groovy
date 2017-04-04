@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.dtos
 import groovy.transform.ToString
 
 @ToString
-class ECSMgmtNamespacePayload {
+class ECSMgmtNamespacePayload implements Serializable {
 
     String namespace
     String default_data_services_vpool

@@ -3,7 +3,7 @@ package com.swisscom.cf.broker.services.ecs.facade.client.dtos
 import groovy.transform.ToString
 
 @ToString
-class ECSMgmtBillingInformationResponse {
+class ECSMgmtBillingInformationResponse implements Serializable{
     String next_marker
     String total_objects
     String sample_time

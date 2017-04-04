@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.services.ecs.facade.client.dtos
 
 
-class ECSMgmtNamespaceResponse {
+class ECSMgmtNamespaceResponse implements Serializable {
 
     String id
     String inactive
