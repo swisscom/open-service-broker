@@ -40,6 +40,7 @@ class SharedSecretKeyManagerSpec extends BaseTransactionalSpecification {
         cleanup:
         userManager.delete(ecsMgmtUserPayload)
         namespaceManager.delete(namespace)
+        sharedSecretKeyManager.restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
 
     }
 

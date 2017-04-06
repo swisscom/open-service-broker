@@ -4,6 +4,7 @@ import com.swisscom.cf.broker.BaseTransactionalSpecification
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.details.exceptions.ECSAuthenticationException
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -13,15 +14,21 @@ class TokenManagerSpec extends BaseTransactionalSpecification {
     @Autowired
     ECSConfig ecsConfig
 
+    RestTemplateReLoginDecorated restTemplateReLoginDecorated
+
+    def setup() {
+        restTemplateReLoginDecorated = new RestTemplateReLoginDecorated<>(new TokenManager(ecsConfig, new RestTemplateFactory()))
+    }
+
     def "login with valid credentials"() {
         given:
         TokenManager tokenManager = new TokenManager(ecsConfig, new RestTemplateFactory())
-
         when:
         String xSDSAuthToken = tokenManager.refreshAuthToken().getHeaders().get("X-SDS-AUTH-TOKEN").get(0)
-
         then:
         xSDSAuthToken.isEmpty() == false
+        cleanup:
+        restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
     def "login with invalid credentials"() {
@@ -29,12 +36,12 @@ class TokenManagerSpec extends BaseTransactionalSpecification {
         ECSConfig badEcsConfig = ecsConfig.clone()
         badEcsConfig.ecsManagementUsername = badEcsConfig.ecsManagementUsername + "invalidUser" + new Random().nextInt(1000)
         TokenManager tokenManager = new TokenManager(badEcsConfig, new RestTemplateFactory())
-
         when:
         tokenManager.refreshAuthToken().getHeaders().get("X-SDS-AUTH-TOKEN").get(0)
-
         then:
         thrown(ECSAuthenticationException)
+        cleanup:
+        restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
     def "request with expired X-SDS-AUTH-TOKEN"() {
@@ -45,13 +52,13 @@ class TokenManagerSpec extends BaseTransactionalSpecification {
         LinkedList<String> list = new LinkedList()
         list.add(expiredToken)
         httpHeaders.put("X-SDS-AUTH-TOKEN", list)
-
         when:
         String xSDSAuthToken = tokenManager.refreshAuthToken().getHeaders().get("X-SDS-AUTH-TOKEN").get(0)
-
         then:
         expiredToken.length() == xSDSAuthToken.length()
         !expiredToken.equals(xSDSAuthToken)
+        cleanup:
+        restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
 }

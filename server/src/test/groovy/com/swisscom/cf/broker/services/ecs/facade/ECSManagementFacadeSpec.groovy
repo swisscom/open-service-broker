@@ -12,7 +12,6 @@ class ECSManagementFacadeSpec extends Specification {
     ECSManagementInputDecorator ecsManagementInputFilter
     ECSMgmtNamespacePayload ecsMgmtNamespacePayload
     ECSManagementClient ecsManagementClient
-    ECSMgmtNamespacePayload namespace
 
     def setup() {
         ecsManagementInputFilter = Mock()

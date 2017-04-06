@@ -56,8 +56,6 @@ class TokenManagerSpec extends Specification {
 
     def "refreshHeaders throws exception for failure"() {
         when:
-        HttpHeaders httpHeaders = new HttpHeaders()
-        ResponseEntity<String> responseEntity = new ResponseEntity(httpHeaders, HttpStatus.ACCEPTED)
         RestTemplate restTemplate = Stub()
         restTemplate.exchange(_, _, _, _, _) >> { throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED) }
         login.restTemplateFactory.buildWithBasicAuthentication(_, _) >> restTemplate

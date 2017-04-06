@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.exception.ECSManagementAuthenticationException
 import com.swisscom.cf.broker.util.RestTemplateFactory
-import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
-
 
 @Log4j
 class RestTemplateReLoginDecorated<BODY, RESPONSE> {
@@ -50,5 +48,10 @@ class RestTemplateReLoginDecorated<BODY, RESPONSE> {
             }
             throw e
         }
+    }
+
+    @VisibleForTesting
+    private ResponseEntity<String> logout(String url) {
+        return exchange(url + "/logout", HttpMethod.GET, new HttpEntity(null, tokenManager.getHeaders()), String.class)
     }
 }

@@ -1,18 +1,10 @@
 package com.swisscom.cf.broker.com.swisscom.cf.broker.services.ecs.facade.client.details
 
 import com.swisscom.cf.broker.BaseTransactionalSpecification
-import com.swisscom.cf.broker.model.LastOperation
-import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContextService
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.details.NamespaceManager
-import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
-import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
-import com.swisscom.cf.broker.util.DBTestUtil
-import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -28,6 +20,8 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
         ResponseEntity response = namespaceManager.list()
         then:
         response.statusCode == HttpStatus.OK
+        cleanup:
+        namespaceManager.restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
 
     }
 
@@ -42,6 +36,7 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
         response.statusCode == HttpStatus.OK
         cleanup:
         namespaceManager.delete(namespace)
+        namespaceManager.restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
     def "remove namespace"() {
@@ -54,6 +49,8 @@ class NamespaceManagerSpec extends BaseTransactionalSpecification {
         ResponseEntity response = namespaceManager.delete(namespace)
         then:
         response.statusCode == HttpStatus.OK
+        cleanup:
+        namespaceManager.restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
     ECSMgmtNamespacePayload getNamespace() {

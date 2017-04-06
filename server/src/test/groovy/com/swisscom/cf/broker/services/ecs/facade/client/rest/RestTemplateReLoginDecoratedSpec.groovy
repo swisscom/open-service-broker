@@ -51,4 +51,14 @@ class RestTemplateReLoginDecoratedSpec extends Specification {
         restTemplate.exchange("http://localhost", HttpMethod.POST, "", String.class).getBody() == "Body"
     }
 
+    def "logout calls the proper endpoint"() {
+        given:
+        ResponseEntity<String> responseEntity = new ResponseEntity(HttpStatus.GONE)
+        restTemplate.restTemplate.exchange("http/logout", HttpMethod.GET, _, String.class) >> responseEntity
+        when:
+        ResponseEntity<String> result = restTemplate.logout("http")
+        then:
+        result.getStatusCode() == HttpStatus.GONE
+    }
+
 }

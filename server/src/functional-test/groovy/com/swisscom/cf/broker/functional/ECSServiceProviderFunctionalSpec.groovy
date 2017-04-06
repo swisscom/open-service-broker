@@ -7,9 +7,12 @@ import com.amazonaws.services.s3.model.PutObjectRequest
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.broker.services.ecs.config.ECSConfig
 import com.swisscom.cf.broker.services.ecs.facade.client.details.BillingManager
+import com.swisscom.cf.broker.services.ecs.facade.client.details.TokenManager
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtBillingInformationResponse
 import com.swisscom.cf.broker.services.ecs.facade.client.dtos.ECSMgmtNamespacePayload
+import com.swisscom.cf.broker.services.ecs.facade.client.rest.RestTemplateReLoginDecorated
 import com.swisscom.cf.broker.services.ecs.service.ECSServiceProvider
+import com.swisscom.cf.broker.util.RestTemplateFactory
 import org.springframework.beans.factory.annotation.Autowired
 
 class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
@@ -17,8 +20,12 @@ class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     ECSConfig ecsConfig
 
+
+    RestTemplateReLoginDecorated restTemplateReLoginDecorated
+
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('ECS', ServiceProviderLookup.findInternalName(ECSServiceProvider.class))
+        restTemplateReLoginDecorated = new RestTemplateReLoginDecorated<>(new TokenManager(ecsConfig, new RestTemplateFactory()))
     }
 
     def cleanupSpec() {
@@ -40,6 +47,7 @@ class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         s3client.deleteObject("bucket", "key")
         s3client.deleteBucket("bucket")
         serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
+        restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
     def "Adding file updates billing information"() {
@@ -62,7 +70,7 @@ class ECSServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         s3client.deleteObject("bucket", "key")
         s3client.deleteBucket("bucket")
         serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
-
+        restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
     }
 
 }

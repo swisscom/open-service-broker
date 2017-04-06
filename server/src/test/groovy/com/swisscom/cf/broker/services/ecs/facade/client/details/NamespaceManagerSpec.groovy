@@ -28,8 +28,6 @@ class NamespaceManagerSpec extends Specification {
 
     def "create namespace call proper endpoint"() {
         when:
-
-
         namespaceManager.create(namespace)
         then:
         1 * restTemplateFactoryReLoginDecorated.exchange("http.server.com/object/namespaces/namespace", HttpMethod.POST, _, _)

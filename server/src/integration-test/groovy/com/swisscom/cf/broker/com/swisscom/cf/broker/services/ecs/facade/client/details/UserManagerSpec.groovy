@@ -39,6 +39,7 @@ class UserManagerSpec extends BaseTransactionalSpecification {
         response.statusCode == HttpStatus.OK
         cleanup:
         namespaceManager.delete(namespace)
+        namespaceManager.restTemplateReLoginDecorated.logout(ecsConfig.getEcsManagementBaseUrl())
 
     }
 
