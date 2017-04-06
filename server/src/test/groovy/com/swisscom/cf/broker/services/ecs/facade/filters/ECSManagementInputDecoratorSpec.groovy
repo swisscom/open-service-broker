@@ -46,7 +46,7 @@ class ECSManagementInputDecoratorSpec extends Specification {
         when:
         ecsManagementInputFilter.decorate(namespace)
         then:
-        namespace.getNamespace().length() == 26
+        namespace.getNamespace().length() == 32
     }
 
     def "filter for namespace set default_data_services_vpool"() {

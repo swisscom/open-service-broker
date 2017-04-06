@@ -21,7 +21,7 @@ class UserManagerSpec extends BaseTransactionalSpecification {
         UserManager userManager = new UserManager(ecsConfig)
         and:
         ECSMgmtNamespacePayload namespace = new ECSMgmtNamespacePayload()
-        namespace.namespace = "8094bd675c663317e943579636e88e30"
+        namespace.namespace = ecsConfig.getEcsManagementNamespacePrefix() + "675c663317e943579636e88e30"
         namespace.default_data_services_vpool = ecsConfig.getEcsDefaultDataServicesVpool()
         namespace.is_encryption_enabled = false
         namespace.default_bucket_block_size = -1
@@ -29,8 +29,8 @@ class UserManagerSpec extends BaseTransactionalSpecification {
         namespace.compliance_enabled = false
         and:
         ECSMgmtUserPayload ecsMgmtUserPayload = new ECSMgmtUserPayload()
-        ecsMgmtUserPayload.namespace = "8094bd675c663317e943579636e88e30"
-        ecsMgmtUserPayload.user = "8094bd675c663317e943579636e88e30-user4"
+        ecsMgmtUserPayload.namespace = ecsConfig.getEcsManagementNamespacePrefix() + "675c663317e943579636e88e30"
+        ecsMgmtUserPayload.user = ecsConfig.getEcsManagementNamespacePrefix() + "675c663317e943579636e88e30-user4"
         when:
         namespaceManager.create(namespace)
         userManager.create(ecsMgmtUserPayload)

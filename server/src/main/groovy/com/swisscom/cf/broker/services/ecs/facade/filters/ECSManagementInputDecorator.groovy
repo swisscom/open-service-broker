@@ -23,7 +23,7 @@ class ECSManagementInputDecorator {
     }
 
     String get20HexCharsRandomlyGenerated() {
-        return StringGenerator.randomHexadecimal(14)
+        return StringGenerator.randomHexadecimal(20)
     }
 
 }
