@@ -1,0 +1,1 @@
+{"name":"mongoenterprise-mongodbent-bosh","uuid":"xxx-x","version":"1.3262.9.0 (00000000)","user":null,"cpi":"openstack_cpi","user_authentication":{"type":"basic","options":{}},"features":{"dns":{"status":false,"extras":{"domain_name":null}},"compiled_package_cache":{"status":true,"extras":{"provider":"s3cli"}},"snapshots":{"status":false}}}

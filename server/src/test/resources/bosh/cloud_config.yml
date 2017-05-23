@@ -1,0 +1,67 @@
+azs:
+- name: z1
+- name: z2
+- name: z3
+compilation:
+  network: mongoenterprise1
+  reuse_compilation_vms: true
+  workers: 2
+  vm_type: mongoenterprise
+  az: z1
+networks:
+- name: opsmanager1
+  subnets:
+  - cloud_properties:
+      net_id: xxx-xx
+      subnet: xxx
+      security_groups:
+      - default
+    az: z1
+    dns:
+    - 192.168.21.36
+    - 192.168.21.37
+    gateway: 192.168.28.1
+    name: private
+    range: 192.168.28.0/24
+    reserved:
+    - 192.168.28.2 - 192.168.28.100
+    - 192.168.28.115 - 192.168.28.254
+    static:
+    - 192.168.28.101 - 192.168.28.114
+  type: manual
+- name: mongoenterprise1
+  subnets:
+  - cloud_properties:
+      net_id: xxx-xx
+      subnet: xxx
+      security_groups:
+      - default
+    az: z1
+    dns:
+    - 192.168.21.36
+    - 192.168.21.37
+    gateway: 192.168.28.1
+    name: private
+    range: 192.168.28.0/24
+    reserved:
+    - 192.168.28.2 - 192.168.28.115
+    - 192.168.28.250 - 192.168.28.254
+  type: manual
+disk_types:
+- name: mongoent.small
+  disk_size: 227680
+- name: mongoent.medium
+  disk_size: 227680
+- name: mongoent.large
+  disk_size: 227680
+vm_types:
+- name: uueydnjd9a8xdx0z
+  cloud_properties:
+    instance_type: medium_z1
+    scheduler_hints:
+      group: uueydnjd9a8xdx0z
+- name: us2agejk5bmuya7s
+  cloud_properties:
+    instance_type: mongoent.small
+    scheduler_hints:
+      group: 641980f6-a1d3-4e8c-81cd-4840c56a3754

@@ -1,0 +1,32 @@
+.gradle
+/build/
+/classes
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### App secrets ###
+**/application-secrets.yml
+**/application-secrets.properties
+
+### Env specific bosh templates ###
+**/sc1-**.yml

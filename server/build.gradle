@@ -1,0 +1,126 @@
+buildscript {
+	ext {
+		springBootVersion = '1.4.2.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+
+war {
+	baseName = 'service-broker'
+	doFirst {
+		manifest {
+			attributes("Implementation-Title": project.name, "Implementation-Version": version, "Implementation-Timestamp": new Date())
+		}
+	}
+}
+
+processResources {
+	expand(project.properties)
+}
+
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-jdbc')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.codehaus.groovy:groovy-all:2.4.7')
+	compile('com.google.guava:guava:20.0')
+	compile('org.quartz-scheduler:quartz:2.2.2')
+	compile('org.springframework:spring-context-support')
+	compile('org.codehaus.gpars:gpars:1.1.0')
+	compile('joda-time:joda-time:2.9.1')
+	compile('org.flywaydb:flyway-core:4.0.3')
+	compile('com.google.code.gson:gson:2.8.0')
+	compile('org.apache.httpcomponents:httpclient:4.5.2')
+	compile('commons-lang:commons-lang:2.6')
+	compile('io.springfox:springfox-swagger2:2.6.0')
+	compile('io.springfox:springfox-swagger-ui:2.6.0')
+	compile('org.pacesys:openstack4j-core:2.20')
+	compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
+	compile('org.mongodb:mongo-java-driver:2.13.0')
+	compile project(':model')
+	compile project(':client')
+
+	runtime('mysql:mysql-connector-java')
+	runtime('javax.el:javax.el-api:2.2.4')
+
+	if (project.hasProperty('tomcat')) {
+		// Used for production environment
+		System.out.println('tomcat')
+		providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	}else{
+		System.out.println('standalone')
+		runtime('org.springframework.boot:spring-boot-starter-tomcat')
+	}
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.spockframework:spock-core:1.0-groovy-2.4')
+	testCompile('cglib:cglib-nodep:3.2.4')
+	testCompile('org.spockframework:spock-spring:1.0-groovy-2.4')
+}
+
+// Add integration/functional test source sets
+sourceSets {
+	integrationTest { sourceSet ->
+		["java", "groovy", "scala", "resources"].each {
+			if (!sourceSet.hasProperty(it)) return
+			sourceSet."$it".srcDir file("src/integration-test/${it}")
+		}
+	}
+	functionalTest { sourceSet ->
+		["java", "groovy", "scala", "resources"].each {
+			if (!sourceSet.hasProperty(it)) return
+			sourceSet."$it".srcDir file("src/functional-test/${it}")
+		}
+	}
+}
+
+// Setup dependencies for integration testing
+dependencies {
+	integrationTestCompile sourceSets.main.output
+	integrationTestCompile sourceSets.test.output
+	integrationTestCompile configurations.testCompile
+	integrationTestRuntime configurations.testRuntime
+
+	functionalTestCompile sourceSets.main.output
+	functionalTestCompile sourceSets.test.output
+	functionalTestCompile sourceSets.integrationTest.output
+	functionalTestCompile configurations.testCompile
+	functionalTestRuntime configurations.testRuntime
+}
+
+// Define integration test task
+task integrationTest(type: Test) {
+	testClassesDir = sourceSets.integrationTest.output.classesDir
+	classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+// Define function test task
+task functionalTest(type: Test) {
+	testClassesDir = sourceSets.functionalTest.output.classesDir
+	classpath = sourceSets.functionalTest.runtimeClasspath
+}
+
+// Make sure 'check' task calls integration test
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
+
+// Make sure 'check' task calls functional test
+check.dependsOn functionalTest
+functionalTest.mustRunAfter integrationTest

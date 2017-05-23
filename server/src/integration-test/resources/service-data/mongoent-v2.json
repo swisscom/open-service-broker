@@ -1,0 +1,46 @@
+{
+  "asyncRequired": true,
+  "bindable": true,
+  "description": "MongoDB Enterprise HA v3.2.6",
+  "displayIndex": 1,
+  "guid": "test-1db16503-f4c1-4963-be74-6c33d7359c12",
+  "internalName": "mongoDbEnterpriseV2",
+  "metadata": {
+    "displayName": "MongoDB Enterprise",
+    "version": "3.2.6"
+  },
+  "name": "mongodbent-v2",
+  "plans": [
+    {
+      "asyncRequired": false,
+      "description": "Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections",
+      "displayIndex": 0,
+      "free": false,
+      "guid": "test-9d832548-7870-49fe-b1bd-e1ffef4a987d",
+      "maxBackups": 0,
+      "metadata": {
+        "dedicatedService": true,
+        "displayName": "Small",
+        "highAvailability": true,
+        "maximumConcurrentConnections": "unlimited",
+        "memory": "32GB",
+        "nodes": "3",
+        "storageCapacity": "320GB"
+      },
+      "name": "small3rs-v3",
+      "parameters": [
+        {
+          "name": "plan",
+          "value": "mongoent.small"
+        },
+        {
+          "name": "vm_instance_type",
+          "value": "mongoent.small"
+        }
+      ],
+      "templateId": "mongodbent-v3_2_6-v5"
+    }
+  ],
+  "requires": [],
+  "tags": []
+}

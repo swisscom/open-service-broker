@@ -1,0 +1,54 @@
+{
+  "guid": "1db16503-f4c1-4963-be74-6c33d7359c12",
+  "name": "mongodbenterprise",
+  "description": "MongoDB Enterprise",
+  "bindable": true,
+  "asyncRequired": true,
+  "internalName": "mongoDbEnterprise",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "??",
+    "displayName": "MongoDB Enterprise"
+  },
+  "plans": [
+    {
+      "guid": "9d832548-7870-49fe-b1bd-e1ffef4a987d",
+      "name": "small",
+      "description": "Maximum ? concurrent connections, ?GB storage, ? memory",
+      "templateId": "mongodbent-v3_0_6-v1",
+      "free": false,
+      "displayIndex": 0,
+      "containerParams": [
+        {
+          "template": "mongodbent-yaml-v1",
+          "name": "plan",
+          "value": "m1.medium"
+        },
+        {
+          "template": "mongodbent-yaml-v1",
+          "name": "release-name",
+          "value": "mongoenterprise"
+        },
+        {
+          "template": "mongodbent-yaml-v1",
+          "name": "release-version",
+          "value": "latest"
+        },
+        {
+          "template": "mongodbent-yaml-v1",
+          "name": "consul-version",
+          "value": "19"
+        }
+      ],
+      "metadata": {
+        "storageCapacity": "?GB",
+        "memory": "?MB",
+        "maximumConcurrentConnections": "?",
+        "dedicatedService": true,
+        "highAvailability": true,
+        "displayName": "Small"
+      }
+    }
+  ]
+}

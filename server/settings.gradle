@@ -1,0 +1,5 @@
+include ':client'
+project(':client').projectDir = new File(settingsDir, '../client')
+include ':model'
+project(':model').projectDir = new File(settingsDir, '../model')
+
