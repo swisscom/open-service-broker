@@ -172,7 +172,7 @@ curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/servic
 
 ## Swagger
 
-The Swagger API documentation can be accessed at <http:/localhost:8080/swagger-ui.html>
+The Swagger API documentation can be accessed at <http://localhost:8080/swagger-ui.html>
 
 ## Brokered Services
 ### Bosh based services
