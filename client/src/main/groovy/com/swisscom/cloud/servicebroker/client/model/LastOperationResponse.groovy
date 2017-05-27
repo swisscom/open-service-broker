@@ -1,4 +1,4 @@
-package com.swisscom.cf.servicebroker.client.model
+package com.swisscom.cloud.servicebroker.client.model
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 

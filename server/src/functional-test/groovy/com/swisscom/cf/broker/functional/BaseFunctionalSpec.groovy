@@ -2,8 +2,7 @@ package com.swisscom.cf.broker.functional
 
 import com.swisscom.cf.broker.config.AuthenticationConfig
 import com.swisscom.cf.broker.util.ServiceLifeCycler
-import com.swisscom.cf.servicebroker.client.ServiceBrokerClient
-import com.swisscom.cf.servicebroker.client.ServiceBrokerClientExtended
+import com.swisscom.cloud.servicebroker.client.ServiceBrokerClientExtended
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

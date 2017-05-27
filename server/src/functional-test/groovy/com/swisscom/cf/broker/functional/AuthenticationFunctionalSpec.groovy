@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.functional
 
-import com.swisscom.cf.servicebroker.client.ServiceBrokerClient
+import com.swisscom.cloud.servicebroker.client.ServiceBrokerClient
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 

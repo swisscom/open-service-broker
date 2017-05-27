@@ -1,4 +1,4 @@
-package com.swisscom.cf.servicebroker.client
+package com.swisscom.cloud.servicebroker.client
 
 import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.servicebroker.model.usage.ServiceUsage

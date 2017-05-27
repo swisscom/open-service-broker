@@ -1,4 +1,4 @@
-package com.swisscom.cf.servicebroker.client.dummybroker.config
+package com.swisscom.cloud.servicebroker.client.dummybroker.config
 
 import org.springframework.cloud.servicebroker.model.BrokerApiVersion
 import org.springframework.context.annotation.Bean

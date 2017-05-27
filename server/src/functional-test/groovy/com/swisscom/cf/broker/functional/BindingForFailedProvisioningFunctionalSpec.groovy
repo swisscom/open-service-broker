@@ -2,7 +2,7 @@ package com.swisscom.cf.broker.functional
 
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
 import com.swisscom.cf.broker.util.test.DummyServiceProvider
-import com.swisscom.cf.servicebroker.client.model.LastOperationState
+import com.swisscom.cloud.servicebroker.client.model.LastOperationState
 import org.springframework.web.client.HttpClientErrorException
 
 class BindingForFailedProvisioningFunctionalSpec extends BaseFunctionalSpec {
