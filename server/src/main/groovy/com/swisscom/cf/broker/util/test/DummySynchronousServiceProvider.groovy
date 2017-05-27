@@ -6,8 +6,7 @@ import com.swisscom.cf.broker.binding.BindRequest
 import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.BindResponseDto
 import com.swisscom.cf.broker.binding.UnbindRequest
-import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageLookup
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
@@ -15,7 +14,7 @@ import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.provisioning.DeprovisionResponse
 import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsageType
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsageType
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component

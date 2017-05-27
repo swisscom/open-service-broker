@@ -1,6 +1,6 @@
 package com.swisscom.cloud.servicebroker.client
 
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsageType
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsageType
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

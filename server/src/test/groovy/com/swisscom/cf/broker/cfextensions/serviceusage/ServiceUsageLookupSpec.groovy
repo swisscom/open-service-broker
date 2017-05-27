@@ -10,8 +10,8 @@ import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.provisioning.DeprovisionResponse
 import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsage
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsageType
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsageType
 import spock.lang.Specification
 
 class ServiceUsageLookupSpec extends Specification {

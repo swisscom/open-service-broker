@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.backup.converter
 
-import com.swisscom.cf.servicebroker.model.backup.RestoreStatus
+import com.swisscom.cloud.servicebroker.model.backup.RestoreStatus
 import com.swisscom.cf.broker.backup.RestoreStatusConverter
 import com.swisscom.cf.broker.model.Backup
 import com.swisscom.cf.broker.model.Restore

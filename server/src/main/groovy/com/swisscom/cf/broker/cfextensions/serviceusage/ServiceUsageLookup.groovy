@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.services.common.ServiceProvider
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

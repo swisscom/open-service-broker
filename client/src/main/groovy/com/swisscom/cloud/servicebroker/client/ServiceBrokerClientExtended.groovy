@@ -1,7 +1,7 @@
 package com.swisscom.cloud.servicebroker.client
 
-import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.servicebroker.model.endpoint.Endpoint
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity

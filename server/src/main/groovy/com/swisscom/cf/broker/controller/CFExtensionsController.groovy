@@ -3,9 +3,9 @@ package com.swisscom.cf.broker.controller
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.error.ErrorCode
-import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
+import com.swisscom.cloud.servicebroker.model.endpoint.Endpoint
 import com.swisscom.cf.broker.cfextensions.endpoint.EndpointService
-import com.swisscom.cf.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageLookup
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.model.repository.ServiceInstanceRepository

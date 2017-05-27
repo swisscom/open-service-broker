@@ -1,4 +1,4 @@
-package com.swisscom.cf.servicebroker.model.usage
+package com.swisscom.cloud.servicebroker.model.usage
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue

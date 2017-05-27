@@ -5,7 +5,7 @@ import com.swisscom.cf.broker.model.Plan
 import com.swisscom.cf.broker.model.ServiceInstance
 import com.swisscom.cf.broker.services.common.ServiceProvider
 import com.swisscom.cf.broker.services.common.ServiceProviderLookup
-import com.swisscom.cf.servicebroker.model.endpoint.Endpoint
+import com.swisscom.cloud.servicebroker.model.endpoint.Endpoint
 import spock.lang.Specification
 
 class EndpointLookupSpec extends Specification {

@@ -1,10 +1,9 @@
-package com.swisscom.cf.servicebroker.model.usage
+package com.swisscom.cloud.servicebroker.model.usage
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
