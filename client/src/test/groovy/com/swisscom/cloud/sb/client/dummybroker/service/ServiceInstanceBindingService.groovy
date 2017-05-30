@@ -1,4 +1,4 @@
-package com.swisscom.cloud.servicebroker.client.dummybroker.service
+package com.swisscom.cloud.sb.client.dummybroker.service
 
 import groovy.transform.CompileStatic
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException

@@ -4,11 +4,11 @@ import com.google.common.collect.Sets
 import com.swisscom.cf.broker.config.AuthenticationConfig
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
-import com.swisscom.cloud.servicebroker.client.ServiceBrokerClient
-import com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceBindingRequest
-import com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceRequest
-import com.swisscom.cloud.servicebroker.client.model.LastOperationResponse
-import com.swisscom.cloud.servicebroker.client.model.LastOperationState
+import com.swisscom.cloud.sb.client.ServiceBrokerClient
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
+import com.swisscom.cloud.sb.client.model.LastOperationResponse
+import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds

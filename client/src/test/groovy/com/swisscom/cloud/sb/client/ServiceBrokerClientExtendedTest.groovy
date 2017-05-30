@@ -1,4 +1,4 @@
-package com.swisscom.cloud.servicebroker.client
+package com.swisscom.cloud.sb.client
 
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import org.junit.Assert

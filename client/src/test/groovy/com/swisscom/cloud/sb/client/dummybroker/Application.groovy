@@ -1,4 +1,4 @@
-package com.swisscom.cloud.servicebroker.client.dummybroker
+package com.swisscom.cloud.sb.client.dummybroker
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 

@@ -1,4 +1,4 @@
-package com.swisscom.cloud.servicebroker.client.model
+package com.swisscom.cloud.sb.client.model
 
 class DeleteServiceInstanceBindingRequest {
     String serviceInstanceId

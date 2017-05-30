@@ -1,9 +1,8 @@
-package com.swisscom.cloud.servicebroker.client
+package com.swisscom.cloud.sb.client
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.servicebroker.client.dummybroker.Application
-import com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceRequest
-import com.swisscom.cloud.servicebroker.client.model.LastOperationResponse
+import com.swisscom.cloud.sb.client.dummybroker.Application
+import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
@@ -74,13 +73,13 @@ class ServiceBrokerClientTest {
 
     @Test
     void deleteServiceInstanceBinding(){
-        def request = new com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceBindingRequest(serviceInstanceId,bindingId,serviceDefinition.id,plan.id)
+        def request = new com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest(serviceInstanceId,bindingId,serviceDefinition.id,plan.id)
         serviceBrokerClient.deleteServiceInstanceBinding(request)
     }
 
     @Test
     void deleteServiceInstance(){
-        def request = new DeleteServiceInstanceRequest(serviceInstanceId, serviceDefinition.id, plan.id, false)
+        def request = new com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest(serviceInstanceId, serviceDefinition.id, plan.id, false)
         serviceBrokerClient.deleteServiceInstance(request)
     }
 

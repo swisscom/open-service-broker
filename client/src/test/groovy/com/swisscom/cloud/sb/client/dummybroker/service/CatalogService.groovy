@@ -1,4 +1,4 @@
-package com.swisscom.cloud.servicebroker.client.dummybroker.service
+package com.swisscom.cloud.sb.client.dummybroker.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic

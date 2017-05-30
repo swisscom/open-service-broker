@@ -1,6 +1,6 @@
-package com.swisscom.cloud.servicebroker.client
+package com.swisscom.cloud.sb.client
 
-import com.swisscom.cloud.servicebroker.client.model.LastOperationResponse
+import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.*
@@ -58,7 +58,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     @Override
-    ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceRequest request) {
+    ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request) {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
                 HttpMethod.DELETE, new HttpEntity<?>(createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.serviceId, request.planId, request.asyncAccepted)
@@ -72,9 +72,9 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     @Override
-    ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceBindingRequest request) {
+    ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request) {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
-                HttpMethod.DELETE, new HttpEntity<com.swisscom.cloud.servicebroker.client.model.DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
+                HttpMethod.DELETE, new HttpEntity<com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
 
