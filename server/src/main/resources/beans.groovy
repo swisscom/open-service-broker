@@ -1,4 +1,4 @@
-package com.swisscom.cf.broker
+package com.swisscom.cloud.sb.broker
 
 import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
 
