@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.servicedefinition.converter
 
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
-import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import org.springframework.stereotype.Component
 
 @Component

@@ -2,30 +2,8 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.model.repository.*
-import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
-import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.model.Restore
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.model.repository.BackupRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServicePermissionRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.RestoreRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.model.repository.TagRepository
+import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.repository.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

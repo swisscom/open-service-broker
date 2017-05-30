@@ -2,10 +2,10 @@ package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
 import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
-import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 

@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
 import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import org.springframework.beans.factory.annotation.Autowired

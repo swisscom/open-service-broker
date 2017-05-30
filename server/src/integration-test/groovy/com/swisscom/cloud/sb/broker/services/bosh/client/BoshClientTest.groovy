@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
-import com.swisscom.cloud.sb.broker.util.DummyConfig
 import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.util.DummyConfig
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 

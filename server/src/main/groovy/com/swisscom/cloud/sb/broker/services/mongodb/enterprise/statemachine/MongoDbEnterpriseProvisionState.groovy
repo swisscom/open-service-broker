@@ -2,20 +2,20 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceState
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
+import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshProvisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceProvider
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
-import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceState
-import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshProvisionState
 import groovy.util.logging.Slf4j
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static ServiceDetailKey.*
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.util.StringGenerator.randomAlphaNumeric
 
 @Slf4j

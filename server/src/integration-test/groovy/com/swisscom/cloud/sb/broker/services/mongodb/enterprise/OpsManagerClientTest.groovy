@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 

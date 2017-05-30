@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
+import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import spock.lang.Specification
 import spock.lang.Unroll
 

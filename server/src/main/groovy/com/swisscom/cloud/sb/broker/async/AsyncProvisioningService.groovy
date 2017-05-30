@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.async
 
 import com.swisscom.cloud.sb.broker.async.job.JobManager
-import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

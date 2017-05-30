@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.provisioning.job
 
 import com.swisscom.cloud.sb.broker.async.job.AbstractJob
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.async.job.JobConfig
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import groovy.transform.CompileStatic
 
 @CompileStatic

@@ -4,8 +4,6 @@ import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -21,9 +19,11 @@ import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineF
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailType
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,10 +31,10 @@ import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
-import static com.google.common.base.Strings.isNullOrEmpty
 import static ServiceDetail.from
-import static MongoDbEnterpriseProvisionState.*
-import static ServiceDetailKey.*
+import static com.google.common.base.Strings.isNullOrEmpty
+import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
 
 @Component
 @CompileStatic

@@ -1,9 +1,8 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import spock.lang.Specification
-
 
 class BoshFacadeFactorySpec extends Specification {
 

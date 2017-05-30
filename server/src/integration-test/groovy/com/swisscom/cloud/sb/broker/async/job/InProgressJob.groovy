@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.async.job
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 
 import java.util.concurrent.atomic.AtomicInteger
 

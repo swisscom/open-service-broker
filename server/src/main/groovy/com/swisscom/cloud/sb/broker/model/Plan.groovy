@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.swisscom.cloud.sb.broker.model.Parameter
 import org.hibernate.validator.constraints.NotBlank
 
 import javax.persistence.*

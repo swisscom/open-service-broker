@@ -1,12 +1,7 @@
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
-import com.swisscom.cf.broker.model.*
 import com.swisscom.cloud.sb.broker.cfapi.dto.CFServiceDto
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
-import com.swisscom.cloud.sb.broker.model.CFServicePermission
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.model.*
 import spock.lang.Specification
 
 class CFServiceDtoConverterSpec extends Specification {

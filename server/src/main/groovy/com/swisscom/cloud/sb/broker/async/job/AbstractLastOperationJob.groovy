@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.async.job
 
-import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContextService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContextService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.quartz.JobExecutionContext

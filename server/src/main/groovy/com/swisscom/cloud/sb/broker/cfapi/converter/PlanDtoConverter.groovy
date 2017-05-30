@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
+import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component
 

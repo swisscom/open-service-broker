@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.async.job
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -9,10 +9,10 @@ import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.StringGenerator
-import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import org.quartz.TriggerKey
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.IgnoreIf

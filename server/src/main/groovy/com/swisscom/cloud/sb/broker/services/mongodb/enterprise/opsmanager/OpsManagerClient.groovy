@@ -6,14 +6,7 @@ import com.swisscom.cf.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationAgentDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationConfigDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationStatusDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.BackupConfigDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.ClustersDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.SnapshotScheduleDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.WhiteListDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.WhiteListResultSetDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j

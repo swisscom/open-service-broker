@@ -2,11 +2,11 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.util.MutexFactory
+import com.swisscom.cloud.sb.broker.util.Resource
 import groovy.json.JsonSlurper
 import org.springframework.http.HttpStatus
 import org.yaml.snakeyaml.Yaml
 import spock.lang.Specification
-import com.swisscom.cloud.sb.broker.util.Resource
 
 class BoshClientSpec extends Specification {
     private BoshClient client

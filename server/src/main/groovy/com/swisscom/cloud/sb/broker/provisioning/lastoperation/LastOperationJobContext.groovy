@@ -1,11 +1,7 @@
 package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
 import com.swisscom.cf.broker.model.*
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired

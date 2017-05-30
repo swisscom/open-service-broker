@@ -2,16 +2,10 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.google.common.base.Optional
 import com.swisscom.cf.broker.services.mongodb.enterprise.dto.automation.*
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationConfigDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.ProcessDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationAgentDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AutomationStatusDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.BackupConfigDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.SnapshotScheduleDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.WhiteListDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import spock.lang.Specification
 

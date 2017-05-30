@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
-import com.swisscom.cloud.sb.broker.services.common.FreePortFinder
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.common.FreePortFinder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired

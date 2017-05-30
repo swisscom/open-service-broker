@@ -1,11 +1,11 @@
 package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
+import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import spock.lang.Specification
 
 class BoshProvisionStateSpec extends Specification {

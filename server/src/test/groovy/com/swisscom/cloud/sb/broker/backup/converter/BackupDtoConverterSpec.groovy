@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.backup.converter
 
-import com.swisscom.cloud.sb.model.backup.BackupStatus
 import com.swisscom.cloud.sb.broker.backup.BackupStatusConverter
 import com.swisscom.cloud.sb.broker.model.Backup
+import com.swisscom.cloud.sb.model.backup.BackupStatus
 import spock.lang.Specification
 
 class BackupDtoConverterSpec extends Specification {

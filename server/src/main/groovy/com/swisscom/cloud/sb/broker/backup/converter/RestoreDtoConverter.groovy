@@ -1,9 +1,9 @@
 package com.swisscom.cloud.sb.broker.backup.converter
 
 import com.swisscom.cloud.sb.broker.backup.RestoreStatusConverter
-import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.Restore
+import com.swisscom.cloud.sb.model.backup.RestoreDto
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

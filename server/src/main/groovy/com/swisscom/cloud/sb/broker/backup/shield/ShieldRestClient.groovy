@@ -1,15 +1,9 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cf.broker.backup.shield.dto.*
-import com.swisscom.cloud.sb.broker.backup.shield.dto.StoreDto
-import com.swisscom.cloud.sb.broker.util.GsonFactory
-import com.swisscom.cloud.sb.broker.backup.shield.dto.ArchiveDto
-import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
-import com.swisscom.cloud.sb.broker.backup.shield.dto.RetentionDto
-import com.swisscom.cloud.sb.broker.backup.shield.dto.ScheduleDto
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TargetDto
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
+import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.http.*

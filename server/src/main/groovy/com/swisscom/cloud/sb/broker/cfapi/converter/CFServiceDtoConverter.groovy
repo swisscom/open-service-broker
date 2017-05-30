@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
+import com.swisscom.cloud.sb.broker.cfapi.dto.CFServiceDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
+import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.CFServicePermission
 import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.cfapi.dto.CFServiceDto
-import com.swisscom.cloud.sb.broker.model.CFService
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

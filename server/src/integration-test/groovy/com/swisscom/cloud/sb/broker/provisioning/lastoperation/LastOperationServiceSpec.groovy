@@ -2,8 +2,8 @@ package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import org.springframework.beans.factory.annotation.Autowired
 
 class LastOperationServiceSpec extends BaseTransactionalSpecification {
