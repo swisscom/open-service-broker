@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.swisscom.cf.broker.services.bosh.dto.*
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.dto.*
 import com.swisscom.cloud.sb.broker.util.MutexFactory

@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
-import com.swisscom.cf.broker.model.*
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic

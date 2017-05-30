@@ -3,8 +3,6 @@ package com.swisscom.cloud.sb.broker.util.test
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.model.*
-import com.swisscom.cf.broker.services.common.*
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse

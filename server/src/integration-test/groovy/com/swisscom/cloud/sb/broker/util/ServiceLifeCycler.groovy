@@ -1,8 +1,6 @@
 package com.swisscom.cloud.sb.broker.util
 
 import com.google.common.collect.Sets
-import com.swisscom.cf.broker.model.*
-import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.config.AuthenticationConfig
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.*

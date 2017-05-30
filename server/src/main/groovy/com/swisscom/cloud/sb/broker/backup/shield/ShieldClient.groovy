@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cf.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired

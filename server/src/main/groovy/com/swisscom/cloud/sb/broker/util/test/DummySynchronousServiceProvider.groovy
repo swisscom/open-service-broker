@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.util.test
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
-import com.swisscom.cf.broker.services.common.*
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto

@@ -1,8 +1,6 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cf.broker.model.*
-import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException

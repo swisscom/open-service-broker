@@ -2,8 +2,6 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.google.common.base.Preconditions
 import com.google.common.base.Strings
-import com.swisscom.cf.broker.model.*
-import com.swisscom.cf.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*

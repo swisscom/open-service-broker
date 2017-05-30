@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
-import com.swisscom.cf.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto

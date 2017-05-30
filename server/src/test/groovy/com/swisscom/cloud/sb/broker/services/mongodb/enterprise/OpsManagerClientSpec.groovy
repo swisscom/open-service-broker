@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto

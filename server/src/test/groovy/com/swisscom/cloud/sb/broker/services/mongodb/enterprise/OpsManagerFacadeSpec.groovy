@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.google.common.base.Optional
-import com.swisscom.cf.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
