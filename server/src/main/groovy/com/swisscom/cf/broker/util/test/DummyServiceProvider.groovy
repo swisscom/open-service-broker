@@ -15,7 +15,7 @@ import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
 import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cf.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.servicebroker.model.endpoint.Endpoint
+import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cf.broker.services.common.*

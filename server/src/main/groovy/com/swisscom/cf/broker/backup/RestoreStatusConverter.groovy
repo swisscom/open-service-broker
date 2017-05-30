@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.backup
 
 import com.swisscom.cf.broker.model.Backup
-import com.swisscom.cloud.servicebroker.model.backup.RestoreStatus
+import com.swisscom.cloud.sb.model.backup.RestoreStatus
 import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component
 

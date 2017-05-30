@@ -1,7 +1,7 @@
 package com.swisscom.cf.broker.backup.converter
 
 import com.swisscom.cf.broker.backup.RestoreStatusConverter
-import com.swisscom.cloud.servicebroker.model.backup.RestoreDto
+import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cf.broker.converter.AbstractGenericConverter
 import com.swisscom.cf.broker.model.Restore
 import groovy.transform.CompileStatic

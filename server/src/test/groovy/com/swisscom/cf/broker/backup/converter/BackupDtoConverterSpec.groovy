@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.backup.converter
 
-import com.swisscom.cloud.servicebroker.model.backup.BackupStatus
+import com.swisscom.cloud.sb.model.backup.BackupStatus
 import com.swisscom.cf.broker.backup.BackupStatusConverter
 import com.swisscom.cf.broker.model.Backup
 import spock.lang.Specification

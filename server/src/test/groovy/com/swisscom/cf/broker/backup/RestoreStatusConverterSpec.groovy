@@ -1,6 +1,6 @@
 package com.swisscom.cf.broker.backup
 
-import com.swisscom.cloud.servicebroker.model.backup.RestoreStatus
+import com.swisscom.cloud.sb.model.backup.RestoreStatus
 import spock.lang.Specification
 
 import static com.swisscom.cf.broker.model.Backup.Status.*

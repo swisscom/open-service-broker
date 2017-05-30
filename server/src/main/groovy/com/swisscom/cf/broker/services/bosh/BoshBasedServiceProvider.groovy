@@ -8,7 +8,7 @@ import com.swisscom.cf.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cf.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cf.broker.provisioning.job.DeprovisioningJobConfig
 import com.swisscom.cf.broker.provisioning.job.ProvisioningjobConfig
-import com.swisscom.cloud.servicebroker.model.endpoint.Endpoint
+import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cf.broker.model.DeprovisionRequest
 import com.swisscom.cf.broker.model.ProvisionRequest
 import com.swisscom.cf.broker.model.ServiceInstance

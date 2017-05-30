@@ -5,13 +5,13 @@ import com.swisscom.cf.broker.backup.BackupRestoreProvider
 import com.swisscom.cf.broker.binding.BindRequest
 import com.swisscom.cf.broker.binding.BindResponse
 import com.swisscom.cf.broker.binding.UnbindRequest
-import com.swisscom.cloud.servicebroker.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cf.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cf.broker.model.*
 import com.swisscom.cf.broker.provisioning.DeprovisionResponse
 import com.swisscom.cf.broker.provisioning.ProvisionResponse
 import com.swisscom.cf.broker.services.common.*
-import com.swisscom.cloud.servicebroker.model.usage.ServiceUsageType
+import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.joda.time.DateTime
