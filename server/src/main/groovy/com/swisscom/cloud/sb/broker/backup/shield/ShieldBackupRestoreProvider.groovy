@@ -16,7 +16,7 @@ trait ShieldBackupRestoreProvider implements BackupRestoreProvider {
     //@Override
     // Can not use @Override since groovyc does not compile then
     // (Error:(16, 5) Groovyc: Method 'createBackup' from class
-    // 'com.swisscom.cf.broker.backup.shield.ShieldBackupRestoreProvider$Trait$Helper' does not override method from
+    // 'com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider$Trait$Helper' does not override method from
     // its superclass or interfaces but is annotated with @Override.)
     String createBackup(Backup backup) {
         shieldClient.registerAndRunJob(backup.serviceInstanceGuid, targetForBackup(backup))

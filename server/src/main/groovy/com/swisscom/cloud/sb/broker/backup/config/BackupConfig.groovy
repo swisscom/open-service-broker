@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 
 @CompileStatic
 @Configuration
-@ConfigurationProperties(prefix = 'com.swisscom.cf.broker.backup')
+@ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.backup')
 class BackupConfig implements Config {
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes

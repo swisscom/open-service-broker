@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 
 @CompileStatic
 @Configuration
-@ConfigurationProperties(prefix = 'com.swisscom.cf.broker.security')
+@ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.security')
 class AuthenticationConfig {
     String cfUsername
     String cfPassword

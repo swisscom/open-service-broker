@@ -20,7 +20,7 @@ info:
   build:
     version: ${version}
 
-com.swisscom.cf.broker:
+com.swisscom.cloud.sb.broker:
   security:
     cfUsername: 'cc_admin'
     cfPassword: 'change_me'

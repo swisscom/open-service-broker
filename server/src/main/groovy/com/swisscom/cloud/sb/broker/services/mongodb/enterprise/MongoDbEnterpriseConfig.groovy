@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration
 
 @CompileStatic
 @Configuration
-@ConfigurationProperties(prefix = "com.swisscom.cf.broker.service.mongodbent")
+@ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.mongodbent")
 class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
     String opsManagerUrl
     String opsManagerUrlForAutomationAgent
