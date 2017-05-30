@@ -1,5 +1,7 @@
 package com.swisscom.cf.broker
 
+import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
+
 
 beans {
     flyway(org.flywaydb.core.Flyway) { bean ->
@@ -9,7 +11,7 @@ beans {
         bean.initMethod = 'migrate'
     }
 
-    cleanUpZombieServiceInstanceBean(com.swisscom.cf.broker.provisioning.ServiceInstanceCleanup) {}
+    cleanUpZombieServiceInstanceBean(ServiceInstanceCleanup) {}
 
     jobServiceInstanceCleanup(org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean) {
         targetObject = ref('cleanUpZombieServiceInstanceBean')
