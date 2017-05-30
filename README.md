@@ -175,7 +175,7 @@ The Swagger API documentation can be accessed at <http://localhost:8080/swagger-
 ## Brokered Services
 ### Bosh based services
 Any bosh based service can be easily brokered. See [here](https://github.com/search?q=topic%3Abosh-release+org%3Aswisscom&type=Repositories) for Swisscom's bosh releases.  
-Check the class [`BoshBasedServiceProvider`](server/src/main/groovy/com/swisscom/cloud/sb/broker/services/bosh/BoshBasedServiceProvider.groovy) for details.
+Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/bosh/BoshBasedServiceProvider.groovy) for details.
 
 #### MongoDB Enterprise
 https://github.com/swisscom/mongodb-enterprise-boshrelease
