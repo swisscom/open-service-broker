@@ -234,6 +234,7 @@ class OpsManagerFacade {
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,
+                featureCompatibilityVersion: mongoDbEnterpriseConfig.featureCompatibilityVersion,
                 hostname: hostPort.host,
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),

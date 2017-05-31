@@ -8,5 +8,6 @@ class ProcessDto implements Serializable {
     String cluster
     LogRotateDto logRotate
     int authSchemaVersion
+    String featureCompatibilityVersion
     ProcessArgumentsV26Dto args2_6
 }
