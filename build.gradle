@@ -19,7 +19,7 @@ def brokerVersion = version
 
 subprojects {
 	apply plugin: 'maven-publish'
-	group = 'com.swisscom.cloud.servicebroker'
+	group = 'com.swisscom.cloud.sb'
 	version = brokerVersion
 	publishing {
 		publications {
