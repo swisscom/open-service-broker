@@ -18,6 +18,16 @@ repositories {
 def brokerVersion = version
 
 subprojects {
+	task sourceJar(type: Jar) {
+		from sourceSets.main.allSource
+		classifier "sources"
+	}
+
+	task javaDocJar(type: Jar,dependsOn: 'javadoc') {
+		from javadoc.destinationDir
+		classifier "javadoc"
+	}
+
 	apply plugin: 'maven-publish'
 	group = 'com.swisscom.cloud.sb'
 	version = brokerVersion
@@ -25,6 +35,9 @@ subprojects {
 		publications {
 			mavenJava(MavenPublication) {
 				from components.java
+				artifact sourceJar
+				artifact javaDocJar
+
 				pom.withXml {
 					def dependenciesNode =  asNode().getAt("dependencies")[0]
 					if(!dependenciesNode){
