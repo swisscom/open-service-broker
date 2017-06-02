@@ -387,6 +387,7 @@ class OpsManagerFacade {
             AutomationConfigDto automationConfigDto ->
                 automationConfigDto.processes = []
                 automationConfigDto.replicaSets = []
+                setAuthMechamnismIfNotAlreadySet(automationConfigDto.auth)
         })
     }
 
