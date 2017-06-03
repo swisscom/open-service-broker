@@ -26,9 +26,6 @@ repositories {
 		}
 }
 
-configurations {
-	testOutput.extendsFrom (testCompile)
-}
 
 dependencies {
 	compile('org.codehaus.groovy:groovy:2.4.7')
@@ -42,26 +39,4 @@ dependencies {
 	testRuntime('org.springframework.boot:spring-boot-starter-tomcat')
 
 }
-
-
-task jarTest (type: Jar, dependsOn: testClasses) {
-	from sourceSets.test.output
-	classifier = 'test'
-}
-
-artifacts {
-	testOutput jarTest
-}
-
-configurations {
-	testArtifacts.extendsFrom testRuntime
-}
-task testJar(type: Jar) {
-	classifier "test"
-	from sourceSets.test.output
-}
-artifacts {
-	testArtifacts testJar
-}
-
 bootRepackage.enabled = false
