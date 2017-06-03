@@ -1,80 +1,125 @@
 buildscript {
-	
-	repositories {
-		mavenCentral()
-	}
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
 
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 def brokerVersion = version
 
+
+dependencies {
+    compile project(path: ':broker', configuration: 'testOutput')
+    compile project(path: ':client', configuration: 'testOutput')
+}
+
+
 subprojects {
-	task sourceJar(type: Jar) {
-		from sourceSets.main.allSource
-		classifier "sources"
-	}
-
-	task javaDocJar(type: Jar,dependsOn: 'javadoc') {
-		from javadoc.destinationDir
-		classifier "javadoc"
-	}
-
-	apply plugin: 'maven-publish'
-	group = 'com.swisscom.cloud.sb'
-	version = brokerVersion
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				from components.java
-				artifact sourceJar
-				artifact javaDocJar
-
-				pom.withXml {
-					def dependenciesNode =  asNode().getAt("dependencies")[0]
-					if(!dependenciesNode){
-						asNode().appendNode('dependencies', [])
-						dependenciesNode =  asNode().getAt("dependencies")[0]
-					}
-
-					//Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
-					configurations.compile.allDependencies.each {
-						def dependencyNode = dependenciesNode.appendNode('dependency')
-						dependencyNode.appendNode('groupId', it.group)
-						dependencyNode.appendNode('artifactId', it.name)
-						dependencyNode.appendNode('version', it.version)
-					}
 
 
-					asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
-
-					asNode().appendNode('developers').
-							appendNode('developer').
-								appendNode('id', 'murat.celep').parent().
-								appendNode('name', 'Murat Celep').parent().
-								appendNode('organization', 'Swisscom').parent().
-								appendNode('organizationUrl', 'https://www.swisscom.ch')
-
-					asNode().appendNode('licenses').
-							appendNode('license').
-								appendNode('name', 'Apache License, Version 2.0').parent().
-								appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.html')
-
-					asNode().appendNode('scm').
-							appendNode('connection',"https://github.com/swisscom/open-service-broker.git").parent().
-							appendNode('developerConnection',"https://github.com/swisscom/open-service-broker.git")
+    sourceSets {
+        functionalTest { sourceSet ->
+            sourceSet.groovy.srcDir file("src/functional-test/groovy")
+            sourceSet.groovy.srcDir file("src/integration-test/groovy")
+            sourceSet.groovy.srcDir file("src/test/groovy")
+        }
+    }
 
 
-				}
-			}
-		}
-	}
+    task sourceJar(type: Jar, dependsOn: ":broker:testJar") {
+        from sourceSets.main.allSource
+        classifier "sources"
+    }
+    task javaDocJar(type: Jar, dependsOn: 'javadoc') {
+        from javadoc.destinationDir
+        classifier "javadoc"
+    }
+
+
+    apply plugin: 'maven-publish'
+    group = 'com.swisscom.cloud.sb'
+    version = brokerVersion
+
+    task testAllJar(type: Jar) {
+        from new File(project(':broker').getBuildDir().toString() + "/classes/test")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/functionalTest")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/integrationTest")
+        from new File(project(':client').getBuildDir().toString() + "/classes/test")
+        classifier "test"
+    }
+
+
+
+
+    publishing {
+        publications {
+
+
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact sourceJar
+                artifact javaDocJar
+                artifact testAllJar
+
+
+                pom.withXml {
+                    def dependenciesNode = asNode().getAt("dependencies")[0]
+                    if (!dependenciesNode) {
+                        asNode().appendNode('dependencies', [])
+                        dependenciesNode = asNode().getAt("dependencies")[0]
+                    }
+
+                    //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+                    configurations.compile.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+
+                    configurations.implementation.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+
+
+                    asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
+
+                    asNode().appendNode('developers').
+                            appendNode('developer').
+                            appendNode('id', 'murat.celep').parent().
+                            appendNode('name', 'Murat Celep').parent().
+                            appendNode('organization', 'Swisscom').parent().
+                            appendNode('organizationUrl', 'https://www.swisscom.ch')
+
+                    asNode().appendNode('licenses').
+                            appendNode('license').
+                            appendNode('name', 'Apache License, Version 2.0').parent().
+                            appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.html')
+
+                    asNode().appendNode('scm').
+                            appendNode('connection', "https://github.com/swisscom/open-service-broker.git").parent().
+                            appendNode('developerConnection', "https://github.com/swisscom/open-service-broker.git")
+
+
+                }
+            }
+        }
+    }
 }
