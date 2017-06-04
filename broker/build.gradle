@@ -129,3 +129,12 @@ integrationTest.mustRunAfter test
 // Make sure 'check' task calls functional test
 check.dependsOn functionalTest
 functionalTest.mustRunAfter integrationTest
+
+war {
+    baseName = 'service-broker'
+    doFirst {
+        manifest {
+            attributes("Implementation-Title": project.name, "Implementation-Version": version, "Implementation-Timestamp": new Date())
+        }
+    }
+}
