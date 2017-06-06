@@ -1,16 +1,98 @@
 buildscript {
-	
-	repositories {
-		mavenCentral()
-	}
+
+    repositories {
+        mavenCentral()
+    }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'idea'
-
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+}
+
+def brokerVersion = version
+subprojects {
+    task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
+        from new File(project(':broker').getBuildDir().toString() + "/classes/test")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/functionalTest")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/integrationTest")
+        from new File(project(':client').getBuildDir().toString() + "/classes/test")
+        classifier "test"
+    }
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier "sources"
+    }
+    task javaDocJar(type: Jar, dependsOn: 'javadoc') {
+        from javadoc.destinationDir
+        classifier "javadoc"
+    }
+
+    apply plugin: 'maven-publish'
+    group = 'com.swisscom.cloud.sb'
+    version = brokerVersion
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact sourceJar
+                artifact javaDocJar
+                artifact testAllJar
+
+                pom.withXml {
+                    def dependenciesNode = asNode().getAt("dependencies")[0]
+                    if (!dependenciesNode) {
+                        asNode().appendNode('dependencies', [])
+                        dependenciesNode = asNode().getAt("dependencies")[0]
+                    }
+
+                    configurations.compile.allDependencies.each {
+                        addDependency(dependenciesNode, it)
+                    }
+
+                    configurations.runtime.dependencies.each {
+                        addDependency(dependenciesNode, it,'runtime')
+                    }
+
+                    configurations.testCompile.dependencies.each {
+                        addDependency(dependenciesNode, it,'test')
+                    }
+
+                    asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
+
+                    asNode().appendNode('developers').
+                            appendNode('developer').
+                            appendNode('id', 'murat.celep').parent().
+                            appendNode('name', 'Murat Celep').parent().
+                            appendNode('organization', 'Swisscom').parent().
+                            appendNode('organizationUrl', 'https://www.swisscom.ch')
+
+                    asNode().appendNode('licenses').
+                            appendNode('license').
+                            appendNode('name', 'Apache License, Version 2.0').parent().
+                            appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.html')
+
+                    asNode().appendNode('scm').
+                            appendNode('connection', "https://github.com/swisscom/open-service-broker.git").parent().
+                            appendNode('developerConnection', "https://github.com/swisscom/open-service-broker.git")
+
+
+                }
+            }
+        }
+    }
+}
+
+def addDependency(dependenciesNode,Dependency dep,String scope = null) {
+    def dependencyNode = dependenciesNode.appendNode('dependency')
+    dependencyNode.appendNode('groupId', dep.group)
+    dependencyNode.appendNode('artifactId', dep.name)
+    dependencyNode.appendNode('version', dep.version)
+    if(scope){
+        dependencyNode.appendNode('scope', scope)
+    }
 }

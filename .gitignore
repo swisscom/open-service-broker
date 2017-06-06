@@ -1,6 +1,7 @@
 .gradle
 /build/
 /classes
+/out
 
 ### STS ###
 .apt_generated
@@ -30,3 +31,4 @@ nbdist/
 
 ### Env specific bosh templates ###
 **/sc1-**.yml
+
