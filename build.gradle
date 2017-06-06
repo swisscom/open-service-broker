@@ -51,12 +51,16 @@ subprojects {
                     }
 
                     configurations.compile.allDependencies.each {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
+                        addDependency(dependenciesNode, it)
                     }
 
+                    configurations.runtime.dependencies.each {
+                        addDependency(dependenciesNode, it,'runtime')
+                    }
+
+                    configurations.testCompile.dependencies.each {
+                        addDependency(dependenciesNode, it,'test')
+                    }
 
                     asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
 
@@ -80,5 +84,15 @@ subprojects {
                 }
             }
         }
+    }
+}
+
+def addDependency(dependenciesNode,Dependency dep,String scope = null) {
+    def dependencyNode = dependenciesNode.appendNode('dependency')
+    dependencyNode.appendNode('groupId', dep.group)
+    dependencyNode.appendNode('artifactId', dep.name)
+    dependencyNode.appendNode('version', dep.version)
+    if(scope){
+        dependencyNode.appendNode('scope', scope)
     }
 }
