@@ -39,6 +39,7 @@ com.swisscom.cloud.sb.broker:
       logFolder: '/var/vcap/sys/log/mms-automation-agent'
       authSchemaVersion: 5
       mongoDbVersion: '3.2.6-ent'
+      featureCompatibilityVersion: '3.4'
       configureDefaultBackupOptions: true
       snapshotIntervalHours: 6 #Supported values are 6, 8, 12, and 24
       snapshotRetentionDays: 3 # Supported values are 1 - 5
@@ -49,8 +50,8 @@ com.swisscom.cloud.sb.broker:
       retryIntervalInSeconds: 15
       maxRetryDurationInMinutes: 30
       advancedBinding: true
-      ipRange: '172.16.255.224/27'
-      protocols: 'tcp' # 'tcp,udp,icmp'
+      ipRanges: ['172.16.255.224/27']
+      protocols: ['tcp'] # 'tcp,udp,icmp'
       boshDirectorBaseUrl: 'https://localhost:25556'
       boshDirectorUsername:
       boshDirectorPassword:
