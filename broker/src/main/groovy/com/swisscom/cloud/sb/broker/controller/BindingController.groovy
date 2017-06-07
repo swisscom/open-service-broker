@@ -106,7 +106,7 @@ class BindingController extends BaseController {
 
         serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
         log.info("Servicebinding ${serviceBinding.guid} deleted")
-        return void
+        return new ResponseEntity<String>('{}', HttpStatus.OK)
     }
 
     private ServiceBinding checkServiceBinding(String bindingGuid) {

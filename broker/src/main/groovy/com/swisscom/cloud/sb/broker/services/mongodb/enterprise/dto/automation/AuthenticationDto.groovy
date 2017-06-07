@@ -10,6 +10,7 @@ class AuthenticationDto implements Serializable {
     String autoPwd
     String autoAuthMechanism
     String keyfile
+    String keyfileWindows
     String key
     List<DbUser> usersWanted
     List<DbUser2Delete> usersDeleted

@@ -250,7 +250,7 @@ class OpsManagerFacadeSpec extends Specification {
 
     def "automation update functions correctly when current and to-be-updated configurations are same "() {
         given:
-        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [], replicaSets: [])
+        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
 
         when:
         opsManagerFacade.undeploy(groupId)
@@ -261,7 +261,7 @@ class OpsManagerFacadeSpec extends Specification {
 
     def "automation update functions correctly when current and to-be-updated configurations are different"() {
         given:
-        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [new ProcessDto()], replicaSets: [])
+        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [new ProcessDto()], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
 
         when:
         opsManagerFacade.undeploy(groupId)

@@ -21,6 +21,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
     String logFolder
     int authSchemaVersion
     String mongoDbVersion
+    String featureCompatibilityVersion
     boolean configureDefaultBackupOptions
     int snapshotIntervalHours
     int snapshotRetentionDays
@@ -59,6 +60,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
                 ", logFolder='" + logFolder + '\'' +
                 ", authSchemaVersion=" + authSchemaVersion +
                 ", mongoDbVersion='" + mongoDbVersion + '\'' +
+                ", featureCompatibilityVersion='" + featureCompatibilityVersion + '\'' +
                 ", configureDefaultBackupOptions=" + configureDefaultBackupOptions +
                 ", snapshotIntervalHours=" + snapshotIntervalHours +
                 ", snapshotRetentionDays=" + snapshotRetentionDays +
