@@ -49,8 +49,8 @@ com.swisscom.cloud.sb.broker:
       retryIntervalInSeconds: 15
       maxRetryDurationInMinutes: 30
       advancedBinding: true
-      ipRange: '172.16.255.224/27'
-      protocols: 'tcp' # 'tcp,udp,icmp'
+      ipRanges: ['172.16.255.224/27']
+      protocols: ['tcp'] # 'tcp,udp,icmp'
       boshDirectorBaseUrl: 'https://localhost:25556'
       boshDirectorUsername:
       boshDirectorPassword:
