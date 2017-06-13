@@ -50,7 +50,7 @@ The database tables will be generated automatically by the application. See the 
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar server/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
 
 or
