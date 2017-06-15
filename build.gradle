@@ -50,16 +50,25 @@ subprojects {
                         dependenciesNode = asNode().getAt("dependencies")[0]
                     }
 
+                    Map resolvedVersionMap = [:]
+                    Set<ResolvedArtifact> resolvedArtifacts = configurations.compile.resolvedConfiguration.resolvedArtifacts
+                    resolvedArtifacts.addAll(configurations.testCompile.resolvedConfiguration.resolvedArtifacts)
+                    resolvedArtifacts.addAll(configurations.runtime.resolvedConfiguration.resolvedArtifacts)
+                    resolvedArtifacts.each { ResolvedArtifact ra ->
+                        ModuleVersionIdentifier mvi = ra.moduleVersion.id
+                        resolvedVersionMap.put("${mvi.group}:${mvi.name}", mvi.version)
+                    }
+
                     configurations.compile.allDependencies.each {
-                        addDependency(dependenciesNode, it)
+                        addDependency(dependenciesNode, it,resolvedVersionMap)
                     }
 
                     configurations.runtime.dependencies.each {
-                        addDependency(dependenciesNode, it,'runtime')
+                        addDependency(dependenciesNode, it,resolvedVersionMap,'runtime')
                     }
 
                     configurations.testCompile.dependencies.each {
-                        addDependency(dependenciesNode, it,'test')
+                        addDependency(dependenciesNode, it,resolvedVersionMap,'test')
                     }
 
                     asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
@@ -87,11 +96,13 @@ subprojects {
     }
 }
 
-def addDependency(dependenciesNode,Dependency dep,String scope = null) {
+
+
+def addDependency(dependenciesNode,Dependency dep,Map versionMap, String scope = null) {
     def dependencyNode = dependenciesNode.appendNode('dependency')
     dependencyNode.appendNode('groupId', dep.group)
     dependencyNode.appendNode('artifactId', dep.name)
-    dependencyNode.appendNode('version', dep.version)
+    dependencyNode.appendNode('version',dep.version?:versionMap.get("${dep.group}:${dep.name}"))
     if(scope){
         dependencyNode.appendNode('scope', scope)
     }
