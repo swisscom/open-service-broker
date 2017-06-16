@@ -1,5 +1,5 @@
 spring:
-  profiles.active: default,secrets,extensions
+  profiles.active: default,extensions,secrets
 ---
 spring:
   profiles: default
