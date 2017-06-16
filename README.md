@@ -85,7 +85,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headles
 
 The configuration file for the Service Broker is located under
 
-[`server/src/main/resources/application.yml`](server/src/main/resources/application.yml)
+[`broker/src/main/resources/application.yml`](broker/src/main/resources/application.yml)
 
 ## Service Definitions
 
