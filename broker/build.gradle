@@ -48,6 +48,8 @@ dependencies {
     compile('org.mongodb:mongo-java-driver:2.13.0')
     compile project(':model')
     compile project(':client')
+    // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
+    compile group:'org.apache.tomcat', name:'tomcat-juli', version:'7.+'
 
     runtime('mysql:mysql-connector-java')
     runtime('javax.el:javax.el-api:2.2.4')
@@ -59,6 +61,7 @@ dependencies {
     } else {
         System.out.println('standalone')
         runtime('org.springframework.boot:spring-boot-starter-tomcat')
+
     }
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
