@@ -43,7 +43,7 @@ $ ./gradlew clean build -x test -x integrationTest -x functionalTest
 
 ### Database
 
-To run the service broker locally a mariadb or mysql database with name _cfbroker_ is required.
+To run the service broker locally a mariadb or mysql database with name _CFbroker_ is required.
 The database tables will be generated automatically by the application. See the configuration section for more details.
 
 ### Run
@@ -56,7 +56,7 @@ java -jar broker/build/libs/service-broker-2.0.0-SNAPSHOT.war
 or
 
 ```bash
-gradle server:bootRun
+./gradlew broker:bootRun
 ```
 
 At the time being, Service Broker is recommended to run with only one instance to avoid concurrency issues.
@@ -85,7 +85,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headles
 
 The configuration file for the Service Broker is located under
 
-[`server/src/main/resources/application.yml`](server/src/main/resources/application.yml)
+[`broker/src/main/resources/application.yml`](broker/src/main/resources/application.yml)
 
 ## Service Definitions
 
