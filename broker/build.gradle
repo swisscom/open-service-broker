@@ -10,6 +10,8 @@ buildscript {
     }
 }
 
+ext['tomcat.version'] = '7.0.63'
+
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
@@ -49,7 +51,7 @@ dependencies {
     compile project(':model')
     compile project(':client')
     // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
-    compile group:'org.apache.tomcat', name:'tomcat-juli', version:'7.+'
+    compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
 
     runtime('mysql:mysql-connector-java')
     runtime('javax.el:javax.el-api:2.2.4')
