@@ -62,7 +62,9 @@ enum ServiceDetailKey {
     MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD("mongodb_enterprise_health_check_password", ServiceDetailType.OTHER),
     ECS_NAMESPACE_NAME("ecs_namespace_name", ServiceDetailType.OTHER),
     ECS_NAMESPACE_USER("ecs_namespace_user", ServiceDetailType.OTHER),
-    ECS_NAMESPACE_SECRET("ecs_namespace_secret", ServiceDetailType.OTHER)
+    ECS_NAMESPACE_SECRET("ecs_namespace_secret", ServiceDetailType.OTHER),
+    KUBERNETES_REDIS_USER("kubernetes_redis_service_user", ServiceDetailType.OTHER),
+    KUBERNETES_REDIS_PASSWORD("kubernetes_redis_service_secret", ServiceDetailType.OTHER)
 
     private final String key
     private final ServiceDetailType serviceDetailType
