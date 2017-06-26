@@ -46,6 +46,11 @@ $ ./gradlew clean build -x test -x integrationTest -x functionalTest
 To run the service broker locally a mariadb or mysql database with name _CFbroker_ is required.
 The database tables will be generated automatically by the application. See the configuration section for more details.
 
+#### Use Docker for MariaDB setup
+```bash
+docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mariadb
+```
+
 ### Run
 
 To run the built artifact, from the root directory the following commands can be executed:
