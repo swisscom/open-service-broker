@@ -17,4 +17,13 @@ class ServiceDefinitionFunctionalSpec extends BaseFunctionalSpec {
         then:
         response.statusCodeValue == 200
     }
+
+    def "service definition delete"() {
+        given:
+        String serviceId = serviceLifeCycler.cfService.guid
+        when:
+        def response = serviceBrokerClient.deleteServiceDefinition(serviceId)
+        then:
+        response.statusCodeValue == 200
+    }
 }
