@@ -5,17 +5,14 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
-import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceProvider
-import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionStateMachineContext
+import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionState
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionStateMachineContext
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.KubernetesBasedServiceProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,18 +21,13 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends BoshBasedServiceProvider<MongoDbEnterpriseConfig> {
+class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<KubernetesRedisConfig> {
 
     KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated
 
     @Autowired
     KubernetesRedisServiceProvider(KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated) {
         this.kubernetesClientRedisDecorated = kubernetesClientRedisDecorated
-    }
-
-    @Override
-    Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, ProvisionRequest provisionRequest) {
-        return null
     }
 
     @Override
@@ -77,7 +69,7 @@ class KubernetesRedisServiceProvider extends BoshBasedServiceProvider<MongoDbEnt
 
     @Override
     BindResponse bind(BindRequest request) {
-        return null
+        return new BindResponse()
     }
 
     @Override

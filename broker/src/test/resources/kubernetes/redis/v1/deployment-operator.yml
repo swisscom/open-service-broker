@@ -1,0 +1,113 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: operator
+  namespace: %SERVICE_ID%
+  labels:
+    service_id: %SERVICE_ID%
+    service_type: operator
+    space: %SPACE_ID%
+    org: %ORG_ID%
+    plan: %PLAN_ID%
+    version: %VERSION%
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  selector:
+    matchLabels:
+     service_type: operator
+  template:
+    metadata:
+      labels:
+        service_id: %SERVICE_ID%
+        service_type: operator
+        space: %SPACE_ID%
+        org: %ORG_ID%
+        version: %REDIS_VERSION%
+        instances: operator
+        healthz: "true"
+#      annotations:
+#        creation_date: <date>
+#        image_build: <redis-build-id>
+#        image_commit: <git commit id>
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: failure-domain.beta.kubernetes.io/zone
+            namespaces:
+            - %SERVICE_ID%
+            labelSelector:
+              matchExpressions:
+              - key: service_type
+                operator: In
+                values:
+                - operator
+          - topologyKey: kubernetes.io/hostname
+            namespaces:
+            - %SERVICE_ID%
+            labelSelector:
+              matchExpressions:
+              - key: service_type
+                operator: In
+                values:
+                - redis
+                - sentinel
+      containers:
+      - name: operator
+        image: %REDIS_IMAGE%
+        imagePullPolicy: IfNotPresent
+        command:
+        - /data/service/operator.sh
+        args:
+        - main
+#        lifecycle:
+#          preStop:
+#            exec:
+#              command:
+#              - kill
+#              - "-9"
+#              - 1
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /data/work/service_healthy.out
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 1
+        env:
+        - name: SERVICE_GUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: REDIS_PASS
+          value: "%REDIS_PASS%"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          limits:
+            cpu: 50m
+            memory: 24Mi
+          requests:
+            cpu: 50m
+            memory: 24Mi
+        volumeMounts:
+        - name: data
+          mountPath: /data/work
+      volumes:
+      - name: data
+        emptyDir: {}
+#      restartPolicy: OnFailure
+#      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+        runAsNonRoot: true
