@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: %SERVICE_ID%
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "false"
+  labels:
+    service_id: %SERVICE_ID%
+    service_type: redis
+    space: %SPACE_ID%
+    org: %ORG_ID%
+spec:
+  type: NodePort
+  ports:
+  - port: 6379
+    protocol: TCP
+    name: redis
+    targetPort: redis
+    nodePort: %NODE_PORT_REDIS%
+  selector:
+    instances: redis

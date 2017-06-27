@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
-import com.swisscom.cf.broker.util.Resource
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.util.Resource
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
 
@@ -9,11 +9,9 @@ import org.springframework.stereotype.Component
 @Log4j
 class KubernetesTemplateManager {
 
-    private final KubernetesTemplate kubernetesTemplate
     private final KubernetesConfig kubernetesConfig
 
-    KubernetesTemplateManager(KubernetesTemplate kubernetesTemplate, KubernetesConfig kubernetesConfig) {
-        this.kubernetesTemplate = kubernetesTemplate
+    KubernetesTemplateManager(KubernetesConfig kubernetesConfig) {
         this.kubernetesConfig = kubernetesConfig
     }
 
