@@ -38,7 +38,7 @@ class ServiceDefinitionController extends BaseController {
     @RequestMapping(value = ['/service-definition/{service_id}', //deprecated, prefer the path below
             '/custom/admin/service-definition/{service_id}'],
             method = RequestMethod.DELETE)
-    void delete(@PathVariable('id') String serviceId) {
+    void delete(@PathVariable('service_id') String serviceId) {
         serviceDefinitionProcessor.deleteServiceDefinition(serviceId)
     }
 }

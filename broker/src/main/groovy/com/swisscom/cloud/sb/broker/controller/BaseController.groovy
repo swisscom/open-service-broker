@@ -45,7 +45,7 @@ abstract class BaseController {
     @ExceptionHandler
     ResponseEntity<ErrorDto> serviceBrokerException(ServiceBrokerException exception) {
         log.error("Service Broker exception", exception)
-        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception), exception.httpStatus);
+        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception), exception.httpStatus)
     }
 
     protected ServiceProvider findServiceProvider(Plan plan) {
