@@ -27,6 +27,23 @@ class KubernetesTemplateManager {
         return new KubernetesTemplate(readTemplateContent("roles.yml"))
     }
 
+    KubernetesTemplate getTelegrafConfigTemplate() {
+        return new KubernetesTemplate(readTemplateContent("telegraf-config.yml"))
+    }
+
+    KubernetesTemplate getServicesTemplate() {
+        return new KubernetesTemplate(readTemplateContent("services.yml"))
+    }
+
+    KubernetesTemplate getDeploymentOperatorTemplate() {
+        return new KubernetesTemplate(readTemplateContent("deployment-operator.yml"))
+    }
+
+    KubernetesTemplate getDeploymentSentinelTemplate() {
+        return new KubernetesTemplate(readTemplateContent("deployment-sentinel.yml"))
+    }
+
+
     private String readTemplateContent(String templateIdentifier) {
         File file = new File(kubernetesConfig.getKubernetesTemplatesFolder(), templateIdentifier)
         if (file.exists()) {

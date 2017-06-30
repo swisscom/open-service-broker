@@ -2,14 +2,14 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: operator
-  namespace: %SERVICE_ID%
+  namespace: {{SERVICE_ID}}
   labels:
-    service_id: %SERVICE_ID%
+    service_id: {{SERVICE_ID}}
     service_type: operator
-    space: %SPACE_ID%
-    org: %ORG_ID%
-    plan: %PLAN_ID%
-    version: %VERSION%
+    space: {{SPACE_ID}}
+    org: {{ORG_ID}}
+    plan: {{PLAN_ID}}
+    version: {{VERSION}}
 spec:
   replicas: 1
   strategy:
@@ -23,11 +23,11 @@ spec:
   template:
     metadata:
       labels:
-        service_id: %SERVICE_ID%
+        service_id: {{SERVICE_ID}}
         service_type: operator
-        space: %SPACE_ID%
-        org: %ORG_ID%
-        version: %REDIS_VERSION%
+        space: {{SPACE_ID}}
+        org: {{ORG_ID}}
+        version: {{REDIS_VERSION}}
         instances: operator
         healthz: "true"
 #      annotations:
@@ -35,12 +35,14 @@ spec:
 #        image_build: <redis-build-id>
 #        image_commit: <git commit id>
     spec:
+      serviceAccount: operator
+      serviceAccountName: operator
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - topologyKey: failure-domain.beta.kubernetes.io/zone
             namespaces:
-            - %SERVICE_ID%
+            - {{SERVICE_ID}}
             labelSelector:
               matchExpressions:
               - key: service_type
@@ -49,7 +51,7 @@ spec:
                 - operator
           - topologyKey: kubernetes.io/hostname
             namespaces:
-            - %SERVICE_ID%
+            - {{SERVICE_ID}}
             labelSelector:
               matchExpressions:
               - key: service_type
@@ -59,24 +61,17 @@ spec:
                 - sentinel
       containers:
       - name: operator
-        image: %REDIS_IMAGE%
+        image: {{REDIS_IMAGE}}
         imagePullPolicy: IfNotPresent
         command:
         - /data/service/operator.sh
         args:
         - main
-#        lifecycle:
-#          preStop:
-#            exec:
-#              command:
-#              - kill
-#              - "-9"
-#              - 1
         readinessProbe:
           exec:
             command:
             - cat
-            - /data/work/service_healthy.out
+            - /data/work/service_healthy
           initialDelaySeconds: 1
           periodSeconds: 10
           timeoutSeconds: 1
@@ -88,7 +83,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: REDIS_PASS
-          value: "%REDIS_PASS%"
+          value: "{{REDIS_PASS}}"
         - name: POD_IP
           valueFrom:
             fieldRef:
@@ -100,14 +95,15 @@ spec:
           requests:
             cpu: 50m
             memory: 24Mi
+        terminationMessagePath: /data/work/logs/operator_termination.log
         volumeMounts:
         - name: data
           mountPath: /data/work
       volumes:
       - name: data
         emptyDir: {}
-#      restartPolicy: OnFailure
-#      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0
       dnsPolicy: ClusterFirst
       securityContext:
         runAsNonRoot: true
