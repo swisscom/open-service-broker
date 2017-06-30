@@ -24,3 +24,4 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
 
 }
+

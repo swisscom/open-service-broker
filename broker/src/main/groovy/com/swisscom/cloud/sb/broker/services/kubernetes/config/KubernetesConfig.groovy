@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration
 trait KubernetesConfig implements Config, EndpointConfig {
     String kubernetesHost = "kubernetes-testing-service-api.service.consul"
     String kubernetesPort = "6443"
-    String kubernetesClientPFXPath = "/Users/xxxxx/projects/kubernetes-VPN/certificate.pfx"
+    String kubernetesClientPFXPath = "/Users/xxxx/projects/kubernetes-VPN/certificate.pfx"
     String kubernetesClientPFXPasswordPath = ""
     int retryIntervalInSeconds = 1
     int maxRetryDurationInMinutes = 1
