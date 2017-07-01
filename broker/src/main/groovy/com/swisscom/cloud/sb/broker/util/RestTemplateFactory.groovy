@@ -34,19 +34,19 @@ class RestTemplateFactory {
 
     RestTemplate buildWithBasicAuthentication(String username, String password) {
         RestTemplate restTemplate = new RestTemplate()
-        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
         if (interceptors == null) {
-            interceptors = Collections.emptyList();
+            interceptors = Collections.emptyList()
         }
-        interceptors = new ArrayList<>(interceptors);
-        Iterator<ClientHttpRequestInterceptor> iterator = interceptors.iterator();
+        interceptors = new ArrayList<>(interceptors)
+        Iterator<ClientHttpRequestInterceptor> iterator = interceptors.iterator()
         while (iterator.hasNext()) {
             if (iterator.next() instanceof BasicAuthorizationInterceptor) {
-                iterator.remove();
+                iterator.remove()
             }
         }
-        interceptors.add(new BasicAuthorizationInterceptor(username, password));
-        restTemplate.setInterceptors(interceptors);
+        interceptors.add(new BasicAuthorizationInterceptor(username, password))
+        restTemplate.setInterceptors(interceptors)
         return restTemplate
     }
 
@@ -100,7 +100,7 @@ class RestTemplateFactory {
         CredentialsProvider provider = new BasicCredentialsProvider()
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password)
         provider.setCredentials(AuthScope.ANY, credentials)
-        return provider;
+        return provider
     }
 
 }
