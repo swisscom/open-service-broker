@@ -1,5 +1,8 @@
 # Open Service Broker
 
+### Status
+[![Develop branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=develop)](https://travis-ci.org/swisscom/open-service-broker)
+[![Master branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=master)](https://travis-ci.org/swisscom/open-service-broker)
 ## Introduction
 
 Open Service Broker is an implementation of the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/blob/v2.11/spec.md). It enables platforms such as [Cloud Foundry](https://www.cloudfoundry.org/) & [Kubernetes](https://kubernetes.io/) to provision and manage services.
