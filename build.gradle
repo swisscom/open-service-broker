@@ -5,10 +5,13 @@ buildscript {
     }
 }
 
-apply plugin: 'groovy'
-apply plugin: 'idea'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+allprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 repositories {
     mavenCentral()
@@ -92,6 +95,14 @@ subprojects {
 
                 }
             }
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination "${buildDir}/jacocoHtml"
         }
     }
 }
