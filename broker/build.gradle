@@ -143,3 +143,8 @@ war {
         }
     }
 }
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
+}
