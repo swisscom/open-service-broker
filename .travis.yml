@@ -1,4 +1,4 @@
 language: groovy
-script: ./gradlew clean build -x integrationTest -x functionalTest
+script: ./gradlew clean build
 addons:
     mariadb: 10.0
