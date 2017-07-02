@@ -10,10 +10,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.HttpClients
-import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.client.SimpleClientHttpRequestFactory
-import org.springframework.http.client.support.BasicAuthorizationInterceptor
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
@@ -22,6 +20,8 @@ import javax.net.ssl.SSLSession
 import javax.net.ssl.SSLSocket
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+
+import static com.swisscom.cloud.sb.broker.util.RestTemplateDecorator.decorateWithBasicAuthentication
 
 @Component
 class RestTemplateFactory {
@@ -33,21 +33,7 @@ class RestTemplateFactory {
     }
 
     RestTemplate buildWithBasicAuthentication(String username, String password) {
-        RestTemplate restTemplate = new RestTemplate()
-        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-        if (interceptors == null) {
-            interceptors = Collections.emptyList();
-        }
-        interceptors = new ArrayList<>(interceptors);
-        Iterator<ClientHttpRequestInterceptor> iterator = interceptors.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next() instanceof BasicAuthorizationInterceptor) {
-                iterator.remove();
-            }
-        }
-        interceptors.add(new BasicAuthorizationInterceptor(username, password));
-        restTemplate.setInterceptors(interceptors);
-        return restTemplate
+        return decorateWithBasicAuthentication(new RestTemplate(), username, password)
     }
 
     RestTemplate buildWithProxy(String host, int port) {
@@ -66,6 +52,7 @@ class RestTemplateFactory {
         requestFactory.setHttpClient(httpClient)
         return new RestTemplate(requestFactory)
     }
+
 
     static class DummyTrustStrategy implements TrustStrategy {
         @Override
@@ -100,7 +87,7 @@ class RestTemplateFactory {
         CredentialsProvider provider = new BasicCredentialsProvider()
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password)
         provider.setCredentials(AuthScope.ANY, credentials)
-        return provider;
+        return provider
     }
 
 }
