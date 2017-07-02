@@ -1,5 +1,11 @@
+dist: trusty
+jdk:
+  - openjdk8
+
 language: groovy
 script: ./gradlew clean build -x functionalTest
+
+
 addons:
     mariadb: 10.0
 
