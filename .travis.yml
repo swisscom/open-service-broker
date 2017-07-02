@@ -13,4 +13,5 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+    - .autoconf
     - $HOME/.m2
