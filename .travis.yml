@@ -3,9 +3,14 @@ script: ./gradlew clean build
 addons:
     mariadb: 10.0
 
-cache:
-  directories:
-  - $HOME/.m2
-
 before_install:
   - mysql -e 'CREATE DATABASE CFBroker;'
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.m2
