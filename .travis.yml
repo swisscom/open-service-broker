@@ -2,3 +2,10 @@ language: groovy
 script: ./gradlew -i clean build
 addons:
     mariadb: 10.0
+
+cache:
+  directories:
+  - $HOME/.m2
+
+before_install:
+  - mysql -e 'CREATE DATABASE CFBroker;'
