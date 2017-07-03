@@ -38,13 +38,12 @@ class KubernetesRedisClientRedisDecorated {
         context.serviceInstanceGuid = "1e868763-d387-4a66-b17a-00f45b04abcd"
         context.spaceGuid = "7e577e57-7e57-7e57-7e57-7e577e577e57"
         context.organizationGuid = "7e577e57-7e57-7e57-7e57-7e577e577e57"
-
-        //createNamespace(context)
-        //createServiceAccounts(context)
-        //createRoles(context)
-        //createTelegraf(context)
-        //createServices(context)
-        //createDeploymentSentinel(context)
+        createNamespace(context)
+        createServiceAccounts(context)
+        createRoles(context)
+        createTelegraf(context)
+        createServices(context)
+        createDeploymentSentinel(context)
         createDeploymentOperator(context)
         return new KubernetesClientRedisDecoratedResponse(user: "User", password: "Password")
     }
