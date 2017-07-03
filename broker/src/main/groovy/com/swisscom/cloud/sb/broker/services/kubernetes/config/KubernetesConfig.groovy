@@ -18,4 +18,5 @@ trait KubernetesConfig implements Config, EndpointConfig {
     String kubernetesClientPFXPasswordPath = ""
     int retryIntervalInSeconds = 1
     int maxRetryDurationInMinutes = 1
+
 }

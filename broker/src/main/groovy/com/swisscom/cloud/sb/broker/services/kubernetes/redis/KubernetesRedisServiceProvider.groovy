@@ -25,6 +25,7 @@ class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<Kube
 
     KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated
 
+
     @Autowired
     KubernetesRedisServiceProvider(KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated) {
         this.kubernetesClientRedisDecorated = kubernetesClientRedisDecorated
