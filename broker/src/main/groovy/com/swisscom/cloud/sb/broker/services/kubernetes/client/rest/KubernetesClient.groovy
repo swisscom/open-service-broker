@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
-import jdk.nashorn.internal.runtime.logging.Logger
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
@@ -20,7 +19,6 @@ import java.security.KeyStore
 
 @CompileStatic
 @Component
-@Logger
 @Log4j
 class KubernetesClient<RESPONSE> {
 
