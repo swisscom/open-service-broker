@@ -2,14 +2,14 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: redis
-  namespace: %SERVICE_ID%
+  namespace: {{SERVICE_ID}}
   labels:
-    service_id: %SERVICE_ID%
+    service_id: {{SERVICE_ID}}
     service_type: redis
-    space: %SPACE_ID%
-    org: %ORG_ID%
-    plan: %PLAN_ID%
-    version: %REDIS_VERSION%
+    space: {{SPACE_ID}}
+    org: {{ORG_ID}}
+    plan: {{PLAN_ID}}
+    version: {{REDIS_VERSION}}
 spec:
   replicas: 3
   strategy:
@@ -25,11 +25,11 @@ spec:
   template:
     metadata:
       labels:
-        service_id: %SERVICE_ID%
+        service_id: {{SERVICE_ID}}
         service_type: redis
-        space: %SPACE_ID%
-        org: %ORG_ID%
-        version: %REDIS_VERSION%
+        space: {{SPACE_ID}}
+        org: {{ORG_ID}}
+        version: {{REDIS_VERSION}}
         instances: redis
 #      annotations:
 #        creation_date: <date>
@@ -42,7 +42,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - topologyKey: failure-domain.beta.kubernetes.io/zone
             namespaces:
-            - %SERVICE_ID%
+            - {{SERVICE_ID}}
             labelSelector:
               matchExpressions:
               - key: service_type
@@ -51,7 +51,7 @@ spec:
                 - redis
           - topologyKey: kubernetes.io/hostname
             namespaces:
-            - %SERVICE_ID%
+            - {{SERVICE_ID}}
             labelSelector:
               matchExpressions:
               - key: service_type
@@ -72,7 +72,7 @@ spec:
           mountPath: "/data/work"
       # can be enabled after k8s init containers work properly
       #- name: init
-      #  image: "%REDIS_IMAGE%"
+      #  image: "{{REDIS_IMAGE{{"
       #  imagePullPolicy: IfNotPresent
       #  command:
       #  - "/data/service/init_redis.sh"
@@ -85,15 +85,15 @@ spec:
       #        apiVersion: v1
       #        fieldPath: metadata.namespace
       #  - name: MASTER_NAME
-      #    value: "%SERVICE_ID%"
+      #    value: "{{SERVICE_ID{{"
       #  - name: REDIS_PASS
-      #    value: "%REDIS_PASS%"
+      #    value: "{{REDIS_PASS{{"
       #  - name: MAX_DATABASES
-      #    value: "%MAX_DATABASES%"
+      #    value: "{{MAX_DATABASES{{"
       #  - name: MAX_CONNECTIONS
-      #    value: "%MAX_CONNECTIONS%"
+      #    value: "{{MAX_CONNECTIONS{{"
       #  - name: MAX_MEMORY
-      #    value: "%REDIS_SERVER_MAX_MEMORY%mb"
+      #    value: "{{REDIS_SERVER_MAX_MEMORY{{mb"
       #  - name: REPL_BACKLOG_SIZE
       #    value: 16mb
       #  - name: POD_IP
@@ -106,7 +106,7 @@ spec:
       #    mountPath: "/data/work"
       containers:
       - name: redis
-        image: %REDIS_IMAGE%
+        image: {{REDIS_IMAGE}}
         imagePullPolicy: IfNotPresent
       # can be enabled after k8s init containers work properly
       #  command:
@@ -127,15 +127,15 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
         - name: MASTER_NAME
-          value: "%SERVICE_ID%"
+          value: "{{SERVICE_ID}}"
         - name: REDIS_PASS
-          value: "%REDIS_PASS%"
+          value: "{{REDIS_PASS}}"
         - name: MAX_DATABASES
-          value: "%MAX_DATABASES%"
+          value: "{{MAX_DATABASES}}"
         - name: MAX_CONNECTIONS
-          value: "%MAX_CONNECTIONS%"
+          value: "{{MAX_CONNECTIONS}}"
         - name: MAX_MEMORY
-          value: "%REDIS_SERVER_MAX_MEMORY%mb"
+          value: "{{REDIS_SERVER_MAX_MEMORY}}mb"
         - name: REPL_BACKLOG_SIZE
           value: 16mb
         - name: POD_IP
@@ -149,25 +149,25 @@ spec:
           protocol: TCP
         resources:
           limits:
-            cpu: %REDIS_MAX_CPU%m
-            memory: %REDIS_MAX_MEMORY%Mi
+            cpu: {{REDIS_MAX_CPU}}m
+            memory: {{REDIS_MAX_MEMORY}}Mi
           requests:
-            cpu: %REDIS_MAX_CPU%m
-            memory: %REDIS_MAX_MEMORY%Mi
+            cpu: {{REDIS_MAX_CPU}}m
+            memory: {{REDIS_MAX_MEMORY}}Mi
         lifecycle:
           preStop:
             exec:
               command:
               - /usr/local/bin/redis-cli
               - -a
-              - %REDIS_PASS%
+              - {{REDIS_PASS}}
               - shutdown
         readinessProbe:
           exec:
             command:
             - /usr/local/bin/redis-cli
             - -a
-            - %REDIS_PASS%
+            - {{REDIS_PASS}}
             - ping
           initialDelaySeconds: 15
           timeoutSeconds: 5
@@ -178,7 +178,7 @@ spec:
             command:
             - /usr/local/bin/redis-cli
             - -a
-            - %REDIS_PASS%
+            - {{REDIS_PASS}}
             - ping
           initialDelaySeconds: 15
           timeoutSeconds: 5
@@ -190,7 +190,7 @@ spec:
         - name: data
           mountPath: /data/work
       - name: telegraf
-        image: %TELEGRAF_IMAGE%
+        image: {{TELEGRAF_IMAGE}}
         imagePullPolicy: Always
         resources:
           requests:
@@ -211,7 +211,7 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
         - name: REDIS_PASS
-          value: %REDIS_PASS%
+          value: {{REDIS_PASS}}
         volumeMounts:
         - name: telegraf-config
           mountPath: /etc/telegraf/service
@@ -225,7 +225,7 @@ spec:
       - name: data
 #        emptyDir: {}
         hostPath:
-          path: /var/vcap/store/container_data/%SERVICE_ID%/redis/redis
+          path: /var/vcap/store/container_data/{{SERVICE_ID}}/redis/redis
 #      restartPolicy: OnFailure
 #      terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst

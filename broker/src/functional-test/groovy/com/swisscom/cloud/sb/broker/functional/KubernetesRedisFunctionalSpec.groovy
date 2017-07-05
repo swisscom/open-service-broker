@@ -7,7 +7,6 @@ import spock.lang.Ignore
 
 import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
 
-@Ignore
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
 

@@ -2,11 +2,16 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.Resource
+import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
 
-@Component
+import java.nio.file.Files
+import java.nio.file.Paths
+
 @Log4j
+@Component
+@CompileStatic
 class KubernetesTemplateManager {
 
     private final KubernetesConfig kubernetesConfig
@@ -15,43 +20,28 @@ class KubernetesTemplateManager {
         this.kubernetesConfig = kubernetesConfig
     }
 
-    KubernetesTemplate getNamespaceTemplate() {
-        return new KubernetesTemplate(readTemplateContent("namespace.yml"))
-    }
-
-    KubernetesTemplate getServiceAccountsTemplate() {
-        return new KubernetesTemplate(readTemplateContent("serviceaccount.yml"))
-    }
-
-    KubernetesTemplate getServiceRolesTemplate() {
-        return new KubernetesTemplate(readTemplateContent("roles.yml"))
-    }
-
-    KubernetesTemplate getTelegrafConfigTemplate() {
-        return new KubernetesTemplate(readTemplateContent("telegraf-config.yml"))
-    }
-
-    KubernetesTemplate getServicesTemplate() {
-        return new KubernetesTemplate(readTemplateContent("services.yml"))
-    }
-
-    KubernetesTemplate getDeploymentOperatorTemplate() {
-        return new KubernetesTemplate(readTemplateContent("deployment-operator.yml"))
-    }
-
-    KubernetesTemplate getDeploymentSentinelTemplate() {
-        return new KubernetesTemplate(readTemplateContent("deployment-sentinel.yml"))
-    }
-
-
-    private String readTemplateContent(String templateIdentifier) {
-        File file = new File(kubernetesConfig.getKubernetesTemplatesFolder(), templateIdentifier)
-        if (file.exists()) {
-            log.info("Using template file:${file.absolutePath}")
-            return file.text
+    List<KubernetesTemplate> getTemplates() {
+        List<KubernetesTemplate> templates = new LinkedList<>();
+        for (String name : getTemplatesFilesNames()) {
+            updateTemplates(name, templates)
         }
-        log.info("Will try to read file:${templateIdentifier} from embedded resources")
-        return Resource.readTestFileContent("/kubernetes/redis/v1/" + templateIdentifier)
+        return templates
+    }
+
+    private void updateTemplates(String name, List<KubernetesTemplate> templates) {
+        String[] contents = (new String(Files.readAllBytes(Paths.get(kubernetesConfig.getKubernetesRedisV1TemplatesPath() + name)))).split("---")
+        for (String content : contents) {
+            templates.add(new KubernetesTemplate(content))
+        }
+    }
+
+    private String[] getTemplatesFilesNames() {
+        File file = new File(kubernetesConfig.getKubernetesRedisV1TemplatesPath())
+        if (file.isDirectory() && file.list().size() > 0) {
+            Arrays.sort(file.list())
+            return file.list()
+        }
+        throw new RuntimeException("Missing Kubernetes templates in " + kubernetesConfig.getKubernetesRedisV1TemplatesPath())
     }
 
 }
