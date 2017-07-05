@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cf.broker.service.kubernetes.redis.v1')
-trait KubernetesConfig implements Config, EndpointConfig {
+class KubernetesConfig implements Config, EndpointConfig {
     String kubernetesHost = "kubernetes-testing-service-api.service.consul"
     String kubernetesPort = "6443"
     String kubernetesClientPFXPath = "/Users/xxx/projects/kubernetes-VPN/certificate.pfx"
