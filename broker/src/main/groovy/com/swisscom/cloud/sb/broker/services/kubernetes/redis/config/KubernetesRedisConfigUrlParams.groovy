@@ -6,14 +6,14 @@ import groovy.transform.CompileStatic
 
 @AutoClone
 @CompileStatic
-enum KubernetesRedisConfigUrlParams {
-    INSTANCE
+class KubernetesRedisConfigUrlParams {
 
-    HashMap<String, String> getParams(ProvisionRequest context) {
+    HashMap<String, String> getParameters(ProvisionRequest context) {
         return new HashMap<String, String>() {
             {
                 put("serviceInstanceGuid", context.getServiceInstanceGuid())
             }
         }
     }
+
 }

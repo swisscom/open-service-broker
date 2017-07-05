@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 class KubernetesTemplateSpec extends Specification {
 
-    public static final String TEMPLATE = '/kubernetes/redis/v1/namespace.yml'
+    public static final String TEMPLATE = '/kubernetes/redis/v1/0_namespace.yml'
 
     def "if there are not replaced placeholders validation should fail"() {
         given:

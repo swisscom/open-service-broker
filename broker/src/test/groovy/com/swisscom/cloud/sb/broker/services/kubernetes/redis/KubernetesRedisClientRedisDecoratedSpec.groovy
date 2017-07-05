@@ -8,8 +8,10 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsRespo
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import org.springframework.http.HttpMethod
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore
 class KubernetesRedisClientRedisDecoratedSpec extends Specification {
     KubernetesRedisClientRedisDecorated kubernetesRedisClientRedisDecorated
     KubernetesClient kubernetesClient

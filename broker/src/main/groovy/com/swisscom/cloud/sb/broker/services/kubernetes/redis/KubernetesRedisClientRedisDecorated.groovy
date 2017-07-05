@@ -4,15 +4,9 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ConfigMapResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RolesResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfigUrlParams
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.dto.KubernetesClientRedisDecoratedResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import groovy.transform.CompileStatic
@@ -48,7 +42,7 @@ class KubernetesRedisClientRedisDecorated {
 
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
             replaceTemplate(kubernetesTemplate, context)
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), KubernetesRedisConfigUrlParams.INSTANCE.getParams(context))
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class)
         }
         //TODO return "real" response object from K8s Master
