@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.Resource
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import java.nio.file.Files
@@ -16,6 +17,7 @@ class KubernetesTemplateManager {
 
     private final KubernetesConfig kubernetesConfig
 
+    @Autowired
     KubernetesTemplateManager(KubernetesConfig kubernetesConfig) {
         this.kubernetesConfig = kubernetesConfig
     }

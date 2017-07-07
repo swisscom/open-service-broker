@@ -10,10 +10,12 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionStateMachineContext
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.KubernetesBasedServiceProvider
+import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -71,7 +73,11 @@ class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<Kube
 
     @Override
     BindResponse bind(BindRequest request) {
-        return new BindResponse()
+        RedisBindResponseDto credentials = new RedisBindResponseDto(
+                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.HOST).toString(),
+                port: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.PORT) as int,
+                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.PASSWORD).toString())
+        return new BindResponse(credentials: credentials)
     }
 
     @Override

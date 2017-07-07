@@ -72,7 +72,7 @@ spec:
           mountPath: "/data/work"
       # can be enabled after k8s init containers work properly
       #- name: init
-      #  image: "{{REDIS_IMAGE{{"
+      #  image: "{{REDIS_IMAGE}}"
       #  imagePullPolicy: IfNotPresent
       #  command:
       #  - "/data/service/init_redis.sh"
@@ -85,15 +85,15 @@ spec:
       #        apiVersion: v1
       #        fieldPath: metadata.namespace
       #  - name: MASTER_NAME
-      #    value: "{{SERVICE_ID{{"
+      #    value: "{{SERVICE_ID}}"
       #  - name: REDIS_PASS
-      #    value: "{{REDIS_PASS{{"
+      #    value: "{{REDIS_PASS}}"
       #  - name: MAX_DATABASES
-      #    value: "{{MAX_DATABASES{{"
+      #    value: "{{MAX_DATABASES}}"
       #  - name: MAX_CONNECTIONS
-      #    value: "{{MAX_CONNECTIONS{{"
+      #    value: "{{MAX_CONNECTIONS}}"
       #  - name: MAX_MEMORY
-      #    value: "{{REDIS_SERVER_MAX_MEMORY{{mb"
+      #    value: "{{REDIS_SERVER_MAX_MEMORY}}mb"
       #  - name: REPL_BACKLOG_SIZE
       #    value: 16mb
       #  - name: POD_IP
