@@ -5,9 +5,11 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.redis.KubernetesRedisServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import spock.lang.Ignore
 
 import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
 
+@Ignore
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
 
@@ -22,11 +24,11 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     }
 
     private void createPlanParameters(Plan plan) {
-        for (String key : kubernetesConfig.planParameters.keySet()) {
-            serviceLifeCycler.createParameter(key, kubernetesConfig.planParameters.get(key), plan)
+        for (String key : kubernetesConfig.redisPlanDefaults.keySet()) {
+            serviceLifeCycler.createParameter(key, kubernetesConfig.redisPlanDefaults.get(key), plan)
         }
-        for (String key : kubernetesConfig.configurationParameters.keySet()) {
-            serviceLifeCycler.createParameter(key, kubernetesConfig.configurationParameters.get(key), plan)
+        for (String key : kubernetesConfig.redisConfigurationDefaults.keySet()) {
+            serviceLifeCycler.createParameter(key, kubernetesConfig.redisConfigurationDefaults.get(key), plan)
         }
     }
 

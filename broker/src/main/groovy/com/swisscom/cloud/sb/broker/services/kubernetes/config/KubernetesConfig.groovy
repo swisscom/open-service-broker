@@ -20,7 +20,7 @@ class KubernetesConfig implements Config, EndpointConfig {
     int retryIntervalInSeconds = 1
     int maxRetryDurationInMinutes = 1
 
-    HashMap<String, String> configurationParameters = new HashMap() {
+    HashMap<String, String> redisConfigurationDefaults = new HashMap() {
         {
             put("VERSION", "0.0.1")
             put("ENVIRONMENT", "sc1-lab")
@@ -35,7 +35,7 @@ class KubernetesConfig implements Config, EndpointConfig {
         }
     }
 
-    HashMap<String, String> planParameters = new HashMap() {
+    HashMap<String, String> redisPlanDefaults = new HashMap() {
         {
             put("PLAN_ID", 'redis.small')
             put("TELEGRAF_IMAGE", 'telegraf_image')

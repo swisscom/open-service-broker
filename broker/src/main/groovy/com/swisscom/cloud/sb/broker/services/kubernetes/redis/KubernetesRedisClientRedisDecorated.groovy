@@ -58,7 +58,7 @@ class KubernetesRedisClientRedisDecorated {
         kubernetesTemplate.replace("SERVICE_ID", request.getServiceInstanceGuid())
         kubernetesTemplate.replace("SPACE_ID", request.getSpaceGuid())
         kubernetesTemplate.replace("ORG_ID", request.getOrganizationGuid())
-        replaceWithMap(kubernetesTemplate, request, kubernetesConfig.configurationParameters, kubernetesConfig.planParameters)
+        replaceWithMap(kubernetesTemplate, request, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
     }
 
     private void replaceWithMap(KubernetesTemplate kubernetesTemplate, ProvisionRequest request, Map<String, String>... maps) {
