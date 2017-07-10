@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
@@ -23,12 +24,16 @@ import java.security.KeyStore
 class KubernetesClient<RESPONSE> {
 
     KubernetesConfig kubernetesConfig
+    @VisibleForTesting
     RestTemplate restTemplate
+    @VisibleForTesting
+    KeyStore keyStore
 
     @Autowired
     KubernetesClient(KubernetesConfig kubernetesConfig) {
         this.kubernetesConfig = kubernetesConfig
         this.restTemplate = new RestTemplate()
+        keyStore = KeyStore.getInstance("PKCS12")
     }
 
 
@@ -47,7 +52,7 @@ class KubernetesClient<RESPONSE> {
         return headers
     }
 
-    private void enableSSLWithClientCertificate() {
+    void enableSSLWithClientCertificate() {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setSSLContext(getSSLContext()).build()))
     }
 
@@ -59,8 +64,9 @@ class KubernetesClient<RESPONSE> {
     }
 
     private KeyStore getKeyStore() {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12")
-        keyStore.load(new FileInputStream(kubernetesConfig.getKubernetesClientPFXPath()), kubernetesConfig.getKubernetesClientPFXPasswordPath().toCharArray())
+        keyStore.load(
+                new FileInputStream(kubernetesConfig.getKubernetesClientPFXPath()),
+                kubernetesConfig.getKubernetesClientPFXPasswordPath().toCharArray())
         return keyStore
     }
 
