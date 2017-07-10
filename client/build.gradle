@@ -13,10 +13,6 @@ buildscript {
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
-jar {
-	baseName = 'service-broker-client'
-}
-
 repositories {
 	mavenCentral()
 	maven {
