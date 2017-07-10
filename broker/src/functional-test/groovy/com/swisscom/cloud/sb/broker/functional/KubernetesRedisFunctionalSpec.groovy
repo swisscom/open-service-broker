@@ -33,7 +33,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     }
 
 
-    def "Create a namespace"() {
+    def "Create a redis instance"() {
         given:
         serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(820, true, true)
     }
