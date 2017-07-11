@@ -31,6 +31,7 @@ def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signing
 nexusStaging {
     username = ossrhUsername
     password = ossrhPassword
+    packageGroup = 'com.swisscom.cloud.sb'
 }
 
 def brokerVersion = version
