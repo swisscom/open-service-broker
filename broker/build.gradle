@@ -12,10 +12,7 @@ buildscript {
 
 ext['tomcat.version'] = '7.0.63'
 
-
 apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
-
 
 processResources {
     expand(project.properties)
@@ -133,15 +130,6 @@ integrationTest.mustRunAfter test
 // Make sure 'check' task calls functional test
 check.dependsOn functionalTest
 functionalTest.mustRunAfter integrationTest
-
-war {
-    baseName = 'service-broker'
-    doFirst {
-        manifest {
-            attributes("Implementation-Title": project.name, "Implementation-Version": version, "Implementation-Timestamp": new Date())
-        }
-    }
-}
 
 test {
     testLogging.showStandardStreams = true
