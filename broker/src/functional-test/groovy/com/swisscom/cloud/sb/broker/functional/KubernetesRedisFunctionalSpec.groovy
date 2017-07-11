@@ -9,7 +9,6 @@ import spock.lang.Ignore
 
 import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
 
-@Ignore
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
 
@@ -35,7 +34,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def "Create a redis instance"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(820, true, true)
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(40, true, true)
     }
 
 
