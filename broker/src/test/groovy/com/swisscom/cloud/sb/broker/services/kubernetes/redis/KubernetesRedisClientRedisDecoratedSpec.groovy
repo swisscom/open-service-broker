@@ -4,8 +4,6 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RolesResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
@@ -28,9 +26,6 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
     KubernetesClient kubernetesClient
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
-    KubernetesTemplate kubernetesTemplate
-    KubernetesTemplate kubernetesAccountsTemplate
-    KubernetesTemplate kubernetesRolesTemplate
     KubernetesConfig kubernetesConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
@@ -41,7 +36,7 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
         kubernetesConfig.redisPlanDefaults >> Collections.emptyMap()
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
-        kubernetesTemplateManager = mockKubernetesTemplateManager()
+        kubernetesTemplateManager = Mock()
         kubernetesTemplateManager.getTemplates() >> new LinkedList<KubernetesTemplate>() {
             {
                 add(kubernetesTemplate)
@@ -99,27 +94,11 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
         }
     }
 
-
     private void mockProvisionRequest() {
         provisionRequest = Mock(ProvisionRequest)
         provisionRequest.getServiceInstanceGuid() >> "ID"
         provisionRequest.getSpaceGuid() >> "SPACE"
         provisionRequest.getOrganizationGuid() >> "ORG"
     }
-
-    private KubernetesTemplateManager mockKubernetesTemplateManager() {
-        kubernetesTemplateManager = Stub()
-        kubernetesTemplate = Mock(KubernetesTemplate)
-        kubernetesAccountsTemplate = Mock(KubernetesTemplate)
-        kubernetesRolesTemplate = Mock(KubernetesTemplate)
-        kubernetesTemplate.build() >> "build"
-        kubernetesAccountsTemplate.build() >> "buildAccount"
-        kubernetesRolesTemplate.build() >> "a---b"
-        kubernetesTemplateManager.getNamespaceTemplate() >> kubernetesTemplate
-        kubernetesTemplateManager.getServiceAccountsTemplate() >> kubernetesAccountsTemplate
-        kubernetesTemplateManager.getServiceRolesTemplate() >> kubernetesRolesTemplate
-        kubernetesTemplateManager
-    }
-
 
 }

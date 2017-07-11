@@ -63,8 +63,10 @@ enum ServiceDetailKey {
     ECS_NAMESPACE_NAME("ecs_namespace_name", ServiceDetailType.OTHER),
     ECS_NAMESPACE_USER("ecs_namespace_user", ServiceDetailType.OTHER),
     ECS_NAMESPACE_SECRET("ecs_namespace_secret", ServiceDetailType.OTHER),
-    KUBERNETES_REDIS_USER("kubernetes_redis_service_user", ServiceDetailType.OTHER),
-    KUBERNETES_REDIS_PASSWORD("kubernetes_redis_service_secret", ServiceDetailType.OTHER)
+    KUBERNETES_REDIS_HOST("kubernetes_redis_service_user", ServiceDetailType.HOST),
+    KUBERNETES_REDIS_USER("kubernetes_redis_service_user", ServiceDetailType.USERNAME),
+    KUBERNETES_REDIS_PASSWORD("kubernetes_redis_service_secret", ServiceDetailType.PASSWORD),
+    KUBERNETES_REDIS_PORT("kubernetes_redis_service_secret", ServiceDetailType.PORT)
 
     private final String key
     private final ServiceDetailType serviceDetailType
