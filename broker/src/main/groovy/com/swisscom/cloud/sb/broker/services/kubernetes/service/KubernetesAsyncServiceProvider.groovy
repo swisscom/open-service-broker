@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 @CompileStatic
 @Slf4j
-abstract class KubernetesBasedServiceProvider<T extends KubernetesConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner {
+abstract class KubernetesAsyncServiceProvider<T extends KubernetesConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner {
 
     @Autowired
     protected AsyncProvisioningService asyncProvisioningService

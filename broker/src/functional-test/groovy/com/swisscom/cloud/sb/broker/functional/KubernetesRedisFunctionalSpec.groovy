@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.KubernetesRedisServiceProvider
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 

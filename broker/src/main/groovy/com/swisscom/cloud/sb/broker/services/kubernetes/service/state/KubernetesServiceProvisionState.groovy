@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.redis.state
+package com.swisscom.cloud.sb.broker.services.kubernetes.service.state
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
@@ -14,7 +14,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
     () {
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceProvisionStateMachineContext stateContext) {
-            return new StateChangeActionResult(go2NextState: true, details: stateContext.kubernetesClientRedisDecorated.provision(stateContext.lastOperationJobContext.provisionRequest))
+            return new StateChangeActionResult(go2NextState: true, details: stateContext.kubernetesFacade.provision(stateContext.lastOperationJobContext.provisionRequest))
         }
     }),
 

@@ -1,8 +1,8 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.redis
+package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
@@ -11,7 +11,7 @@ import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import spock.lang.Specification
 
-class KubernetesRedisClientRedisDecoratedSpec extends Specification {
+class KubernetesFacadeRedisSpec extends Specification {
 
     private final static String TEMPLATE_EXAMPLE = "apiVersion: v1\n" +
             "kind: Namespace\n" +
@@ -22,7 +22,7 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
             "    service_type: redis-sentinel\n" +
             "    space: {{SPACE_ID}}\n" +
             "    org: {{ORG_ID}}"
-    KubernetesRedisClientRedisDecorated kubernetesRedisClientRedisDecorated
+    KubernetesFacadeRedis kubernetesRedisClientRedisDecorated
     KubernetesClient kubernetesClient
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
@@ -45,7 +45,7 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
         }
         mockProvisionRequest()
         and:
-        kubernetesRedisClientRedisDecorated = new KubernetesRedisClientRedisDecorated(kubernetesConfig, kubernetesClient, kubernetesTemplateManager, endpointMapperParamsDecorated)
+        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesConfig, kubernetesClient, kubernetesTemplateManager, endpointMapperParamsDecorated)
     }
 
 

@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired

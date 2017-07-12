@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.springframework.http.HttpMethod

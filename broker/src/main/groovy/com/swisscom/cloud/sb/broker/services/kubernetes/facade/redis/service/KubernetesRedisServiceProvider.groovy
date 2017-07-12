@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.redis
+package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
@@ -11,9 +11,10 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAc
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionState
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.state.KubernetesServiceProvisionStateMachineContext
-import com.swisscom.cloud.sb.broker.services.kubernetes.service.KubernetesBasedServiceProvider
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.KubernetesAsyncServiceProvider
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionStateMachineContext
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
@@ -24,13 +25,13 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<KubernetesConfig> {
+class KubernetesRedisServiceProvider extends KubernetesAsyncServiceProvider<KubernetesConfig> {
 
-    KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated
+    KubernetesFacadeRedis kubernetesClientRedisDecorated
 
 
     @Autowired
-    KubernetesRedisServiceProvider(KubernetesRedisClientRedisDecorated kubernetesClientRedisDecorated) {
+    KubernetesRedisServiceProvider(KubernetesFacadeRedis kubernetesClientRedisDecorated) {
         this.kubernetesClientRedisDecorated = kubernetesClientRedisDecorated
     }
 
@@ -55,7 +56,7 @@ class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<Kube
 
     @VisibleForTesting
     private KubernetesServiceProvisionStateMachineContext createStateMachineContext(LastOperationJobContext context) {
-        return new KubernetesServiceProvisionStateMachineContext(kubernetesClientRedisDecorated: kubernetesClientRedisDecorated,
+        return new KubernetesServiceProvisionStateMachineContext(kubernetesFacade: kubernetesClientRedisDecorated,
                 lastOperationJobContext: context)
     }
 
