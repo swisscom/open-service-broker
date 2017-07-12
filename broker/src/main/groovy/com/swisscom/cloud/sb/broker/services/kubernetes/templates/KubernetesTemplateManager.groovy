@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import com.swisscom.cloud.sb.broker.util.Resource
+import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,10 +14,10 @@ import java.nio.file.Paths
 @CompileStatic
 class KubernetesTemplateManager {
 
-    private final KubernetesConfig kubernetesConfig
+    private final KubernetesRedisConfig kubernetesConfig
 
     @Autowired
-    KubernetesTemplateManager(KubernetesConfig kubernetesConfig) {
+    KubernetesTemplateManager(KubernetesRedisConfig kubernetesConfig) {
         this.kubernetesConfig = kubernetesConfig
     }
 

@@ -2,9 +2,9 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.redis
 
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
-import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapperParamsDecorated
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import org.springframework.data.util.Pair
@@ -26,7 +26,7 @@ class KubernetesRedisClientRedisDecoratedSpec extends Specification {
     KubernetesClient kubernetesClient
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
-    KubernetesConfig kubernetesConfig
+    KubernetesRedisConfig kubernetesConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
     def setup() {

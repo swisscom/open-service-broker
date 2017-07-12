@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.redis.config.KubernetesRedisConfig
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.springframework.http.HttpMethod
@@ -18,7 +18,7 @@ class KubernetesClientSpec extends Specification {
     public TemporaryFolder folder = new TemporaryFolder();
 
     KubernetesClient kubernetesClient
-    KubernetesConfig kubernetesConfig
+    KubernetesRedisConfig kubernetesConfig
     RestTemplate restTemplate
 
     def setup() {
@@ -56,8 +56,8 @@ class KubernetesClientSpec extends Specification {
         kubernetesClient.restTemplate = restTemplate
     }
 
-    private KubernetesConfig mockConfig(File createdFile) {
-        kubernetesConfig = Stub(KubernetesConfig)
+    private KubernetesRedisConfig mockConfig(File createdFile) {
+        kubernetesConfig = Stub(KubernetesRedisConfig)
         kubernetesConfig.getKubernetesClientPFXPath() >> createdFile.getAbsolutePath()
         kubernetesConfig.getKubernetesClientPFXPasswordPath() >> "PASS"
         kubernetesConfig

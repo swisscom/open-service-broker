@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import org.springframework.data.util.Pair
 import spock.lang.Specification
 

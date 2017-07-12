@@ -1,15 +1,11 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.redis.state
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
-import com.swisscom.cloud.sb.broker.services.kubernetes.redis.dto.KubernetesClientRedisDecoratedResponse
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
-
 
 @CompileStatic
 enum KubernetesServiceProvisionState implements ServiceStateWithAction<KubernetesServiceProvisionStateMachineContext> {
@@ -18,10 +14,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
     () {
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceProvisionStateMachineContext stateContext) {
-            KubernetesClientRedisDecoratedResponse kubernetesClientRedisDecoratedResponse = stateContext.kubernetesClientRedisDecorated.provision(stateContext.lastOperationJobContext.provisionRequest)
-            return new StateChangeActionResult(go2NextState: true, details: [
-                    ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_USER, kubernetesClientRedisDecoratedResponse.user),
-                    ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, kubernetesClientRedisDecoratedResponse.password)])
+            return new StateChangeActionResult(go2NextState: true, details: stateContext.kubernetesClientRedisDecorated.provision(stateContext.lastOperationJobContext.provisionRequest))
         }
     }),
 

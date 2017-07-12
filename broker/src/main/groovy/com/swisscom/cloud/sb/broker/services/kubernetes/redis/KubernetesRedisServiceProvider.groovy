@@ -74,9 +74,10 @@ class KubernetesRedisServiceProvider extends KubernetesBasedServiceProvider<Kube
     @Override
     BindResponse bind(BindRequest request) {
         RedisBindResponseDto credentials = new RedisBindResponseDto(
-                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_USER).toString(),
-                //port: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT) as int,
-                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString())
+                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_HOST).toString(),
+                port: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT) as int,
+                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString()
+        )
         return new BindResponse(credentials: credentials)
     }
 

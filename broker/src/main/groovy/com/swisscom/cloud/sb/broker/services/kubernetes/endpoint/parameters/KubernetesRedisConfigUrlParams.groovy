@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.redis.config
+package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters
 
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import groovy.transform.AutoClone

@@ -1,5 +1,6 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint
+package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters
 
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Component
