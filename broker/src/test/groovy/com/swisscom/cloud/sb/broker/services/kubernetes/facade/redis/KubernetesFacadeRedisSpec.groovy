@@ -1,5 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
@@ -99,6 +101,12 @@ class KubernetesFacadeRedisSpec extends Specification {
         provisionRequest.getServiceInstanceGuid() >> "ID"
         provisionRequest.getSpaceGuid() >> "SPACE"
         provisionRequest.getOrganizationGuid() >> "ORG"
+        provisionRequest.plan >> Mock(Plan)
+        provisionRequest.plan.parameters >> new HashSet<Parameter>() {
+            {
+                add(new Parameter(name: "name"))
+            }
+        }
     }
 
 }

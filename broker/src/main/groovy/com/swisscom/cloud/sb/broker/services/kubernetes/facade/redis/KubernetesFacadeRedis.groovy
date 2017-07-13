@@ -13,7 +13,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemp
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.decorator.KubernetesTemplateVariablesDecorator
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.generators.KubernetesTemplatePasswordPortGenerator
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.generators.KubernetesTemplatePasswordGenerator
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
@@ -43,17 +43,17 @@ class KubernetesFacadeRedis implements KubernetesFacade {
 
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
-        Map<String, String> pasPortMap = (new KubernetesTemplatePasswordPortGenerator()).generatePasswordAndPort()
+        Map<String, String> passMap = (new KubernetesTemplatePasswordGenerator()).generatePassword()
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
-            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, pasPortMap, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
+            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class)
         }
         return new LinkedList() {
             {
                 add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesConfig.getKubernetesRedisHost()))
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, pasPortMap.get(KubernetesTemplateConstants.NODE_PORT_REDIS_MASTER.getValue())))
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, pasPortMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, "1111")) //TO DO read from the K8S API
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, passMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
             }
         }
     }

@@ -17,7 +17,6 @@ spec:
     protocol: TCP
     name: redis
     targetPort: redis
-    nodePort: {{NODE_PORT_REDIS_MASTER}}
   selector:
     instances: redis
     role: master
@@ -41,7 +40,6 @@ spec:
     protocol: TCP
     name: redis
     targetPort: redis
-    nodePort: {{NODE_PORT_REDIS_SLAVE0}}
   selector:
     instances: redis
     role: slave0
@@ -65,7 +63,6 @@ spec:
       protocol: TCP
       name: redis
       targetPort: redis
-      nodePort: {{NODE_PORT_REDIS_SLAVE1}}
   selector:
     instances: redis
     role: slave1
