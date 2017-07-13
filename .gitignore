@@ -16,6 +16,7 @@
 *.iws
 *.iml
 *.ipr
+.shelf
 
 ### NetBeans ###
 nbproject/private/
@@ -31,4 +32,7 @@ nbdist/
 
 ### Env specific bosh templates ###
 **/sc1-**.yml
+
+### GPG rings ###
+local.*
 

@@ -15,21 +15,17 @@ class EndpointLookup {
     Collection<Endpoint> findEndpoints(ServiceInstance serviceInstance, EndpointConfig config) {
         def result = new LinkedList<Endpoint>()
         def portsForServiceInstance = ServiceDetailsHelper.from(serviceInstance).findAllWithServiceDetailType(ServiceDetailType.PORT)
-        parseProtocols(config).each { String protocol ->
-            portsForServiceInstance.each {
-                String port ->
-                    result.add(new Endpoint(protocol: protocol, ports: port, destination: config.ipRange))
+        if (config.protocols.size() == 0){
+            config.protocols.addAll(DEFAULT_PROTOCOLS)
+        }
+
+        config.protocols.each { String protocol ->
+            config.ipRanges.each { String ipRange ->
+                portsForServiceInstance.each { String port ->
+                        result.add(new Endpoint(protocol: protocol, ports: port, destination: ipRange))
+                }
             }
         }
-
         return result
-    }
-
-    private Collection<String> parseProtocols(EndpointConfig config) {
-        def result = config.protocols?.split(",")
-        if (result == null || result.size() == 0) {
-            return DEFAULT_PROTOCOLS
-        }
-        return Arrays.asList(result)
     }
 }

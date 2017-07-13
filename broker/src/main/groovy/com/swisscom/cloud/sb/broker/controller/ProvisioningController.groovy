@@ -124,5 +124,6 @@ class ProvisioningController extends BaseController {
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH)
     public ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
         ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return new ResponseEntity<Object>(HttpStatus.UNPROCESSABLE_ENTITY)
     }
 }

@@ -10,11 +10,9 @@ buildscript {
     }
 }
 
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
+ext['tomcat.version'] = '7.0.63'
 
+apply plugin: 'org.springframework.boot'
 
 processResources {
     expand(project.properties)
@@ -48,6 +46,8 @@ dependencies {
     compile('org.mongodb:mongo-java-driver:2.13.0')
     compile project(':model')
     compile project(':client')
+    // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
+    compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
 
     runtime('mysql:mysql-connector-java')
     runtime('javax.el:javax.el-api:2.2.4')
@@ -59,6 +59,7 @@ dependencies {
     } else {
         System.out.println('standalone')
         runtime('org.springframework.boot:spring-boot-starter-tomcat')
+
     }
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -129,3 +130,8 @@ integrationTest.mustRunAfter test
 // Make sure 'check' task calls functional test
 check.dependsOn functionalTest
 functionalTest.mustRunAfter integrationTest
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
+}

@@ -10,4 +10,5 @@ interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<Endpoint> getEndpoint(String serviceInstanceId)
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId)
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition)
+    ResponseEntity<Void> deleteServiceDefinition(String definition)
 }

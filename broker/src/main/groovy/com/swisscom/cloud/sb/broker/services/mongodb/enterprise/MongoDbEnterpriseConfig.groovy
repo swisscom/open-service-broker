@@ -21,6 +21,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
     String logFolder
     int authSchemaVersion
     String mongoDbVersion
+    String featureCompatibilityVersion
     boolean configureDefaultBackupOptions
     int snapshotIntervalHours
     int snapshotRetentionDays
@@ -46,7 +47,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl='" + com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername='" + com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__ipRange='" + com_swisscom_cloud_sb_broker_cfextensions_endpoint_EndpointConfig__ipRange + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__ipRanges='" + com_swisscom_cloud_sb_broker_cfextensions_endpoint_EndpointConfig__ipRanges + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__protocols='" + com_swisscom_cloud_sb_broker_cfextensions_endpoint_EndpointConfig__protocols + '\'' +
                 ", opsManagerUrl='" + opsManagerUrl + '\'' +
                 ", opsManagerUrlForAutomationAgent='" + opsManagerUrlForAutomationAgent + '\'' +
@@ -59,6 +60,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
                 ", logFolder='" + logFolder + '\'' +
                 ", authSchemaVersion=" + authSchemaVersion +
                 ", mongoDbVersion='" + mongoDbVersion + '\'' +
+                ", featureCompatibilityVersion='" + featureCompatibilityVersion + '\'' +
                 ", configureDefaultBackupOptions=" + configureDefaultBackupOptions +
                 ", snapshotIntervalHours=" + snapshotIntervalHours +
                 ", snapshotRetentionDays=" + snapshotRetentionDays +

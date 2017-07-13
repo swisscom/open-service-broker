@@ -10,14 +10,8 @@ buildscript {
 	}
 }
 
-apply plugin: 'groovy'
 apply plugin: 'eclipse'
-apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
-
-jar {
-	baseName = 'service-broker-client'
-}
 
 repositories {
 	mavenCentral()

@@ -1,5 +1,7 @@
 # Open Service Broker
 
+### Status
+Develop Branch:[![Develop branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=develop)](https://travis-ci.org/swisscom/open-service-broker)
 ## Introduction
 
 Open Service Broker is an implementation of the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/blob/v2.11/spec.md). It enables platforms such as [Cloud Foundry](https://www.cloudfoundry.org/) & [Kubernetes](https://kubernetes.io/) to provision and manage services.
@@ -43,20 +45,25 @@ $ ./gradlew clean build -x test -x integrationTest -x functionalTest
 
 ### Database
 
-To run the service broker locally a mariadb or mysql database with name _cfbroker_ is required.
+To run the service broker locally a mariadb or mysql database with name _CFbroker_ is required.
 The database tables will be generated automatically by the application. See the configuration section for more details.
+
+#### Use Docker for MariaDB setup
+```bash
+docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mariadb
+```
 
 ### Run
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar server/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
 
 or
 
 ```bash
-gradle server:bootRun
+./gradlew broker:bootRun
 ```
 
 At the time being, Service Broker is recommended to run with only one instance to avoid concurrency issues.
@@ -85,7 +92,7 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headles
 
 The configuration file for the Service Broker is located under
 
-[`server/src/main/resources/application.yml`](server/src/main/resources/application.yml)
+[`broker/src/main/resources/application.yml`](broker/src/main/resources/application.yml)
 
 ## Service Definitions
 

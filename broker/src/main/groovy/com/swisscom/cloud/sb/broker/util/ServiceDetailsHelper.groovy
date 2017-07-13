@@ -30,14 +30,14 @@ class ServiceDetailsHelper {
         return new ServiceDetailsHelper(serviceBinding.details)
     }
 
-    def add(String key, Object value, boolean uniqueKey = false) {
+    ServiceDetailsHelper add(String key, Object value, boolean uniqueKey = false) {
         details.add(new ServiceDetail(key: key, value: value.toString(), uniqueKey: uniqueKey))
-        return this;
+        return this
     }
 
-    def add(ServiceDetailKey key, Object value, boolean uniqueKey = false) {
+    ServiceDetailsHelper add(ServiceDetailKey key, Object value, boolean uniqueKey = false) {
         details.add(new ServiceDetail(key: key.key, type: key.detailType().type, value: value.toString(), uniqueKey: uniqueKey))
-        return this;
+        return this
     }
 
     def String getValue(String key) {

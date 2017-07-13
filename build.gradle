@@ -1,21 +1,49 @@
 buildscript {
-
     repositories {
         mavenCentral()
     }
 }
 
-apply plugin: 'groovy'
-apply plugin: 'idea'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+plugins {
+    id 'io.codearte.nexus-staging' version '0.9.0'
+}
+
+allprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 repositories {
     mavenCentral()
 }
 
+// To handle travis requirement
+// https://stackoverflow.com/a/26104997
+def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
+def ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
+def signingKeyId = hasProperty('signingKeyId') ? signingKeyId : ""
+def signingPassword = hasProperty('signingPassword') ? signingPassword : ""
+def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signingSecretKeyRingFile : ""
+
+nexusStaging {
+    username = ossrhUsername
+    password = ossrhPassword
+    packageGroup = 'com.swisscom.cloud.sb'
+}
+
 def brokerVersion = version
 subprojects {
+    group = 'com.swisscom.cloud.sb'
+    version = brokerVersion
+
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    ext.isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
+
     task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
         from new File(project(':broker').getBuildDir().toString() + "/classes/test")
         from new File(project(':broker').getBuildDir().toString() + "/classes/functionalTest")
@@ -32,53 +60,83 @@ subprojects {
         classifier "javadoc"
     }
 
-    apply plugin: 'maven-publish'
-    group = 'com.swisscom.cloud.sb'
-    version = brokerVersion
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifact sourceJar
-                artifact javaDocJar
-                artifact testAllJar
+    artifacts {
+        archives testAllJar, sourceJar, javaDocJar
+    }
 
-                pom.withXml {
-                    def dependenciesNode = asNode().getAt("dependencies")[0]
-                    if (!dependenciesNode) {
-                        asNode().appendNode('dependencies', [])
-                        dependenciesNode = asNode().getAt("dependencies")[0]
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                if (isReleaseVersion) {
+                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project {
+                    name project.name
+                    description = 'Swisscom\'s Open Service Broker API implementation'
+                    packaging 'jar'
+                    url 'https://github.com/swisscom/open-service-broker.git'
+                    scm {
+                        connection 'scm:git:git://github.com/swisscom/open-service-broker.git'
+                        developerConnection 'scm:git:git@github.com:swisscom/open-service-broker.git'
+                        url 'https://github.com/swisscom/open-service-broker'
                     }
-
-                    configurations.compile.allDependencies.each {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
+                    licenses {
+                        license {
+                            name 'Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                        }
                     }
-
-
-                    asNode().appendNode('description', "Swisscom's Open Service Broker API implementation")
-
-                    asNode().appendNode('developers').
-                            appendNode('developer').
-                            appendNode('id', 'murat.celep').parent().
-                            appendNode('name', 'Murat Celep').parent().
-                            appendNode('organization', 'Swisscom').parent().
-                            appendNode('organizationUrl', 'https://www.swisscom.ch')
-
-                    asNode().appendNode('licenses').
-                            appendNode('license').
-                            appendNode('name', 'Apache License, Version 2.0').parent().
-                            appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.html')
-
-                    asNode().appendNode('scm').
-                            appendNode('connection', "https://github.com/swisscom/open-service-broker.git").parent().
-                            appendNode('developerConnection', "https://github.com/swisscom/open-service-broker.git")
-
-
+                    developers {
+                        developer {
+                            id = 'murat.celep'
+                            name = 'Murat Celep'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                        developer {
+                            id = 'philipp.meier'
+                            name = 'Philipp Meier'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                        developer {
+                            id = 'simon.peter'
+                            name = 'Simon Peter'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    if (isReleaseVersion) {
+        ext.'signing.keyId' = signingKeyId
+        ext.'signing.password' = signingPassword
+        ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
+    }
+
+    signing {
+        sign configurations.archives
+    }
+
+    signArchives.onlyIf { isReleaseVersion && gradle.taskGraph.hasTask(uploadArchives) }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination "${buildDir}/jacocoHtml"
         }
     }
 }

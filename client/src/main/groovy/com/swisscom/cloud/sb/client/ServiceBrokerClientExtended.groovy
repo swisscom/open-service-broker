@@ -40,4 +40,10 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         return restTemplate.exchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
                 new HttpEntity(definition, createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),Void.class)
     }
+
+    @Override
+    ResponseEntity<Void> deleteServiceDefinition(String id){
+        return restTemplate.exchange(appendPath('/custom/admin/service-definition/{id}'),HttpMethod.DELETE,
+                new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),Void.class,id)
+    }
 }
