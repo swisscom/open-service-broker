@@ -52,7 +52,7 @@ class KubernetesFacadeRedis implements KubernetesFacade {
         return new LinkedList() {
             {
                 add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesConfig.getKubernetesRedisHost()))
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, "1111")) //TO DO read from the K8S API
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, "56111")) //TODO read from the K8S API
                 add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, passMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
             }
         }
