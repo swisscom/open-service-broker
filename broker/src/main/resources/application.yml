@@ -77,10 +77,6 @@ com.swisscom.cloud.sb.broker:
         INFLUXDB_PORT:
         INFLUXDB_USER:
         INFLUXDB_PASS:
-        REDIS_PASS:
-        NODE_PORT_REDIS_MASTER:
-        NODE_PORT_REDIS_SLAVE0:
-        NODE_PORT_REDIS_SLAVE1:
 
       redisPlanDefaults:
         PLAN_ID:

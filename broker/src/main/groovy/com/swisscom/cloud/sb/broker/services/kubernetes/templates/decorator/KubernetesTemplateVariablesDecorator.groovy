@@ -3,15 +3,16 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.templates.decorator
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
 import groovy.transform.CompileStatic
 
 @CompileStatic
 class KubernetesTemplateVariablesDecorator {
 
     void replaceTemplate(KubernetesTemplate kubernetesTemplate, ProvisionRequest request, Map<String, String>... maps) {
-        kubernetesTemplate.replace("SERVICE_ID", request.getServiceInstanceGuid())
-        kubernetesTemplate.replace("SPACE_ID", request.getSpaceGuid())
-        kubernetesTemplate.replace("ORG_ID", request.getOrganizationGuid())
+        kubernetesTemplate.replace(KubernetesTemplateConstants.SERVICE_ID.getValue(), request.getServiceInstanceGuid())
+        kubernetesTemplate.replace(KubernetesTemplateConstants.SPACE_ID.getValue(), request.getSpaceGuid())
+        kubernetesTemplate.replace(KubernetesTemplateConstants.ORG_ID.getValue(), request.getOrganizationGuid())
         replaceWithMap(kubernetesTemplate, request, maps)
     }
 
