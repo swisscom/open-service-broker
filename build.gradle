@@ -127,9 +127,10 @@ subprojects {
     }
 
     signing {
-        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
     }
+
+    signArchives.onlyIf { isReleaseVersion && gradle.taskGraph.hasTask(uploadArchives) }
 
     jacocoTestReport {
         reports {

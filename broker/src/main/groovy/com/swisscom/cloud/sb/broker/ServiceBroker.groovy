@@ -3,10 +3,13 @@ package com.swisscom.cloud.sb.broker
 import com.swisscom.cloud.sb.broker.config.WebContainerConfigurationInitializer
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.web.support.SpringBootServletInitializer
 
-@SpringBootApplication(exclude = org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class)
+@SpringBootApplication(exclude = [org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class,
+        MongoAutoConfiguration.class, MongoDataAutoConfiguration.class])
 class ServiceBroker extends SpringBootServletInitializer {
 	static void main(String[] args) {
         SpringApplication.run(ServiceBroker.class, args)
