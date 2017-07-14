@@ -33,6 +33,7 @@ public class ServiceLifeCycler {
     private CFService cfService
     private Plan plan
     private PlanMetadata planMetaData
+    private Parameter parameter
 
     private boolean serviceCreated
     private boolean planCreated
@@ -118,6 +119,7 @@ public class ServiceLifeCycler {
 
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
+        parameterRepository.delete(parameter)
 
         if (serviceCreated) {
             deletePlan()
@@ -133,7 +135,6 @@ public class ServiceLifeCycler {
         cfService = cfServiceRepository.saveAndFlush(cfService)
         planRepository.delete(plan)
     }
-
 
     void createServiceInstanceAndServiceBindingAndAssert(int delayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false) {
@@ -175,7 +176,7 @@ public class ServiceLifeCycler {
         def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, 'app_guid', null, bindingParameters)
 
         return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
-                .withBindingId(serviceBindingId))
+                .withBindingId(bindingId))
     }
 
     void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false) {
@@ -211,7 +212,8 @@ public class ServiceLifeCycler {
     }
 
     Parameter createParameter(String name, String value, Plan plan) {
-        return parameterRepository.save(new Parameter(name: name, value: value, plan: plan))
+        parameter = new Parameter(name: name, value: value, plan: plan)
+        return parameterRepository.save(parameter)
     }
 
     CFService getCfService() {
