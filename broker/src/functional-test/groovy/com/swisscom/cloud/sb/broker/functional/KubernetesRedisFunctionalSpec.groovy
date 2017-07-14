@@ -5,9 +5,11 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import spock.lang.IgnoreIf
 
 import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
 
+@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
 
