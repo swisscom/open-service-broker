@@ -20,6 +20,8 @@ info:
   build:
     version: ${version}
 
+server.tomcat.accesslog.enabled: true
+
 com.swisscom.cloud.sb.broker:
   security:
     cfUsername: 'cc_admin'
