@@ -45,7 +45,7 @@ class ProvisioningController extends BaseController {
 
         log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
 
-        failIfServiceInstaceAlreadyExists(serviceInstanceGuid)
+        failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
         ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
@@ -72,7 +72,7 @@ class ProvisioningController extends BaseController {
         return new ObjectMapper().writeValueAsString(object)
     }
 
-    private ServiceInstance failIfServiceInstaceAlreadyExists(String serviceInstanceGuid) {
+    private ServiceInstance failIfServiceInstanceAlreadyExists(String serviceInstanceGuid) {
         ServiceInstance instance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (instance) {
             log.debug "CFService instance with id ${instance.guid} already exists - returning 409 CONFLICT"
@@ -108,11 +108,7 @@ class ProvisioningController extends BaseController {
     }
 
     private DeprovisionRequest createDeprovisionRequest(String serviceInstanceGuid, boolean acceptsIncomplete) {
-        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        if (!serviceInstance) {
-            log.debug "Service instance with id: ${serviceInstanceGuid} does not exist - returning 410 GONE"
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
-        }
+        ServiceInstance serviceInstance = super.getAndCheckServiceInstance(serviceInstanceGuid)
         return new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceInstance: serviceInstance, acceptsIncomplete: acceptsIncomplete)
     }
 
