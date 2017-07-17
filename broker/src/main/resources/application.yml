@@ -97,6 +97,11 @@ com.swisscom.cloud.sb.broker:
         SENTINEL_MAX_CPU:
         SENTINEL_MAX_MEMORY:
 
+    openwhisk:
+      openwhiskUrl: ''
+      openwhiskAdminKey: ''
+      openwhiskAdminPass: ''
+
   shield:
     baseUrl: 'https://shield.service.consul:8002'
     apiKey:
