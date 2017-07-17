@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: redis
+  namespace: {{SERVICE_ID}}
+  labels:
+    service_type: redis
+    service_id: {{SERVICE_ID}}
+    org: {{ORG_ID}}
+    space: {{SPACE_ID}}
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: operator
+  namespace: {{SERVICE_ID}}
+  labels:
+    service_type: redis
+    service_id: {{SERVICE_ID}}
+    org: {{ORG_ID}}
+    space: {{SPACE_ID}}
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "patch"]

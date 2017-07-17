@@ -35,8 +35,8 @@ class WebContainerConfigurationInitializer implements ApplicationContextInitiali
     static PropertySource loadYamlResource(File file) {
         FileSystemResource resource = new FileSystemResource(file)
         YamlPropertySourceLoader sourceLoader = new YamlPropertySourceLoader()
-        PropertySource<?> yamlTestProperties = sourceLoader.load("yamlTestProperties", resource, null)
-        return yamlTestProperties
+        PropertySource<?> yamlProperties = sourceLoader.load("externalYamlProperties", resource, null)
+        return yamlProperties
     }
 
     static String getFilePathInTomcatConfigFolder(String fileName){
