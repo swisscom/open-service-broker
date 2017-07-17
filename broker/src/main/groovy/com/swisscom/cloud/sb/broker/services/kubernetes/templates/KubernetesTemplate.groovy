@@ -1,9 +1,11 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
+import groovy.transform.ToString
 import org.yaml.snakeyaml.Yaml
 
 import java.util.regex.Pattern
 
+@ToString
 class KubernetesTemplate {
     static final String REGEX_PLACEHOLDER_PREFIX = '\\{\\{'
     static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}'
