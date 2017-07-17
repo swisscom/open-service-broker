@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum KubernetesTemplateConstants {
+    ROLE_MASTER("master"),
     REDIS_PASS("REDIS_PASS"),
     NODE_PORT_REDIS_SLAVE0("NODE_PORT_REDIS_SLAVE0"),
     NODE_PORT_REDIS_MASTER("NODE_PORT_REDIS_MASTER"),

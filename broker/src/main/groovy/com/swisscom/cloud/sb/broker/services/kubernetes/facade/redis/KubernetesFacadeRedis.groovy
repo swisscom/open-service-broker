@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesRedisConfigUrlParams
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.KubernetesFacade
@@ -20,6 +21,7 @@ import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
 @Component
@@ -44,24 +46,40 @@ class KubernetesFacadeRedis implements KubernetesFacade {
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
         Map<String, String> passMap = (new KubernetesTemplatePasswordGenerator()).generatePassword()
+        List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
             (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
-            kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class)
+            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class))
         }
-        return new LinkedList() {
-            {
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesConfig.getKubernetesRedisHost()))
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, "56111")) //TODO read from the K8S API
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, passMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
-            }
-        }
+        return buildServiceDetailsList(passMap, responses)
     }
 
 
     DeprovisionResponse deprovision(DeprovisionRequest request) {
         //TODO probably just removing the whole workspace from K8s?? we need to talk to k8s Guys
         return null
+    }
+
+    private Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> passMap, List<ResponseEntity> responses) {
+        return new LinkedList() {
+            {
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesConfig.getKubernetesRedisHost()))
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, getRedisMasterPort(responses)))
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, passMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
+            }
+        }
+    }
+
+    private String getRedisMasterPort(List<ResponseEntity> responses) {
+        for (ResponseEntity r : responses) {
+            if (r != null && r.getBody() instanceof ServiceResponse) {
+                ServiceResponse s = (ServiceResponse) r.getBody()
+                if (KubernetesTemplateConstants.ROLE_MASTER.getValue().equals(s.spec.selector.role)) {
+                    return s.spec.ports[0].nodePort
+                }
+            }
+        }
     }
 
 
