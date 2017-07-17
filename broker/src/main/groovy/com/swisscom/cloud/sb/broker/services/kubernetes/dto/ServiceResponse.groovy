@@ -6,7 +6,7 @@ import groovy.transform.ToString
 class ServiceResponse implements Serializable {
     String kind
     String apiVersion
-    Object spec
+    Spec spec
     Object status
     Object metadata
 }
