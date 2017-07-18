@@ -63,6 +63,40 @@ com.swisscom.cloud.sb.broker:
       openstackTenantName: #Optional config
       boshManifestFolder: 'test/resources/bosh'
 
+    kubernetes:
+      kubernetesHost:
+      kubernetesPort:
+      kubernetesClientPFXPath:
+      kubernetesClientPFXPasswordPath:
+      retryIntervalInSeconds: 30
+      maxRetryDurationInMinutes: 1
+    kubernetes.redis.v1:
+      kubernetesRedisHost:
+      kubernetesRedisV1TemplatesPath:
+      redisConfigurationDefaults:
+        VERSION:
+        ENVIRONMENT:
+        INFLUXDB_HOST:
+        INFLUXDB_PORT:
+        INFLUXDB_USER:
+        INFLUXDB_PASS:
+
+      redisPlanDefaults:
+        PLAN_ID:
+        TELEGRAF_IMAGE:
+        MAX_CONNECTIONS:
+        MAX_DATABASES:
+        REDIS_SERVER_MAX_MEMORY:
+        REDIS_MAX_MEMORY:
+        REDIS_MAX_CPU:
+        QUORUM:
+        REDIS_IMAGE:
+        SLAVEOF_COMMAND:
+        CONFIG_COMMAND:
+        REDIS_VERSION:
+        SENTINEL_MAX_CPU:
+        SENTINEL_MAX_MEMORY:
+
   shield:
     baseUrl: 'https://shield.service.consul:8002'
     apiKey:

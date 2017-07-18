@@ -1,0 +1,202 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: sentinel
+  namespace: {{SERVICE_ID}}
+  labels:
+    service_id: {{SERVICE_ID}}
+    service_type: sentinel
+    space: {{SPACE_ID}}
+    org: {{ORG_ID}}
+    plan: {{PLAN_ID}}
+    version: 0.0.1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  minReadySeconds: 20
+#    progressDeadlineSeconds: 10
+  selector:
+    matchLabels:
+     service_type: sentinel
+  template:
+    metadata:
+      labels:
+        service_id: {{SERVICE_ID}}
+        service_type: sentinel
+        space: {{SPACE_ID}}
+        org: {{ORG_ID}}
+        version: {{REDIS_VERSION}}
+        instances: sentinel
+#      annotations:
+#        creation_date: <date>
+#        image_build: <build-id>
+#        image_commit: <git commit id>
+#        pod.alpha.kubernetes.io/initialized: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: failure-domain.beta.kubernetes.io/zone
+            namespaces:
+            - {{SERVICE_ID}}
+            labelSelector:
+              matchExpressions:
+              - key: service_type
+                operator: In
+                values:
+                - sentinel
+          - topologyKey: kubernetes.io/hostname
+            namespaces:
+            - {{SERVICE_ID}}
+            labelSelector:
+              matchExpressions:
+              - key: service_type
+                operator: In
+                values:
+                - redis
+                - operator
+      initContainers:
+      - name: init
+        image: "{{REDIS_IMAGE}}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/data/service/init_sentinel.sh"
+        args:
+        - main
+        env:
+        - name: SERVICE_GUID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: MASTER_NAME
+          value: "{{SERVICE_ID}}"
+        - name: REDIS_PASS
+          value: "{{REDIS_PASS}}"
+        - name: QUORUM
+          value: "{{QUORUM}}"
+        - name: SLAVEOF_COMMAND
+          value: "{{SLAVEOF_COMMAND}}"
+        - name: CONFIG_COMMAND
+          value: "{{CONFIG_COMMAND}}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: data
+          mountPath: "/data/work"
+      - name: fix-init
+        image: "{{REDIS_IMAGE}}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh
+        - "-c"
+        - touch /data/work/initialized
+        volumeMounts:
+        - name: data
+          mountPath: "/data/work"
+      containers:
+      - name: sentinel
+        image: {{REDIS_IMAGE}}
+        imagePullPolicy: IfNotPresent
+      # can be enabled after k8s init containers work properly
+      #  command:
+      #  - /usr/local/bin/redis-sentinel
+      #  args:
+      #  - /data/work/redis/config/redis-sentinel.conf
+      # can be removed after k8s init contiainer work properly
+        command:
+        - "/data/service/init_sentinel.sh"
+        args:
+        - main
+        - run
+      # >> until here
+      # can be removed after k8s init contiainer work properly
+        env:
+        - name: SERVICE_GUID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: MASTER_NAME
+          value: "{{SERVICE_ID}}"
+        - name: REDIS_PASS
+          value: "{{REDIS_PASS}}"
+        - name: QUORUM
+          value: "{{QUORUM}}"
+        - name: SLAVEOF_COMMAND
+          value: "{{SLAVEOF_COMMAND}}"
+        - name: CONFIG_COMMAND
+          value: "{{CONFIG_COMMAND}}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+      # >> until here
+        ports:
+        - containerPort: 26379
+          name: sentinel
+          protocol: TCP
+        resources:
+          limits:
+            cpu: {{SENTINEL_MAX_CPU}}m
+            memory: {{SENTINEL_MAX_MEMORY}}Mi
+          requests:
+            cpu: {{SENTINEL_MAX_CPU}}m
+            memory: {{SENTINEL_MAX_MEMORY}}Mi
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /usr/local/bin/redis-cli
+              - "-a"
+              - {{REDIS_PASS}}
+              - "-p"
+              - "26379"
+              - shutdown
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/redis-cli
+            - "-a"
+            - {{REDIS_PASS}}
+            - "-p"
+            - "26379"
+            - ping
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/redis-cli
+            - "-a"
+            - {{REDIS_PASS}}
+            - "-p"
+            - "26379"
+            - ping
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        terminationMessagePath: /data/work/logs/sentinel_termination.log
+        volumeMounts:
+        - name: data
+          mountPath: /data/work
+      volumes:
+      - name: data
+        emptyDir: {}
+      restartPolicy: Always
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+        runAsNonRoot: true
