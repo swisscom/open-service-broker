@@ -53,6 +53,16 @@ class RestTemplateFactory {
         return new RestTemplate(requestFactory)
     }
 
+    RestTemplate buildWithSSLValidationDisabledAndBasicAuthentication(String username, String password){
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(new SSLSocketFactory(new DummyTrustStrategy(), new DummyX509HostnameVerifier()))
+                .build()
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory()
+        requestFactory.setHttpClient(httpClient)
+        return decorateWithBasicAuthentication(new RestTemplate(requestFactory), username, password)
+    }
+
 
     static class DummyTrustStrategy implements TrustStrategy {
         @Override

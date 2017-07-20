@@ -3,9 +3,10 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import groovy.json.JsonBuilder
 
-class OpenwhiskBindResponseDto implements BindResponseDto {
-    String user
-    String pass
+class OpenWhiskBindResponseDto implements BindResponseDto {
+    String openwhiskUrl
+    String openwhiskAdminKey
+    String openwhiskAdminPass
 
     @Override
     String toJson() {
@@ -16,8 +17,9 @@ class OpenwhiskBindResponseDto implements BindResponseDto {
     protected JsonBuilder createBuilder() {
         def jsonBuilder = new JsonBuilder()
         jsonBuilder.credentials(
-                username: user,
-                password: pass
+                url: openwhiskUrl,
+                username: openwhiskAdminKey,
+                password: openwhiskAdminPass
         )
         return jsonBuilder
     }
