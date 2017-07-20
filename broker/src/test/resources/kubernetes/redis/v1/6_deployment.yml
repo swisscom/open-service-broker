@@ -18,7 +18,7 @@ spec:
       maxUnavailable: 1
       maxSurge: 0
   minReadySeconds: 40
-#   progressDeadlineSeconds: 10
+  progressDeadlineSeconds: 600
   selector:
     matchLabels:
      service_type: redis
@@ -31,7 +31,9 @@ spec:
         org: {{ORG_ID}}
         version: {{REDIS_VERSION}}
         instances: redis
-#      annotations:
+        role: none
+      annotations:
+        appcloud.swisscom.com/disk-quota: 1Gi
 #        creation_date: <date>
 #        image_build: <redis-build-id>
 #        image_commit: <git commit id>
@@ -70,40 +72,59 @@ spec:
         volumeMounts:
         - name: data
           mountPath: "/data/work"
-      # can be enabled after k8s init containers work properly
-      #- name: init
-      #  image: "{{REDIS_IMAGE}}"
-      #  imagePullPolicy: IfNotPresent
-      #  command:
-      #  - "/data/service/init_redis.sh"
-      #  args:
-      #  - main
-      #  env:
-      #  - name: SERVICE_GUID
-      #    valueFrom:
-      #      fieldRef:
-      #        apiVersion: v1
-      #        fieldPath: metadata.namespace
-      #  - name: MASTER_NAME
-      #    value: "{{SERVICE_ID}}"
-      #  - name: REDIS_PASS
-      #    value: "{{REDIS_PASS}}"
-      #  - name: MAX_DATABASES
-      #    value: "{{MAX_DATABASES}}"
-      #  - name: MAX_CONNECTIONS
-      #    value: "{{MAX_CONNECTIONS}}"
-      #  - name: MAX_MEMORY
-      #    value: "{{REDIS_SERVER_MAX_MEMORY}}mb"
-      #  - name: REPL_BACKLOG_SIZE
-      #    value: 16mb
-      #  - name: POD_IP
-      #    valueFrom:
-      #      fieldRef:
-      #        apiVersion: v1
-      #        fieldPath: status.podIP
-      #  volumeMounts:
-      #  - name: data
-      #    mountPath: "/data/work"
+      - name: init
+        image: "{{REDIS_IMAGE}}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "/data/service/init_redis.sh"
+        args:
+        - main
+        env:
+        - name: SERVICE_GUID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: MASTER_NAME
+          value: "{{SERVICE_ID}}"
+        - name: REDIS_PASS
+          value: "{{REDIS_PASS}}"
+        - name: MAX_DATABASES
+          value: "{{MAX_DATABASES}}"
+        - name: MAX_CONNECTIONS
+          value: "{{MAX_CONNECTIONS}}"
+        - name: MAX_MEMORY
+          value: "{{REDIS_SERVER_MAX_MEMORY}}mb"
+        - name: MIN_SLAVES
+          value: "1"
+        - name: REPL_BACKLOG_SIZE
+          value: 16mb
+        - name: SLAVEOF_COMMAND
+          value: "{{SLAVEOF_COMMAND}}"
+        - name: CONFIG_COMMAND
+          value: "{{CONFIG_COMMAND}}"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+        - name: data
+          mountPath: "/data/work"
+      - name: fix-init
+        image: {{REDIS_IMAGE}}
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh
+        - "-c"
+        - touch /data/work/initialized
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+        - name: data
+          mountPath: "/data/work"
       containers:
       - name: redis
         image: {{REDIS_IMAGE}}
@@ -119,6 +140,7 @@ spec:
         args:
         - main
         - run
+      # >> until here
       # can be removed after k8s init contiainer work properly
         env:
         - name: SERVICE_GUID
@@ -136,13 +158,20 @@ spec:
           value: "{{MAX_CONNECTIONS}}"
         - name: MAX_MEMORY
           value: "{{REDIS_SERVER_MAX_MEMORY}}mb"
+        - name: MIN_SLAVES
+          value: "1"
         - name: REPL_BACKLOG_SIZE
           value: 16mb
+        - name: SLAVEOF_COMMAND
+          value: "{{SLAVEOF_COMMAND}}"
+        - name: CONFIG_COMMAND
+          value: "{{CONFIG_COMMAND}}"
         - name: POD_IP
           valueFrom:
             fieldRef:
               apiVersion: v1
               fieldPath: status.podIP
+      # >> until here
         ports:
         - containerPort: 6379
           name: redis
@@ -172,7 +201,7 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 5
           successThreshold: 1
-          failureThreshold: 5
+          failureThreshold: 3
         livenessProbe:
           exec:
             command:
@@ -183,51 +212,62 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 5
           successThreshold: 1
-          failureThreshold: 5
-#        securityContext: # with this option, the deployment cant start -> admission controller securitycontextdeny
-#          runAsUser: 10000
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          # with this option, the deployment cant start
+          # runAsUser: 10000
+        terminationMessagePath: /data/work/logs/redis_termination.log
         volumeMounts:
         - name: data
           mountPath: /data/work
-      - name: telegraf
-        image: {{TELEGRAF_IMAGE}}
-        imagePullPolicy: Always
-        resources:
-          requests:
-            cpu: 50m
-            memory: 32Mi
-          limits:
-            cpu: 50m
-            memory: 32Mi
-        env:
-        - name: SERVICE_GUID
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        - name: MASTER_NAME
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        - name: REDIS_PASS
-          value: {{REDIS_PASS}}
-        volumeMounts:
-        - name: telegraf-config
-          mountPath: /etc/telegraf/service
+#      - name: telegraf
+#        image: {{TELEGRAF_IMAGE}}
+#        imagePullPolicy: Always
+#        command:
+#        - telegraf
+#        args:
+#        - "-config"
+#        - /etc/telegraf/service/service.conf
+#        resources:
+#          requests:
+#            cpu: 50m
+#            memory: 32Mi
+#          limits:
+#            cpu: 50m
+#            memory: 32Mi
+#        env:
+#        - name: SERVICE_GUID
+#          valueFrom:
+#            fieldRef:
+#              apiVersion: v1
+#              fieldPath: metadata.namespace
+#        - name: MASTER_NAME
+#          valueFrom:
+#            fieldRef:
+#              apiVersion: v1
+#              fieldPath: metadata.namespace
+#        - name: REDIS_PASS
+#          value: {{REDIS_PASS}}
+#        securityContext:
+#          runAsNonRoot: true
+#        terminationMessagePath: /data/work/logs/telegraf_termination.log
+#        volumeMounts:
+#        - name: telegraf-config
+#          mountPath: /etc/telegraf/service
       volumes:
-      - name: telegraf-config
-        configMap:
-          name: telegraf-config
-          items:
-          - key: telegraf.config
-            path: service.conf
+#      - name: telegraf-config
+#        configMap:
+#          name: telegraf-config
+#          items:
+#          - key: telegraf.config
+#            path: service.conf
       - name: data
-#        emptyDir: {}
         hostPath:
           path: /var/vcap/store/container_data/{{SERVICE_ID}}/redis/redis
-#      restartPolicy: OnFailure
-#      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
 #      securityContext:
 #        runAsNonRoot: true
