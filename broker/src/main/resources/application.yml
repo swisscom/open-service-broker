@@ -40,7 +40,7 @@ com.swisscom.cloud.sb.broker:
       libFolder: '/var/vcap/store/mongodb-mms-automation'
       logFolder: '/var/vcap/sys/log/mms-automation-agent'
       authSchemaVersion: 5
-      mongoDbVersion: '3.2.6-ent'
+      mongoDbVersion: '3.4.3-ent'
       featureCompatibilityVersion: '3.4'
       configureDefaultBackupOptions: true
       snapshotIntervalHours: 6 #Supported values are 6, 8, 12, and 24
