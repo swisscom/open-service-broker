@@ -65,7 +65,11 @@ enum ServiceDetailKey {
     ECS_NAMESPACE_SECRET("ecs_namespace_secret", ServiceDetailType.OTHER),
     KUBERNETES_REDIS_HOST("kubernetes_redis_service_host", ServiceDetailType.HOST),
     KUBERNETES_REDIS_PASSWORD("kubernetes_redis_service_password", ServiceDetailType.PASSWORD),
-    KUBERNETES_REDIS_PORT("kubernetes_redis_service_port", ServiceDetailType.PORT)
+    KUBERNETES_REDIS_PORT("kubernetes_redis_service_port", ServiceDetailType.PORT),
+    OPENWHISK_URL("openwhisk_namespace_url", ServiceDetailType.HOST),
+    OPENWHISK_UUID("openwhisk_uuid", ServiceDetailType.USERNAME),
+    OPENWHISK_KEY("openwhisk_key", ServiceDetailType.PASSWORD),
+    OPENWHISK_NAMESPACE("openwhisk_namespace", ServiceDetailType.OTHER)
 
     private final String key
     private final ServiceDetailType serviceDetailType

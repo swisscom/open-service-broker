@@ -14,6 +14,7 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
@@ -64,21 +65,18 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     ProvisionResponse provision(ProvisionRequest request){
         JsonNode params = mapper.readTree(request.parameters)
 
-        def subject = params.path("subject").asText().trim()
         def namespace = params.path("namespace").asText().trim()
 
         if (!params.has("namespace")) {
-            namespace = subject
+            log.error("Namespace parameter is missing in provision request.")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace parameter is missing in provision request.")
         }
+
+        def subject = namespace
 
         if (subject.length() < 5) {
-            log.error("Subject name must be at least 5 characters")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
-        }
-
-        if (namespace == '') {
-            log.error("Namespace cannot be empty string")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace cannot be empty string")
+            log.error("Namespace name must be at least 5 characters")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace name must be at least 5 characters")
         }
 
         String doc = owDbClient.getSubjectFromDB(subject)
@@ -115,7 +113,10 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}/"
 
-        return new ProvisionResponse(details: [ServiceDetail.from("uuid", uuid), ServiceDetail.from("key", key), ServiceDetail.from("url", url)], isAsync: false)
+        return new ProvisionResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
+                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
+                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_URL, url),
+                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)], isAsync: false)
     }
 
     @Override
@@ -123,6 +124,24 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         println "In deprovision OW"
         println "DeprovisionRequest - request"
         println request.toString()
+//        JsonNode params = mapper.readTree(request)
+//
+//        def subject = params.path("subject").asText().trim()
+//        def namespace = params.path("namespace").asText().trim()
+//
+//        if (!params.has("namespace")) {
+//            namespace = subject
+//        }
+//
+//        if (subject.length() < 5) {
+//            log.error("Subject name must be at least 5 characters")
+//            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
+//        }
+//
+//        if (namespace == '') {
+//            log.error("Namespace cannot be empty string")
+//            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace cannot be empty string")
+//        }
         return new DeprovisionResponse(isAsync: false)
     }
 
@@ -131,7 +150,8 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         println "IN bind"
         println "BindRequest - request"
         println "app_guid " + request.app_guid
-        return new BindResponse(details: [ServiceDetail.from("username", "pass")], credentials: new OpenWhiskBindResponseDto(openwhiskAdminKey: "username1", openwhiskAdminPass: "password1"))
+        return new BindResponse(details: [ServiceDetail.from("username", "pass")],
+                credentials: new OpenWhiskBindResponseDto(openwhiskAdminKey: "username1", openwhiskAdminPass: "password1"))
     }
 
     @Override
