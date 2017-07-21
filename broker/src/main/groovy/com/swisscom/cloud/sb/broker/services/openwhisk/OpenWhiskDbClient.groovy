@@ -9,9 +9,8 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
-
-import javax.xml.ws.Response
 
 @Component
 @CompileStatic
@@ -49,7 +48,15 @@ class OpenWhiskDbClient {
 
         def url = "${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}"
 
-        ResponseEntity<String> res = restTemplate.getForEntity(url, String.class)
+        ResponseEntity<String> res
+
+        try {
+            res = restTemplate.getForEntity(url, String.class)
+        } catch (HttpClientErrorException ex) {
+            log.info("Http error exception = ${ex}")
+            log.info("Subject does not exist")
+            return null
+        }
 
         if (res.getStatusCodeValue() == 200){
             return res.getBody()
@@ -68,7 +75,7 @@ class OpenWhiskDbClient {
         if (res.getStatusCodeValue() == 200 || res.getStatusCodeValue() == 201){
             return res.getBody()
         } else {
-            log.info("Failed to create subject. Status code - ${res.getStatusCodeValue()}")
+            log.error("Failed to create subject. Status code - ${res.getStatusCodeValue()}")
             ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew()
         }
     }

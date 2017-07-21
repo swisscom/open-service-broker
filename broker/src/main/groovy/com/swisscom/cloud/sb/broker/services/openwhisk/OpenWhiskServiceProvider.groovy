@@ -15,13 +15,10 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import org.apache.commons.lang.RandomStringUtils
-import org.springframework.http.*
-import org.springframework.web.client.RestTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 
 @Component
@@ -67,21 +64,34 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     ProvisionResponse provision(ProvisionRequest request){
         JsonNode params = mapper.readTree(request.parameters)
 
-        def subject = params.path("subject").asText()
-        def namespace = params.path("namespace").asText()
+        def subject = params.path("subject").asText().trim()
+        def namespace = params.path("namespace").asText().trim()
 
+        if (!params.has("namespace")) {
+            namespace = subject
+        }
+
+        if (subject.length() < 5) {
+            log.error("Subject name must be at least 5 characters")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
+        }
+
+        if (namespace == '') {
+            log.error("Namespace cannot be empty string")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace cannot be empty string")
+        }
 
         String doc = owDbClient.getSubjectFromDB(subject)
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
         if (doc == null) {
-            doc = "{'_id': '${subject}'," +
-                    "'subject': '${subject}'," +
-                    "'namespaces': [" +
+            doc = "{\"_id\": \"${subject}\"," +
+                    "\"subject\": \"${subject}\"," +
+                    "\"namespaces\": [" +
                         "{" +
-                            "'name': '${namespace}'," +
-                            "'uuid': '${uuid}'," +
-                            "'key': '${key}'" +
+                            "\"name\": \"${namespace}\"," +
+                            "\"uuid\": \"${uuid}\"," +
+                            "\"key\": \"${key}\"" +
                         "}" +
                     "]" +
                 "}"
@@ -91,7 +101,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
             ArrayNode namespaceArray = (ArrayNode) docs.path("namespaces")
             namespaceArray.each {
                 if (it.path("name").asText() == namespace) {
-                    log.info("Namespace already exists - Returning 410")
+                    log.error("Namespace already exists - Returning 410")
                     ErrorCode.OPENWHISK_NAMESPACE_ALREADY_EXISTS.throwNew()
                 }
             }
@@ -103,7 +113,9 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         String res = owDbClient.insertIntoDatabase(docs)
 
-        return new ProvisionResponse(details: [ServiceDetail.from("key", uuid)], isAsync: false)
+        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}/"
+
+        return new ProvisionResponse(details: [ServiceDetail.from("uuid", uuid), ServiceDetail.from("key", key), ServiceDetail.from("url", url)], isAsync: false)
     }
 
     @Override

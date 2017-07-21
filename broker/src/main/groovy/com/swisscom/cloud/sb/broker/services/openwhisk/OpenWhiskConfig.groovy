@@ -11,6 +11,9 @@ class OpenWhiskConfig {
     String openWhiskUrl
     String openWhiskAdminKey
     String openWhiskAdminPass
+    String openWhiskProtocol
+    String openWhiskHost
+    String openWhiskPath
     String openWhiskDbUser
     String openWhiskDbPass
     String openWhiskDbProtocol

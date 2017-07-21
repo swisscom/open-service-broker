@@ -55,15 +55,15 @@ abstract class BaseController {
     protected ServiceInstance getAndCheckServiceInstance(String serviceInstanceId) {
         ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
         if (!serviceInstance) {
-            log.info "Service instance with id: ${serviceInstanceId} does not exist - returning 410 GONE"
+            log.error "Service instance with id: ${serviceInstanceId} does not exist - returning 410 GONE"
             ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
         }
         if (serviceInstance.deleted) {
-            log.info "Service instance with id: ${serviceInstanceId} deleted - returning 410 GONE"
+            log.error "Service instance with id: ${serviceInstanceId} deleted - returning 410 GONE"
             ErrorCode.SERVICE_INSTANCE_DELETED.throwNew()
         }
         if (!serviceInstance.completed) {
-            log.info "Service instance with id: ${serviceInstanceId} has not completed provisioning - returning 412 Precondition Failure"
+            log.error "Service instance with id: ${serviceInstanceId} has not completed provisioning - returning 412 Precondition Failure"
             ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew()
         }
         return serviceInstance

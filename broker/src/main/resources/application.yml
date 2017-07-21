@@ -98,7 +98,9 @@ com.swisscom.cloud.sb.broker:
         SENTINEL_MAX_MEMORY:
 
     openWhisk:
-      openWhiskUrl: ''
+      openWhiskProtocol: ''
+      openWhiskHost: ''
+      openWhiskPath: ''
       openWhiskAdminKey: ''
       openWhiskAdminPass: ''
       openWhiskDbUser: ''
