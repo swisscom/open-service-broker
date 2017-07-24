@@ -75,7 +75,7 @@ class OpenWhiskDbClient {
         if (res.getStatusCodeValue() == 200 || res.getStatusCodeValue() == 201){
             return res.getBody()
         } else {
-            log.error("Failed to create subject. Status code - ${res.getStatusCodeValue()}")
+            log.error("Failed to insert into database. Status code - ${res.getStatusCodeValue()}")
             ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew()
         }
     }
