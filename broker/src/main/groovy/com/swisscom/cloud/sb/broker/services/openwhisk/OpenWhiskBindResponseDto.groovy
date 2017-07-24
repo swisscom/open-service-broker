@@ -5,8 +5,10 @@ import groovy.json.JsonBuilder
 
 class OpenWhiskBindResponseDto implements BindResponseDto {
     String openwhiskUrl
-    String openwhiskAdminKey
-    String openwhiskAdminPass
+    String openwhiskUUID
+    String openwhiskKey
+    String openwhiskNamespace
+    String openwhiskSubject
 
     @Override
     String toJson() {
@@ -18,8 +20,10 @@ class OpenWhiskBindResponseDto implements BindResponseDto {
         def jsonBuilder = new JsonBuilder()
         jsonBuilder.credentials(
                 url: openwhiskUrl,
-                username: openwhiskAdminKey,
-                password: openwhiskAdminPass
+                uuid: openwhiskUUID,
+                key: openwhiskKey,
+                namespace: openwhiskNamespace,
+                subject: openwhiskSubject
         )
         return jsonBuilder
     }

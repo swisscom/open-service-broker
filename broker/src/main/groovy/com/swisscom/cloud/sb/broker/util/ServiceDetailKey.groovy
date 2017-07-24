@@ -69,7 +69,8 @@ enum ServiceDetailKey {
     OPENWHISK_URL("openwhisk_namespace_url", ServiceDetailType.HOST),
     OPENWHISK_UUID("openwhisk_uuid", ServiceDetailType.USERNAME),
     OPENWHISK_KEY("openwhisk_key", ServiceDetailType.PASSWORD),
-    OPENWHISK_NAMESPACE("openwhisk_namespace", ServiceDetailType.OTHER)
+    OPENWHISK_NAMESPACE("openwhisk_namespace", ServiceDetailType.OTHER),
+    OPENWHISK_SUBJECT("openwhisk_subject", ServiceDetailType.OTHER)
 
     private final String key
     private final ServiceDetailType serviceDetailType

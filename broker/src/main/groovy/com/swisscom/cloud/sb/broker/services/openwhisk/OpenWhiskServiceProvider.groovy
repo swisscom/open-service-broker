@@ -108,13 +108,8 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request){
-        ServiceInstance si = serviceInstanceRepository.findByGuid(request.serviceInstanceGuid)
-        String namespace = null
-        si.details.each {
-            if (it.key == "openwhisk_namespace") {
-                namespace = it.value
-            }
-        }
+
+        String namespace = getNamespace(request.serviceInstanceGuid)
 
         String doc = owDbClient.getSubjectFromDB(namespace)
 
@@ -142,9 +137,29 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     BindResponse bind(BindRequest request){
-        log.info("request = ${request}")
-        return new BindResponse(details: [ServiceDetail.from("username", "pass")],
-                credentials: new OpenWhiskBindResponseDto(openwhiskAdminKey: "username1", openwhiskAdminPass: "password1"))
+        String namespace = getNamespace(request.serviceInstance.guid)
+        String subject = request.parameters.getAt("subject")
+
+        if (subject.length() < 5) {
+            log.error("Subject name must be at least 5 characters")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
+        }
+
+        def uuid = UUID.randomUUID().toString()
+        def key = RandomStringUtils.randomAlphanumeric(64)
+        docs = subjectHelper(namespace, subject, uuid, key)
+        String res = owDbClient.insertIntoDatabase(docs)
+        log.info("Subject created.")
+
+        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}/"
+
+        return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_URL, url),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_SUBJECT, subject),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)],
+                credentials: new OpenWhiskBindResponseDto(openwhiskUrl: url, openwhiskUUID: uuid, openwhiskKey: key,
+                                                          openwhiskNamespace: namespace, openwhiskSubject: subject))
     }
 
     @Override
@@ -182,5 +197,17 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         }
 
         return docs
+    }
+
+    String getNamespace(String service_id) {
+        ServiceInstance si = serviceInstanceRepository.findByGuid(service_id)
+        String namespace = null
+        si.details.each {
+            if (it.key == "openwhisk_namespace") {
+                namespace = it.value
+            }
+        }
+
+        return namespace
     }
 }
