@@ -8,9 +8,11 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -22,9 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
-
-import javax.annotation.PostConstruct
-
 
 @Component
 @CompileStatic
@@ -46,32 +45,13 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     private ServiceInstanceRepository serviceInstanceRepository
 
     @Autowired
+    private ServiceBindingRepository serviceBindingRepository
+
+    @Autowired
     OpenWhiskServiceProvider(OpenWhiskConfig owConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient owDbClient) {
         this.owConfig = owConfig
         this.restTemplateFactory = restTemplateFactory
         this.owDbClient = owDbClient
-    }
-
-    @PostConstruct
-    def init() {
-        ServiceInstance si = serviceInstanceRepository.findByGuid("59ee663f-a964-4a28-8315-47634300ad30")
-        log.info("service_instance si = ${si}")
-        log.info("details = ${si.details}")
-        log.info("details[0] = ${si.details[0]}")
-        log.info("details[0].key = ${si.details[0].key}")
-        log.info("details[0].value = ${si.details[0].value}")
-//        log.info("owConfig = ${owConfig}")
-//        RestTemplate rt = restTemplateFactory.buildWithSSLValidationDisabledAndBasicAuthentication(owConfig.openWhiskAdminKey, owConfig.openWhiskAdminPass)
-//
-//        ResponseEntity<String> re = rt.getForEntity(owConfig.openWhiskUrl, String.class)
-//
-//        log.info("RestTemplate rt = ${rt}")
-//        log.info("ResponseEntity re = ${re}")
-//        log.info("getBody = ${re.getBody()}")
-
-//        ObjectMapper mapper = new ObjectMapper()
-//        JsonNode root = mapper.readTree(re.getBody())
-
     }
 
     @Override
@@ -112,8 +92,13 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         String namespace = getNamespace(request.serviceInstanceGuid)
 
         String doc = owDbClient.getSubjectFromDB(namespace)
+        if (doc == null){
+            log.error("Subject not found.")
+            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
+        }
 
         docs = mapper.readTree(doc)
+
         Integer ns_index = null
         ArrayNode namespaceArray = (ArrayNode) docs.path("namespaces")
         namespaceArray.each {
@@ -164,7 +149,19 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     void unbind(UnbindRequest request){
-        println "In unbind"
+
+        String subject = getSubject(request.binding.guid)
+        String doc = owDbClient.getSubjectFromDB(subject)
+        if (doc == null){
+            log.error("Subject not found.")
+            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
+        }
+
+        docs = mapper.readTree(doc)
+        String rev = docs.path("_rev").asText()
+        String res = owDbClient.deleteSubjectFromDb(subject, rev)
+        log.info("Subject deleted.")
+
     }
 
     JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
@@ -186,7 +183,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
             ArrayNode namespaceArray = (ArrayNode) docs.path("namespaces")
             namespaceArray.each {
                 if (it.path("name").asText() == namespace) {
-                    log.error("Namespace already exists - Returning 410")
+                    log.error("Namespace or subject already exists - Returning 410")
                     ErrorCode.OPENWHISK_NAMESPACE_ALREADY_EXISTS.throwNew()
                 }
             }
@@ -209,5 +206,17 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         }
 
         return namespace
+    }
+
+    String getSubject(String bind_id) {
+        ServiceBinding sb = serviceBindingRepository.findByGuid(bind_id)
+        String subject = null
+        sb.details.each {
+            if (it.key == "openwhisk_subject") {
+                subject = it.value
+            }
+        }
+
+        return subject
     }
 }

@@ -119,7 +119,6 @@ public class ServiceLifeCycler {
 
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
-        parameterRepository.delete(parameter)
 
         if (serviceCreated) {
             deletePlan()
@@ -130,6 +129,7 @@ public class ServiceLifeCycler {
     }
 
     private void deletePlan() {
+        parameterRepository.delete(parameter)
         plan.metadata.remove(planMetaData)
         cfService.plans.remove(plan)
         cfService = cfServiceRepository.saveAndFlush(cfService)

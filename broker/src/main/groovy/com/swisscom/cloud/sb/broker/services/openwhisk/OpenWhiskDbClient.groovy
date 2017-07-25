@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
@@ -80,4 +81,17 @@ class OpenWhiskDbClient {
         }
     }
 
+    String deleteSubjectFromDb(String subject, String rev) {
+
+        def url = "${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}"
+
+        ResponseEntity<String> res =  restTemplate.exchange(url, HttpMethod.DELETE,null, String.class)
+
+        if (res.getStatusCodeValue() == 200 || res.getStatusCodeValue() == 202){
+            return res.getBody()
+        } else {
+            log.error("Failed to delete subject. Status code - ${res.getStatusCodeValue()}")
+            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew("- Failed to delete subject.")
+        }
+    }
 }
