@@ -15,7 +15,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndAssert(false, false)
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
 
         when:
         serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])

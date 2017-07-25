@@ -187,3 +187,7 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 
 #### MongoDB Enterprise
 https://github.com/swisscom/mongodb-enterprise-boshrelease
+
+### Kubernetes based services
+
+
