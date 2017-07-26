@@ -44,6 +44,18 @@ class KubernetesClientSpec extends Specification {
         result.getBody() == "OK"
     }
 
+    def "convert null to json don't throw exception"() {
+        String result = kubernetesClient.convertYamlToJson(null)
+        expect:
+        "" == result
+    }
+
+    def "convert empty string to json don't throw exception"() {
+        String result = kubernetesClient.convertYamlToJson("")
+        expect:
+        "" == result
+    }
+
     private void decorateClient(KubernetesClient kubernetesClient) {
         File createdFile = folder.newFile("tmp.txt")
         kubernetesConfig = mockConfig(createdFile)

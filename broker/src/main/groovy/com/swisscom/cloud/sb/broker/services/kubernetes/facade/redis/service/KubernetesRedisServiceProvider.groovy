@@ -13,8 +13,10 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.KubernetesAsyncServiceProvider
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
-import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionStateMachineContext
+import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import groovy.transform.CompileStatic
@@ -55,8 +57,8 @@ class KubernetesRedisServiceProvider extends KubernetesAsyncServiceProvider<Kube
     }
 
     @VisibleForTesting
-    private KubernetesServiceProvisionStateMachineContext createStateMachineContext(LastOperationJobContext context) {
-        return new KubernetesServiceProvisionStateMachineContext(kubernetesFacade: kubernetesClientRedisDecorated,
+    private KubernetesServiceStateMachineContext createStateMachineContext(LastOperationJobContext context) {
+        return new KubernetesServiceStateMachineContext(kubernetesFacade: kubernetesClientRedisDecorated,
                 lastOperationJobContext: context)
     }
 
@@ -69,7 +71,28 @@ class KubernetesRedisServiceProvider extends KubernetesAsyncServiceProvider<Kube
 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        return null
+        StateMachine stateMachine = createDeprovisionStateMachine()
+        ServiceStateWithAction currentState = getDeprovisionState(context)
+        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
+        return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details))
+    }
+
+    @VisibleForTesting
+    private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
+        ServiceStateWithAction deprovisionState
+        if (!context.lastOperation.internalState) {
+            deprovisionState = KubernetesServiceDeprovisionState.KUBERNETES_NAMESPACE_DELETION
+        } else {
+            deprovisionState = KubernetesServiceDeprovisionState.of(context.lastOperation.internalState)
+        }
+        return deprovisionState
+    }
+
+    @VisibleForTesting
+    private StateMachine createDeprovisionStateMachine() {
+        StateMachine stateMachine = new StateMachine([KubernetesServiceDeprovisionState.KUBERNETES_NAMESPACE_DELETION])
+        stateMachine.addAll([KubernetesServiceDeprovisionState.DEPROVISION_SUCCESS])
+        return stateMachine
     }
 
     @Override
