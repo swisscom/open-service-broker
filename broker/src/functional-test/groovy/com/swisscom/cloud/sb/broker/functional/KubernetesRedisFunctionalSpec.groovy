@@ -29,10 +29,18 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         }
     }
 
-
-    def "Create a redis instance"() {
-        given:
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(40, true, true)
+    def "Create and remove a redis instance"() {
+        when:
+        try {
+            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(40, true, true)
+        }
+        finally {
+            serviceLifeCycler.deleteServiceBindingAndAssert()
+            serviceLifeCycler.deleteServiceInstanceAndAssert(true)
+            serviceLifeCycler.pauseExecution(50)
+        }
+        then:
+        noExceptionThrown()
     }
 
 

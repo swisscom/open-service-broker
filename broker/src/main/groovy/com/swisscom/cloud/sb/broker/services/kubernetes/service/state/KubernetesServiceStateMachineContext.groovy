@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.KubernetesFacade
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class KubernetesServiceProvisionStateMachineContext extends StateMachineContext {
+class KubernetesServiceStateMachineContext extends StateMachineContext {
 
     KubernetesFacade kubernetesFacade
 }
