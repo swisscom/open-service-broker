@@ -128,7 +128,7 @@ public class ServiceLifeCycler {
     }
 
     private void deletePlan() {
-        parameterRepository.delete(parameter)
+//        parameterRepository.delete(parameter)
         plan.metadata.remove(planMetaData)
         cfService.plans.remove(plan)
         cfService = cfServiceRepository.saveAndFlush(cfService)
@@ -174,7 +174,7 @@ public class ServiceLifeCycler {
         def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, 'app_guid', null, bindingParameters)
 
         return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
-                .withBindingId(bindingId))
+                .withBindingId(serviceBindingId))
     }
 
     void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
