@@ -90,31 +90,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     DeprovisionResponse deprovision(DeprovisionRequest request){
 
         String namespace = getNamespace(request.serviceInstanceGuid)
-
-        String doc = owDbClient.getSubjectFromDB(namespace)
-        if (doc == null){
-            log.error("Subject not found.")
-            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
-        }
-
-        docs = mapper.readTree(doc)
-
-        Integer ns_index = null
-        ArrayNode namespaceArray = (ArrayNode) docs.path("namespaces")
-        namespaceArray.each {
-            if (it.path("name").asText() == namespace) {
-                ns_index = it.intValue()
-            }
-        }
-
-        if (ns_index != null) {
-            namespaceArray.remove(ns_index)
-        } else {
-            log.error("Namespace does not exist - Returning 410")
-            ErrorCode.OPENWHISK_NAMESPACE_ALREADY_EXISTS.throwNew()
-        }
-
-        String res = owDbClient.insertIntoDatabase(docs)
+        deleteEntity(namespace)
         log.info("Namespace deleted.")
 
         return new DeprovisionResponse(isAsync: false)
@@ -151,15 +127,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     void unbind(UnbindRequest request){
 
         String subject = getSubject(request.binding.guid)
-        String doc = owDbClient.getSubjectFromDB(subject)
-        if (doc == null){
-            log.error("Subject not found.")
-            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
-        }
-
-        docs = mapper.readTree(doc)
-        String rev = docs.path("_rev").asText()
-        String res = owDbClient.deleteSubjectFromDb(subject, rev)
+        deleteEntity(subject)
         log.info("Subject deleted.")
 
     }
@@ -218,5 +186,17 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         }
 
         return subject
+    }
+
+    void deleteEntity(String entity) {
+        String doc = owDbClient.getSubjectFromDB(entity)
+        if (doc == null){
+            log.error("Subject not found.")
+            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
+        }
+
+        docs = mapper.readTree(doc)
+        String rev = docs.path("_rev").asText()
+        String res = owDbClient.deleteSubjectFromDb(entity, rev)
     }
 }

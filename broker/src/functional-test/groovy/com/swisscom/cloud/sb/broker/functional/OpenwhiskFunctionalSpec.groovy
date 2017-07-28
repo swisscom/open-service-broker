@@ -25,7 +25,13 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
     def "provision openwhisk service instance"() {
         //Add function to openwhisk and execute
         when:
-            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1)
+            Map<String, Object> serviceParams = new HashMap<String, Object>()
+            serviceParams.put("namespace", "OWTestNamespace")
+            serviceLifeCycler.createServiceInstanceAndAssert(1, false, false, serviceParams)
+            Map<String, Object> bindingParams = new HashMap<String, Object>()
+            bindingParams.put("subject", "OWTestSubject")
+            serviceLifeCycler.bindServiceInstanceAndAssert(null, bindingParams)
+            println("Created serviceInstanceId:${serviceLifeCycler.serviceInstanceId} , serviceBindingId ${serviceLifeCycler.serviceBindingId}")
             def credentials = serviceLifeCycler.getCredentials()
             println("Credentials: ${credentials}")
         then:
