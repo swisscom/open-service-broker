@@ -24,6 +24,6 @@ interface KubernetesFacade {
 
     Collection<ServiceDetail> provision(ProvisionRequest context)
 
-    DeprovisionResponse deprovision(DeprovisionRequest request)
+    void deprovision(DeprovisionRequest request)
 
 }
