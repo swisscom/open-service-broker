@@ -4,7 +4,8 @@ import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import groovy.json.JsonBuilder
 
 class OpenWhiskBindResponseDto implements BindResponseDto {
-    String openwhiskUrl
+    String openwhiskExecutionUrl
+    String openwhiskAdminUrl
     String openwhiskUUID
     String openwhiskKey
     String openwhiskNamespace
@@ -19,7 +20,8 @@ class OpenWhiskBindResponseDto implements BindResponseDto {
     protected JsonBuilder createBuilder() {
         def jsonBuilder = new JsonBuilder()
         jsonBuilder.credentials(
-                url: openwhiskUrl,
+                executionUrl: openwhiskExecutionUrl,
+                adminUrl: openwhiskAdminUrl,
                 uuid: openwhiskUUID,
                 key: openwhiskKey,
                 namespace: openwhiskNamespace,

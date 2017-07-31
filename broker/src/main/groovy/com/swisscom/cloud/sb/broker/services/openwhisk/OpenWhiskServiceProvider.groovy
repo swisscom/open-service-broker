@@ -78,11 +78,13 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         String res = owDbClient.insertIntoDatabase(docs)
         log.info("Namespace created.")
 
-        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}/"
+        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}"
+        String adminUrl = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}namespaces"
 
         return new ProvisionResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
-                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_URL, url),
+                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
+                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)], isAsync: false)
     }
 
@@ -112,14 +114,16 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         String res = owDbClient.insertIntoDatabase(docs)
         log.info("Subject created.")
 
-        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}/"
+        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}"
+        String adminUrl = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}namespaces"
 
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_URL, url),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
+                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_SUBJECT, subject),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)],
-                credentials: new OpenWhiskBindResponseDto(openwhiskUrl: url, openwhiskUUID: uuid, openwhiskKey: key,
+                credentials: new OpenWhiskBindResponseDto(openwhiskExecutionUrl: url, openwhiskAdminUrl: adminUrl, openwhiskUUID: uuid, openwhiskKey: key,
                                                           openwhiskNamespace: namespace, openwhiskSubject: subject))
     }
 
