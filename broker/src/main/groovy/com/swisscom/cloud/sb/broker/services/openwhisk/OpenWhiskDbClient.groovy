@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
@@ -18,28 +17,25 @@ import org.springframework.web.client.RestTemplate
 @Slf4j
 class OpenWhiskDbClient {
 
-    private final String protocol
-    private final String host
-    private final String port
-    private final String username
-    private final String password
-    private final String localUser
-    private final String hostname
+    public final String protocol
+    public final String host
+    public final String port
+    public final String username
+    public final String password
+    public final String localUser
+    public final String hostname
 
     private final RestTemplate restTemplate
 
     @Autowired
-    private final ObjectMapper mapper
-
-    @Autowired
-    OpenWhiskDbClient(OpenWhiskConfig owConfig, RestTemplateFactory restTemplateFactory){
-        this.protocol = owConfig.openWhiskDbProtocol
-        this.host = owConfig.openWhiskDbHost
-        this.port = owConfig.openWhiskDbPort
-        this.username = owConfig.openWhiskDbUser
-        this.password = owConfig.openWhiskDbPass
-        this.localUser = owConfig.openWhiskDbLocalUser
-        this.hostname = owConfig.openWhiskDbHostname
+    OpenWhiskDbClient(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory){
+        this.protocol = openWhiskConfig.openWhiskDbProtocol
+        this.host = openWhiskConfig.openWhiskDbHost
+        this.port = openWhiskConfig.openWhiskDbPort
+        this.username = openWhiskConfig.openWhiskDbUser
+        this.password = openWhiskConfig.openWhiskDbPass
+        this.localUser = openWhiskConfig.openWhiskDbLocalUser
+        this.hostname = openWhiskConfig.openWhiskDbHostname
 
         this.restTemplate = restTemplateFactory.buildWithBasicAuthentication(username, password)
 

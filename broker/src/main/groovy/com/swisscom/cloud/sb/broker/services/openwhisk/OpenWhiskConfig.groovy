@@ -27,6 +27,15 @@ class OpenWhiskConfig {
         return "OpenWhiskConfig{" +
                 "openWhiskUrl= '" + openWhiskUrl + '\'' +
                 ", openWhiskAdminKey= '" + openWhiskAdminKey + '\'' +
+                ", openWhiskProtocol= '" + openWhiskProtocol + '\'' +
+                ", openWhiskHost= '" + openWhiskHost + '\'' +
+                ", openWhiskPath= '" + openWhiskPath + '\'' +
+                ", openWhiskDbUser= '" + openWhiskDbUser + '\'' +
+                ", openWhiskDbProtocol= '" + openWhiskDbProtocol + '\'' +
+                ", openWhiskDbPort= '" + openWhiskDbPort + '\'' +
+                ", openWhiskDbHost= '" + openWhiskDbHost + '\'' +
+                ", openWhiskDbLocalUser= '" + openWhiskDbLocalUser + '\'' +
+                ", openWhiskDbHostname= '" + openWhiskDbHostname + '\'' +
                 "}"
 
     }

@@ -30,16 +30,15 @@ import org.springframework.stereotype.Component
 @Slf4j
 class OpenWhiskServiceProvider implements ServiceProvider{
 
-    private final OpenWhiskConfig owConfig
+    private final OpenWhiskConfig openWhiskConfig
 
     private final RestTemplateFactory restTemplateFactory
 
-    private final OpenWhiskDbClient owDbClient
+    private final OpenWhiskDbClient openWhiskDbClient
 
-    private JsonNode docs
+    public JsonNode docs
 
-    @Autowired
-    private final ObjectMapper mapper
+    public ObjectMapper mapper
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
@@ -48,10 +47,11 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     private ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    OpenWhiskServiceProvider(OpenWhiskConfig owConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient owDbClient) {
-        this.owConfig = owConfig
+    OpenWhiskServiceProvider(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient openWhiskDbClient) {
+        this.openWhiskConfig = openWhiskConfig
         this.restTemplateFactory = restTemplateFactory
-        this.owDbClient = owDbClient
+        this.openWhiskDbClient = openWhiskDbClient
+        this.mapper = new ObjectMapper()
     }
 
     @Override
@@ -75,11 +75,11 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
         docs = subjectHelper(namespace, subject, uuid, key)
-        String res = owDbClient.insertIntoDatabase(docs)
+        String res = openWhiskDbClient.insertIntoDatabase(docs)
         log.info("Namespace created.")
 
-        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}"
-        String adminUrl = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}namespaces"
+        String url = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"
+        String adminUrl = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}namespaces"
 
         return new ProvisionResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
@@ -90,7 +90,6 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request){
-
         String namespace = getNamespace(request.serviceInstanceGuid)
         deleteEntity(namespace)
         log.info("Namespace deleted.")
@@ -111,11 +110,11 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
         docs = subjectHelper(namespace, subject, uuid, key)
-        String res = owDbClient.insertIntoDatabase(docs)
+        String res = openWhiskDbClient.insertIntoDatabase(docs)
         log.info("Subject created.")
 
-        String url = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}web/${namespace}"
-        String adminUrl = "${owConfig.openWhiskProtocol}://${owConfig.openWhiskHost}${owConfig.openWhiskPath}namespaces"
+        String url = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"
+        String adminUrl = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}namespaces"
 
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
@@ -129,7 +128,6 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     void unbind(UnbindRequest request){
-
         String subject = getSubject(request.binding.guid)
         deleteEntity(subject)
         log.info("Subject deleted.")
@@ -137,7 +135,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     }
 
     JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
-        String doc = owDbClient.getSubjectFromDB(subject)
+        String doc = openWhiskDbClient.getSubjectFromDB(subject)
         if (doc == null) {
             doc = "{\"_id\": \"${subject}\"," +
                         "\"subject\": \"${subject}\"," +
@@ -193,7 +191,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     }
 
     void deleteEntity(String entity) {
-        String doc = owDbClient.getSubjectFromDB(entity)
+        String doc = openWhiskDbClient.getSubjectFromDB(entity)
         if (doc == null){
             log.error("Subject not found.")
             ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
@@ -201,6 +199,6 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         docs = mapper.readTree(doc)
         String rev = docs.path("_rev").asText()
-        String res = owDbClient.deleteSubjectFromDb(entity, rev)
+        String res = openWhiskDbClient.deleteSubjectFromDb(entity, rev)
     }
 }
