@@ -5,7 +5,7 @@ import spock.lang.Specification
 class OpenWhiskConfigSpec extends Specification {
     def "Verify config toString"() {
         given:
-        OpenWhiskConfig openWhiskConfig = new OpenWhiskConfig(openWhiskUrl: "whiskUrl", openWhiskAdminKey: "adminKey",
+        OpenWhiskConfig openWhiskConfig = new OpenWhiskConfig(openWhiskUrl: "whiskUrl",
                 openWhiskProtocol: "whiskProtocol", openWhiskHost: "whiskHost",
                 openWhiskPath: "whiskPath", openWhiskDbUser: "dbUser",
                 openWhiskDbProtocol: "dbProtocol", openWhiskDbPort: "dbPort",
@@ -14,7 +14,6 @@ class OpenWhiskConfigSpec extends Specification {
         and:
         String expected = "OpenWhiskConfig{" +
                 "openWhiskUrl= 'whiskUrl'" +
-                ", openWhiskAdminKey= 'adminKey'" +
                 ", openWhiskProtocol= 'whiskProtocol'" +
                 ", openWhiskHost= 'whiskHost'" +
                 ", openWhiskPath= 'whiskPath'" +

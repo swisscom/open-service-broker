@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.openwhisk")
 class OpenWhiskConfig {
     String openWhiskUrl
-    String openWhiskAdminKey
-    String openWhiskAdminPass
     String openWhiskProtocol
     String openWhiskHost
     String openWhiskPath
@@ -26,7 +24,6 @@ class OpenWhiskConfig {
     public String toString() {
         return "OpenWhiskConfig{" +
                 "openWhiskUrl= '" + openWhiskUrl + '\'' +
-                ", openWhiskAdminKey= '" + openWhiskAdminKey + '\'' +
                 ", openWhiskProtocol= '" + openWhiskProtocol + '\'' +
                 ", openWhiskHost= '" + openWhiskHost + '\'' +
                 ", openWhiskPath= '" + openWhiskPath + '\'' +

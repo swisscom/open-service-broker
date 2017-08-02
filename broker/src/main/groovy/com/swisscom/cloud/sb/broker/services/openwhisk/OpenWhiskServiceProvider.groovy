@@ -9,7 +9,6 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
@@ -17,7 +16,6 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,8 +23,13 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
 
+import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_ADMIN_URL
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_EXECUTION_URL
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_KEY
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_UUID
 
 @Component
 @CompileStatic
@@ -34,15 +37,10 @@ import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJE
 class OpenWhiskServiceProvider implements ServiceProvider{
 
     private final OpenWhiskConfig openWhiskConfig
-
     private final RestTemplateFactory restTemplateFactory
-
     private final OpenWhiskDbClient openWhiskDbClient
-
     private final ObjectMapper mapper = new ObjectMapper()
-
     private final ServiceInstanceRepository serviceInstanceRepository
-
     private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
@@ -74,18 +72,14 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
-        JsonNode docs = subjectHelper(namespace, subject, uuid, key)
-        String res = openWhiskDbClient.insertIntoDatabase(docs)
+        openWhiskDbClient.insertIntoDatabase(subjectHelper(namespace, subject, uuid, key))
         log.info("Namespace created.")
 
-        String url = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"
-        String adminUrl = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}namespaces"
-
-        return new ProvisionResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
-                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
-                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
-                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
-                                               ServiceDetail.from(OPENWHISK_NAMESPACE, namespace)], isAsync: false)
+        return new ProvisionResponse(details: [from(OPENWHISK_UUID, uuid),
+                                               from(OPENWHISK_KEY, key),
+                                               from(OPENWHISK_EXECUTION_URL, "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"),
+                                               from(OPENWHISK_ADMIN_URL, "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}namespaces"),
+                                               from(OPENWHISK_NAMESPACE, namespace)], isAsync: false)
     }
 
     @Override
@@ -108,19 +102,18 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
-        JsonNode docs = subjectHelper(namespace, subject, uuid, key)
-        String res = openWhiskDbClient.insertIntoDatabase(docs)
+        openWhiskDbClient.insertIntoDatabase(subjectHelper(namespace, subject, uuid, key))
         log.info("Subject created.")
 
         String url = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"
         String adminUrl = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}namespaces"
 
-        return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.OPENWHISK_UUID, uuid),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
-                                          ServiceDetail.from(OPENWHISK_SUBJECT, subject),
-                                          ServiceDetail.from(OPENWHISK_NAMESPACE, namespace)],
+        return new BindResponse(details: [from(OPENWHISK_UUID, uuid),
+                                          from(OPENWHISK_KEY, key),
+                                          from(OPENWHISK_EXECUTION_URL, url),
+                                          from(OPENWHISK_ADMIN_URL, adminUrl),
+                                          from(OPENWHISK_SUBJECT, subject),
+                                          from(OPENWHISK_NAMESPACE, namespace)],
                 credentials: new OpenWhiskBindResponseDto(openwhiskExecutionUrl: url, openwhiskAdminUrl: adminUrl, openwhiskUUID: uuid, openwhiskKey: key,
                                                           openwhiskNamespace: namespace, openwhiskSubject: subject))
     }
@@ -156,10 +149,8 @@ class OpenWhiskServiceProvider implements ServiceProvider{
                     ErrorCode.OPENWHISK_NAMESPACE_ALREADY_EXISTS.throwNew()
                 }
             }
-            String newNode = "{\"name\": \"${namespace}\", \"uuid\": \"${uuid}\", \"key\": \"${key}\"}"
-            JsonNode nsNode = mapper.readTree(newNode)
-            namespaceArray.add(nsNode)
-            docs.putAt("namespaces", namespaceArray)
+            namespaceArray.add(mapper.readTree("{\"name\": \"${namespace}\", \"uuid\": \"${uuid}\", \"key\": \"${key}\"}"))
+            docs["namespaces"] = namespaceArray
         }
 
         return docs
@@ -183,8 +174,6 @@ class OpenWhiskServiceProvider implements ServiceProvider{
             ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
         }
 
-        JsonNode docs = mapper.readTree(doc)
-        String rev = docs.path("_rev").asText()
-        String res = openWhiskDbClient.deleteSubjectFromDb(entity, rev)
+        openWhiskDbClient.deleteSubjectFromDb(entity, mapper.readTree(doc).path("_rev").asText())
     }
 }

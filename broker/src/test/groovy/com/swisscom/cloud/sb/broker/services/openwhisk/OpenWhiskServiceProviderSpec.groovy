@@ -32,12 +32,12 @@ class OpenWhiskServiceProviderSpec extends Specification{
     private final String UUID = "TEST_UUID"
     private final String KEY = "TEST_KEY"
 
-    OpenWhiskServiceProvider openWhiskServiceProvider
-    OpenWhiskConfig openWhiskConfig
-    RestTemplateFactory restTemplateFactory
-    MockRestServiceServer mockServer
-    ServiceInstanceRepository serviceInstanceRepository
-    ServiceBindingRepository serviceBindingRepository
+    private OpenWhiskServiceProvider openWhiskServiceProvider
+    private OpenWhiskConfig openWhiskConfig
+    private RestTemplateFactory restTemplateFactory
+    private MockRestServiceServer mockServer
+    private ServiceInstanceRepository serviceInstanceRepository
+    private ServiceBindingRepository serviceBindingRepository
 
     def setup() {
         restTemplateFactory = Mock(RestTemplateFactory)
@@ -75,10 +75,9 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     def "adding a namespace to subject"() {
         given:
-        def response = """{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         when:
         JsonNode res = openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
@@ -95,13 +94,12 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     def "namespace conflict within subject"() {
         given:
-        def response = """{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[{"name":"TEST_NAMESPACE","uuid":"TEST_UUID","key":"TEST_KEY"}]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[{"name":"TEST_NAMESPACE","uuid":"TEST_UUID","key":"TEST_KEY"}]}""", MediaType.TEXT_PLAIN))
 
         when:
-        JsonNode res = openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
+        openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
 
         then:
         def exception = thrown(ServiceBrokerException)
@@ -114,14 +112,13 @@ class OpenWhiskServiceProviderSpec extends Specification{
     def "delete entity with existing subject/namespace"() {
         given:
         def rev = "1-123456"
-        def response = """{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}?rev=${rev}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
 
         when:
         openWhiskServiceProvider.deleteEntity(SUBJECT)
@@ -178,14 +175,13 @@ class OpenWhiskServiceProviderSpec extends Specification{
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "serviceId", plan: new Plan(), parameters: "{\"namespace\": \"${NAMESPACE}\"}")
 
-        def response = """{"_id":"${SUBJECT}","_rev":"rev","subject":"${SUBJECT}","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${NAMESPACE}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"${SUBJECT}","_rev":"rev","subject":"${SUBJECT}","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
 
         when:
         def provisionResponse = openWhiskServiceProvider.provision(provisionRequest)
@@ -228,14 +224,13 @@ class OpenWhiskServiceProviderSpec extends Specification{
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         def rev = "1-123456"
-        def response = """{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${NAMESPACE}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${NAMESPACE}?rev=${rev}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
 
         when:
         def deprovisionResponse = openWhiskServiceProvider.deprovision(deprovisionRequest)
@@ -258,14 +253,13 @@ class OpenWhiskServiceProviderSpec extends Specification{
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         def rev = "1-123456"
-        def response = """{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
 
         when:
         def bindResponse = openWhiskServiceProvider.bind(bindRequest)
@@ -304,14 +298,13 @@ class OpenWhiskServiceProviderSpec extends Specification{
         serviceBindingRepository.findByGuid(serviceBindingId) >> serviceBinding
 
         def rev = "1-123456"
-        def response = """{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}?rev=${rev}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
-                .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
 
         when:
         openWhiskServiceProvider.unbind(unbindRequest)

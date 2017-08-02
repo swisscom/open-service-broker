@@ -101,8 +101,6 @@ com.swisscom.cloud.sb.broker:
       openWhiskProtocol: ''
       openWhiskHost: ''
       openWhiskPath: ''
-      openWhiskAdminKey: ''
-      openWhiskAdminPass: ''
       openWhiskDbUser: ''
       openWhiskDbPass: ''
       openWhiskDbProtocol: ''

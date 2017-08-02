@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpMethod
@@ -17,22 +16,20 @@ import spock.lang.Specification
 class OpenWhiskDbClientSpec extends Specification{
     private final String SUBJECT = "testing"
 
-    OpenWhiskDbClient openWhiskDbClient
-    RestTemplateFactory restTemplateFactory
-    MockRestServiceServer mockServer
-    ObjectMapper mapper
+    private OpenWhiskDbClient openWhiskDbClient
+    private RestTemplateFactory restTemplateFactory
+    private MockRestServiceServer mockServer
+    private final ObjectMapper mapper = new ObjectMapper()
 
     def setup() {
         restTemplateFactory = Mock(RestTemplateFactory)
         RestTemplate restTemplate = new RestTemplate()
         restTemplateFactory.buildWithBasicAuthentication(_,_) >> restTemplate
         mockServer = MockRestServiceServer.createServer(restTemplate)
-        mapper = new ObjectMapper()
         and:
         openWhiskDbClient = new OpenWhiskDbClient(new OpenWhiskConfig(openWhiskDbProtocol: "http",
                 openWhiskDbHost: "openwhiskHost", openWhiskDbPort: "1234", openWhiskDbLocalUser: "ubuntu",
                 openWhiskDbHostname: "localhost"), restTemplateFactory)
-//            println("openWhiskDbClient = ${openWhiskDbClient.getVars()}")
     }
 
     def "Retrieve subject - positive"() {
