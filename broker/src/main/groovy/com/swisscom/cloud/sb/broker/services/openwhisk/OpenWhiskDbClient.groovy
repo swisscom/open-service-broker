@@ -6,7 +6,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -23,7 +22,7 @@ class OpenWhiskDbClient {
     private final String password
     private final String localUser
     private final String hostname
-    private final RestTemplate restTemplate
+    private final RestTemplateFactory restTemplateFactory
 
     @Autowired
     OpenWhiskDbClient(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory){
@@ -34,14 +33,17 @@ class OpenWhiskDbClient {
         this.password = openWhiskConfig.openWhiskDbPass
         this.localUser = openWhiskConfig.openWhiskDbLocalUser
         this.hostname = openWhiskConfig.openWhiskDbHostname
-        this.restTemplate = restTemplateFactory.buildWithBasicAuthentication(username, password)
+        this.restTemplateFactory = restTemplateFactory
+    }
 
+    private RestTemplate createRestTemplate() {
+        return restTemplateFactory.buildWithBasicAuthentication(username, password)
     }
 
     String getSubjectFromDB(String subject){
 
         try {
-            return restTemplate.getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}", String.class).getBody()
+            return createRestTemplate().getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}", String.class).getBody()
         } catch (HttpClientErrorException ex) {
             log.info("Http error exception = ${ex}")
             log.info("Subject does not exist")
@@ -52,11 +54,11 @@ class OpenWhiskDbClient {
 
     String insertIntoDatabase(JsonNode payload){
 
-        return restTemplate.postForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects", payload, String.class).getBody()
+        return createRestTemplate().postForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects", payload, String.class).getBody()
     }
 
     String deleteSubjectFromDb(String subject, String rev) {
 
-        return restTemplate.exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class).getBody()
+        return createRestTemplate().exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class).getBody()
     }
 }
