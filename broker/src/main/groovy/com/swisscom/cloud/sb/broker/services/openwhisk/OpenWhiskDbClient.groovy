@@ -40,30 +40,23 @@ class OpenWhiskDbClient {
 
     String getSubjectFromDB(String subject){
 
-        ResponseEntity<String> res
-
         try {
-            res = restTemplate.getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}", String.class)
+            return restTemplate.getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}", String.class).getBody()
         } catch (HttpClientErrorException ex) {
             log.info("Http error exception = ${ex}")
             log.info("Subject does not exist")
             return null
         }
 
-        return res.getBody()
     }
 
     String insertIntoDatabase(JsonNode payload){
 
-        ResponseEntity<String> res = restTemplate.postForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects", payload, String.class)
-
-        return res.getBody()
+        return restTemplate.postForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects", payload, String.class).getBody()
     }
 
     String deleteSubjectFromDb(String subject, String rev) {
 
-        ResponseEntity<String> res =  restTemplate.exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class)
-
-        return res.getBody()
+        return restTemplate.exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class).getBody()
     }
 }
