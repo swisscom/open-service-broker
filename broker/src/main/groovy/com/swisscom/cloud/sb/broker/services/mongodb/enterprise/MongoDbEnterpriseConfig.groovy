@@ -39,8 +39,8 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceCon
     @Override
     public String toString() {
         return "MongoDbEnterpriseConfig{" +
-                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + com_swisscom_cloud_sb_broker_services_bosh_AsyncServiceConfig__retryIntervalInSeconds +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + com_swisscom_cloud_sb_broker_services_bosh_AsyncServiceConfig__maxRetryDurationInMinutes +
+                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__retryIntervalInSeconds +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__maxRetryDurationInMinutes +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername + '\'' +
