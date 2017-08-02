@@ -3,14 +3,13 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
@@ -19,11 +18,15 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
+
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
 
 @Component
 @CompileStatic
@@ -36,22 +39,19 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     private final OpenWhiskDbClient openWhiskDbClient
 
-    public JsonNode docs
+    private final ObjectMapper mapper = new ObjectMapper()
 
-    public ObjectMapper mapper
+    private final ServiceInstanceRepository serviceInstanceRepository
 
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository
-
-    @Autowired
-    private ServiceBindingRepository serviceBindingRepository
+    private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    OpenWhiskServiceProvider(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient openWhiskDbClient) {
+    OpenWhiskServiceProvider(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient openWhiskDbClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
         this.openWhiskConfig = openWhiskConfig
         this.restTemplateFactory = restTemplateFactory
         this.openWhiskDbClient = openWhiskDbClient
-        this.mapper = new ObjectMapper()
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.serviceBindingRepository = serviceBindingRepository
     }
 
     @Override
@@ -74,7 +74,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
-        docs = subjectHelper(namespace, subject, uuid, key)
+        JsonNode docs = subjectHelper(namespace, subject, uuid, key)
         String res = openWhiskDbClient.insertIntoDatabase(docs)
         log.info("Namespace created.")
 
@@ -85,13 +85,12 @@ class OpenWhiskServiceProvider implements ServiceProvider{
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
                                                ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
-                                               ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)], isAsync: false)
+                                               ServiceDetail.from(OPENWHISK_NAMESPACE, namespace)], isAsync: false)
     }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request){
-        String namespace = getNamespace(request.serviceInstanceGuid)
-        deleteEntity(namespace)
+        deleteEntity(getNamespace(request.serviceInstanceGuid))
         log.info("Namespace deleted.")
 
         return new DeprovisionResponse(isAsync: false)
@@ -109,7 +108,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
-        docs = subjectHelper(namespace, subject, uuid, key)
+        JsonNode docs = subjectHelper(namespace, subject, uuid, key)
         String res = openWhiskDbClient.insertIntoDatabase(docs)
         log.info("Subject created.")
 
@@ -120,22 +119,22 @@ class OpenWhiskServiceProvider implements ServiceProvider{
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_KEY, key),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_EXECUTION_URL, url),
                                           ServiceDetail.from(ServiceDetailKey.OPENWHISK_ADMIN_URL, adminUrl),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_SUBJECT, subject),
-                                          ServiceDetail.from(ServiceDetailKey.OPENWHISK_NAMESPACE, namespace)],
+                                          ServiceDetail.from(OPENWHISK_SUBJECT, subject),
+                                          ServiceDetail.from(OPENWHISK_NAMESPACE, namespace)],
                 credentials: new OpenWhiskBindResponseDto(openwhiskExecutionUrl: url, openwhiskAdminUrl: adminUrl, openwhiskUUID: uuid, openwhiskKey: key,
                                                           openwhiskNamespace: namespace, openwhiskSubject: subject))
     }
 
     @Override
     void unbind(UnbindRequest request){
-        String subject = getSubject(request.binding.guid)
-        deleteEntity(subject)
+        deleteEntity(getSubject(request.binding.guid))
         log.info("Subject deleted.")
-
     }
 
-    JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
+    @VisibleForTesting
+    private JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
         String doc = openWhiskDbClient.getSubjectFromDB(subject)
+        JsonNode docs
         if (doc == null) {
             doc = "{\"_id\": \"${subject}\"," +
                         "\"subject\": \"${subject}\"," +
@@ -166,38 +165,25 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         return docs
     }
 
-    String getNamespace(String service_id) {
-        ServiceInstance si = serviceInstanceRepository.findByGuid(service_id)
-        String namespace = null
-        si.details.each {
-            if (it.key == "openwhisk_namespace") {
-                namespace = it.value
-            }
-        }
-
-        return namespace
+    @VisibleForTesting
+    private String getNamespace(String serviceId) {
+        return ServiceDetailsHelper.from(serviceInstanceRepository.findByGuid(serviceId).details).getValue(OPENWHISK_NAMESPACE)
     }
 
-    String getSubject(String bind_id) {
-        ServiceBinding sb = serviceBindingRepository.findByGuid(bind_id)
-        String subject = null
-        sb.details.each {
-            if (it.key == "openwhisk_subject") {
-                subject = it.value
-            }
-        }
-
-        return subject
+    @VisibleForTesting
+    private String getSubject(String bindId) {
+        return ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(bindId).details).getValue(OPENWHISK_SUBJECT)
     }
 
-    void deleteEntity(String entity) {
+    @VisibleForTesting
+    private void deleteEntity(String entity) {
         String doc = openWhiskDbClient.getSubjectFromDB(entity)
         if (doc == null){
             log.error("Subject not found.")
             ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
         }
 
-        docs = mapper.readTree(doc)
+        JsonNode docs = mapper.readTree(doc)
         String rev = docs.path("_rev").asText()
         String res = openWhiskDbClient.deleteSubjectFromDb(entity, rev)
     }

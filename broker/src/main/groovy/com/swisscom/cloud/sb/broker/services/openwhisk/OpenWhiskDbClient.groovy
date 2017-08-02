@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -55,12 +54,7 @@ class OpenWhiskDbClient {
             return null
         }
 
-        if (res.getStatusCodeValue() == 200){
-            return res.getBody()
-        } else {
-            log.info("OpenWhisk database returned ${res.getStatusCodeValue()}")
-            return null
-        }
+        return res.getBody()
     }
 
     String insertIntoDatabase(JsonNode payload){
@@ -69,12 +63,7 @@ class OpenWhiskDbClient {
 
         ResponseEntity<String> res = restTemplate.postForEntity(url, payload, String.class)
 
-        if (res.getStatusCodeValue() == 200 || res.getStatusCodeValue() == 201){
-            return res.getBody()
-        } else {
-            log.error("Failed to insert into database. Status code - ${res.getStatusCodeValue()}")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew()
-        }
+        return res.getBody()
     }
 
     String deleteSubjectFromDb(String subject, String rev) {
@@ -83,11 +72,6 @@ class OpenWhiskDbClient {
 
         ResponseEntity<String> res =  restTemplate.exchange(url, HttpMethod.DELETE,null, String.class)
 
-        if (res.getStatusCodeValue() == 200 || res.getStatusCodeValue() == 202){
-            return res.getBody()
-        } else {
-            log.error("Failed to delete subject. Status code - ${res.getStatusCodeValue()}")
-            ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew("- Failed to delete subject.")
-        }
+        return res.getBody()
     }
 }

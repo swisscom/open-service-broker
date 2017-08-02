@@ -55,10 +55,9 @@ class OpenWhiskDbClientSpec extends Specification{
 
         when:
         String res = openWhiskDbClient.getSubjectFromDB(SUBJECT)
-        assert res.getClass() == String
-        println("res = ${res}")
 
         then:
+        res.getClass() == String
         noExceptionThrown()
     }
 
@@ -70,9 +69,9 @@ class OpenWhiskDbClientSpec extends Specification{
 
         when:
         String res = openWhiskDbClient.getSubjectFromDB(SUBJECT)
-        res == null
 
         then:
+        res == null
         noExceptionThrown()
     }
 
@@ -96,7 +95,7 @@ class OpenWhiskDbClientSpec extends Specification{
                 .andRespond(MockRestResponseCreators.withSuccess(response, MediaType.TEXT_PLAIN))
 
         when:
-        String res = openWhiskDbClient.insertIntoDatabase(payload)
+        openWhiskDbClient.insertIntoDatabase(payload)
 
         then:
         noExceptionThrown()
@@ -122,7 +121,7 @@ class OpenWhiskDbClientSpec extends Specification{
                 .andRespond(MockRestResponseCreators.withStatus(HttpStatus.BAD_REQUEST))
 
         when:
-        String res = openWhiskDbClient.insertIntoDatabase(payload)
+        openWhiskDbClient.insertIntoDatabase(payload)
 
         then:
         def exception = thrown(HttpClientErrorException)

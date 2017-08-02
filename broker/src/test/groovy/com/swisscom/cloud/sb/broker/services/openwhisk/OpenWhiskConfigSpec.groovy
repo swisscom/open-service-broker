@@ -11,7 +11,21 @@ class OpenWhiskConfigSpec extends Specification {
                 openWhiskDbProtocol: "dbProtocol", openWhiskDbPort: "dbPort",
                 openWhiskDbHost: "dbHost", openWhiskDbLocalUser: "dbLocalUser",
                 openWhiskDbHostname: "dbHostname")
-//    and:
-//    String expected = """OpenWhiskConfig{openWhiskURL= 'whiskUrl'"""
+        and:
+        String expected = "OpenWhiskConfig{" +
+                "openWhiskUrl= 'whiskUrl'" +
+                ", openWhiskAdminKey= 'adminKey'" +
+                ", openWhiskProtocol= 'whiskProtocol'" +
+                ", openWhiskHost= 'whiskHost'" +
+                ", openWhiskPath= 'whiskPath'" +
+                ", openWhiskDbUser= 'dbUser'" +
+                ", openWhiskDbProtocol= 'dbProtocol'" +
+                ", openWhiskDbPort= 'dbPort'" +
+                ", openWhiskDbHost= 'dbHost'" +
+                ", openWhiskDbLocalUser= 'dbLocalUser'" +
+                ", openWhiskDbHostname= 'dbHostname'" +
+                "}"
+        expect:
+        openWhiskConfig.toString() == expected
     }
 }
