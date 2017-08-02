@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import groovy.transform.CompileStatic
 
 @CompileStatic
-trait AsyncServiceConfig implements EndpointConfig, BoshConfig {
+trait AsyncServiceConfig implements EndpointConfig {
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes
 }
