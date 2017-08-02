@@ -39,7 +39,6 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     private final OpenWhiskConfig openWhiskConfig
     private final RestTemplateFactory restTemplateFactory
     private final OpenWhiskDbClient openWhiskDbClient
-    private final ObjectMapper mapper = new ObjectMapper()
     private final ServiceInstanceRepository serviceInstanceRepository
     private final ServiceBindingRepository serviceBindingRepository
 
@@ -54,6 +53,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
     @Override
     ProvisionResponse provision(ProvisionRequest request){
+        ObjectMapper mapper = new ObjectMapper()
         JsonNode params = mapper.readTree(request.parameters)
 
         def namespace = params.path("namespace").asText().trim()
@@ -65,10 +65,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
 
         def subject = namespace
 
-        if (subject.length() < 5) {
-            log.error("Namespace name must be at least 5 characters")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace name must be at least 5 characters")
-        }
+        validateSubject(subject)
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
@@ -95,10 +92,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         String namespace = getNamespace(request.serviceInstance.guid)
         String subject = request.parameters.getAt("subject")
 
-        if (subject.length() < 5) {
-            log.error("Subject name must be at least 5 characters")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
-        }
+        validateSubject(subject)
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
@@ -128,17 +122,18 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     private JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
         String doc = openWhiskDbClient.getSubjectFromDB(subject)
         JsonNode docs
+        ObjectMapper mapper = new ObjectMapper()
         if (doc == null) {
-            doc = "{\"_id\": \"${subject}\"," +
-                        "\"subject\": \"${subject}\"," +
-                        "\"namespaces\": [" +
-                            "{" +
-                                "\"name\": \"${namespace}\"," +
-                                "\"uuid\": \"${uuid}\"," +
-                                "\"key\": \"${key}\"" +
-                            "}" +
-                        "]" +
-                    "}"
+            doc = """{"_id": "${subject}",
+                        "subject": "${subject}",
+                        "namespaces": [
+                            {
+                                "name": "${namespace}",
+                                "uuid": "${uuid}",
+                                "key": "${key}"
+                            }
+                        ]
+                    }"""
             docs = mapper.readTree(doc)
         } else {
             docs = mapper.readTree(doc)
@@ -154,6 +149,13 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         }
 
         return docs
+    }
+
+    private void validateSubject(String subject){
+        if (subject.length() < 5) {
+            log.error("Namespace name must be at least 5 characters")
+            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace name must be at least 5 characters")
+        }
     }
 
     @VisibleForTesting
@@ -173,6 +175,7 @@ class OpenWhiskServiceProvider implements ServiceProvider{
             log.error("Subject not found.")
             ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
         }
+        ObjectMapper mapper = new ObjectMapper()
 
         openWhiskDbClient.deleteSubjectFromDb(entity, mapper.readTree(doc).path("_rev").asText())
     }

@@ -40,18 +40,26 @@ class OpenWhiskServiceProviderSpec extends Specification{
     private ServiceBindingRepository serviceBindingRepository
 
     def setup() {
-        restTemplateFactory = Mock(RestTemplateFactory)
-        serviceInstanceRepository = Mock(ServiceInstanceRepository)
-        serviceBindingRepository = Mock(ServiceBindingRepository)
-        RestTemplate restTemplate = new RestTemplate()
-        restTemplateFactory.buildWithBasicAuthentication(_,_) >> restTemplate
-        mockServer = MockRestServiceServer.createServer(restTemplate)
+        setupMockInstances()
+        setupMockServer()
         openWhiskConfig = new OpenWhiskConfig(openWhiskDbProtocol: "http",
                 openWhiskDbHost: "openwhiskHost", openWhiskDbPort: "1234", openWhiskDbLocalUser: "ubuntu",
                 openWhiskDbHostname: "localhost", openWhiskPath: "/api/v1/")
         and:
         openWhiskServiceProvider = new OpenWhiskServiceProvider(openWhiskConfig, restTemplateFactory,
                 new OpenWhiskDbClient(openWhiskConfig, restTemplateFactory), serviceInstanceRepository, serviceBindingRepository)
+    }
+
+    def setupMockInstances() {
+        restTemplateFactory = Mock(RestTemplateFactory)
+        serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        serviceBindingRepository = Mock(ServiceBindingRepository)
+    }
+
+    def setupMockServer() {
+        RestTemplate restTemplate = new RestTemplate()
+        restTemplateFactory.buildWithBasicAuthentication(_,_) >> restTemplate
+        mockServer = MockRestServiceServer.createServer(restTemplate)
     }
 
     def "creating a new subject"() {

@@ -32,7 +32,7 @@ class OpenWhiskDbClientSpec extends Specification{
                 openWhiskDbHostname: "localhost"), restTemplateFactory)
     }
 
-    def "Retrieve subject - positive"() {
+    def "Retrieve existing subject"() {
         def response = """{
                                 "_id":"testing",
                                 "_rev":"1-fc4d69eb866e5032b08669aec49c0ea1",
@@ -58,7 +58,7 @@ class OpenWhiskDbClientSpec extends Specification{
         noExceptionThrown()
     }
 
-    def "Retrieve subject - negative"() {
+    def "Retrieve non-existing subject"() {
         given:
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -72,7 +72,7 @@ class OpenWhiskDbClientSpec extends Specification{
         noExceptionThrown()
     }
 
-    def "Insert subject - positive"(){
+    def "Insert subject with success"(){
         given:
         def response = """{
                                 "_id":"testing",
@@ -98,7 +98,7 @@ class OpenWhiskDbClientSpec extends Specification{
         noExceptionThrown()
     }
 
-    def "Insert subject - negative"(){
+    def "Insert subject with failure"(){
         given:
         def response = """{
                                 "_id":"testing",

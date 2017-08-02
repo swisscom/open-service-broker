@@ -53,34 +53,33 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         when:
         def credentials = serviceLifeCycler.getCredentials()
         restTemplate = restTemplatefactory.buildWithSSLValidationDisabledAndBasicAuthentication(credentials.get("uuid"), credentials.get("key"))
-        String packagePayload = "{\"version\": \"0.0.1\", \"publish\": true}"
+        String packagePayload = """{"version": "0.0.1", "publish": true}"""
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> packageEntity = new HttpEntity<String>(packagePayload, headers)
         String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
         ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.PUT, packageEntity, String.class)
         println("packageRes = ${packageRes}")
-        String actionPayload = "{" +
-                "\"version\": \"0.0.1\", " +
-                "\"publish\": false, " +
-                "\"exec\": { " +
-                    "\"kind\": \"nodejs:6\", " +
-                    "\"code\": \"function main() {return {payload: 'Hello world'};}\" " +
-                "}, " +
-                "\"annotations\": [ " +
-                    "{ " +
-                        "\"key\": \"web-export\"," +
-                        "\"value\": true " +
-                    "}, " +
-                    "{ " +
-                        "\"key\": \"raw-http\", " +
-                        "\"value\": false " +
-                    "}, " +
-                    "{ " +
-                        "\"key\": \"final\", " +
-                        "\"value\": true " +
-                    "}" +
-                "]}"
+        String actionPayload = """{"version": "0.0.1",
+                "publish": false,
+                "exec": {
+                    "kind": "nodejs:6",
+                    "code": "function main() {return {payload: 'Hello world'};}"
+                },
+                "annotations": [
+                    {
+                        "key": "web-export",
+                        "value": true
+                    },
+                    {
+                        "key": "raw-http",
+                        "value": false
+                    },
+                    {
+                        "key": "final",
+                        "value": true
+                    }
+                ]}"""
         HttpEntity<String> actionEntity = new HttpEntity<String>(actionPayload, headers)
         String actionUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/actions/OWTestPackage1/OWTestAction"
         ResponseEntity<String> actionRes = restTemplate.exchange(actionUrl, HttpMethod.PUT, actionEntity, String.class)

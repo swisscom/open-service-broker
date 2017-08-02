@@ -108,8 +108,7 @@ class ProvisioningController extends BaseController {
     }
 
     private DeprovisionRequest createDeprovisionRequest(String serviceInstanceGuid, boolean acceptsIncomplete) {
-        ServiceInstance serviceInstance = super.getAndCheckServiceInstance(serviceInstanceGuid)
-        return new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceInstance: serviceInstance, acceptsIncomplete: acceptsIncomplete)
+        return new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceInstance: super.getAndCheckServiceInstance(serviceInstanceGuid), acceptsIncomplete: acceptsIncomplete)
     }
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
