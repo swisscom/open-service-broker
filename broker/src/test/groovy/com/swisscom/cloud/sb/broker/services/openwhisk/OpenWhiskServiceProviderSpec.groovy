@@ -54,7 +54,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
                 new OpenWhiskDbClient(openWhiskConfig, restTemplateFactory), serviceInstanceRepository, serviceBindingRepository)
     }
 
-    def "Verify creating a new subject"() {
+    def "creating a new subject"() {
         given:
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -73,7 +73,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify adding a namespace to subject"() {
+    def "adding a namespace to subject"() {
         given:
         def response = """{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
@@ -93,7 +93,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify namespace conflict within subject"() {
+    def "namespace conflict within subject"() {
         given:
         def response = """{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[{"name":"TEST_NAMESPACE","uuid":"TEST_UUID","key":"TEST_KEY"}]}"""
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
@@ -111,7 +111,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify delete entity with existing subject/namespace"() {
+    def "delete entity with existing subject/namespace"() {
         given:
         def rev = "1-123456"
         def response = """{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}"""
@@ -133,7 +133,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify delete entity without existing subject/namespace"() {
+    def "delete entity without existing subject/namespace"() {
         given:
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/" + SUBJECT))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -150,7 +150,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify getSubject works"() {
+    def "get subject"() {
         given:
         def bindId = "bindId"
         ServiceBinding serviceBinding = new ServiceBinding(details: [ServiceDetail.from(OPENWHISK_SUBJECT, SUBJECT)])
@@ -162,7 +162,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         openWhiskServiceProvider.getSubject(bindId) == SUBJECT
     }
 
-    def "Verify getNamespace works"() {
+    def "get namespace"() {
         given:
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(details: [ServiceDetail.from(OPENWHISK_NAMESPACE, NAMESPACE)])
@@ -174,7 +174,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         openWhiskServiceProvider.getNamespace(serviceId) == NAMESPACE
     }
 
-    def "Verify provision functionality"() {
+    def "provision service instance"() {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "serviceId", plan: new Plan(), parameters: "{\"namespace\": \"${NAMESPACE}\"}")
 
@@ -220,7 +220,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     }
 
-    def "Verify deprovision functionality"() {
+    def "deprovision service instance"() {
         given:
         def serviceId = "serviceId"
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceId)
@@ -248,7 +248,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "Verify bind functionality"() {
+    def "bind to service instance"() {
         given:
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, details: [ServiceDetail.from(OPENWHISK_NAMESPACE, NAMESPACE)])
@@ -296,7 +296,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     }
 
-    def "Verify unbind functionality"() {
+    def "unbind from service instance"() {
         given:
         String serviceBindingId = "serviceBindingId"
         ServiceBinding serviceBinding = new ServiceBinding(guid: serviceBindingId, details: [ServiceDetail.from(OPENWHISK_SUBJECT, SUBJECT)])
