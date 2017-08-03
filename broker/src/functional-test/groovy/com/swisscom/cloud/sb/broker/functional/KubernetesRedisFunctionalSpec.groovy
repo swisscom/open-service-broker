@@ -19,7 +19,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     private KubernetesRedisConfig kubernetesConfig
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('kubernetesRedisService', findInternalName(KubernetesRedisServiceProvider))
+        serviceLifeCycler.createServiceIfDoesNotExist('redis-kubernetes', findInternalName(KubernetesRedisServiceProvider))
         createPlanParameters(serviceLifeCycler.plan)
     }
 
