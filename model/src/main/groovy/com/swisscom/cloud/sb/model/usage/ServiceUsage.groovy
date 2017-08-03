@@ -13,6 +13,9 @@ class ServiceUsage implements Serializable{
     @JsonProperty("value")
     String value
     @JsonSerialize
+    @JsonProperty("unit")
+    ServiceUsageUnit unit
+    @JsonSerialize
     @JsonProperty("type")
     ServiceUsageType type
     @JsonSerialize
@@ -24,8 +27,9 @@ class ServiceUsage implements Serializable{
     public String toString() {
         return "ServiceUsage{" +
                 "value='" + value + '\'' +
+                ", unit=" + unit +
                 ", type=" + type +
                 ", enddate=" + enddate +
-                '}'
+                '}';
     }
 }

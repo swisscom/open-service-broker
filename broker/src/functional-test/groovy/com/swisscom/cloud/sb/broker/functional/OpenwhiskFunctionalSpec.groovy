@@ -36,12 +36,8 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision openwhisk service instance"() {
         when:
-        Map<String, Object> serviceParams = new HashMap<String, Object>()
-        serviceParams.put("namespace", "OWTestNamespace")
-        serviceLifeCycler.createServiceInstanceAndAssert(1, false, false, serviceParams)
-        Map<String, Object> bindingParams = new HashMap<String, Object>()
-        bindingParams.put("subject", "OWTestSubject")
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, bindingParams)
+        serviceLifeCycler.createServiceInstanceAndAssert(1, false, false, [namespace: "OWTestNamespace"])
+        serviceLifeCycler.bindServiceInstanceAndAssert(null, [subject: "OWTestSubject"])
         println("Created serviceInstanceId:${serviceLifeCycler.serviceInstanceId} , serviceBindingId ${serviceLifeCycler.serviceBindingId}")
         def credentials = serviceLifeCycler.getCredentials()
         println("Credentials: ${credentials}")
@@ -54,8 +50,8 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         def credentials = serviceLifeCycler.getCredentials()
         restTemplate = restTemplatefactory.buildWithSSLValidationDisabledAndBasicAuthentication(credentials.get("uuid"), credentials.get("key"))
         String packagePayload = """{"version": "0.0.1", "publish": true}"""
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
         HttpEntity<String> packageEntity = new HttpEntity<String>(packagePayload, headers)
         String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
         ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.PUT, packageEntity, String.class)

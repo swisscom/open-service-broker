@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.google.common.annotations.VisibleForTesting
+import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
@@ -16,7 +19,11 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.model.usage.ServiceUsageType
+import com.swisscom.cloud.sb.model.usage.ServiceUsageUnit
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
@@ -34,7 +41,7 @@ import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_UUID
 @Component
 @CompileStatic
 @Slf4j
-class OpenWhiskServiceProvider implements ServiceProvider{
+class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
 
     private final OpenWhiskConfig openWhiskConfig
     private final RestTemplateFactory restTemplateFactory
@@ -56,16 +63,8 @@ class OpenWhiskServiceProvider implements ServiceProvider{
         ObjectMapper mapper = new ObjectMapper()
         JsonNode params = mapper.readTree(request.parameters)
 
-        def namespace = params.path("namespace").asText().trim()
-
-        if (!params.has("namespace")) {
-            log.error("Namespace parameter is missing in provision request.")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace parameter is missing in provision request.")
-        }
-
+        def namespace = validateNamespace(params)
         def subject = namespace
-
-        validateSubject(subject)
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
@@ -90,9 +89,10 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     @Override
     BindResponse bind(BindRequest request){
         String namespace = getNamespace(request.serviceInstance.guid)
-        String subject = request.parameters.getAt("subject")
 
-        validateSubject(subject)
+        log.info("request.parameters.has = ${request.parameters.hasProperty("subject")}")
+
+        def subject = validateSubject(request.parameters)
 
         def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
@@ -116,6 +116,17 @@ class OpenWhiskServiceProvider implements ServiceProvider{
     void unbind(UnbindRequest request){
         deleteEntity(getSubject(request.binding.guid))
         log.info("Subject deleted.")
+    }
+
+    @Override
+    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
+        ObjectMapper mapper = new ObjectMapper()
+        ArrayNode usageArray = (ArrayNode) mapper.readTree(openWhiskDbClient.getUsageForNamespace(ServiceDetailsHelper.from(serviceInstance).getValue(ServiceDetailKey.OPENWHISK_NAMESPACE))).path("rows")
+        def usage = 0
+        usageArray.each {
+            usage = usage + it.path("value").intValue()
+        }
+        return new ServiceUsage(value: usage.toString(), type: ServiceUsageType.TRANSACTIONS, unit: ServiceUsageUnit.MEGABYTE_SECOND)
     }
 
     @VisibleForTesting
@@ -144,17 +155,36 @@ class OpenWhiskServiceProvider implements ServiceProvider{
                     ErrorCode.OPENWHISK_NAMESPACE_ALREADY_EXISTS.throwNew()
                 }
             }
-            namespaceArray.add(mapper.readTree("{\"name\": \"${namespace}\", \"uuid\": \"${uuid}\", \"key\": \"${key}\"}"))
+            namespaceArray.add(mapper.readTree("""{"name": "${namespace}", "uuid": "${uuid}", "key": "${key}"}"""))
             docs["namespaces"] = namespaceArray
         }
 
         return docs
     }
 
-    private void validateSubject(String subject){
-        if (subject.length() < 5) {
-            log.error("Namespace name must be at least 5 characters")
-            ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace name must be at least 5 characters")
+    @VisibleForTesting
+    private String validateSubject(Map params){
+        if (params.containsKey("subject")) {
+            String subject = params["subject"]
+            if (subject.length() < 5) {
+                ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
+            }
+            return subject
+        } else {
+            return UUID.randomUUID().toString()
+        }
+    }
+
+    @VisibleForTesting
+    private String validateNamespace(JsonNode params){
+        if (!params.has("namespace")) {
+            return UUID.randomUUID().toString()
+        } else {
+            def namespace = params.path("namespace").asText().trim()
+            if (namespace.length() < 5) {
+                ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Namespace name must be at least 5 characters")
+            }
+            return namespace
         }
     }
 

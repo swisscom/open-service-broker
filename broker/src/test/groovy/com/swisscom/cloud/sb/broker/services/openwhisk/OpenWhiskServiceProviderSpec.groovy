@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
@@ -25,6 +26,7 @@ import spock.lang.Specification
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper.from
+import static java.util.UUID.fromString
 
 class OpenWhiskServiceProviderSpec extends Specification{
     private final String NAMESPACE = "TEST_NAMESPACE"
@@ -197,19 +199,26 @@ class OpenWhiskServiceProviderSpec extends Specification{
         then:
         from(provisionResponse.details).getValue(OPENWHISK_NAMESPACE) == NAMESPACE
     }
-
-    def "provision with missing namespace"() {
-        given:
-        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "serviceId", plan: new Plan(), parameters: "{}")
-
-        when:
-        openWhiskServiceProvider.provision(provisionRequest)
-
-        then:
-        def exception = thrown(ServiceBrokerException)
-        exception.httpStatus == HttpStatus.BAD_REQUEST
-
-    }
+        //TODO: Figure out how to dynamically change URI for mockServer
+//    def "provision with missing namespace"() {
+//        given:
+//        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "serviceId", plan: new Plan(), parameters: "{}")
+//
+//        mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${NAMESPACE}"))
+//                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+//                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"${SUBJECT}","_rev":"rev","subject":"${SUBJECT}","namespaces":[]}""", MediaType.TEXT_PLAIN))
+//
+//        mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects"))
+//                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
+//                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+//
+//        when:
+//        def provisionResponse = openWhiskServiceProvider.provision(provisionRequest)
+//
+//        then:
+//        println(from(provisionResponse.details).getValue(OPENWHISK_NAMESPACE))
+//
+//    }
 
     def "provision with namespace length < 5 characters"() {
         given:
@@ -255,9 +264,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         given:
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, details: [ServiceDetail.from(OPENWHISK_NAMESPACE, NAMESPACE)])
-        Map<String, Object> bindingParams = new HashMap<String, Object>()
-        bindingParams.put("subject", SUBJECT)
-        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: bindingParams)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: [subject: SUBJECT])
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         def rev = "1-123456"
@@ -284,9 +291,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         given:
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, details: [ServiceDetail.from(OPENWHISK_NAMESPACE, NAMESPACE)])
-        Map<String, Object> bindingParams = new HashMap<String, Object>()
-        bindingParams.put("subject", "test")
-        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: bindingParams)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: [subject: "test"])
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         when:
@@ -322,5 +327,35 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
         and:
         mockServer.verify()
+    }
+
+    def "subject provided"() {
+        expect:
+        openWhiskServiceProvider.validateSubject([subject: SUBJECT]) == SUBJECT
+    }
+
+    def "subject not provided"() {
+        when:
+        fromString(openWhiskServiceProvider.validateSubject([:]))
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "namespace provided"() {
+        given:
+        ObjectMapper mapper = new ObjectMapper()
+        expect:
+        openWhiskServiceProvider.validateNamespace(mapper.readTree("""{"namespace": "${NAMESPACE}"}""")) == NAMESPACE
+    }
+
+    def "namespace not provided"() {
+        given:
+        ObjectMapper mapper = new ObjectMapper()
+        when:
+        fromString(openWhiskServiceProvider.validateNamespace(mapper.readTree("""{}""")))
+
+        then:
+        noExceptionThrown()
     }
 }

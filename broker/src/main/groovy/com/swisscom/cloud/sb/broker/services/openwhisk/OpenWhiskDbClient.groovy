@@ -61,4 +61,9 @@ class OpenWhiskDbClient {
 
         return createRestTemplate().exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class).getBody()
     }
+
+    String getUsageForNamespace(String namespace){
+
+        return createRestTemplate().getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_whisks/_design/meter/_view/namespace?key=\"${namespace}\"", String.class).getBody()
+    }
 }
