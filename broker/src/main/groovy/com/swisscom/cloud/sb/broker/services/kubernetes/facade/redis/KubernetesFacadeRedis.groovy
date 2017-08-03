@@ -49,7 +49,7 @@ class KubernetesFacadeRedis implements KubernetesFacade {
         Map<String, String> passMap = (new KubernetesTemplatePasswordGenerator()).generatePassword()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
-            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
+            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults)
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class))
         }
