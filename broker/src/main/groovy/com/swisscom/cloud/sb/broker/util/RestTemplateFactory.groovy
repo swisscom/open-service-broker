@@ -55,13 +55,7 @@ class RestTemplateFactory {
 
     //Will not be used in production. Created to assist with development
     RestTemplate buildWithSSLValidationDisabledAndBasicAuthentication(String username, String password){
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(new SSLSocketFactory(new DummyTrustStrategy(), new DummyX509HostnameVerifier()))
-                .build()
-
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory()
-        requestFactory.setHttpClient(httpClient)
-        return decorateWithBasicAuthentication(new RestTemplate(requestFactory), username, password)
+        return decorateWithBasicAuthentication(buildWithSSLValidationDisabled(), username, password)
     }
 
 
