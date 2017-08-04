@@ -5,8 +5,6 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
-    int retryIntervalInSeconds
-    int maxRetryDurationInMinutes
     String portRange
     String openstackkUrl
     String openstackUsername

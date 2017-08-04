@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
+import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceConfig
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.mongodbent")
-class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
+class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceConfig {
     String opsManagerUrl
     String opsManagerUrlForAutomationAgent
     String opsManagerUser
@@ -38,8 +39,8 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig {
     @Override
     public String toString() {
         return "MongoDbEnterpriseConfig{" +
-                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes +
+                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__retryIntervalInSeconds +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__maxRetryDurationInMinutes +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername + '\'' +
