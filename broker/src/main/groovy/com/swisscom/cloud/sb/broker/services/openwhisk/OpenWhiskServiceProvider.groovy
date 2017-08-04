@@ -66,12 +66,12 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
             params = mapper.readTree(request.parameters)
         }
 
-        def namespace = validateNamespace(params)
+        def uuid = UUID.randomUUID().toString()
+        def namespace = validateNamespace(params, uuid)
         def subject = namespace
 
-        def uuid = UUID.randomUUID().toString()
         def key = RandomStringUtils.randomAlphanumeric(64)
-        openWhiskDbClient.insertIntoDatabase(subjectHelper(namespace, subject, uuid, key))
+        openWhiskDbClient.insertIntoDatabase(createSubject(namespace, subject, uuid, key))
         log.info("Namespace created.")
 
         return new ProvisionResponse(details: [from(OPENWHISK_UUID, uuid),
@@ -93,11 +93,11 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     BindResponse bind(BindRequest request){
         String namespace = getNamespace(request.serviceInstance.guid)
 
-        def subject = validateSubject(request.parameters)
-
         def uuid = UUID.randomUUID().toString()
+        def subject = validateSubject(request.parameters, uuid)
+
         def key = RandomStringUtils.randomAlphanumeric(64)
-        openWhiskDbClient.insertIntoDatabase(subjectHelper(namespace, subject, uuid, key))
+        openWhiskDbClient.insertIntoDatabase(createSubject(namespace, subject, uuid, key))
         log.info("Subject created.")
 
         String url = "${openWhiskConfig.openWhiskProtocol}://${openWhiskConfig.openWhiskHost}${openWhiskConfig.openWhiskPath}web/${namespace}"
@@ -131,7 +131,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @VisibleForTesting
-    private JsonNode subjectHelper(String namespace, String subject, String uuid, String key) {
+    private JsonNode createSubject(String namespace, String subject, String uuid, String key) {
         String doc = openWhiskDbClient.getSubjectFromDB(subject)
         JsonNode docs
         ObjectMapper mapper = new ObjectMapper()
@@ -164,9 +164,9 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @VisibleForTesting
-    private String validateSubject(Map params) {
+    private String validateSubject(Map params, String uuid) {
         if (params == null) {
-            return UUID.randomUUID().toString()
+            return uuid
         } else if (params.containsKey("subject")) {
             String subject = params["subject"]
             if (subject.length() < 5) {
@@ -174,16 +174,16 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
             }
             return subject
         } else {
-            return UUID.randomUUID().toString()
+            return uuid
         }
     }
 
     @VisibleForTesting
-    private String validateNamespace(JsonNode params){
+    private String validateNamespace(JsonNode params, String uuid){
         if (params == null) {
-            return UUID.randomUUID().toString()
+            return uuid
         } else if (!params.has("namespace")) {
-            return UUID.randomUUID().toString()
+            return uuid
         } else {
             def namespace = params.path("namespace").asText().trim()
             if (namespace.length() < 5) {

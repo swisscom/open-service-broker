@@ -15,5 +15,4 @@ interface IServiceBrokerClient {
     ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request)
     ResponseEntity<CreateServiceInstanceBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request)
     ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request)
-    ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId)
 }

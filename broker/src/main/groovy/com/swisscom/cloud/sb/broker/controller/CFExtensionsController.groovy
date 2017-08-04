@@ -54,14 +54,7 @@ class CFExtensionsController extends BaseController {
                             '/custom/service_instances/{service_instance}/endpoint'],
                     method = RequestMethod.GET)
     def endpoint(@PathVariable('service_instance') String serviceInstanceId) {
-        endpointLookup.lookup(super.getAndCheckServiceInstance(serviceInstanceId))
+        endpointLookup.lookup(getAndCheckServiceInstance(serviceInstanceId))
     }
 
-//    private ServiceInstance findServiceInstance(String serviceInstanceGuid) {
-//        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-//        if (!serviceInstance) {
-//            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
-//        }
-//        return serviceInstance
-//    }
 }

@@ -116,10 +116,6 @@ public class ServiceLifeCycler {
         }
     }
 
-    ResponseEntity<ServiceUsage> getUsage(){
-        return createServiceBrokerClientExternal().getUsage(serviceInstanceId)
-    }
-
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
 

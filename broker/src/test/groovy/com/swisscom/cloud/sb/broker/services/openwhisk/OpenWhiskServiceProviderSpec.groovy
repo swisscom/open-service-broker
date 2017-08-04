@@ -23,11 +23,11 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
+import java.util.UUID
 
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper.from
-import static java.util.UUID.fromString
 
 class OpenWhiskServiceProviderSpec extends Specification{
     private final String NAMESPACE = "TEST_NAMESPACE"
@@ -72,7 +72,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
                 .andRespond(MockRestResponseCreators.withStatus(HttpStatus.BAD_REQUEST))
 
         when:
-        JsonNode res = openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
+        JsonNode res = openWhiskServiceProvider.createSubject(NAMESPACE, SUBJECT, UUID, KEY)
 
         then:
         res.path("subject").asText().trim() == SUBJECT
@@ -91,7 +91,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
                 .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         when:
-        JsonNode res = openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
+        JsonNode res = openWhiskServiceProvider.createSubject(NAMESPACE, SUBJECT, UUID, KEY)
 
         then:
         res.path("subject").asText().trim() == SUBJECT
@@ -110,7 +110,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
                 .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"rev","subject":"TEST_SUBJECT","namespaces":[{"name":"TEST_NAMESPACE","uuid":"TEST_UUID","key":"TEST_KEY"}]}""", MediaType.TEXT_PLAIN))
 
         when:
-        openWhiskServiceProvider.subjectHelper(NAMESPACE, SUBJECT, UUID, KEY)
+        openWhiskServiceProvider.createSubject(NAMESPACE, SUBJECT, UUID, KEY)
 
         then:
         def exception = thrown(ServiceBrokerException)
@@ -332,12 +332,12 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     def "subject provided"() {
         expect:
-        openWhiskServiceProvider.validateSubject([subject: SUBJECT]) == SUBJECT
+        openWhiskServiceProvider.validateSubject([subject: SUBJECT], UUID) == SUBJECT
     }
 
     def "subject is null"() {
         when:
-        fromString(openWhiskServiceProvider.validateSubject(null))
+        openWhiskServiceProvider.validateSubject(null, UUID) == UUID
 
         then:
         noExceptionThrown()
@@ -345,7 +345,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     def "parameters doesn't contain subject"() {
         when:
-        fromString(openWhiskServiceProvider.validateSubject([:]))
+        openWhiskServiceProvider.validateSubject([:], UUID) == UUID
 
         then:
         noExceptionThrown()
@@ -355,12 +355,12 @@ class OpenWhiskServiceProviderSpec extends Specification{
         given:
         ObjectMapper mapper = new ObjectMapper()
         expect:
-        openWhiskServiceProvider.validateNamespace(mapper.readTree("""{"namespace": "${NAMESPACE}"}""")) == NAMESPACE
+        openWhiskServiceProvider.validateNamespace(mapper.readTree("""{"namespace": "${NAMESPACE}"}"""), UUID) == NAMESPACE
     }
 
     def "namespace is null"() {
         when:
-        fromString(openWhiskServiceProvider.validateNamespace(null))
+        openWhiskServiceProvider.validateNamespace(null, UUID) == UUID
 
         then:
         noExceptionThrown()
@@ -370,7 +370,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         given:
         ObjectMapper mapper = new ObjectMapper()
         when:
-        fromString(openWhiskServiceProvider.validateNamespace(mapper.readTree("{}")))
+        openWhiskServiceProvider.validateNamespace(mapper.readTree("{}"), UUID) == UUID
 
         then:
         noExceptionThrown()

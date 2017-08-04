@@ -53,7 +53,7 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         createPackage(credentials, headers)
         createAction(credentials, headers)
         executeAction(credentials)
-        serviceLifeCycler.getUsage()
+        serviceBrokerClient.getUsage(serviceLifeCycler.serviceInstanceId)
         deleteAction(credentials)
         deletePackage(credentials)
 

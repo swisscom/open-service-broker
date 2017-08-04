@@ -79,13 +79,6 @@ class ServiceBrokerClient implements IServiceBrokerClient {
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
 
-    @Override
-    ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/usage"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceUsage.class,
-                serviceInstanceId)
-    }
-
     static HttpHeaders createSimpleAuthHeaders(String username, String password) {
         def result = new HttpHeaders()
         if (password) {
