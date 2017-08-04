@@ -80,23 +80,7 @@ com.swisscom.cloud.sb.broker:
         INFLUXDB_PORT:
         INFLUXDB_USER:
         INFLUXDB_PASS:
-
-      redisPlanDefaults:
-        PLAN_ID:
-        TELEGRAF_IMAGE:
-        MAX_CONNECTIONS:
-        MAX_DATABASES:
-        REDIS_SERVER_MAX_MEMORY:
-        REDIS_MAX_MEMORY:
-        REDIS_MAX_CPU:
-        QUORUM:
-        REDIS_IMAGE:
-        SLAVEOF_COMMAND:
-        CONFIG_COMMAND:
-        REDIS_VERSION:
-        SENTINEL_MAX_CPU:
-        SENTINEL_MAX_MEMORY:
-
+        
     openwhisk:
       openWhiskProtocol:
       openWhiskHost:
@@ -108,7 +92,7 @@ com.swisscom.cloud.sb.broker:
       openWhiskDbHost:
       openWhiskDbLocalUser:
       openWhiskDbHostname:
-
+ 
   shield:
     baseUrl: 'https://shield.service.consul:8002'
     apiKey:
