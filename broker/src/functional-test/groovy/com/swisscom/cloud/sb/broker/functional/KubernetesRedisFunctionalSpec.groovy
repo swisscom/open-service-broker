@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,13 +19,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('redis-kubernetes', findInternalName(KubernetesRedisServiceProvider))
-        createPlanParameters(serviceLifeCycler.plan)
-    }
 
-    private void createPlanParameters(Plan plan) {
-        for (String key : kubernetesConfig.redisPlanDefaults.keySet()) {
-            serviceLifeCycler.createParameter(key, kubernetesConfig.redisPlanDefaults.get(key), plan)
-        }
     }
 
     def "Create and remove a redis instance"() {
@@ -42,7 +35,6 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         then:
         noExceptionThrown()
     }
-
 
 }
 

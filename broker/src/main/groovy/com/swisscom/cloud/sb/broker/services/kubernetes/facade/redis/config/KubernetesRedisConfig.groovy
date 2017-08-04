@@ -15,5 +15,4 @@ class KubernetesRedisConfig implements Config, EndpointConfig {
     String kubernetesRedisHost
     String kubernetesRedisV1TemplatesPath
     HashMap<String, String> redisConfigurationDefaults
-    HashMap<String, String> redisPlanDefaults
 }
