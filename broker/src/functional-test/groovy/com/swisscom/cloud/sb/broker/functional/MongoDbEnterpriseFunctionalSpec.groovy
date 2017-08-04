@@ -15,7 +15,7 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
 
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('mongodbenterprisev2', findInternalName(MongoDbEnterpriseServiceProvider), 'sc1-mongodbent-bosh-template')
+        serviceLifeCycler.createServiceIfDoesNotExist('mongodbenterprisev2', findInternalName(MongoDbEnterpriseServiceProvider), 'bosh-deployment-template-mongodb-ent')
         def plan = serviceLifeCycler.plan
         serviceLifeCycler.createParameter(BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, 'mongoenterprise-mongodbent-service', plan)
     }
@@ -26,7 +26,7 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision mongoDbEnterprise service instance"() {
         when:
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(820, true, true)
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(600, true, true)
         def credentials = serviceLifeCycler.getCredentials()
         println("Credentials: ${credentials}")
         then:
@@ -36,9 +36,7 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
    def "deprovision mongoDbEnterprise service instance"() {
         when:
         serviceLifeCycler.deleteServiceBindingAndAssert()
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true)
-        serviceLifeCycler.pauseExecution(400)
-
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, 180)
         then:
         noExceptionThrown()
     }

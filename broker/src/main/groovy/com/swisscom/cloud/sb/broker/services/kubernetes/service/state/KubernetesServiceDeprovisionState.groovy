@@ -8,24 +8,23 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum KubernetesServiceProvisionState implements ServiceStateWithAction<KubernetesServiceStateMachineContext> {
+enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<KubernetesServiceStateMachineContext> {
 
-    KUBERNETES_SERVICE_PROVISION(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    KUBERNETES_NAMESPACE_DELETION(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
     () {
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
-            return new StateChangeActionResult(go2NextState: true, details: stateContext.kubernetesFacade.provision(stateContext.lastOperationJobContext.provisionRequest))
+            stateContext.kubernetesFacade.deprovision(stateContext.lastOperationJobContext.deprovisionRequest)
+            return new StateChangeActionResult(go2NextState: true)
         }
     }),
 
-    KUBERNETES_SERVICE_PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp()),
-
-    KUBERNETES_SERVICE_PROVISION_FAILED(LastOperation.Status.FAILED, new NoOp())
+    DEPROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp())
 
     public static final Map<String, ServiceStateWithAction> map = new TreeMap<>()
 
     static {
-        for (KubernetesServiceProvisionState serviceState : KubernetesServiceProvisionState.values()) {
+        for (KubernetesServiceDeprovisionState serviceState : KubernetesServiceDeprovisionState.values()) {
             map.put(serviceState.getServiceInternalState(), serviceState)
         }
     }
@@ -33,7 +32,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
     private final LastOperation.Status status
     private final OnStateChange<KubernetesServiceStateMachineContext> onStateChange
 
-    KubernetesServiceProvisionState(LastOperation.Status lastOperationStatus, OnStateChange<KubernetesServiceStateMachineContext> onStateChange) {
+    KubernetesServiceDeprovisionState(LastOperation.Status lastOperationStatus, OnStateChange<KubernetesServiceStateMachineContext> onStateChange) {
         this.status = lastOperationStatus
         this.onStateChange = onStateChange
     }

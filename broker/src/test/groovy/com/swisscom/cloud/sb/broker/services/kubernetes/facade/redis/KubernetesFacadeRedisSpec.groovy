@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -35,15 +36,16 @@ class KubernetesFacadeRedisSpec extends Specification {
     KubernetesClient kubernetesClient
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
+    DeprovisionRequest deprovisionRequest
     KubernetesRedisConfig kubernetesConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
+        deprovisionRequest = Stub()
         endpointMapperParamsDecorated = Mock()
         kubernetesConfig.kubernetesRedisHost >> "host.redis"
-        kubernetesConfig.redisPlanDefaults >> Collections.emptyMap()
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
@@ -129,6 +131,16 @@ class KubernetesFacadeRedisSpec extends Specification {
         30 <= results.get(2).getValue().toString().length()
     }
 
+    def "deletion of service calls proper endpoint"() {
+        when:
+        kubernetesClient = Mock()
+        deprovisionRequest.serviceInstanceGuid >> "GUID"
+        and:
+        kubernetesRedisClientRedisDecorated.deprovision(deprovisionRequest)
+        then:
+        1 * kubernetesClient.exchange('/api/v1/namespaces/GUID', HttpMethod.DELETE, "", Object.class)
+    }
+
     private ServiceResponse mockServiceResponse() {
         ServiceResponse serviceResponse = Stub()
         Spec spec = Stub()
@@ -165,7 +177,7 @@ class KubernetesFacadeRedisSpec extends Specification {
         provisionRequest.plan >> Mock(Plan)
         provisionRequest.plan.parameters >> new HashSet<Parameter>() {
             {
-                add(new Parameter(name: "name"))
+                add(new Parameter(name: "name",value: "value"))
             }
         }
     }

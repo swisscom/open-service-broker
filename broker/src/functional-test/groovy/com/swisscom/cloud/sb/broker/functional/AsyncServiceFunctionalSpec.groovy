@@ -17,20 +17,14 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance"() {
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(true, true, ['delay': String.valueOf(processDelayInSeconds)])
-        waitBasedOnServiceConfiguration()
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true, ['delay': String.valueOf(processDelayInSeconds)])
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
 
-    private waitBasedOnServiceConfiguration() {
-        serviceLifeCycler.pauseExecution(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
-    }
-
     def "deprovision async service instance"() {
         when:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true)
-        waitBasedOnServiceConfiguration()
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }

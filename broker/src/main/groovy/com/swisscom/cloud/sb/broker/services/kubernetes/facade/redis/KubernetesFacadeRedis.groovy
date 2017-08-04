@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesRedisConfigUrlParams
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.KubernetesFacade
@@ -48,7 +49,7 @@ class KubernetesFacadeRedis implements KubernetesFacade {
         Map<String, String> passMap = (new KubernetesTemplatePasswordGenerator()).generatePassword()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
-            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults, kubernetesConfig.redisPlanDefaults)
+            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults)
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class))
         }
@@ -56,9 +57,9 @@ class KubernetesFacadeRedis implements KubernetesFacade {
     }
 
 
-    DeprovisionResponse deprovision(DeprovisionRequest request) {
-        //TODO probably just removing the whole workspace from K8s?? we need to talk to k8s Guys
-        return null
+    void deprovision(DeprovisionRequest request) {
+        kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
+                HttpMethod.DELETE, "", Object.class)
     }
 
     private Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> passMap, List<ResponseEntity> responses) {

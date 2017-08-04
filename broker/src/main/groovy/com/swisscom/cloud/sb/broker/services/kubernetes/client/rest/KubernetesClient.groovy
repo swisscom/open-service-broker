@@ -71,6 +71,9 @@ class KubernetesClient<RESPONSE> {
     }
 
     String convertYamlToJson(String yaml) {
+        if (yaml == null || yaml.isEmpty()) {
+            return ""
+        }
         ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory())
         Object obj = yamlReader.readValue(yaml, Object.class)
         ObjectMapper jsonWriter = new ObjectMapper()

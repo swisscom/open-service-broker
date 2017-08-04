@@ -1,4 +1,5 @@
-director_uuid: XXXXXXX #STACK_LEVEL
+director_uuid: '{{bosh-director-uuid}}'  #STACK LEVEL
+name: '{{prefix}}{{guid}}' #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
 instance_groups:
 - azs:
   - z1
@@ -7,14 +8,17 @@ instance_groups:
   - name: mms-automation-agent
     properties:
       mms-automation-agent:
-        indexed_consul_services:
-          mms-automation-agent:
-            name: {{.Guid}}
-        mmsApiKey: {{.BoshParam "mms-api-key"}} # SERVICE-INSTANCE LEVEL
-        mmsBaseUrl: {{.BoshParam "mms-base-url"}} # SERVICE-INSTANCE LEVEL
-        mmsGroupId: {{.BoshParam "mms-group-id"}} # SERVICE-INSTANCE LEVEL
-        service_id: {{.Guid}} #SERVICE-LEVEL same as service-id
-    release: mongoenterprise
+        mmsApiKey: '{{mms-api-key}}' # SERVICE-INSTANCE LEVEL
+        mmsBaseUrl: '{{mms-base-url}}' # SERVICE-INSTANCE LEVEL
+        mmsGroupId: '{{mms-group-id}}' # SERVICE-INSTANCE LEVEL
+        service_id: '{{guid}}' #SERVICE-LEVEL same as service-id
+      mongodb:
+        port: '{{port}}' # SERVICE-INSTANCE LEVEL
+        bin_path: '{{mongodb-binary-path}}' # SERVICE-INSTANCE LEVEL
+        health:
+          user: '{{health-check-user}}' # SERVICE-INSTANCE LEVEL
+          password: '{{health-check-password}}' # SERVICE-INSTANCE LEVEL
+    release: mongodb-enterprise
   - name: consul
     properties:
       consul:
@@ -30,27 +34,28 @@ instance_groups:
     release: konsul
   migrated_from:
   - az: z1
-    name: mongoenterprise_{{.Guid}}_z1 #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
-  name: mongoenterprise_{{.Guid}} #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
+    name: 'mongoenterprise_{{guid}}_z1' #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
+  name: 'mongoenterprise_{{guid}}' #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
   networks:
   - default:
     - dns
     - gateway
-    name: mongoenterprise  #STACK_LEVEL
-  persistent_disk_type: {{.BoshParam "plan"}}
+    name: mongoenterprise-mongodbent-service #STACK LEVEL
+  persistent_disk_type: 'mongoent.small'
+  env:
+    persistent_disk_fs: xfs
   stemcell: bosh-openstack-kvm-ubuntu-trusty-go_agent
-  vm_type: {{.Guid}} #SERVICE-INSTANCE LEVEL
-name: {{.Prefix}}-{{.Guid}} #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+  vm_type: 'mongoenterprise-mongodbent-bosh' #SERVICE-INSTANCE LEVEL
 properties: {}
 releases:
-- name: {{.BoshParam "release-name" }}  #SERVICE-TEMPLATE LEVEL
-  version: {{.BoshParam "release-version" }} #SERVICE-TEMPLATE LEVEL
+- name: mongodb-enterprise
+  version: latest
 - name: konsul
-  version: {{.BoshParam "consul-version" }} #SERVICE_TEMPLATE LEVEL
+  version: latest
 stemcells:
 - alias: bosh-openstack-kvm-ubuntu-trusty-go_agent
   name: bosh-openstack-kvm-ubuntu-trusty-go_agent
-  version: 3262.4
+  version: 3421.11 #SERVICE-TEMPLATE LEVEL
 update:
   canaries: 1
   canary_watch_time: 30000-180000

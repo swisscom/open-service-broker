@@ -18,13 +18,14 @@ enum EndpointMapper {
     Pair<String, ?> getEndpointUrlByType(String templateType) {
         if (mapper.containsKey(templateType))
             return mapper.get(templateType)
-        throw new RuntimeException("Template type not found!")
+        throw new RuntimeException("Template type not found!" + templateType)
     }
 
     static {
         mapper.put("Namespace", Pair.of("/api/v1/namespaces", new NamespaceResponse()))
         mapper.put("ServiceAccount", Pair.of("/api/v1/namespaces/serviceInstanceGuid/serviceaccounts", new ServiceAccountsResponse()))
         mapper.put("Role", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/roles", new RolesResponse()))
+        mapper.put("RoleBinding", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/rolebindings", new Object()))
         mapper.put("ConfigMap", Pair.of("/api/v1/namespaces/serviceInstanceGuid/configmaps", new ConfigMapResponse()))
         mapper.put("Service", Pair.of("/api/v1/namespaces/serviceInstanceGuid/services", new ServiceResponse()))
         mapper.put("Deployment", Pair.of("/apis/apps/v1beta1/namespaces/serviceInstanceGuid/deployments", new DeploymentResponse()))

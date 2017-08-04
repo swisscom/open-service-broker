@@ -40,7 +40,7 @@ com.swisscom.cloud.sb.broker:
       libFolder: '/var/vcap/store/mongodb-mms-automation'
       logFolder: '/var/vcap/sys/log/mms-automation-agent'
       authSchemaVersion: 5
-      mongoDbVersion: '3.2.6-ent'
+      mongoDbVersion: '3.4.3-ent'
       featureCompatibilityVersion: '3.4'
       configureDefaultBackupOptions: true
       snapshotIntervalHours: 6 #Supported values are 6, 8, 12, and 24
@@ -80,22 +80,6 @@ com.swisscom.cloud.sb.broker:
         INFLUXDB_PORT:
         INFLUXDB_USER:
         INFLUXDB_PASS:
-
-      redisPlanDefaults:
-        PLAN_ID:
-        TELEGRAF_IMAGE:
-        MAX_CONNECTIONS:
-        MAX_DATABASES:
-        REDIS_SERVER_MAX_MEMORY:
-        REDIS_MAX_MEMORY:
-        REDIS_MAX_CPU:
-        QUORUM:
-        REDIS_IMAGE:
-        SLAVEOF_COMMAND:
-        CONFIG_COMMAND:
-        REDIS_VERSION:
-        SENTINEL_MAX_CPU:
-        SENTINEL_MAX_MEMORY:
 
   shield:
     baseUrl: 'https://shield.service.consul:8002'

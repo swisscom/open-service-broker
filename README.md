@@ -57,8 +57,9 @@ docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar -Dspring.config.location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
+The config file passed can overwrite any default values. Providing an external config file is optional and when no external config file is provided, the default values are dictated by application.yml file(s).
 
 or
 
@@ -186,3 +187,9 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 
 #### MongoDB Enterprise
 https://github.com/swisscom/mongodb-enterprise-boshrelease
+
+### Kubernetes based services
+Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.     
+     
+
+

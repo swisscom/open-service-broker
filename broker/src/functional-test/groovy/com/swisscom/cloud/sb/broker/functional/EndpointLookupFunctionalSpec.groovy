@@ -17,7 +17,7 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
     def "should get a non empty response for endpoints of a service manager based service"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndAssert(false, false)
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
 
         when:
         def response = serviceBrokerClient.getEndpoint(serviceLifeCycler.serviceInstanceId)
@@ -33,7 +33,7 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
         given:
         ServiceLifeCycler lifeCycler = applicationContext.getBean(ServiceLifeCycler.class)
         lifeCycler.createServiceIfDoesNotExist('SynchronousDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
-        lifeCycler.createServiceInstanceAndAssert(false, false)
+        lifeCycler.createServiceInstanceAndAssert(0, false, false)
         when:
         def response = serviceBrokerClient.getEndpoint(lifeCycler.serviceInstanceId)
         then:

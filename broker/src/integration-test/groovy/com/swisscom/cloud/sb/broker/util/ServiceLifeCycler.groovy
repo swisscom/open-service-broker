@@ -40,15 +40,15 @@ public class ServiceLifeCycler {
     private final String serviceInstanceId
     private final String serviceBindingId
 
-    ServiceLifeCycler(){
-        this(UUID.randomUUID().toString(),UUID.randomUUID().toString())
+    ServiceLifeCycler() {
+        this(UUID.randomUUID().toString(), UUID.randomUUID().toString())
     }
 
-    ServiceLifeCycler(String serviceInstanceId){
-        this(serviceInstanceId,UUID.randomUUID().toString())
+    ServiceLifeCycler(String serviceInstanceId) {
+        this(serviceInstanceId, UUID.randomUUID().toString())
     }
 
-    ServiceLifeCycler(String serviceInstanceId,String serviceBindingId){
+    ServiceLifeCycler(String serviceInstanceId, String serviceBindingId) {
         this.serviceInstanceId = serviceInstanceId
         this.serviceBindingId = serviceBindingId
     }
@@ -83,7 +83,7 @@ public class ServiceLifeCycler {
                                      String planName = null, int maxBackups = 0) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
-            def tag =tagRepository.save( new Tag(tag: 'tag1'))
+            def tag = tagRepository.save(new Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
                     description: "functional test", bindable: true, tags: Sets.newHashSet(tag)))
@@ -115,7 +115,6 @@ public class ServiceLifeCycler {
     }
 
 
-
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
 
@@ -135,21 +134,20 @@ public class ServiceLifeCycler {
     }
 
 
-    void createServiceInstanceAndServiceBindingAndAssert(int delayInSecondsBetweenProvisionAndBind = 0,
+    void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false) {
-        createServiceInstanceAndAssert(asyncRequest, asyncResponse)
-
-        pauseExecution(delayInSecondsBetweenProvisionAndBind)
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse)
 
         bindServiceInstanceAndAssert()
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
-    void createServiceInstanceAndAssert(boolean asyncRequest = false, boolean asyncResponse = false,
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false,
                                         Map<String, Object> provisionParameters = null) {
         ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
+            waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
         } else {
             assert provisionResponse.statusCode == HttpStatus.CREATED
         }
@@ -178,17 +176,18 @@ public class ServiceLifeCycler {
                 .withBindingId(serviceBindingId))
     }
 
-    void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false) {
+    void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
         deleteServiceBindingAndAssert()
-        deleteServiceInstanceAndAssert(isAsync)
+        deleteServiceInstanceAndAssert(isAsync, maxSecondsToAwaitDelete)
     }
 
-    void deleteServiceInstanceAndAssert(boolean isAsync = false) {
+    void deleteServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
         def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId,
                 cfService.guid, plan.guid, isAsync))
 
         if (isAsync) {
             assert deprovisionResponse.statusCode == HttpStatus.ACCEPTED
+            waitUntilMaxTimeOrTargetState(maxSecondsToAwaitDelete)
         } else {
             assert deprovisionResponse.statusCode == HttpStatus.OK
             assert !serviceBindingRepository.findByGuid(serviceBindingId)
@@ -252,17 +251,16 @@ public class ServiceLifeCycler {
 
     void waitUntilMaxTimeOrTargetState(int seconds) {
         int sleepTime = 1000
-        int counter = 0
         if (seconds > 0) {
-            if(++counter%10 == 0 ){
-                LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).getBody().state
-                if(operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED  ){
-                    return
-                }
-            }
-
             for (def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
-                println("Execution continues in ${Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()} second(s)")
+                def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
+                if (timeUntilForcedExecution % 10 == 0) {
+                    LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).getBody().state
+                    if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
+                        return
+                    }
+                }
+                println("Execution continues in ${timeUntilForcedExecution} second(s)")
             }
         }
     }
@@ -273,7 +271,7 @@ public class ServiceLifeCycler {
     }
 
     def requestUpdateServiceInstance(boolean isAsync) {
-        createServiceBrokerClientWithCustomErrorHandler().updateServiceInstance(new UpdateServiceInstanceRequest('ServiceGuid','PlanGuid').withServiceInstanceId(serviceInstanceId))
+        createServiceBrokerClientWithCustomErrorHandler().updateServiceInstance(new UpdateServiceInstanceRequest('ServiceGuid', 'PlanGuid').withServiceInstanceId(serviceInstanceId))
     }
 
     private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
