@@ -14,6 +14,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -313,7 +314,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
         def rev = "1-123456"
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"TEST_SUBJECT","_rev":"${rev}","subject":"TEST_SUBJECT","namespaces":[]}""", MediaType.TEXT_PLAIN))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"_id":"${SUBJECT}","_rev":"${rev}","subject":"${SUBJECT}","namespaces":[]}""", MediaType.TEXT_PLAIN))
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_subjects/${SUBJECT}?rev=${rev}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -334,7 +335,15 @@ class OpenWhiskServiceProviderSpec extends Specification{
         openWhiskServiceProvider.validateSubject([subject: SUBJECT]) == SUBJECT
     }
 
-    def "subject not provided"() {
+    def "subject is null"() {
+        when:
+        fromString(openWhiskServiceProvider.validateSubject(null))
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "parameters doesn't contain subject"() {
         when:
         fromString(openWhiskServiceProvider.validateSubject([:]))
 
@@ -349,13 +358,38 @@ class OpenWhiskServiceProviderSpec extends Specification{
         openWhiskServiceProvider.validateNamespace(mapper.readTree("""{"namespace": "${NAMESPACE}"}""")) == NAMESPACE
     }
 
-    def "namespace not provided"() {
+    def "namespace is null"() {
+        when:
+        fromString(openWhiskServiceProvider.validateNamespace(null))
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "parameters doesn't contain namespace"() {
         given:
         ObjectMapper mapper = new ObjectMapper()
         when:
-        fromString(openWhiskServiceProvider.validateNamespace(mapper.readTree("""{}""")))
+        fromString(openWhiskServiceProvider.validateNamespace(mapper.readTree("{}")))
 
         then:
+        noExceptionThrown()
+    }
+
+    def "find usage of service instance"() {
+        given:
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://openwhiskHost:1234/ubuntu_localhost_whisks/_design/meter/_view/namespace?key=%22${NAMESPACE}%22"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess("""{"total_rows":31,"offset":0,"rows":[
+                                    {"id":"${NAMESPACE}/16db9f7ed84d483db08e7bda2dea4565","key":"${NAMESPACE}","value":12288},
+                                    {"id":"${NAMESPACE}/69c97109a7f64ffc9f46fd644d24d1e7","key":"${NAMESPACE}","value":11520},
+                                    {"id":"${NAMESPACE}/d816a0e8883d46daad74344d3385bd55","key":"${NAMESPACE}","value":12032},
+                                    {"id":"${NAMESPACE}/f59d41cf7f9e41a8bab69c333443222e","key":"${NAMESPACE}","value":12288}
+                                    ]}""", MediaType.TEXT_PLAIN))
+        when:
+        ServiceUsage serviceUsage = openWhiskServiceProvider.findUsage(new ServiceInstance(details: [ServiceDetail.from(OPENWHISK_NAMESPACE, NAMESPACE)]), null)
+        then:
+        serviceUsage.value == "48.128"
         noExceptionThrown()
     }
 }

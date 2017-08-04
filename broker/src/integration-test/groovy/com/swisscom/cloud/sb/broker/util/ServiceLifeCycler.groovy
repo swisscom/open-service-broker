@@ -9,6 +9,7 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
@@ -115,6 +116,9 @@ public class ServiceLifeCycler {
         }
     }
 
+    ResponseEntity<ServiceUsage> getUsage(){
+        return createServiceBrokerClientExternal().getUsage(serviceInstanceId)
+    }
 
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
@@ -236,6 +240,10 @@ public class ServiceLifeCycler {
 
     private ServiceBrokerClient createServiceBrokerClient() {
         return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+    }
+
+    private ServiceBrokerClient createServiceBrokerClientExternal() {
+        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfExtUsername, authenticationConfig.cfExtPassword)
     }
 
 

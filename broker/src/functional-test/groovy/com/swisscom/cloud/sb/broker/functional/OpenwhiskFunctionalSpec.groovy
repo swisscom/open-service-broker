@@ -36,26 +36,51 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision openwhisk service instance"() {
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(1, false, false, [namespace: "OWTestNamespace"])
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, [subject: "OWTestSubject"])
-        println("Created serviceInstanceId:${serviceLifeCycler.serviceInstanceId} , serviceBindingId ${serviceLifeCycler.serviceBindingId}")
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1, false, false)
         def credentials = serviceLifeCycler.getCredentials()
         println("Credentials: ${credentials}")
         then:
         noExceptionThrown()
     }
 
-    def "create and execute action"() {
+    def "Create, execute, delete an action"() {
         when:
         def credentials = serviceLifeCycler.getCredentials()
         restTemplate = restTemplatefactory.buildWithSSLValidationDisabledAndBasicAuthentication(credentials.get("uuid"), credentials.get("key"))
-        String packagePayload = """{"version": "0.0.1", "publish": true}"""
         HttpHeaders headers = new HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
-        HttpEntity<String> packageEntity = new HttpEntity<String>(packagePayload, headers)
+
+        createPackage(credentials, headers)
+        createAction(credentials, headers)
+        executeAction(credentials)
+        serviceLifeCycler.getUsage()
+        deleteAction(credentials)
+        deletePackage(credentials)
+
+//        deleteActivation()
+
+        then:
+        noExceptionThrown()
+
+    }
+
+    def "deprovision openwhisk service instance"() {
+        when:
+        serviceLifeCycler.deleteServiceBindingAndAssert()
+        serviceLifeCycler.deleteServiceInstanceAndAssert()
+        serviceLifeCycler.pauseExecution(1)
+
+        then:
+        noExceptionThrown()
+    }
+
+    void createPackage(Map credentials, HttpHeaders headers){
         String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
-        ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.PUT, packageEntity, String.class)
+        ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.PUT, new HttpEntity<String>("""{"version": "0.0.1", "publish": true}""", headers), String.class)
         println("packageRes = ${packageRes}")
+    }
+
+    void createAction(Map credentials, HttpHeaders headers){
         String actionPayload = """{"version": "0.0.1",
                 "publish": false,
                 "exec": {
@@ -81,7 +106,9 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         ResponseEntity<String> actionRes = restTemplate.exchange(actionUrl, HttpMethod.PUT, actionEntity, String.class)
 
         assert actionRes.statusCodeValue == 200 || actionRes.statusCodeValue == 202
+    }
 
+    void executeAction(Map credentials) {
         String executionURL = credentials.get("executionUrl") + "/OWTestPackage1/OWTestAction.json"
         ResponseEntity<String> executionRes = restTemplate.getForEntity(executionURL, String.class)
 
@@ -90,40 +117,24 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         String helloRes = params.path("payload").asText().trim()
 
         assert helloRes == "Hello world"
-        then:
-        noExceptionThrown()
-
     }
 
-    def "cleanup action and package"() {
-        when:
-        def credentials = serviceLifeCycler.getCredentials()
-        restTemplate = restTemplatefactory.buildWithSSLValidationDisabledAndBasicAuthentication(credentials.get("uuid"), credentials.get("key"))
-
-        String actionUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/actions/OWTestPackage1/OWTestAction"
-        ResponseEntity<String> actionRes =  restTemplate.exchange(actionUrl, HttpMethod.DELETE,null, String.class)
-        assert actionRes.statusCodeValue == 200
-
-        String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
-        ResponseEntity<String> packageRes =  restTemplate.exchange(packageUrl, HttpMethod.DELETE,null, String.class)
-        assert packageRes.statusCodeValue == 200
-
+    void deleteActivation(){
 //        TODO: Delete activation from DB
 //        String activationUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/activations"
 //        ResponseEntity<String> activationRes =  restTemplate.getForEntity(activationUrl, String.class)
 //        println("activationRes = ${activationRes}")
-
-        then:
-            noExceptionThrown()
     }
 
-    def "deprovision openwhisk service instance"() {
-        when:
-        serviceLifeCycler.deleteServiceBindingAndAssert()
-        serviceLifeCycler.deleteServiceInstanceAndAssert()
-        serviceLifeCycler.pauseExecution(1)
+    void deleteAction(Map credentials){
+        String actionUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/actions/OWTestPackage1/OWTestAction"
+        ResponseEntity<String> actionRes =  restTemplate.exchange(actionUrl, HttpMethod.DELETE,null, String.class)
+        assert actionRes.statusCodeValue == 200
+    }
 
-        then:
-        noExceptionThrown()
+    void deletePackage(Map credentials){
+        String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
+        ResponseEntity<String> packageRes =  restTemplate.exchange(packageUrl, HttpMethod.DELETE,null, String.class)
+        assert packageRes.statusCodeValue == 200
     }
 }

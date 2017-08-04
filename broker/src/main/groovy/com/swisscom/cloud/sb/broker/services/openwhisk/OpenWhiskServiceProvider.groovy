@@ -61,7 +61,10 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @Override
     ProvisionResponse provision(ProvisionRequest request){
         ObjectMapper mapper = new ObjectMapper()
-        JsonNode params = mapper.readTree(request.parameters)
+        JsonNode params =  null
+        if (request.parameters != null) {
+            params = mapper.readTree(request.parameters)
+        }
 
         def namespace = validateNamespace(params)
         def subject = namespace
@@ -89,8 +92,6 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @Override
     BindResponse bind(BindRequest request){
         String namespace = getNamespace(request.serviceInstance.guid)
-
-        log.info("request.parameters.has = ${request.parameters.hasProperty("subject")}")
 
         def subject = validateSubject(request.parameters)
 
@@ -122,11 +123,11 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         ObjectMapper mapper = new ObjectMapper()
         ArrayNode usageArray = (ArrayNode) mapper.readTree(openWhiskDbClient.getUsageForNamespace(ServiceDetailsHelper.from(serviceInstance).getValue(ServiceDetailKey.OPENWHISK_NAMESPACE))).path("rows")
-        def usage = 0
+        def usageMS = 0
         usageArray.each {
-            usage = usage + it.path("value").intValue()
+            usageMS = usageMS + it.path("value").intValue()
         }
-        return new ServiceUsage(value: usage.toString(), type: ServiceUsageType.TRANSACTIONS, unit: ServiceUsageUnit.MEGABYTE_SECOND)
+        return new ServiceUsage(value: (usageMS/1000).toString(), type: ServiceUsageType.TRANSACTIONS, unit: ServiceUsageUnit.MEGABYTE_SECOND)
     }
 
     @VisibleForTesting
@@ -163,8 +164,10 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @VisibleForTesting
-    private String validateSubject(Map params){
-        if (params.containsKey("subject")) {
+    private String validateSubject(Map params) {
+        if (params == null) {
+            return UUID.randomUUID().toString()
+        } else if (params.containsKey("subject")) {
             String subject = params["subject"]
             if (subject.length() < 5) {
                 ErrorCode.OPENWHISK_CANNOT_CREATE_NAMESPACE.throwNew("- Subject name must be at least 5 characters")
@@ -177,7 +180,9 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
 
     @VisibleForTesting
     private String validateNamespace(JsonNode params){
-        if (!params.has("namespace")) {
+        if (params == null) {
+            return UUID.randomUUID().toString()
+        } else if (!params.has("namespace")) {
             return UUID.randomUUID().toString()
         } else {
             def namespace = params.path("namespace").asText().trim()

@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.client
 
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.*
@@ -76,6 +77,13 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
                 HttpMethod.DELETE, new HttpEntity<com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
+    }
+
+    @Override
+    ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/usage"),
+                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceUsage.class,
+                serviceInstanceId)
     }
 
     static HttpHeaders createSimpleAuthHeaders(String username, String password) {
