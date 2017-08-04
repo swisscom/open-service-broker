@@ -46,7 +46,6 @@ class KubernetesFacadeRedisSpec extends Specification {
         deprovisionRequest = Stub()
         endpointMapperParamsDecorated = Mock()
         kubernetesConfig.kubernetesRedisHost >> "host.redis"
-        kubernetesConfig.redisPlanDefaults >> Collections.emptyMap()
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
@@ -178,7 +177,7 @@ class KubernetesFacadeRedisSpec extends Specification {
         provisionRequest.plan >> Mock(Plan)
         provisionRequest.plan.parameters >> new HashSet<Parameter>() {
             {
-                add(new Parameter(name: "name"))
+                add(new Parameter(name: "name",value: "value"))
             }
         }
     }
