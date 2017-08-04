@@ -46,7 +46,10 @@ enum ErrorCode {
     SERVICE_INSTANCE_DELETED("69037", "Service Instance not found", "SC-SB-SI", HttpStatus.GONE),
     BILLING_INVALID_PARAMETER("69038", "One or more of the input parameters can not be processed.", "SC-SB-BI", HttpStatus.UNPROCESSABLE_ENTITY),
     BILLING_INFLUX_DB_EMPTY_RESPONSE("69039", "InfluxDB empty result", "SC-SB-BI", HttpStatus.INTERNAL_SERVER_ERROR),
-    SERVICE_UPDATE_NOT_ALLOWED("69040", "Service update is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY)
+    SERVICE_UPDATE_NOT_ALLOWED("69040", "Service update is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY),
+    OPENWHISK_NAMESPACE_ALREADY_EXISTS("69041", "OpenWhisk namespace already exists", "SC-SB-OPENWHISK-NAMESPACE-ALREADY-EXISTS", HttpStatus.CONFLICT),
+    OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
+    OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode

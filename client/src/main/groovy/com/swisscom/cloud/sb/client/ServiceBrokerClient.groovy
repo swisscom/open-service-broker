@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.client
 
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.*
