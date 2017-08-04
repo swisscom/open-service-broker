@@ -13,8 +13,11 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
-import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceProvider
+import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
+import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
+import com.swisscom.cloud.sb.broker.services.bosh.BoshFacadeFactory
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
+import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineFactory
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
@@ -39,7 +42,7 @@ import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
 @Component
 @CompileStatic
 @Slf4j
-class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbEnterpriseConfig> {
+class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnterpriseConfig> implements BoshTemplateCustomizer {
     public static final String PARAM_MMS_BASE_URL = "mms-base-url"
     public static final String PARAM_MMS_API_KEY = "mms-api-key"
     public static final String MMS_GROUP_ID = "mms-group-id"
@@ -54,6 +57,9 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
 
     @Autowired
     protected MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder
+
+    @Autowired
+    protected BoshFacadeFactory boshFacadeFactory
 
     @PostConstruct
     void init() {
@@ -83,10 +89,12 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
 
         return [from(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
     }
+
     @VisibleForTesting
-    private String getMongoDbBinaryPath(){
+    private String getMongoDbBinaryPath() {
         ((MongoDbEnterpriseConfig) serviceConfig).libFolder + '/bin/'
     }
+
     @VisibleForTesting
     private String getOpsManagerUrl() {
         def mongodbConfig = (MongoDbEnterpriseConfig) serviceConfig
@@ -97,27 +105,28 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
         StateMachine stateMachine = createProvisionStateMachine(context)
         ServiceStateWithAction currentState = getProvisionState(context)
-        def actionResult = stateMachine.setCurrentState(currentState,createStateMachineContext(context))
+        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
         return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
     }
 
     @VisibleForTesting
     private MongoDbEnterperiseStateMachineContext createStateMachineContext(LastOperationJobContext context) {
         return new MongoDbEnterperiseStateMachineContext(mongoDbEnterpriseConfig: serviceConfig,
-                                                        mongoDbEnterpriseFreePortFinder: mongoDbEnterpriseFreePortFinder,
-                                                        opsManagerFacade: opsManagerFacade,
-                                                        boshFacade:getBoshFacade() ,
-                                                        boshTemplateCustomizer: this,
-                                                        lastOperationJobContext: context)
+                mongoDbEnterpriseFreePortFinder: mongoDbEnterpriseFreePortFinder,
+                opsManagerFacade: opsManagerFacade,
+                boshFacade: getBoshFacade(),
+                boshTemplateCustomizer: this,
+                lastOperationJobContext: context)
     }
 
     @VisibleForTesting
     private StateMachine createProvisionStateMachine(LastOperationJobContext context) {
         StateMachine stateMachine = new StateMachine([CREATE_OPS_MANAGER_GROUP])
         stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow(getBoshFacade().shouldCreateOpenStackServerGroup(context)))
-        stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS,ENABLE_BACKUP_IF_CONFIGURED,PROVISION_SUCCESS])
+        stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, ENABLE_BACKUP_IF_CONFIGURED, PROVISION_SUCCESS])
         return stateMachine
     }
+
     @VisibleForTesting
     private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
@@ -133,18 +142,18 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
         StateMachine stateMachine = createDeprovisionStateMachine(context)
         ServiceStateWithAction currentState = getDeprovisionState(context)
-        def actionResult = stateMachine.setCurrentState(currentState,createStateMachineContext(context))
+        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
         return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details))
     }
 
     @VisibleForTesting
-    private StateMachine createDeprovisionStateMachine(LastOperationJobContext context){
+    private StateMachine createDeprovisionStateMachine(LastOperationJobContext context) {
         StateMachine stateMachine = new StateMachine([MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED,
-                                                        MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG,
+                                                      MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG,
                                                       MongoDbEnterpriseDeprovisionState.CHECK_AUTOMATION_CONFIG_STATE,
                                                       MongoDbEnterpriseDeprovisionState.DELETE_HOSTS_ON_OPS_MANAGER])
         stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createDeprovisioningStateFlow(getBoshFacade().shouldCreateOpenStackServerGroup(context)))
-        stateMachine.addAll([MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP,MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS])
+        stateMachine.addAll([MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP, MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS])
     }
 
     @VisibleForTesting
@@ -197,5 +206,9 @@ class MongoDbEnterpriseServiceProvider extends BoshBasedServiceProvider<MongoDbE
 
     public static String getMongoDbGroupId(ServiceInstance serviceInstance) {
         return ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID)
+    }
+
+    BoshFacade getBoshFacade() {
+        return boshFacadeFactory.build(serviceConfig)
     }
 }

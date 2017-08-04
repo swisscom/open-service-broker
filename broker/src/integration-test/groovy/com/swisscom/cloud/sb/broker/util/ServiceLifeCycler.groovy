@@ -9,6 +9,7 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
@@ -33,6 +34,7 @@ public class ServiceLifeCycler {
     private CFService cfService
     private Plan plan
     private PlanMetadata planMetaData
+    private Parameter parameter
 
     private boolean serviceCreated
     private boolean planCreated
@@ -114,9 +116,12 @@ public class ServiceLifeCycler {
         }
     }
 
-
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
+
+        if(parameter){
+            parameterRepository.delete(parameter)
+        }
 
         if (serviceCreated) {
             deletePlan()
@@ -132,7 +137,6 @@ public class ServiceLifeCycler {
         cfService = cfServiceRepository.saveAndFlush(cfService)
         planRepository.delete(plan)
     }
-
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false) {
@@ -173,7 +177,7 @@ public class ServiceLifeCycler {
         def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, 'app_guid', null, bindingParameters)
 
         return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
-                .withBindingId(serviceBindingId))
+                .withBindingId(bindingId))
     }
 
     void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
@@ -210,7 +214,8 @@ public class ServiceLifeCycler {
     }
 
     Parameter createParameter(String name, String value, Plan plan) {
-        return parameterRepository.save(new Parameter(name: name, value: value, plan: plan))
+        parameter = new Parameter(name: name, value: value, plan: plan)
+        return parameterRepository.save(parameter)
     }
 
     CFService getCfService() {
@@ -231,6 +236,10 @@ public class ServiceLifeCycler {
 
     private ServiceBrokerClient createServiceBrokerClient() {
         return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+    }
+
+    private ServiceBrokerClient createServiceBrokerClientExternal() {
+        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfExtUsername, authenticationConfig.cfExtPassword)
     }
 
 

@@ -7,12 +7,13 @@ import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import spock.lang.Specification
 
 import java.lang.reflect.ParameterizedType
 
-abstract class AbstractBoshBasedServiceProviderSpec<T extends BoshBasedServiceProvider> extends Specification {
+abstract class AbstractAsyncServiceProviderSpec<T extends AsyncServiceProvider> extends Specification {
     public static final String serviceInstanceGuid = "serviceInstanceGuid"
 
     T serviceProvider

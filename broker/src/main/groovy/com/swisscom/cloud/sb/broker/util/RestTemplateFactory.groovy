@@ -53,6 +53,11 @@ class RestTemplateFactory {
         return new RestTemplate(requestFactory)
     }
 
+    //Will not be used in production. Created to assist with development
+    RestTemplate buildWithSSLValidationDisabledAndBasicAuthentication(String username, String password){
+        return decorateWithBasicAuthentication(buildWithSSLValidationDisabled(), username, password)
+    }
+
 
     static class DummyTrustStrategy implements TrustStrategy {
         @Override
