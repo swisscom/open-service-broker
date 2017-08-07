@@ -66,8 +66,6 @@ com.swisscom.cloud.sb.broker:
     kubernetes:
       kubernetesHost:
       kubernetesPort:
-      kubernetesClientPFXPath:
-      kubernetesClientPFXPasswordPath:
       retryIntervalInSeconds: 30
       maxRetryDurationInMinutes: 1
     kubernetes.redis.v1:

@@ -70,8 +70,6 @@ class KubernetesClientSpec extends Specification {
 
     private KubernetesConfig mockConfig(File createdFile) {
         kubernetesConfig = Stub(KubernetesConfig)
-        kubernetesConfig.getKubernetesClientPFXPath() >> createdFile.getAbsolutePath()
-        kubernetesConfig.getKubernetesClientPFXPasswordPath() >> "PASS"
         kubernetesConfig
     }
 

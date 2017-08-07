@@ -44,6 +44,7 @@ dependencies {
     compile('org.pacesys:openstack4j-core:2.20')
     compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
     compile('org.mongodb:mongo-java-driver:2.13.0')
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.46'
     compile project(':model')
     compile project(':client')
     // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
