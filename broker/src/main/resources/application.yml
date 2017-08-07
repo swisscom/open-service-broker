@@ -68,6 +68,12 @@ com.swisscom.cloud.sb.broker:
       kubernetesPort:
       retryIntervalInSeconds: 30
       maxRetryDurationInMinutes: 1
+      kubernetesClientCertificate: ""
+      kubernetesClientKey: ""
+      kubernetesClientKeyStorePassword: ""
+      kubernetesClientKeyAlias: "1"
+      kubernetesClientCertAlias: ""
+
     kubernetes.redis.v1:
       kubernetesRedisHost:
       kubernetesRedisV1TemplatesPath:
