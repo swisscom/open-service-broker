@@ -29,6 +29,8 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(600, true, true)
         def credentials = serviceLifeCycler.getCredentials()
         println("Credentials: ${credentials}")
+        // Wait a few more seconds to let all the OpsManager operations complete before the deprovisioning requests continues
+        serviceLifeCycler.pauseExecution(30)
         then:
         noExceptionThrown()
     }

@@ -4,7 +4,7 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.bosh.AbstractBoshBasedServiceProviderSpec
+import com.swisscom.cloud.sb.broker.services.bosh.AbstractAsyncServiceProviderSpec
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerCredentials
@@ -22,7 +22,7 @@ import static ServiceDetail.from
 import static ServiceDetailKey.DATABASE
 import static ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 
-class MongoDbEnterpriseServiceProviderSpec extends AbstractBoshBasedServiceProviderSpec<MongoDbEnterpriseServiceProvider> {
+class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderSpec<MongoDbEnterpriseServiceProvider> {
     private String serviceInstanceGuid = 'serviceInstanceGuid'
 
 

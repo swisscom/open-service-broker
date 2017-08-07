@@ -78,7 +78,19 @@ com.swisscom.cloud.sb.broker:
         INFLUXDB_PORT:
         INFLUXDB_USER:
         INFLUXDB_PASS:
-
+        
+    openwhisk:
+      openWhiskProtocol:
+      openWhiskHost:
+      openWhiskPath:
+      openWhiskDbUser:
+      openWhiskDbPass:
+      openWhiskDbProtocol:
+      openWhiskDbPort:
+      openWhiskDbHost:
+      openWhiskDbLocalUser:
+      openWhiskDbHostname:
+ 
   shield:
     baseUrl: 'https://shield.service.consul:8002'
     apiKey:

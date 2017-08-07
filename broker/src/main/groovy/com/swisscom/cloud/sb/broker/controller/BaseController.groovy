@@ -55,13 +55,13 @@ abstract class BaseController {
     protected ServiceInstance getAndCheckServiceInstance(String serviceInstanceId) {
         ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
         if (!serviceInstance) {
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("ID = ${serviceInstanceId}")
         }
         if (serviceInstance.deleted) {
-            ErrorCode.SERVICE_INSTANCE_DELETED.throwNew()
+            ErrorCode.SERVICE_INSTANCE_DELETED.throwNew("ID = ${serviceInstanceId}")
         }
         if (!serviceInstance.completed) {
-            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew()
+            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew("ID = ${serviceInstanceId}")
         }
         return serviceInstance
     }
