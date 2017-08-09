@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.comparator.NumberPrefixedStringComparator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Component
 
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @Log4j
 @Component
@@ -37,10 +40,10 @@ class KubernetesTemplateManager {
     }
 
     private String[] getTemplatesFilesNames() {
-        File file = new File(kubernetesConfig.getKubernetesRedisV1TemplatesPath())
-        if (file.isDirectory() && file.list().size() > 0) {
-            Arrays.sort(file.list())
-            return file.list()
+        String[] files = (new File(kubernetesConfig.getKubernetesRedisV1TemplatesPath())).list()
+        if (files.size() > 0) {
+            Arrays.sort(files, new NumberPrefixedStringComparator())
+            return files
         }
         throw new RuntimeException("Missing Kubernetes templates in " + kubernetesConfig.getKubernetesRedisV1TemplatesPath())
     }
