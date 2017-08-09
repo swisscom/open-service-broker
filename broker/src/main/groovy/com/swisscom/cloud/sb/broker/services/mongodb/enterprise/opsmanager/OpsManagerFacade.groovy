@@ -9,12 +9,16 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpris
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
+import com.swisscom.cloud.sb.broker.util.NamedDistributedMutex
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
+import java.util.concurrent.TimeUnit
+
+import static com.swisscom.cloud.sb.broker.error.ErrorCode.MONGODB_OPS_MANAGER_MUTEX_FAILED
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto.UserRole.GROUP_MONITORING_ADMIN
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.AuthenticationDto.DbRole.of
 import static com.swisscom.cloud.sb.broker.util.StringGenerator.randomAlphaNumeric
@@ -53,6 +57,9 @@ class OpsManagerFacade {
 
     @Autowired
     MongoDbEnterpriseConfig mongoDbEnterpriseConfig
+
+    @Autowired
+    NamedDistributedMutex namedSemaphore
 
     def OpsManagerGroup createGroup(String serviceInstanceId) {
         GroupDto groupDto = opsManagerClient.createGroup(new GroupDto(name: serviceInstanceId, publicApiEnabled: true))
@@ -324,8 +331,8 @@ class OpsManagerFacade {
         //populateKeyInfo(authenticationDto)
     }
 
-    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto){
-        if(!authenticationDto.autoAuthMechanism){
+    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto) {
+        if (!authenticationDto.autoAuthMechanism) {
             authenticationDto.autoAuthMechanism = AUTH_MECHANISM_MONGODB_CR
         }
     }
@@ -346,22 +353,28 @@ class OpsManagerFacade {
     }
 
     private void getAutomationConfigAndApplyClosure(String groupId, Closure configUpdater) {
-        AutomationConfigDto automationConfig = opsManagerClient.getAutomationConfig(groupId)
+        def lockName = "${OpsManagerClient.getSimpleName()}-${groupId}"
+        if (namedSemaphore.tryLock(lockName, mongoDbEnterpriseConfig.opsManagerAutomationConfigUpdateTimeoutInSeconds, TimeUnit.SECONDS)) {
+            AutomationConfigDto automationConfig = opsManagerClient.getAutomationConfig(groupId)
 
 
-        def jsonBefore = new Gson().toJson(automationConfig)
-        log.debug("Received AutomationConfig json:${jsonBefore}")
+            def jsonBefore = new Gson().toJson(automationConfig)
+            log.debug("Received AutomationConfig json:${jsonBefore}")
 
-        configUpdater(automationConfig)
+            configUpdater(automationConfig)
 
-        def jsonAfter = new Gson().toJson(automationConfig)
-        log.debug("Modified AutomationConfig json:${jsonAfter}")
+            def jsonAfter = new Gson().toJson(automationConfig)
+            log.debug("Modified AutomationConfig json:${jsonAfter}")
 
-        if (jsonAfter.equals(jsonBefore)) {
-            log.warn('AutomationConfig before and after closure application are the same, skipping update!')
-            return
+            if (jsonAfter.equals(jsonBefore)) {
+                log.warn('AutomationConfig before and after closure application are the same, skipping update!')
+                return
+            }
+            opsManagerClient.updateAutomationConfig(groupId, automationConfig)
+            namedSemaphore.unlock(lockName)
+        } else {
+            MONGODB_OPS_MANAGER_MUTEX_FAILED.throwNew()
         }
-        opsManagerClient.updateAutomationConfig(groupId, automationConfig)
     }
 
     public boolean isAutomationUpdateComplete(String groupId, int targetGoalVersion) {

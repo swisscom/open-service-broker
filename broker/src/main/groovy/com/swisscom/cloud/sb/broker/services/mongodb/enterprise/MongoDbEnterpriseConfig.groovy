@@ -16,6 +16,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceCon
     String opsManagerApiKey
     String opsManagerUserRoles
     String opsManagerIpWhiteList
+    int opsManagerAutomationConfigUpdateTimeoutInSeconds = 60
     String portRange
     String dbFolder
     String libFolder
@@ -73,6 +74,7 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceCon
                 ", maxRetryDurationInMinutes=" + maxRetryDurationInMinutes +
                 ", backupConfigRetryInMilliseconds=" + backupConfigRetryInMilliseconds +
                 ", advancedBinding=" + advancedBinding +
-                '}';
+                ", opsManagerAutomationConfigUpdateTimeoutInSeconds=" + opsManagerAutomationConfigUpdateTimeoutInSeconds +
+                '}'
     }
 }

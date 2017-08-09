@@ -35,6 +35,7 @@ com.swisscom.cloud.sb.broker:
       opsManagerUrlForAutomationAgent: '' #This parameter is optional
       opsManagerUser:
       opsManagerApiKey:
+      opsManagerAutomationConfigUpdateTimeoutInSeconds: 60
       portRange: '27000-40000'
       dbFolder: '/var/vcap/store/mongodb-data'
       libFolder: '/var/vcap/store/mongodb-mms-automation'

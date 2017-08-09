@@ -32,13 +32,14 @@ class NamedDistributedMutex {
             if (namedLockRepository.findByName(lockName)) {
                 sleep(1000)
             } else {
-                def namedLock = new NamedLock(name: lockName, ttlInSeconds: 30)
+                def namedLock = new NamedLock(name: lockName, ttlInSeconds: new Long(unit.toSeconds(time)).intValue())
                 try {
                     def persistedNamedLock = namedLockRepository.save(namedLock)
                     if (persistedNamedLock) {
                         return true
                     }
                 } catch (DataIntegrityViolationException dve) {
+                    // Simply retry in the next round
                 }
             }
         }
