@@ -9,6 +9,7 @@ import groovy.util.logging.Log4j
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
+import org.bouncycastle.openssl.PEMReader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 import javax.net.ssl.SSLContext
+import java.security.KeyPair
 import java.security.KeyStore
+import java.security.Security
+import java.security.cert.Certificate
+import java.security.cert.X509Certificate
 
 @CompileStatic
 @Component
@@ -58,16 +63,25 @@ class KubernetesClient<RESPONSE> {
 
     private SSLContext getSSLContext() {
         SSLContext sslContext = SSLContexts.custom()
-                .loadKeyMaterial(getKeyStore(), null).loadTrustMaterial(new TrustSelfSignedStrategy())
+                .loadKeyMaterial(getKeyStore(), null)
+                .loadTrustMaterial(new TrustSelfSignedStrategy())
                 .build()
         return sslContext
     }
 
     private KeyStore getKeyStore() {
-        keyStore.load(
-                new FileInputStream(kubernetesConfig.getKubernetesClientPFXPath()),
-                kubernetesConfig.getKubernetesClientPFXPasswordPath().toCharArray())
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider())
+        X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(kubernetesConfig.kubernetesClientCertificate)))).readObject()
+        keyStore.load(null, "".toCharArray())
+        keyStore.setCertificateEntry("", cert)
+        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(kubernetesConfig.kubernetesClientKey))).readObject()).getPrivate(), "".toCharArray(), createCertChain(cert))
         return keyStore
+    }
+
+    private Certificate[] createCertChain(X509Certificate cert) {
+        Certificate[] cer = new Certificate[1]
+        cer[0] = cert
+        cer
     }
 
     String convertYamlToJson(String yaml) {

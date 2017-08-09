@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Configuration
 class KubernetesConfig implements Config, EndpointConfig, AsyncServiceConfig {
     String kubernetesHost
     String kubernetesPort
-    String kubernetesClientPFXPath
-    String kubernetesClientPFXPasswordPath
+    String kubernetesClientCertificate
+    String kubernetesClientKey
+    int retryIntervalInSeconds
+    int maxRetryDurationInMinutes
+
 }
