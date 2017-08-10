@@ -54,13 +54,12 @@ class ServiceDefinitionProcessor {
         processPlans(service, serviceJson)
     }
 
-    def createOrUpdateServiceDefinitionFromYaml(ServiceDto content) {
-
-        CFService service = processServiceBasicDefiniton(content)
-        processServiceTags(service, content)
-        processServiceMetadata(service, content)
-        processServicePermissions(service, content)
-        processPlans(service, content)
+    def createOrUpdateServiceDefinitionFromYaml(ServiceDto serviceDto) {
+        CFService service = processServiceBasicDefiniton(serviceDto)
+        processServiceTags(service, serviceDto)
+        processServiceMetadata(service, serviceDto)
+        processServicePermissions(service, serviceDto)
+        processPlans(service, serviceDto)
     }
 
     def deleteServiceDefinition(String id) {
