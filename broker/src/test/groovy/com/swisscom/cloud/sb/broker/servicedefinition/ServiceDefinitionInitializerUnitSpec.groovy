@@ -44,14 +44,14 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
 
     def "Missing service definition from config"() {
         given:
-        cfServiceList << new CFService(name: "test3")
+        cfServiceList << new CFService(name: "test2")
 
         when:
         serviceDefinitionInitializer.checkForMissingServiceDefinitions(cfServiceList)
 
         then:
         def exception = thrown(Exception)
-        exception.message == "Missing service definition configuration exception. Service list - [test1, test2, test3]"
+        exception.message == "Missing service definition configuration exception. Service list - [test1, test2]"
     }
 
     def "Update service definition"() {
