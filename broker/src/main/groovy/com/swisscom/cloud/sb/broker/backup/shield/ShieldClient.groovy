@@ -132,8 +132,6 @@ class ShieldClient {
     }
 
     private ShieldRestClient buildClient() {
-        RestTemplate restTemplate = new RestTemplate()
-        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
-        shieldRestClientFactory.build(restTemplate, shieldConfig.baseUrl, shieldConfig.apiKey, shieldConfig.agent)
+        shieldRestClientFactory.build(new RestTemplate(), shieldConfig.baseUrl, shieldConfig.apiKey, shieldConfig.agent)
     }
 }

@@ -38,7 +38,6 @@ class ShieldRestClientSpec extends Specification {
 
     def setup() {
         RestTemplate restTemplate = new RestTemplate()
-        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         mockServer = MockRestServiceServer.createServer(restTemplate)
         and:
         shieldRestClient = new ShieldRestClient(restTemplate, baseUrl, apiKey, agent)
