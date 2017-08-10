@@ -79,11 +79,6 @@ class JobManagerSpec extends BaseSpecification {
         serviceLifeCycler.cleanup()
     }
 
-    @Autowired
-    def injectServiceLifeCycler(ServiceLifeCycler serviceLifeCycler){
-        this.serviceLifeCycler = serviceLifeCycler
-    }
-
     def cleanup() {
         removeLastOperation(id)
         and:

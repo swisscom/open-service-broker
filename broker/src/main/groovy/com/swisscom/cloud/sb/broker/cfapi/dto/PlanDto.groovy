@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -11,4 +12,5 @@ class PlanDto {
     String description
     boolean free
     Map<String, Object> metadata
+    List<ParameterDto> containerParams
 }
