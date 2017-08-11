@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.model.repository.NamedLockRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.CannotAcquireLockException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 
@@ -28,7 +29,11 @@ class NamedDistributedMutex {
             if (System.nanoTime() >= deadline) {
                 return false
             }
-            namedLockRepository.deleteAllExpiredByName(lockName)
+            try {
+                namedLockRepository.deleteAllExpiredByName(lockName)
+            } catch(CannotAcquireLockException cale) {
+                // This can happen
+            }
             if (namedLockRepository.findByName(lockName)) {
                 sleep(1000)
             } else {

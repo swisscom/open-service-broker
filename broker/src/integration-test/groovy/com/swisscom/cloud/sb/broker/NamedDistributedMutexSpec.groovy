@@ -35,8 +35,8 @@ class NamedDistributedMutexSpec extends BaseTransactionalSpecification {
             })
         }
         // Wait until all threads are finish
+        executor.shutdown()
         executor.awaitTermination(60, TimeUnit.SECONDS)
-        executor.shutdown
 
         then:
         noExceptionThrown()
