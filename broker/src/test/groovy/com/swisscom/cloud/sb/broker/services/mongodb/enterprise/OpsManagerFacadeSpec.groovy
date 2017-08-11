@@ -6,12 +6,14 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsMa
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
+import com.swisscom.cloud.sb.broker.util.NamedDistributedMutex
 import spock.lang.Specification
 
 class OpsManagerFacadeSpec extends Specification {
     OpsManagerFacade opsManagerFacade
     OpsManagerClient opsManagerClient
     MongoDbEnterpriseConfig mongoDbEnterpriseConfig
+    NamedDistributedMutex namedDistributedMutex
 
     def groupId = "groupId"
     def database = "database"
@@ -26,8 +28,14 @@ class OpsManagerFacadeSpec extends Specification {
         opsManagerClient = Mock(OpsManagerClient)
 
         and:
+        namedDistributedMutex = Mock(NamedDistributedMutex)
+        namedDistributedMutex.tryLock(_, _, _,) >> true
+        namedDistributedMutex.unlock(_) >> null
+
+        and:
         opsManagerFacade = new OpsManagerFacade(opsManagerClient: opsManagerClient,
-                mongoDbEnterpriseConfig: mongoDbEnterpriseConfig)
+                mongoDbEnterpriseConfig: mongoDbEnterpriseConfig,
+                namedSemaphore: namedDistributedMutex)
     }
 
     def "creation of group functions correctly"() {

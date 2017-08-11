@@ -51,7 +51,7 @@ class NamedDistributedMutex {
         return false
     }
 
-    boolean unlock(String lockName) {
+    void unlock(String lockName) {
         namedLockRepository.deleteByName(lockName)
     }
 
