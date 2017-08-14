@@ -36,18 +36,14 @@ class ServiceDefinitionInitializer implements ApplicationRunner{
     }
 
     void checkForMissingServiceDefinitions(List<CFService> cfServiceList) {
-        List<String> configNameList = new ArrayList<>()
-        serviceDefinitionConfig.serviceDefinitions.each {
-            configNameList << it.name
-        }
+        def configGuidList = serviceDefinitionConfig.serviceDefinitions.collect {it.guid}
 
-        List<String> nameList = new ArrayList<>()
-        cfServiceList.each {
-            nameList << it.name
-        }
+        def guidList = cfServiceList.collect {it.guid}
 
-        if (!configNameList.containsAll(nameList)){
-            throw new Exception("Missing service definition configuration exception. Service list - ${nameList}")
+        if (configGuidList.size() != 0) {
+            if (!configGuidList.containsAll(guidList)) {
+                throw new Exception("Missing service definition configuration exception. Service list - ${guidList}")
+            }
         }
     }
 

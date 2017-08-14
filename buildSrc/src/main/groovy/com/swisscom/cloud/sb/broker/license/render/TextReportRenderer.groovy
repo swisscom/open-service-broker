@@ -16,7 +16,7 @@ class TextReportRenderer implements ReportRenderer{
     private LicenseReportPlugin.LicenseReportExtension config
     private File output
     private int counter
-    private String fileName = "THIRD-PARTY-NOTICES.txt"
+    private String fileName
 
     public TextReportRenderer() {
     }
@@ -28,6 +28,9 @@ class TextReportRenderer implements ReportRenderer{
     void render(ProjectData data) {
         project = data.project
         config = project.licenseReport
+        if (fileName == null) {
+            fileName = config.outputDir + "/THIRD-PARTY-NOTICES.txt"
+        }
         output = new File(fileName)
         output.text = """
 Dependency License Report for $project.name
