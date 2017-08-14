@@ -1,3 +1,9 @@
+apply plugin: 'com.github.jk1.dependency-license-report'
+
+licenseReport {
+    renderer = new com.swisscom.cloud.sb.broker.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
+}
+
 buildscript {
     ext {
         springBootVersion = '1.4.2.RELEASE'
