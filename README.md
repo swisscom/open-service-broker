@@ -219,5 +219,4 @@ Binding will return the HOST, UUID, and KEY. With these credentials, you can con
 wsk property set --apihost HOST --auth UUID:KEY
 ```
 
-####Design
 As the OpenWhisk API does not provide the create/update/delete functionality that we were hoping for, we perform CRUD namespace/subject directly into the CouchDB.
