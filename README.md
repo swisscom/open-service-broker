@@ -140,7 +140,7 @@ serviceDefinitions:
       displayName: 'Small'
 ```
 
-###**_Following endpoints to be deprecated_**
+**_Following endpoints to be deprecated_**
 ### Get service definition
 
 Via the example call below, service definitions for a given service id can be retrieved.
