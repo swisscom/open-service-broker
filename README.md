@@ -97,38 +97,13 @@ The configuration file for the Service Broker is located under
 
 ## Service Definitions
 
-### Get service definition
-
-Via the example call below, service definitions for a given service id can be retrieved.
-
-```bash
-curl -u 'username:password' -X GET 'http://localhost:8080/custom/admin/service-definition/{service_id}'
-```
-
-### Add service definition
-
-Service Broker provides a way to update service definitions via HTTP calls.
-
-Here is an example:
-
-```bash
-curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file' 'http://localhost:8080/custom/admin/service-definition'
-```
-
-This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
-
-### Remove service definition
-
-A service and its plan(s), which are not used i.e. which have no service instances, can be removed via a REST interface.
-Here is an example for how to delete a service that has the id `service_id`:
-
-```bash
-curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
-```
+Service definitions are maintained in the application.yml under the serviceDefinitions key. This key expects a list of service definitions as values. 
+On startup, the service broker will validate that service definitions from in the database exist in the application.yml configurations based on GUID.
+Setting the value of serviceDefinitions to an empty list ([]), will bypass the verification.
 
 ### Example Service Definition
 
-```json
+```yaml
 {
   "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
   "name": "mongodbent",
@@ -174,6 +149,36 @@ curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/servic
     }
   ]
 }
+```
+
+###**_Following endpoints to be deprecated_**
+### Get service definition
+
+Via the example call below, service definitions for a given service id can be retrieved.
+
+```bash
+curl -u 'username:password' -X GET 'http://localhost:8080/custom/admin/service-definition/{service_id}'
+```
+
+### Add service definition
+
+Service Broker provides a way to update service definitions via HTTP calls.
+
+Here is an example:
+
+```bash
+curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file' 'http://localhost:8080/custom/admin/service-definition'
+```
+
+This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
+
+### Remove service definition
+
+A service and its plan(s), which are not used i.e. which have no service instances, can be removed via a REST interface.
+Here is an example for how to delete a service that has the id `service_id`:
+
+```bash
+curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
 ## Swagger
