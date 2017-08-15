@@ -53,7 +53,7 @@ class ServiceDefinitionProcessor {
         processServicePermissions(service, serviceJson)
         processPlans(service, serviceJson)
     }
-
+    
     def deleteServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
@@ -80,6 +80,7 @@ class ServiceDefinitionProcessor {
         service.description = serviceJson.description
         service.bindable = serviceJson.bindable
         service.internalName = serviceJson.internalName
+        service.serviceProviderName = serviceJson.serviceProviderName
         service.displayIndex = serviceJson.displayIndex
         service.asyncRequired = serviceJson.asyncRequired
         // dashboard items
@@ -231,6 +232,7 @@ class ServiceDefinitionProcessor {
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
+        plan.serviceProviderName = planJson.serviceProviderName
         plan.asyncRequired = planJson.asyncRequired
         plan.maxBackups = planJson.maxBackups
         checkBackupSanity(service, plan)
