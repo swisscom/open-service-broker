@@ -104,51 +104,40 @@ Setting the value of serviceDefinitions to an empty list ([]), will bypass the v
 ### Example Service Definition
 
 ```yaml
-{
-  "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
-  "name": "mongodbent",
-  "description": "MongoDB Enterprise HA v3.2.11",
-  "bindable": true,
-  "asyncRequired": true,
-  "internalName": "mongoDbEnterprise",
-  "displayIndex": 1,
-  "tags": [],
-  "metadata": {
-    "version": "3.2.11",
-    "displayName": "MongoDB Enterprise"
-  },
-  "plans": [
-    {
-      "guid": "jfkos87r-truz-4567-liop-dfrwscvbnmk6",
-      "name": "replicaset",
-      "description": "Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections",
-      "templateId": "mongodbent-bosh-template",
-      "free": false,
-      "displayIndex": 0,
-      "containerParams": [
-        {
-          "template": "",
-          "name": "plan",
-          "value": "mongoent.small"
-        },
-        {
-          "template": "",
-          "name": "vm_instance_type",
-          "value": "mongoent.small"
-        }
-      ],
-      "metadata": {
-        "storageCapacity": "320GB",
-        "memory": "32GB",
-        "nodes": "3",
-        "maximumConcurrentConnections": "unlimited",
-        "dedicatedService": true,
-        "highAvailability": true,
-        "displayName": "Small"
-      }
-    }
-  ]
-}
+serviceDefinitions:
+- guid: 'udn9276f-hod4-5432-vw34-6c33d7359c12'
+  name: 'mongodbent'
+  description: 'MongoDB Enterprise HA v3.2.11'
+  bindable: true
+  asyncRequired: true
+  internalName: 'mongoDbEnterprise'
+  displayIndex: 1
+  tags: []
+  metadata:
+    version: '3.2.11'
+    displayName: 'MongoDB Enterprise'
+  plans:
+  - guid: 'jfkos87r-truz-4567-liop-dfrwscvbnmk6'
+    name: 'replicaset'
+    description: 'Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections'
+    templateId: 'mongodbent-bosh-template'
+    free: false
+    displayIndex: 0
+    containerParams:
+    - template: ''
+      name: 'plan'
+      value: 'mongoent.small'
+    - template: ''
+      name: 'vm_instance_type'
+      value: 'mongoent.small'
+    metadata:
+      storageCapacity: '320GB'
+      memory: '32GB'
+      nodes: '3'
+      maximumConcurrentConnections: 'unlimited'
+      dedicatedService: true
+      highAvailability: true
+      displayName: 'Small'
 ```
 
 ###**_Following endpoints to be deprecated_**
@@ -194,7 +183,41 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 https://github.com/swisscom/mongodb-enterprise-boshrelease
 
 ### Kubernetes based services
-Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.     
+Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.
      
+### OpenWhisk
+Open Service Broker can broker your local OpenWhisk deployment.
 
+Provision will create a new namespace.
 
+An example of the provision json data (Parameters are optional).
+```json
+{
+    "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
+    "plan_id": "jfkos87r-truz-4567-liop-dfrwscvbnm20",
+    "parameters": {
+        "namespace": "NAMESPACE"
+    }
+}
+```
+
+Binding will create a new subject within the namespace.
+
+An example of the bind json data (Parameters are optional).
+```json
+{
+    "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
+    "plan_id": "jfkos87r-truz-4567-liop-dfrwscvbnm20",
+    "parameters": {
+        "subject": "SUBJECT"
+    }
+}
+```
+
+Binding will return the HOST, UUID, and KEY. With these credentials, you can configure your local OpenWhisk CLI.
+```text
+wsk property set --apihost HOST --auth UUID:KEY
+```
+
+####Design
+As the OpenWhisk API does not provide the create/update/delete functionality that we were hoping for, we perform CRUD namespace/subject directly into the CouchDB.
