@@ -19,7 +19,7 @@ class Plan extends BaseModel{
     @Column(columnDefinition = 'int default 0')
     int displayIndex
     String internalName
-    String serviceProviderName
+    String serviceProviderClassName
     @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
     @Column(columnDefinition = 'int default 0')

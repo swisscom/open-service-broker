@@ -13,7 +13,7 @@ class CFService extends BaseModel{
     String description
     Boolean bindable
     String internalName
-    String serviceProviderName
+    String serviceProviderClassName
     @Column(columnDefinition = 'int default 0')
     int displayIndex
     @Column(columnDefinition='tinyint(1) default 0')

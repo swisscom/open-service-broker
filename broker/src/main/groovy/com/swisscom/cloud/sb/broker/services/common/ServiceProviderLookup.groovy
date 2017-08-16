@@ -19,30 +19,29 @@ class ServiceProviderLookup {
 
     ServiceProvider findServiceProvider(String name) {
 
-        String bean = "${name + POSTFIX_SERVICE_PROVIDER}"
-        log.info("Lookup for bean:${bean}")
+        log.info("Lookup for bean:${name}")
 
-        return appContext.getBean(bean)
+        return appContext.getBean(name)
     }
 
     ServiceProvider findServiceProvider(Plan plan) {
         Preconditions.checkNotNull(plan, "A valid plan is needed for finding the corresponding ServiceProvider")
 
-        if (plan?.serviceProviderName) {
-            log.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderName}")
-            return findServiceProvider(plan.serviceProviderName)
+        if (plan?.serviceProviderClassName) {
+            log.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderClassName}")
+            return findServiceProvider(plan.serviceProviderClassName)
         }
 
         if (plan?.internalName) {
             log.info("Service provider lookup will be based on PLAN internalName:${plan.internalName}")
-            return findServiceProvider(plan.internalName)
+            return findServiceProvider(plan.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
-        if (plan.service.serviceProviderName){
-            return findServiceProvider(plan.service.serviceProviderName)
+        if (plan.service.serviceProviderClassName){
+            return findServiceProvider(plan.service.serviceProviderClassName)
         }
 
-        return findServiceProvider(plan.service.internalName)
+        return findServiceProvider(plan.service.internalName + POSTFIX_SERVICE_PROVIDER)
     }
 
     public static String findInternalName(Class clazz) {
