@@ -192,9 +192,9 @@ Provision will create a new namespace.
 
 An example of the provision json data (Parameters are optional).
 ```text
-cf create-service SERVICE PLAN SERVICE_INSTANCE -c '{"name":"value","name":"value"}'
+cf create-service openwhisk basic my_open_whisk
  
-cf create-service udn9276f-hod4-5432-vw34-6c33d7359c20 jfkos87r-truz-4567-liop-dfrwscvbnm20 59ee663f-a964-4a28-8315-47634300ad37 -c '{"namespace":"NAMESPACE"}'
+cf create-service openwhisk basic my_open_whisk -c '{"namespace":"NAMESPACE"}'
 ```
 ```json
 {
@@ -210,9 +210,9 @@ Binding will create a new subject within the namespace.
 
 An example of the bind json data (Parameters are optional).
 ```text
-cf bind-service APP_NAME SERVICE_INSTANCE -c '{"subject":"value","name":"value"}'
+cf bind-service my_app my_open_whisk
  
-cf bind-service MY_APP 59ee663f-a964-4a28-8315-47634300ad37 -c '{"subject":"SUBJECT"}'
+cf bind-service my_app my_open_whisk -c '{"subject":"SUBJECT"}'
 ```
 ```json
 {
