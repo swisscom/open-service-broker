@@ -10,18 +10,7 @@ buildscript {
     }
 }
 
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "gradle.plugin.com.github.jk1:gradle-license-report:0.3.12"
-    }
-}
-
-apply plugin: "com.github.jk1.dependency-license-report"
+plugins { id "com.github.jk1.dependency-license-report" version "0.3.12" }
 
 licenseReport {
     renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")

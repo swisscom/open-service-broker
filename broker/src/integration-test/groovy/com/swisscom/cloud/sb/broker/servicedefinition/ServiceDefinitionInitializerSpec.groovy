@@ -67,7 +67,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
     def "Match service definitions"() {
         when:
-        serviceDefinitionInitializer.run()
+        serviceDefinitionInitializer.init()
 
         then:
         cfServiceList == cfServiceRepository.findAll()
@@ -82,7 +82,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
                         value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
 
         when:
-        serviceDefinitionInitializer.run()
+        serviceDefinitionInitializer.init()
 
         then:
         cfServiceList != cfServiceRepository.findAll()

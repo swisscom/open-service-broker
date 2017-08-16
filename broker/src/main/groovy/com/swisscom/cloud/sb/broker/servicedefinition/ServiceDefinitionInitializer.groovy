@@ -4,15 +4,15 @@ import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
+
+import javax.annotation.PostConstruct
 
 @Component
 @EnableConfigurationProperties
 @Slf4j
-class ServiceDefinitionInitializer implements ApplicationRunner{
+class ServiceDefinitionInitializer {
 
     private CFServiceRepository cfServiceRepository
 
@@ -27,8 +27,8 @@ class ServiceDefinitionInitializer implements ApplicationRunner{
         this.serviceDefinitionProcessor = serviceDefinitionProcessor
     }
 
-    @Override
-    void run(ApplicationArguments args) throws Exception {
+    @PostConstruct
+    void init() throws Exception {
         List<CFService> cfServiceList = cfServiceRepository.findAll()
 
         checkForMissingServiceDefinitions(cfServiceList)
@@ -42,7 +42,7 @@ class ServiceDefinitionInitializer implements ApplicationRunner{
 
         if (configGuidList.size() != 0) {
             if (!configGuidList.containsAll(guidList)) {
-                throw new Exception("Missing service definition configuration exception. Service list - ${guidList}")
+                throw new RuntimeException("Missing service definition configuration exception. Service list - ${guidList}")
             }
         }
     }

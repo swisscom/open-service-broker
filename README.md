@@ -186,11 +186,16 @@ https://github.com/swisscom/mongodb-enterprise-boshrelease
 Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.
      
 ### OpenWhisk
-Open Service Broker can broker your local OpenWhisk deployment.
+Open Service Broker can broker your local deployment of OpenWhisk.
 
 Provision will create a new namespace.
 
 An example of the provision json data (Parameters are optional).
+```text
+cf create-service SERVICE PLAN SERVICE_INSTANCE -c '{"name":"value","name":"value"}'
+ 
+cf create-service udn9276f-hod4-5432-vw34-6c33d7359c20 jfkos87r-truz-4567-liop-dfrwscvbnm20 59ee663f-a964-4a28-8315-47634300ad37 -c '{"namespace":"NAMESPACE"}'
+```
 ```json
 {
     "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
@@ -204,6 +209,11 @@ An example of the provision json data (Parameters are optional).
 Binding will create a new subject within the namespace.
 
 An example of the bind json data (Parameters are optional).
+```text
+cf bind-service APP_NAME SERVICE_INSTANCE -c '{"subject":"value","name":"value"}'
+ 
+cf bind-service MY_APP 59ee663f-a964-4a28-8315-47634300ad37 -c '{"subject":"SUBJECT"}'
+```
 ```json
 {
     "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
