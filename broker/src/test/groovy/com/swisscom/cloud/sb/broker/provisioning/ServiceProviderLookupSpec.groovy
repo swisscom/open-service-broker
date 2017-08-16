@@ -30,7 +30,7 @@ class ServiceProviderLookupSpec extends Specification {
 
     def "find service provider by plan.serviceProviderName"() {
         given:
-        plan.serviceProviderClassName = "openWhiskServiceProvider"
+        plan.serviceProviderClass = "openWhiskServiceProvider"
         plan.internalName = null
         plan.service = null
         applicationContext.getBean("openWhiskServiceProvider") >> openWhiskServiceProvider
@@ -44,7 +44,7 @@ class ServiceProviderLookupSpec extends Specification {
 
     def "find service provider by plan.internalName"() {
         given:
-        plan.serviceProviderClassName = null
+        plan.serviceProviderClass = null
         plan.internalName = "openWhisk"
         plan.service = null
         serviceProviderLookup.findServiceProvider(plan) >> openWhiskServiceProvider
@@ -58,9 +58,9 @@ class ServiceProviderLookupSpec extends Specification {
 
     def "find service provider by plan.service.serviceProviderName"() {
         given:
-        plan.serviceProviderClassName = null
+        plan.serviceProviderClass = null
         plan.internalName = null
-        plan.service = new CFService(serviceProviderClassName: "openWhiskServiceProvider")
+        plan.service = new CFService(serviceProviderClass: "openWhiskServiceProvider")
         serviceProviderLookup.findServiceProvider(plan) >> openWhiskServiceProvider
 
         when:
@@ -72,7 +72,7 @@ class ServiceProviderLookupSpec extends Specification {
 
     def "find service provider by plan.service.internalName"() {
         given:
-        plan.serviceProviderClassName = null
+        plan.serviceProviderClass = null
         plan.internalName = null
         plan.service = new CFService(internalName: "openWhisk")
         serviceProviderLookup.findServiceProvider(plan) >> openWhiskServiceProvider

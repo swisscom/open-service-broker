@@ -7,7 +7,7 @@ class PlanDto extends com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto {
     String guid
     String templateId
     String internalName
-    String serviceProviderClassName
+    String serviceProviderClass
     int displayIndex
     boolean asyncRequired
     int maxBackups

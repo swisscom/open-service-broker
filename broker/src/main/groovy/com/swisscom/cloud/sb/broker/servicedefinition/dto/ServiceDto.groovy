@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
 class ServiceDto extends CFServiceDto {
     String guid
     String internalName
-    String serviceProviderClassName
+    String serviceProviderClass
     int displayIndex
     boolean asyncRequired
     List<PlanDto> plans

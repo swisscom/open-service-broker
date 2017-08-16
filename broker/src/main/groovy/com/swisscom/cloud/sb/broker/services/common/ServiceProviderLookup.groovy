@@ -27,9 +27,9 @@ class ServiceProviderLookup {
     ServiceProvider findServiceProvider(Plan plan) {
         Preconditions.checkNotNull(plan, "A valid plan is needed for finding the corresponding ServiceProvider")
 
-        if (plan?.serviceProviderClassName) {
-            log.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderClassName}")
-            return findServiceProvider(plan.serviceProviderClassName)
+        if (plan?.serviceProviderClass) {
+            log.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderClass}")
+            return findServiceProvider(plan.serviceProviderClass)
         }
 
         if (plan?.internalName) {
@@ -37,8 +37,8 @@ class ServiceProviderLookup {
             return findServiceProvider(plan.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
-        if (plan.service.serviceProviderClassName){
-            return findServiceProvider(plan.service.serviceProviderClassName)
+        if (plan.service.serviceProviderClass){
+            return findServiceProvider(plan.service.serviceProviderClass)
         }
 
         return findServiceProvider(plan.service.internalName + POSTFIX_SERVICE_PROVIDER)

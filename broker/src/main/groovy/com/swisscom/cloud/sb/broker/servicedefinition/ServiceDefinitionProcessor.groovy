@@ -80,7 +80,7 @@ class ServiceDefinitionProcessor {
         service.description = serviceJson.description
         service.bindable = serviceJson.bindable
         service.internalName = serviceJson.internalName
-        service.serviceProviderClassName = serviceJson.serviceProviderClassName
+        service.serviceProviderClass = serviceJson.serviceProviderClass
         service.displayIndex = serviceJson.displayIndex
         service.asyncRequired = serviceJson.asyncRequired
         // dashboard items
@@ -232,7 +232,7 @@ class ServiceDefinitionProcessor {
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
-        plan.serviceProviderClassName = planJson.serviceProviderClassName
+        plan.serviceProviderClass = planJson.serviceProviderClass
         plan.asyncRequired = planJson.asyncRequired
         plan.maxBackups = planJson.maxBackups
         checkBackupSanity(service, plan)
