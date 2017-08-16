@@ -19,14 +19,10 @@ class ServiceProviderLookup {
 
     ServiceProvider findServiceProvider(String name) {
 
-        ServiceProvider service
-
         String bean = "${name + POSTFIX_SERVICE_PROVIDER}"
         log.info("Lookup for bean:${bean}")
-        service = appContext.getBean(bean)
 
-
-        return service
+        return appContext.getBean(bean)
     }
 
     ServiceProvider findServiceProvider(Plan plan) {
@@ -43,11 +39,9 @@ class ServiceProviderLookup {
         }
 
         if (plan.service.serviceProviderName){
-            log.info("plan.service.serviceProviderName = ${plan.service.serviceProviderName}")
             return findServiceProvider(plan.service.serviceProviderName)
         }
 
-        log.info("plan.service.internalName = ${plan.service.internalName}")
         return findServiceProvider(plan.service.internalName)
     }
 
