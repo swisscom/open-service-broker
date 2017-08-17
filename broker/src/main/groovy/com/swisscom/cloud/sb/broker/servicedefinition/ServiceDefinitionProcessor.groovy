@@ -54,6 +54,14 @@ class ServiceDefinitionProcessor {
         processPlans(service, serviceJson)
     }
 
+    def createOrUpdateServiceDefinitionFromYaml(ServiceDto serviceDto) {
+        CFService service = processServiceBasicDefiniton(serviceDto)
+        processServiceTags(service, serviceDto)
+        processServiceMetadata(service, serviceDto)
+        processServicePermissions(service, serviceDto)
+        processPlans(service, serviceDto)
+    }
+
     def deleteServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
