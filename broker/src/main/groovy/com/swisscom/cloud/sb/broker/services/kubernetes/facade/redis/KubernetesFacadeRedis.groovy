@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -28,19 +29,16 @@ import org.springframework.stereotype.Component
 @Slf4j
 @CompileStatic
 class KubernetesFacadeRedis extends AbstractKubernetesFacade {
-
-    private final KubernetesClient<?> kubernetesClient
     private final KubernetesTemplateManager kubernetesTemplateManager
     private final EndpointMapperParamsDecorated endpointMapperParamsDecorated
-    private final KubernetesRedisConfig kubernetesConfig
-
+    private final KubernetesRedisConfig kubernetesRedisConfig
 
     @Autowired
-    KubernetesFacadeRedis(KubernetesRedisConfig kubernetesConfig, KubernetesClient kubernetesClient, KubernetesTemplateManager kubernetesTemplateManager, EndpointMapperParamsDecorated endpointMapperParamsDecorated) {
-        this.kubernetesClient = kubernetesClient
+    KubernetesFacadeRedis(KubernetesClient kubernetesClient, KubernetesConfig kubernetesConfig, KubernetesRedisConfig kubernetesRedisConfig, KubernetesTemplateManager kubernetesTemplateManager, EndpointMapperParamsDecorated endpointMapperParamsDecorated) {
+        super(kubernetesClient, kubernetesConfig, kubernetesRedisConfig)
         this.kubernetesTemplateManager = kubernetesTemplateManager
         this.endpointMapperParamsDecorated = endpointMapperParamsDecorated
-        this.kubernetesConfig = kubernetesConfig
+        this.kubernetesRedisConfig = kubernetesRedisConfig
     }
 
 
@@ -48,7 +46,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
         Map<String, String> passMap = (new KubernetesTemplatePasswordGenerator()).generatePassword()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
-            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesConfig.redisConfigurationDefaults)
+            (new KubernetesTemplateVariablesDecorator()).replaceTemplate(kubernetesTemplate, context, passMap, kubernetesRedisConfig.redisConfigurationDefaults)
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(kubernetesTemplate.getKind(), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, kubernetesTemplate.build(), urlReturn.getSecond().class))
         }
@@ -64,7 +62,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
     private Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> passMap, List<ResponseEntity> responses) {
         return new LinkedList() {
             {
-                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesConfig.getKubernetesRedisHost()))
+                add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost()))
                 add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, getRedisMasterPort(responses)))
                 add(ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, passMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue())))
             }

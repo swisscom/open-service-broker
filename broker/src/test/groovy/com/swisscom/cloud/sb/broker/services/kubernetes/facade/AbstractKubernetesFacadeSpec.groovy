@@ -25,7 +25,7 @@ class AbstractKubernetesFacadeSpec extends Specification {
         kubernetesServiceConfig.enablePodLabelHealthzFilter >> true
         kubernetesTemplateManager = Mock()
         and:
-        kubernetesFacade = new AbstractKubernetesFacade() {
+        kubernetesFacade = new AbstractKubernetesFacade(kubernetesClient, kubernetesConfig, kubernetesServiceConfig) {
             @Override
             Collection<ServiceDetail> provision(ProvisionRequest context) {
                 return null
@@ -36,9 +36,6 @@ class AbstractKubernetesFacadeSpec extends Specification {
 
             }
         }
-        kubernetesFacade.kubernetesClient = kubernetesClient
-        kubernetesFacade.kubernetesConfig = kubernetesConfig
-        kubernetesFacade.kubernetesServiceConfig = kubernetesServiceConfig
     }
 
 

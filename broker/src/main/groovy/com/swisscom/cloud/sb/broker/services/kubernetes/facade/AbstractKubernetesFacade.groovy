@@ -14,12 +14,16 @@ import org.springframework.web.client.HttpStatusCodeException
 import static groovy.transform.TypeCheckingMode.SKIP
 
 abstract class AbstractKubernetesFacade implements KubernetesFacade {
+    protected final KubernetesClient<?> kubernetesClient
+    protected final KubernetesConfig kubernetesConfig
+    protected final AbstractKubernetesServiceConfig kubernetesServiceConfig
+
     @Autowired
-    protected KubernetesClient<?> kubernetesClient
-    @Autowired
-    protected KubernetesConfig kubernetesConfig
-    @Autowired
-    protected AbstractKubernetesServiceConfig kubernetesServiceConfig
+    AbstractKubernetesFacade(KubernetesClient kubernetesClient, KubernetesConfig kubernetesConfig, AbstractKubernetesServiceConfig abstractKubernetesServiceConfig) {
+        this.kubernetesClient = kubernetesClient
+        this.kubernetesConfig = kubernetesConfig
+        this.kubernetesServiceConfig = abstractKubernetesServiceConfig
+    }
 
     @Override
     boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid) {
