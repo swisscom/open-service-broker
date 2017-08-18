@@ -88,3 +88,25 @@ spec:
     targetPort: sentinel
   selector:
     instances: sentinel
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shield-backup
+  namespace: {{SERVICE_ID}}
+  labels:
+    service_id: {{SERVICE_ID}}
+    service_type: shield
+    space: {{SPACE_ID}}
+    org: {{ORG_ID}}
+spec:
+  type: NodePort
+  ports:
+  - port: 2222
+    protocol: TCP
+    name: shield-ssh
+    targetPort: shield-ssh
+  selector:
+    instances: redis
+    role: master
+

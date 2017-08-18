@@ -63,7 +63,7 @@ spec:
                 - operator
       initContainers:
       - name: fix-perm
-        image: docker-registry.service.consul:5000/ubuntu:latest
+        image: "{{REDIS_ROOT_IMAGE}}"
         imagePullPolicy: IfNotPresent
         command:
         - sh
@@ -255,6 +255,30 @@ spec:
 #        volumeMounts:
 #        - name: telegraf-config
 #          mountPath: /etc/telegraf/service
+#      - name: shield
+#        image: {{REDIS_SHIELD_IMAGE}}
+#        imagePullPolicy: IfNotPresent
+#        env:
+#        - name: REDIS_PASS
+#          value: "{{REDIS_PASS}}"
+#        - name: AUTHORIZED_KEYS
+#          value: "{{SHIELD_AUTHORIZED_KEYS}}"
+#        ports:
+#        - containerPort: 2222
+#          name: shield-ssh
+#          protocol: TCP
+#        resources:
+#          limits:
+#            cpu: 1000m
+#            memory: 512Mi
+#          requests:
+#            cpu: 1000m
+#            memory: 512Mi
+#        securityContext:
+#          runAsNonRoot: true
+#          # with this option, the deployment cant start
+#          # runAsUser: 10000
+#        terminationMessagePath: /data/work/logs/shield_terminision.log
       volumes:
 #      - name: telegraf-config
 #        configMap:
