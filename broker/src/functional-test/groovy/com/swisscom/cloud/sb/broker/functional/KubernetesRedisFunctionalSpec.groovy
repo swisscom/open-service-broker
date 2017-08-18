@@ -11,7 +11,6 @@ import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
-
     @Autowired
     private ApplicationContext appContext
     @Autowired
@@ -19,13 +18,12 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('redis-kubernetes', findInternalName(KubernetesRedisServiceProvider))
-
     }
 
     def "Create and remove a redis instance"() {
         when:
         try {
-            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(40, true, true)
+            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(300, true, true)
         }
         finally {
             serviceLifeCycler.deleteServiceBindingAndAssert()
@@ -37,4 +35,3 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     }
 
 }
-

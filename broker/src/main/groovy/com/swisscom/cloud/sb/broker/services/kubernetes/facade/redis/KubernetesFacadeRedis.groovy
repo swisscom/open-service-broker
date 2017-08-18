@@ -3,13 +3,12 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesRedisConfigUrlParams
-import com.swisscom.cloud.sb.broker.services.kubernetes.facade.KubernetesFacade
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.AbstractKubernetesFacade
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
@@ -18,7 +17,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.decorator.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.generators.KubernetesTemplatePasswordGenerator
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
@@ -26,9 +25,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
 @Component
-@Log4j
+@Slf4j
 @CompileStatic
-class KubernetesFacadeRedis implements KubernetesFacade {
+class KubernetesFacadeRedis extends AbstractKubernetesFacade {
 
     private final KubernetesClient<?> kubernetesClient
     private final KubernetesTemplateManager kubernetesTemplateManager
@@ -82,6 +81,5 @@ class KubernetesFacadeRedis implements KubernetesFacade {
             }
         }
     }
-
 
 }
