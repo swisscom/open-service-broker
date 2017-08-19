@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Selector
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
@@ -37,15 +38,17 @@ class KubernetesFacadeRedisSpec extends Specification {
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
-    KubernetesRedisConfig kubernetesConfig
+    KubernetesConfig kubernetesConfig
+    KubernetesRedisConfig kubernetesRedisConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
+        kubernetesRedisConfig = Stub()
         deprovisionRequest = Stub()
         endpointMapperParamsDecorated = Mock()
-        kubernetesConfig.kubernetesRedisHost >> "host.redis"
+        kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
@@ -57,7 +60,7 @@ class KubernetesFacadeRedisSpec extends Specification {
         }
         mockProvisionRequest()
         and:
-        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesConfig, kubernetesClient, kubernetesTemplateManager, endpointMapperParamsDecorated)
+        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient, kubernetesConfig, kubernetesRedisConfig, kubernetesTemplateManager, endpointMapperParamsDecorated)
     }
 
 
@@ -181,5 +184,6 @@ class KubernetesFacadeRedisSpec extends Specification {
             }
         }
     }
+
 
 }

@@ -63,8 +63,9 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesConf
 
     @VisibleForTesting
     private StateMachine createProvisionStateMachine() {
-        StateMachine stateMachine = new StateMachine([KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION])
-        stateMachine.addAll([KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION_SUCCESS])
+        StateMachine stateMachine = new StateMachine([KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION,
+                                                      KubernetesServiceProvisionState.CHECK_SERVICE_DEPLOYMENT_SUCCESSFUL,
+                                                      KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION_SUCCESS])
         return stateMachine
     }
 
