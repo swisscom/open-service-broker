@@ -109,3 +109,9 @@ com.swisscom.cloud.sb.broker:
     maxRetryDurationInMinutes: 30
 
   serviceDefinitions: []
+
+  templates:
+    kubernetes.redis.v1:
+    - 0_namespace:
+        apiVersion: v1
+        kind: Namespace
