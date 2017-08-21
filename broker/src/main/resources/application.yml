@@ -74,6 +74,7 @@ com.swisscom.cloud.sb.broker:
     kubernetes.redis.v1:
       kubernetesRedisHost:
       kubernetesRedisV1TemplatesPath:
+      templateKey:
       redisConfigurationDefaults:
         VERSION:
         ENVIRONMENT:
@@ -110,8 +111,4 @@ com.swisscom.cloud.sb.broker:
 
   serviceDefinitions: []
 
-  templates:
-    kubernetes.redis.v1:
-    - 0_namespace:
-        apiVersion: v1
-        kind: Namespace
+  templates: {}
