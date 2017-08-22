@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 class TemplateConfig implements Config {
     Map<String, Object> templates
 
-    List<Object> getTemplateForServiceKey(String key){
-        return ((Map) templates.get(key)).values().asList()
+    List<String> getTemplateForServiceKey(String key){
+        return ((Map) templates.<String>get(key)).values().asList()
     }
 }

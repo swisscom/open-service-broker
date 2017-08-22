@@ -14,6 +14,5 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1')
 class KubernetesRedisConfig implements Config, EndpointConfig, AbstractKubernetesServiceConfig {
     String kubernetesRedisHost
-    String kubernetesRedisV1TemplatesPath
     HashMap<String, String> redisConfigurationDefaults
 }
