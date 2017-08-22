@@ -93,7 +93,7 @@ com.swisscom.cloud.sb.broker:
       openWhiskDbHost:
       openWhiskDbLocalUser:
       openWhiskDbHostname:
- 
+
   shield:
     baseUrl: 'https://shield.service.consul:8002'
     apiKey:
@@ -107,3 +107,5 @@ com.swisscom.cloud.sb.broker:
   backup:
     retryIntervalInSeconds: 10
     maxRetryDurationInMinutes: 30
+
+  serviceDefinitions: []

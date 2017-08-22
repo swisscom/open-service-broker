@@ -10,6 +10,12 @@ buildscript {
     }
 }
 
+plugins { id "com.github.jk1.dependency-license-report" version "0.3.12" }
+
+licenseReport {
+    renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
+}
+
 ext['tomcat.version'] = '7.0.63'
 
 apply plugin: 'org.springframework.boot'

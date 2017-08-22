@@ -1,0 +1,73 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "items": [
+    {
+      "metadata": {
+        "uid": "3637283f-7c08-11e7-8b9a-fa163e3727e9",
+        "labels": {
+          "healthz": "true",
+          "instances": "operator"
+        }
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z"
+          },
+          {
+            "type": "Ready",
+            "status": "False",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [operator]"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z"
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "uid": "36292b9a-7c08-11e7-8b9a-fa163e3727e9",
+        "labels": {
+          "instances": "redis"
+        }
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z"
+          },
+          {
+            "type": "Ready",
+            "status": "False",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [operator]"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2017-08-17T12:15:29Z"
+          }
+        ]
+      }
+    }
+  ]
+}
