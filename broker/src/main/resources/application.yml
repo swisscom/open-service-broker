@@ -73,7 +73,6 @@ com.swisscom.cloud.sb.broker:
 
     kubernetes.redis.v1:
       kubernetesRedisHost:
-      kubernetesRedisV1TemplatesPath:
       templateKey:
       redisConfigurationDefaults:
         VERSION:

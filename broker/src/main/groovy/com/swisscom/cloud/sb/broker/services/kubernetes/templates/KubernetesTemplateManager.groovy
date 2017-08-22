@@ -6,7 +6,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.yaml.snakeyaml.Yaml
 
 @Log4j
 @Component
@@ -22,7 +21,7 @@ class KubernetesTemplateManager {
     }
 
     List<KubernetesTemplate> getTemplates() {
-        Yaml yaml = new Yaml()
-        return templateConfig.getTemplateForServiceKey(kubernetesServiceConfig.templateKey).collect{new KubernetesTemplate(yaml.dump(it))}
+        def deploymentTemplates = templateConfig.getTemplateForServiceKey(kubernetesServiceConfig.templateKey).collect{it.split("---")}.flatten()
+        return deploymentTemplates.collect{new KubernetesTemplate(it as String)}
     }
 }

@@ -43,24 +43,30 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
 
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
-        def redisPassword = (new StringGenerator()).randomAlphaNumeric(30)
+        def redisPassword = new StringGenerator().randomAlphaNumeric(30)
+        def bindingMap = createBindingMap(context, redisPassword)
+        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        List<ResponseEntity> responses = new LinkedList()
+        def templates = kubernetesTemplateManager.getTemplates()
+        for (KubernetesTemplate kubernetesTemplate : templates) {
+            def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(bindingMap).toString()
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
+            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
+        }
+        return buildServiceDetailsList(redisPassword, responses)
+    }
+
+    private Map<String, String> createBindingMap(ProvisionRequest context, String redisPassword) {
         def serviceDetailBindings = [
                 (KubernetesTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
                 (KubernetesTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
                 (KubernetesTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
         ]
-        def planBindings = [:]
-        context.plan.parameters.each { planBindings[it.getName()] = it.getValue() }
-        def passwordAsMap = [(KubernetesTemplateConstants.REDIS_PASS.getValue()): redisPassword]
-        def binding = kubernetesRedisConfig.redisConfigurationDefaults << passwordAsMap << serviceDetailBindings << planBindings
-        def templateEngine = new groovy.text.SimpleTemplateEngine()
-        List<ResponseEntity> responses = new LinkedList()
-        for (KubernetesTemplate kubernetesTemplate : kubernetesTemplateManager.getTemplates()) {
-            def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(binding).toString()
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
-            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
+        Map<String, String> planBindings = context.plan.parameters.collectEntries {
+            [(it.getName() as String): it.getValue() as String]
         }
-        return buildServiceDetailsList(redisPassword, responses)
+        def passwordAsMap = [(KubernetesTemplateConstants.REDIS_PASS.getValue()): redisPassword]
+        kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings <<  passwordAsMap
     }
 
     void deprovision(DeprovisionRequest request) {
