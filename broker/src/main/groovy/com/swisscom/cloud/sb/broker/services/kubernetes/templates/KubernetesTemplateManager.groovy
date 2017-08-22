@@ -1,18 +1,17 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.TemplateConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.yaml.snakeyaml.Yaml
 
-
 @Log4j
 @Component
 @CompileStatic
 class KubernetesTemplateManager {
-
     private final AbstractKubernetesServiceConfig kubernetesServiceConfig
     private final TemplateConfig templateConfig
 
