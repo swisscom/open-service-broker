@@ -237,6 +237,7 @@ class ServiceDefinitionProcessor {
         plan.name = planJson.name
         plan.description = planJson.description
         plan.templateUniqueIdentifier = planJson.templateId
+        plan.templateVersion = planJson.templateVersion
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
