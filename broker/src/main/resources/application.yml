@@ -83,18 +83,12 @@ com.swisscom.cloud.sb.broker:
         REDIS_MAX_CPU: # Plan
         SENTINEL_MAX_CPU: # Plan
         SENTINEL_MAX_MEMORY: # Plan
-        VERSION: # Plan
         INFLUXDB_HOST: # Bosh
         INFLUXDB_PORT: # Bosh
         INFLUXDB_USER: # Bosh
         INFLUXDB_PASS: # Bosh
         ENVIRONMENT: # Deployment
-        REDIS_VERSION: # Deployment
-        REDIS_IMAGE: # Deployment
-        REDIS_ROOT_IMAGE: # Deployment
-        REDIS_SHIELD_IMAGE: # Deployment
         SHIELD_AUTHORIZED_KEYS: # Deployment
-        TELEGRAF_IMAGE: # Deployment
 
     openwhisk:
       openWhiskProtocol:
