@@ -43,7 +43,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
         def bindingMap = createBindingMap(context)
-        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier, context.plan.templateVersion)
+        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
         def templateEngine = new groovy.text.SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : templates) {

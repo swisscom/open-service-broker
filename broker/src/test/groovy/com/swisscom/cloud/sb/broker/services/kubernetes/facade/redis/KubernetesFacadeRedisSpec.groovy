@@ -54,7 +54,7 @@ metadata:
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
-        kubernetesTemplateManager.getTemplates(_, _) >> new LinkedList<KubernetesTemplate>() {
+        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
             {
                 add(kubernetesTemplate)
                 add(kubernetesTemplate)
@@ -165,7 +165,7 @@ kind: Namespace""")
     }
 
     private void updateTemplates(KubernetesTemplate kubernetesTemplate) {
-        kubernetesTemplateManager.getTemplates(_, _) >> new LinkedList<KubernetesTemplate>() {
+        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
             {
                 add(kubernetesTemplate)
             }
