@@ -68,20 +68,34 @@ com.swisscom.cloud.sb.broker:
       kubernetesPort:
       retryIntervalInSeconds: 30
       maxRetryDurationInMinutes: 1
-      kubernetesClientCertificate: ""
-      kubernetesClientKey: ""
+      kubernetesClientCertificate: |
+
+      kubernetesClientKey: |
 
     kubernetes.redis.v1:
       kubernetesRedisHost:
-      templateKey:
       redisConfigurationDefaults:
-        VERSION:
-        ENVIRONMENT:
-        INFLUXDB_HOST:
-        INFLUXDB_PORT:
-        INFLUXDB_USER:
-        INFLUXDB_PASS:
-        
+        MAX_CONNECTIONS: # Plan
+        MAX_DATABASES: # Plan
+        QUORUM: # Plan
+        REDIS_SERVER_MAX_MEMORY: # Plan
+        REDIS_MAX_MEMORY: # Plan
+        REDIS_MAX_CPU: # Plan
+        SENTINEL_MAX_CPU: # Plan
+        SENTINEL_MAX_MEMORY: # Plan
+        VERSION: # Plan
+        INFLUXDB_HOST: # Bosh
+        INFLUXDB_PORT: # Bosh
+        INFLUXDB_USER: # Bosh
+        INFLUXDB_PASS: # Bosh
+        ENVIRONMENT: # Deployment
+        REDIS_VERSION: # Deployment
+        REDIS_IMAGE: # Deployment
+        REDIS_ROOT_IMAGE: # Deployment
+        REDIS_SHIELD_IMAGE: # Deployment
+        SHIELD_AUTHORIZED_KEYS: # Deployment
+        TELEGRAF_IMAGE: # Deployment
+
     openwhisk:
       openWhiskProtocol:
       openWhiskHost:
@@ -118,9 +132,9 @@ com.swisscom.cloud.sb.broker:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: ${SERVICE_ID}
+        name:
     - |
       apiVersion: v1
       kind: Deployment
       metadata:
-        name: ${SERVICE_ID}
+        name:

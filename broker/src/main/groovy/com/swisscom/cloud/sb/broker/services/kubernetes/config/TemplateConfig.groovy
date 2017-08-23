@@ -7,9 +7,21 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker")
 class TemplateConfig implements Config {
-    Map<String, Object> templates
+    List<ServiceTemplate> serviceTemplates
 
-    List<String> getTemplateForServiceKey(String key){
-        return ((Map) templates.<String>get(key)).values().asList()
+    static class ServiceTemplate {
+        String name
+        String version
+        List<String> templates
+    }
+
+    List<String> getTemplateForServiceKey(String templateUniqueIdentifier) {
+        def matchedServiceTemplates = serviceTemplates.findAll { it.name == templateUniqueIdentifier}
+        matchedServiceTemplates.first()?.templates
+    }
+
+    List<String> getTemplateForServiceKey(String templateUniqueIdentifier, String templateVersion) {
+        def matchedServiceTemplates = serviceTemplates.findAll { it.name == templateUniqueIdentifier && it.version == templateVersion }
+        matchedServiceTemplates.first()?.templates
     }
 }

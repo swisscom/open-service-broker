@@ -15,6 +15,7 @@ class Plan extends BaseModel{
     String name
     String description
     String templateUniqueIdentifier
+    String templateVersion
     Boolean free
     @Column(columnDefinition = 'int default 0')
     int displayIndex

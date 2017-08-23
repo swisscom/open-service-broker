@@ -4,5 +4,4 @@ import com.swisscom.cloud.sb.broker.config.Config
 
 trait AbstractKubernetesServiceConfig implements Config {
     boolean enablePodLabelHealthzFilter
-    String templateKey
 }
