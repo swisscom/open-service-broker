@@ -110,4 +110,17 @@ com.swisscom.cloud.sb.broker:
 
   serviceDefinitions: []
 
-  templates: {}
+  serviceTemplates:
+  - name: redis
+    version: 1.0
+    templates:
+    - |
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: ${SERVICE_ID}
+    - |
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: ${SERVICE_ID}
