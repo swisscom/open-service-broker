@@ -22,12 +22,12 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createParameter('REDIS_SERVER_MAX_MEMORY', '24', plan)
         serviceLifeCycler.createParameter('REDIS_MAX_MEMORY', '32', plan)
         serviceLifeCycler.createParameter('REDIS_MAX_CPU', '50', plan)
+        serviceLifeCycler.createParameter('REDIS_DISK_QUOTA', '3Gi', plan)
         serviceLifeCycler.createParameter('MAX_CONNECTIONS', '1000', plan)
         serviceLifeCycler.createParameter('MAX_DATABASES', '10', plan)
         serviceLifeCycler.createParameter('QUORUM', '2', plan)
         serviceLifeCycler.createParameter('SENTINEL_MAX_CPU', '20', plan)
         serviceLifeCycler.createParameter('SENTINEL_MAX_MEMORY', '24', plan)
-        serviceLifeCycler.createParameter('VERSION', '3.2.8', plan)
     }
 
     def "Create and remove a redis instance"() {
