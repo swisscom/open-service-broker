@@ -11,17 +11,23 @@ import org.springframework.stereotype.Component
 @Component
 @CompileStatic
 class KubernetesTemplateManager {
-    private final AbstractKubernetesServiceConfig kubernetesServiceConfig
     private final TemplateConfig templateConfig
 
     @Autowired
-    KubernetesTemplateManager(AbstractKubernetesServiceConfig kubernetesServiceConfig, TemplateConfig templateConfig) {
-        this.kubernetesServiceConfig = kubernetesServiceConfig
+    KubernetesTemplateManager(TemplateConfig templateConfig) {
         this.templateConfig = templateConfig
     }
 
-    List<KubernetesTemplate> getTemplates() {
-        def deploymentTemplates = templateConfig.getTemplateForServiceKey(kubernetesServiceConfig.templateKey).collect{it.split("---")}.flatten()
+    List<KubernetesTemplate> getTemplates(String templateUniqueIdentifier) {
+        return splitTemplatesFromYamlDoucments(templateConfig.getTemplateForServiceKey(templateUniqueIdentifier))
+    }
+
+    List<KubernetesTemplate> getTemplates(String templateUniqueIdentifier, String templateVersion) {
+        return splitTemplatesFromYamlDoucments(templateConfig.getTemplateForServiceKey(templateUniqueIdentifier, templateVersion))
+    }
+
+    private List<KubernetesTemplate> splitTemplatesFromYamlDoucments(List<String> templates) {
+        def deploymentTemplates = templates.collect{it.split("---")}.flatten()
         return deploymentTemplates.collect{new KubernetesTemplate(it as String)}
     }
 }

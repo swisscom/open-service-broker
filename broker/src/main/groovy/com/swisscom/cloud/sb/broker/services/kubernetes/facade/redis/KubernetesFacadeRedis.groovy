@@ -23,7 +23,6 @@ import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.yaml.snakeyaml.Yaml
 
 @Component
 @Slf4j
@@ -43,39 +42,42 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
 
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
-        def redisPassword = new StringGenerator().randomAlphaNumeric(30)
-        def bindingMap = createBindingMap(context, redisPassword)
+        def bindingMap = createBindingMap(context)
+        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier, context.plan.templateVersion)
         def templateEngine = new groovy.text.SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
-        def templates = kubernetesTemplateManager.getTemplates()
         for (KubernetesTemplate kubernetesTemplate : templates) {
             def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(bindingMap).toString()
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
         }
-        return buildServiceDetailsList(redisPassword, responses)
+        return buildServiceDetailsList(bindingMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue()), responses)
     }
 
-    private Map<String, String> createBindingMap(ProvisionRequest context, String redisPassword) {
+    private Map<String, String> createBindingMap(ProvisionRequest context) {
         def serviceDetailBindings = [
                 (KubernetesTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
                 (KubernetesTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
                 (KubernetesTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
+                (KubernetesTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
         ]
         Map<String, String> planBindings = context.plan.parameters.collectEntries {
             [(it.getName() as String): it.getValue() as String]
         }
-        def passwordAsMap = [(KubernetesTemplateConstants.REDIS_PASS.getValue()): redisPassword]
-        kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings <<  passwordAsMap
+        def redisPassword = new StringGenerator().randomAlphaNumeric(30)
+        def slaveofCommand = new StringGenerator().randomAlphaNumeric(30)
+        def configCommand = new StringGenerator().randomAlphaNumeric(30)
+        def otherBindings = [
+                (KubernetesTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
+                (KubernetesTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
+                (KubernetesTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
+        ]
+        kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
     }
 
     void deprovision(DeprovisionRequest request) {
         kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
                 HttpMethod.DELETE, "", Object.class)
-    }
-
-    private String getKindForTemplate(String template) {
-        return ((Map) new Yaml().load(template)).'kind' as String
     }
 
     private Collection<ServiceDetail> buildServiceDetailsList(String redisPassword, List<ResponseEntity> responses) {

@@ -12,4 +12,8 @@ class KubernetesTemplate {
     KubernetesTemplate(String template) {
         this.template = template
     }
+
+    static String getKindForTemplate(String template) {
+        return ((Map) new Yaml().load(template)).'kind' as String
+    }
 }
