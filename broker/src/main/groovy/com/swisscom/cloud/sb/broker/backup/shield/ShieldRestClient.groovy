@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -26,7 +25,6 @@ class ShieldRestClient {
 
     Object getStatus() {
         def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), Object.class)
-        handleResponseStatusForErrorCases(response)
         return response.getBody()
     }
 
@@ -90,7 +88,6 @@ class ShieldRestClient {
 
         def response = restTemplate.exchange(targetsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
 
-        handleResponseStatusForErrorCases(response)
         new JsonSlurper().parseText(response.body).uuid
     }
 
@@ -100,15 +97,13 @@ class ShieldRestClient {
                     plugin  : target.pluginName(),
                     endpoint: target.endpointJson(),
                     agent   : agent]
-        def response = restTemplate.exchange(targetUrl(existingTarget.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
+        restTemplate.exchange(targetUrl(existingTarget.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
 
-        handleResponseStatusForErrorCases(response)
         existingTarget.uuid
     }
 
     void deleteTarget(String uuid) {
-        def response = restTemplate.exchange(targetUrl(uuid), HttpMethod.DELETE, configureRequestEntity((String) null), String.class)
-        handleResponseStatusForErrorCases(response)
+        restTemplate.exchange(targetUrl(uuid), HttpMethod.DELETE, configureRequestEntity((String) null), String.class)
     }
 
     JobDto getJobByName(String name) {
@@ -138,7 +133,6 @@ class ShieldRestClient {
                     paused   : paused]
 
         def response = restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
-        handleResponseStatusForErrorCases(response)
         new JsonSlurper().parseText(response.body).uuid
     }
 
@@ -155,26 +149,22 @@ class ShieldRestClient {
                     retention: retentionUuid,
                     schedule : scheduleUuid,
                     paused   : paused]
-        def response = restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
 
-        handleResponseStatusForErrorCases(response)
+        restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
         existingJob.uuid
     }
 
     String runJob(String uuid) {
         def response = restTemplate.exchange(jobUrl(uuid) + "/run", HttpMethod.POST, configureRequestEntity(), String.class)
-        handleResponseStatusForErrorCases(response)
         new JsonSlurper().parseText(response.body).task_uuid
     }
 
     void deleteJob(String uuid) {
-        def response = restTemplate.exchange(jobUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), (Class) null)
-        handleResponseStatusForErrorCases(response)
+        restTemplate.exchange(jobUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), (Class) null)
     }
 
     TaskDto getTaskByUuid(String uuid) {
         def response = restTemplate.exchange(taskUrl(uuid), HttpMethod.GET, configureRequestEntity(), String.class)
-        handleResponseStatusForErrorCases(response)
         def dto = GsonFactory.withISO8601Datetime().fromJson(response.body, TaskDto)
         dto.typeParsed = TaskDto.Type.of(dto.type)
         dto.statusParsed = TaskDto.Status.of(dto.status)
@@ -183,8 +173,6 @@ class ShieldRestClient {
 
     ArchiveDto getArchiveByUuid(String uuid) {
         def response = restTemplate.exchange(archiveUrl(uuid), HttpMethod.GET, configureRequestEntity(), String.class)
-
-        handleResponseStatusForErrorCases(response)
         def dto = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), ArchiveDto)
         dto.statusParsed = ArchiveDto.Status.of(dto.status)
         dto
@@ -192,19 +180,15 @@ class ShieldRestClient {
 
     String restoreArchive(String uuid) {
         def response = restTemplate.exchange(archiveUrl(uuid) + "/restore", HttpMethod.POST, configureRequestEntity(), String.class)
-        handleResponseStatusForErrorCases(response)
         new JsonSlurper().parseText(response.body).task_uuid
     }
 
     void deleteArchive(String uuid) {
-        def response = restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
-
-        handleResponseStatusForErrorCases(response)
+        restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
     }
 
     private <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
         def response = restTemplate.exchange(endpoint, HttpMethod.GET, configureRequestEntity(), String.class)
-        handleResponseStatusForErrorCases(response)
         final T[] jsonToObject = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), clazz)
         return Arrays.asList(jsonToObject)
     }
@@ -216,17 +200,6 @@ class ShieldRestClient {
         headers.add(HEADER_API_KEY, apiKey)
         HttpEntity<T> entity = t ? new HttpEntity<T>(t, headers) : new HttpEntity<T>(headers)
         return entity
-    }
-
-    private void handleResponseStatusForErrorCases(ResponseEntity response) {
-        if (!response.statusCode.'2xxSuccessful') {
-            String errorMessage = "Rest call to Shield failed with status:${response.statusCode}, message:${response.body?.toString()}"
-            if (HttpStatus.NOT_FOUND == response.statusCode) {
-                throw new ShieldResourceNotFoundException(errorMessage)
-            } else {
-                throw new ServiceBrokerException(errorMessage)
-            }
-        }
     }
 
     protected String storesUrl() {

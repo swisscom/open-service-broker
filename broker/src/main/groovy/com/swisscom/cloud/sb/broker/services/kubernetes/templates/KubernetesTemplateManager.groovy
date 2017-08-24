@@ -1,51 +1,33 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.templates
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.comparator.NumberPrefixedStringComparator
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.TemplateConfig
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 @Log4j
 @Component
 @CompileStatic
 class KubernetesTemplateManager {
-
-    private final KubernetesRedisConfig kubernetesConfig
+    private final TemplateConfig templateConfig
 
     @Autowired
-    KubernetesTemplateManager(KubernetesRedisConfig kubernetesConfig) {
-        this.kubernetesConfig = kubernetesConfig
+    KubernetesTemplateManager(TemplateConfig templateConfig) {
+        this.templateConfig = templateConfig
     }
 
-    List<KubernetesTemplate> getTemplates() {
-        List<KubernetesTemplate> templates = new LinkedList<>();
-        for (String name : getTemplatesFilesNames()) {
-            updateTemplates(name, templates)
-        }
-        return templates
+    List<KubernetesTemplate> getTemplates(String templateUniqueIdentifier) {
+        return splitTemplatesFromYamlDoucments(templateConfig.getTemplateForServiceKey(templateUniqueIdentifier))
     }
 
-    private void updateTemplates(String name, List<KubernetesTemplate> templates) {
-        String[] contents = (new String(Files.readAllBytes(Paths.get(kubernetesConfig.getKubernetesRedisV1TemplatesPath() + name)))).split("---")
-        for (String content : contents) {
-            templates.add(new KubernetesTemplate(content))
-        }
+    List<KubernetesTemplate> getTemplates(String templateUniqueIdentifier, String templateVersion) {
+        return splitTemplatesFromYamlDoucments(templateConfig.getTemplateForServiceKey(templateUniqueIdentifier, templateVersion))
     }
 
-    private String[] getTemplatesFilesNames() {
-        String[] files = (new File(kubernetesConfig.getKubernetesRedisV1TemplatesPath())).list()
-        if (files.size() > 0) {
-            Arrays.sort(files, new NumberPrefixedStringComparator())
-            return files
-        }
-        throw new RuntimeException("Missing Kubernetes templates in " + kubernetesConfig.getKubernetesRedisV1TemplatesPath())
+    private List<KubernetesTemplate> splitTemplatesFromYamlDoucments(List<String> templates) {
+        def deploymentTemplates = templates.collect{it.split("---")}.flatten()
+        return deploymentTemplates.collect{new KubernetesTemplate(it as String)}
     }
-
 }

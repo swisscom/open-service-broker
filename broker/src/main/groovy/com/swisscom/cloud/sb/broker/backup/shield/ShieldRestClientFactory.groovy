@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate
 @CompileStatic
 class ShieldRestClientFactory {
     ShieldRestClient build(RestTemplate restTemplate, String baseUrl, String apiKey, String agent) {
+        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         new ShieldRestClient(restTemplate, baseUrl, apiKey, agent)
     }
 }

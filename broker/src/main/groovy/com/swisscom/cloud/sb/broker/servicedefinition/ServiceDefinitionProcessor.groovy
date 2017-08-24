@@ -54,6 +54,14 @@ class ServiceDefinitionProcessor {
         processPlans(service, serviceJson)
     }
 
+    def createOrUpdateServiceDefinitionFromYaml(ServiceDto serviceDto) {
+        CFService service = processServiceBasicDefiniton(serviceDto)
+        processServiceTags(service, serviceDto)
+        processServiceMetadata(service, serviceDto)
+        processServicePermissions(service, serviceDto)
+        processPlans(service, serviceDto)
+    }
+  
     def deleteServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
@@ -80,6 +88,7 @@ class ServiceDefinitionProcessor {
         service.description = serviceJson.description
         service.bindable = serviceJson.bindable
         service.internalName = serviceJson.internalName
+        service.serviceProviderClass = serviceJson.serviceProviderClass
         service.displayIndex = serviceJson.displayIndex
         service.asyncRequired = serviceJson.asyncRequired
         // dashboard items
@@ -228,9 +237,11 @@ class ServiceDefinitionProcessor {
         plan.name = planJson.name
         plan.description = planJson.description
         plan.templateUniqueIdentifier = planJson.templateId
+        plan.templateVersion = planJson.templateVersion
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
+        plan.serviceProviderClass = planJson.serviceProviderClass
         plan.asyncRequired = planJson.asyncRequired
         plan.maxBackups = planJson.maxBackups
         checkBackupSanity(service, plan)

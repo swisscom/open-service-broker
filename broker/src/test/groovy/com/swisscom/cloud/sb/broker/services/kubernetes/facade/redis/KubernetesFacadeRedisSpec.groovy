@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Selector
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
@@ -23,33 +24,37 @@ import spock.lang.Specification
 
 class KubernetesFacadeRedisSpec extends Specification {
 
-    private final static String TEMPLATE_EXAMPLE = "apiVersion: v1\n" +
-            "kind: Namespace\n" +
-            "metadata:\n" +
-            "  name: {{SERVICE_ID}}\n" +
-            "  labels:\n" +
-            "    service_id: {{SERVICE_ID}}\n" +
-            "    service_type: redis-sentinel\n" +
-            "    space: {{SPACE_ID}}\n" +
-            "    org: {{ORG_ID}}"
+    private final static String TEMPLATE_EXAMPLE = """apiVersion: v1
+kind: Namespace
+metadata:
+  name: \"\$SERVICE_ID\"
+  labels:
+    service_id: \"\$SERVICE_ID\"
+    service_type: redis-sentinel
+    space: \"\$SPACE_ID\"
+    org: \"\$ORG_ID\"
+"""
+
     KubernetesFacadeRedis kubernetesRedisClientRedisDecorated
     KubernetesClient kubernetesClient
     KubernetesTemplateManager kubernetesTemplateManager
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
-    KubernetesRedisConfig kubernetesConfig
+    KubernetesConfig kubernetesConfig
+    KubernetesRedisConfig kubernetesRedisConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
+        kubernetesRedisConfig = Stub()
         deprovisionRequest = Stub()
         endpointMapperParamsDecorated = Mock()
-        kubernetesConfig.kubernetesRedisHost >> "host.redis"
+        kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
-        kubernetesTemplateManager.getTemplates() >> new LinkedList<KubernetesTemplate>() {
+        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
             {
                 add(kubernetesTemplate)
                 add(kubernetesTemplate)
@@ -57,7 +62,7 @@ class KubernetesFacadeRedisSpec extends Specification {
         }
         mockProvisionRequest()
         and:
-        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesConfig, kubernetesClient, kubernetesTemplateManager, endpointMapperParamsDecorated)
+        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient, kubernetesConfig, kubernetesRedisConfig, kubernetesTemplateManager, endpointMapperParamsDecorated)
     }
 
 
@@ -70,37 +75,38 @@ class KubernetesFacadeRedisSpec extends Specification {
 
     def "provision creating a namespace with replacing the organization"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("org: {{ORG_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("""org: \"\$ORG_ID\"
+kind: Namespace""")
         updateTemplates(kubernetesTemplate)
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "org: ORG\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "org: \"ORG\"\nkind: Namespace", NamespaceResponse.class)
     }
 
     def "provision creating a namespace with replacing the space id"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("space: {{SPACE_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("space: \"\$SPACE_ID\"\nkind: Namespace")
         updateTemplates(kubernetesTemplate)
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "space: SPACE\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "space: \"SPACE\"\nkind: Namespace", NamespaceResponse.class)
     }
 
     def "provision creating a namespace with replacing the Service Instance Guid id"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: {{SERVICE_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
         updateTemplates(kubernetesTemplate)
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "name: ID\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "name: \"ID\"\nkind: Namespace", NamespaceResponse.class)
     }
 
     def "return correct port to the client from k8s"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: {{SERVICE_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
         updateTemplates(kubernetesTemplate)
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
@@ -111,7 +117,7 @@ class KubernetesFacadeRedisSpec extends Specification {
 
     def "return correct host to the client from SB"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: {{SERVICE_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
         updateTemplates(kubernetesTemplate)
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
@@ -122,7 +128,7 @@ class KubernetesFacadeRedisSpec extends Specification {
 
     def "returned password has proper length"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: {{SERVICE_ID}}\nkind: Namespace")
+        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
         updateTemplates(kubernetesTemplate)
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
@@ -153,16 +159,13 @@ class KubernetesFacadeRedisSpec extends Specification {
     }
 
     private void mockPorts(Spec spec) {
-        List<Port> list = new LinkedList();
         Port port = Stub()
         port.nodePort >> 112
-        list.add(port)
-        spec.ports >> list
+        spec.ports >> [port]
     }
 
-
     private void updateTemplates(KubernetesTemplate kubernetesTemplate) {
-        kubernetesTemplateManager.getTemplates() >> new LinkedList<KubernetesTemplate>() {
+        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
             {
                 add(kubernetesTemplate)
             }
@@ -177,9 +180,10 @@ class KubernetesFacadeRedisSpec extends Specification {
         provisionRequest.plan >> Mock(Plan)
         provisionRequest.plan.parameters >> new HashSet<Parameter>() {
             {
-                add(new Parameter(name: "name",value: "value"))
+                add(new Parameter(name: "name", value: "value"))
             }
         }
     }
+
 
 }

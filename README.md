@@ -97,6 +97,50 @@ The configuration file for the Service Broker is located under
 
 ## Service Definitions
 
+Service definitions are maintained in the application.yml under the serviceDefinitions key. This key expects a list of service definitions as values. 
+On startup, the service broker will validate that service definitions from in the database exist in the application.yml configurations based on GUID.
+Setting the value of serviceDefinitions to an empty list ([]), will bypass the verification.
+
+### Example Service Definition
+
+```yaml
+serviceDefinitions:
+- guid: 'udn9276f-hod4-5432-vw34-6c33d7359c12'
+  name: 'mongodbent'
+  description: 'MongoDB Enterprise HA v3.2.11'
+  bindable: true
+  asyncRequired: true
+  internalName: 'mongoDbEnterprise'
+  displayIndex: 1
+  tags: []
+  metadata:
+    version: '3.2.11'
+    displayName: 'MongoDB Enterprise'
+  plans:
+  - guid: 'jfkos87r-truz-4567-liop-dfrwscvbnmk6'
+    name: 'replicaset'
+    description: 'Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections'
+    templateId: 'mongodbent-bosh-template'
+    free: false
+    displayIndex: 0
+    containerParams:
+    - template: ''
+      name: 'plan'
+      value: 'mongoent.small'
+    - template: ''
+      name: 'vm_instance_type'
+      value: 'mongoent.small'
+    metadata:
+      storageCapacity: '320GB'
+      memory: '32GB'
+      nodes: '3'
+      maximumConcurrentConnections: 'unlimited'
+      dedicatedService: true
+      highAvailability: true
+      displayName: 'Small'
+```
+
+**_Following endpoints to be deprecated_**
 ### Get service definition
 
 Via the example call below, service definitions for a given service id can be retrieved.
@@ -126,56 +170,6 @@ Here is an example for how to delete a service that has the id `service_id`:
 curl -u 'username:password' -X DELETE 'http://localhost:8080/custom/admin/service-definition/{service_id}'
 ```
 
-### Example Service Definition
-
-```json
-{
-  "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
-  "name": "mongodbent",
-  "description": "MongoDB Enterprise HA v3.2.11",
-  "bindable": true,
-  "asyncRequired": true,
-  "internalName": "mongoDbEnterprise",
-  "displayIndex": 1,
-  "tags": [],
-  "metadata": {
-    "version": "3.2.11",
-    "displayName": "MongoDB Enterprise"
-  },
-  "plans": [
-    {
-      "guid": "jfkos87r-truz-4567-liop-dfrwscvbnmk6",
-      "name": "replicaset",
-      "description": "Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections",
-      "templateId": "mongodbent-bosh-template",
-      "free": false,
-      "displayIndex": 0,
-      "containerParams": [
-        {
-          "template": "",
-          "name": "plan",
-          "value": "mongoent.small"
-        },
-        {
-          "template": "",
-          "name": "vm_instance_type",
-          "value": "mongoent.small"
-        }
-      ],
-      "metadata": {
-        "storageCapacity": "320GB",
-        "memory": "32GB",
-        "nodes": "3",
-        "maximumConcurrentConnections": "unlimited",
-        "dedicatedService": true,
-        "highAvailability": true,
-        "displayName": "Small"
-      }
-    }
-  ]
-}
-```
-
 ## Swagger
 
 The Swagger API documentation can be accessed at <http://localhost:8080/swagger-ui.html>
@@ -189,7 +183,50 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 https://github.com/swisscom/mongodb-enterprise-boshrelease
 
 ### Kubernetes based services
-Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.     
+Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.
      
+### OpenWhisk
+Open Service Broker can broker your local deployment of OpenWhisk.
 
+Provision will create a new namespace.
 
+An example of the provision json data (Parameters are optional).
+```text
+cf create-service openwhisk basic my_open_whisk
+ 
+cf create-service openwhisk basic my_open_whisk -c '{"namespace":"NAMESPACE"}'
+```
+```json
+{
+    "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
+    "plan_id": "jfkos87r-truz-4567-liop-dfrwscvbnm20",
+    "parameters": {
+        "namespace": "NAMESPACE"
+    }
+}
+```
+
+Binding will create a new subject within the namespace.
+
+An example of the bind json data (Parameters are optional).
+```text
+cf bind-service my_app my_open_whisk
+ 
+cf bind-service my_app my_open_whisk -c '{"subject":"SUBJECT"}'
+```
+```json
+{
+    "service_id": "udn9276f-hod4-5432-vw34-6c33d7359c20",
+    "plan_id": "jfkos87r-truz-4567-liop-dfrwscvbnm20",
+    "parameters": {
+        "subject": "SUBJECT"
+    }
+}
+```
+
+Binding will return the HOST, UUID, and KEY. With these credentials, you can configure your local OpenWhisk CLI.
+```text
+wsk property set --apihost HOST --auth UUID:KEY
+```
+
+As the OpenWhisk API does not provide the create/update/delete functionality that we were hoping for, we perform CRUD namespace/subject directly into the CouchDB.
