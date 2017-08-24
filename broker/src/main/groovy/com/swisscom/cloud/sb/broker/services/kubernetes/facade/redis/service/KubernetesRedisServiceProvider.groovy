@@ -10,9 +10,9 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
-import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesConfig> {
+class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 
