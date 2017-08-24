@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.1] - 2017-08-24
+- Add Kubernetes service config properties for ip-ranges and protocols.
+
 ## [2.3.0] - 2017-08-24
 
 ### Added
