@@ -17,7 +17,4 @@ class KubernetesConfig implements Config, EndpointConfig, AsyncServiceConfig {
     String kubernetesPort
     String kubernetesClientCertificate
     String kubernetesClientKey
-    int retryIntervalInSeconds
-    int maxRetryDurationInMinutes
-
 }
