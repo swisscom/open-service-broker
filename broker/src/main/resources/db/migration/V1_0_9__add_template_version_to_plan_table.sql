@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS create_template_version_for_plan;
+DROP PROCEDURE IF EXISTS add_template_version_to_plan_table;
 DELIMITER //
 
-CREATE PROCEDURE create_template_version_for_plan()
+CREATE PROCEDURE add_template_version_to_plan_table()
   BEGIN
 
     SET @col_exists = 1;
@@ -20,4 +20,4 @@ CREATE PROCEDURE create_template_version_for_plan()
   END//
 
 DELIMITER ;
-CALL create_template_version_for_plan();
+CALL add_template_version_to_plan_table();
