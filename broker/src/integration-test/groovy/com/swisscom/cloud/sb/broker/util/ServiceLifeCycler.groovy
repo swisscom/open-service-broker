@@ -81,7 +81,7 @@ public class ServiceLifeCycler {
 
     private Map<String, Object> credentials
 
-    void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null,
+    void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
                                      String planName = null, int maxBackups = 0) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
@@ -94,7 +94,7 @@ public class ServiceLifeCycler {
         if (cfService.plans.empty) {
             plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
-                    templateUniqueIdentifier: templateName, maxBackups: maxBackups))
+                    templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
             plan.metadata.add(planMetaData)
             plan = planRepository.saveAndFlush(plan)
@@ -119,7 +119,7 @@ public class ServiceLifeCycler {
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
 
-        if(parameter){
+        if (parameter) {
             parameterRepository.delete(parameter)
         }
 
@@ -141,7 +141,6 @@ public class ServiceLifeCycler {
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false) {
         createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse)
-
         bindServiceInstanceAndAssert()
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }

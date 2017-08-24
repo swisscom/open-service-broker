@@ -25,6 +25,7 @@ class PlanDtoConverter extends AbstractGenericConverter<Plan, PlanDto> {
         prototype.displayIndex = source.displayIndex
         prototype.asyncRequired = source.asyncRequired
         prototype.templateId = source.templateUniqueIdentifier
+        prototype.templateVersion = source.templateVersion
         prototype.maxBackups = source.maxBackups ?: 0
         prototype.parameters = containerParamterDtoConverter.convertAll(source.parameters)
     }

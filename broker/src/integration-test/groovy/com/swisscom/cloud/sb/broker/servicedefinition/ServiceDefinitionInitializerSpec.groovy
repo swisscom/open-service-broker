@@ -77,7 +77,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         given:
         serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
                 displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", internalName: "internalName", displayIndex: 1,
+                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
                 asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
                         value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
 
