@@ -66,14 +66,16 @@ com.swisscom.cloud.sb.broker:
     kubernetes:
       kubernetesHost: "kubernetes-service-api.service.consul"
       kubernetesPort: "6443"
-      retryIntervalInSeconds: 10
-      maxRetryDurationInMinutes: 3
       kubernetesClientCertificate: |
 
       kubernetesClientKey: |
 
     kubernetes.redis.v1:
       kubernetesRedisHost:
+      retryIntervalInSeconds: 10
+      maxRetryDurationInMinutes: 3
+      ipRanges: []
+      protocols: [] # 'tcp,udp,icmp'
       redisConfigurationDefaults:
         MAX_CONNECTIONS: # Plan
         MAX_DATABASES: # Plan
