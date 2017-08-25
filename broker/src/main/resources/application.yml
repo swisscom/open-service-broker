@@ -66,9 +66,8 @@ com.swisscom.cloud.sb.broker:
     kubernetes:
       kubernetesHost: "kubernetes-service-api.service.consul"
       kubernetesPort: "6443"
-      kubernetesClientCertificate: |
-
-      kubernetesClientKey: |
+      kubernetesClientCertificate: '/var/vcap/jobs/servicebroker/config/certs/kubernetes_client.crt'
+      kubernetesClientKey: '/var/vcap/jobs/servicebroker/config/certs/kubernetes_client.key'
 
     kubernetes.redis.v1:
       kubernetesRedisHost:
