@@ -12,6 +12,8 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResp
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*
 
 import javax.validation.Valid
 
+@Api(value = "Service provisioning", description = "Endpoint for provisioning/deprovisoning")
 @RestController
 @CompileStatic
 @Slf4j
@@ -38,6 +41,8 @@ class ProvisioningController extends BaseController {
     @Autowired
     private PlanRepository planRepository
 
+
+    @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
     ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
@@ -99,6 +104,7 @@ class ProvisioningController extends BaseController {
         return plan
     }
 
+    @ApiOperation(value = "Deprovision a service instance")
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.DELETE)
     ResponseEntity<String> deprovision(@PathVariable("instanceId") String serviceInstanceGuid,
                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete) {
@@ -111,6 +117,8 @@ class ProvisioningController extends BaseController {
         return new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceInstance: super.getAndCheckServiceInstance(serviceInstanceGuid), acceptsIncomplete: acceptsIncomplete)
     }
 
+    @ApiOperation(value = "Get the last operation status", response = LastOperationResponseDto.class,
+            notes = "List all the backups for the given service instance")
     @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
     LastOperationResponseDto lastOperation(@PathVariable("instanceId") String serviceInstanceGuid) {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
