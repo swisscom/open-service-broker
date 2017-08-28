@@ -16,6 +16,8 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*
 
 import javax.validation.Valid
 
+@Api(value = "binding", description = "Endpoint for service bindings")
 @RestController
 @CompileStatic
 @Slf4j
@@ -36,6 +39,8 @@ class BindingController extends BaseController {
     @Autowired
     private PlanRepository planRepository
 
+
+    @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
     ResponseEntity<String> bind(@PathVariable('id') String bindingId,
                                 @PathVariable('service_instance') String serviceInstanceId,
@@ -91,6 +96,8 @@ class BindingController extends BaseController {
         return bindRequest
     }
 
+
+    @ApiOperation(value = "Delete service instance")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
     def unbind(@PathVariable('service_instance') String serviceInstanceId,
                @PathVariable('id') String bindingGuid,
