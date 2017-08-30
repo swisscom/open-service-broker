@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.3.4] - 2017-08-30
+- Fix spelling for `service.kubernetes.redis.v1.kubernetesRedisHost`
+
 ## [2.3.3] - 2017-08-30
 - Add default value for `service.kubernetes.redis.v1.kubernetesRedisHost`
 
