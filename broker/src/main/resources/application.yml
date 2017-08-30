@@ -71,7 +71,7 @@ com.swisscom.cloud.sb.broker:
       kubernetesClientKey: |
 
     kubernetes.redis.v1:
-      kubernetesRedisHost: 'kubernetes.host.static.swisscom'
+      kubernetesRedisHost: 'kuberentes-service-node.service.consul'
       retryIntervalInSeconds: 10
       maxRetryDurationInMinutes: 3
       ipRanges: []
