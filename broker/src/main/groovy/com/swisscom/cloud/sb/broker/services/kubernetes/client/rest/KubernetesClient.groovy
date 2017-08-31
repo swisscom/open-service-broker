@@ -71,10 +71,10 @@ class KubernetesClient<RESPONSE> {
 
     private KeyStore getKeyStore() {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider())
-        X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(kubernetesConfig.kubernetesClientCertificate)))).readObject()
+        X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(new File(kubernetesConfig.kubernetesClientCertificate).text)))).readObject()
         keyStore.load(null, "".toCharArray())
         keyStore.setCertificateEntry("", cert)
-        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(kubernetesConfig.kubernetesClientKey))).readObject()).getPrivate(), "".toCharArray(), createCertChain(cert))
+        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(new File(kubernetesConfig.kubernetesClientKey).text))).readObject()).getPrivate(), "".toCharArray(), createCertChain(cert))
         return keyStore
     }
 
