@@ -5,15 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -23,7 +19,6 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
-import java.util.UUID
 
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
 import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
@@ -37,32 +32,38 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
     private OpenWhiskServiceProvider openWhiskServiceProvider
     private OpenWhiskConfig openWhiskConfig
-    private RestTemplateFactory restTemplateFactory
     private MockRestServiceServer mockServer
     private ServiceInstanceRepository serviceInstanceRepository
     private ServiceBindingRepository serviceBindingRepository
 
+    private RestTemplateBuilderFactory restTemplateBuilderFactory
+    private RestTemplateBuilder restTemplateBuilder
+
+
+
+
     def setup() {
-        setupMockInstances()
-        setupMockServer()
+        serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        serviceBindingRepository = Mock(ServiceBindingRepository)
+
+        and:
+        RestTemplate restTemplate = new RestTemplate()
+        mockServer = MockRestServiceServer.createServer(restTemplate)
+        restTemplateBuilder = Mock(RestTemplateBuilder)
+        restTemplateBuilder.build() >> restTemplate
+
+        and:
+        restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
+        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
+        restTemplateBuilderFactory.build() >> restTemplateBuilder
+
+        and:
         openWhiskConfig = new OpenWhiskConfig(openWhiskDbProtocol: "http",
                 openWhiskDbHost: "openwhiskHost", openWhiskDbPort: "1234", openWhiskDbLocalUser: "ubuntu",
                 openWhiskDbHostname: "localhost", openWhiskPath: "/api/v1/")
         and:
-        openWhiskServiceProvider = new OpenWhiskServiceProvider(openWhiskConfig, restTemplateFactory,
-                new OpenWhiskDbClient(openWhiskConfig, restTemplateFactory), serviceInstanceRepository, serviceBindingRepository)
-    }
-
-    def setupMockInstances() {
-        restTemplateFactory = Mock(RestTemplateFactory)
-        serviceInstanceRepository = Mock(ServiceInstanceRepository)
-        serviceBindingRepository = Mock(ServiceBindingRepository)
-    }
-
-    def setupMockServer() {
-        RestTemplate restTemplate = new RestTemplate()
-        restTemplateFactory.buildWithBasicAuthentication(_,_) >> restTemplate
-        mockServer = MockRestServiceServer.createServer(restTemplate)
+        openWhiskServiceProvider = new OpenWhiskServiceProvider(openWhiskConfig,
+                new OpenWhiskDbClient(openWhiskConfig, restTemplateBuilderFactory), serviceInstanceRepository, serviceBindingRepository)
     }
 
     def "creating a new subject"() {

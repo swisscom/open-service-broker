@@ -1,31 +1,30 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
-import java.security.KeyStore
-
 class KubernetesClientSpec extends Specification {
-
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     KubernetesClient kubernetesClient
     KubernetesConfig kubernetesConfig
+    RestTemplateBuilderFactory restTemplateBuilderFactory
+    RestTemplateBuilder restTemplateBuilder
     RestTemplate restTemplate
 
     def setup() {
-        kubernetesClient = Spy(KubernetesClient)
-        kubernetesClient.enableSSLWithClientCertificate() >> null
-        mockRestTemplate(kubernetesClient)
-        decorateClient(kubernetesClient)
+        restTemplate = Stub(RestTemplate)
+        restTemplateBuilder = Mock(RestTemplateBuilder)
+        restTemplateBuilder.build() >> restTemplate
+        restTemplateBuilder.withMutualTLS(_, _) >> restTemplateBuilder
+        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
+        restTemplateBuilderFactory.build() >> restTemplateBuilder
+        kubernetesConfig = Stub(kubernetesClientCertificate: "", kubernetesClientKey: "")
+        kubernetesClient = new KubernetesClient(kubernetesConfig, restTemplateBuilderFactory)
     }
 
     def "exchange uses the right endpoint"() {
@@ -55,23 +54,5 @@ class KubernetesClientSpec extends Specification {
         expect:
         "" == result
     }
-
-    private void decorateClient(KubernetesClient kubernetesClient) {
-        File createdFile = folder.newFile("tmp.txt")
-        kubernetesConfig = mockConfig(createdFile)
-        kubernetesClient.keyStore = Mock(KeyStore)
-        kubernetesClient.kubernetesConfig = kubernetesConfig
-    }
-
-    private void mockRestTemplate(KubernetesClient kubernetesClient) {
-        restTemplate = Stub(RestTemplate)
-        kubernetesClient.restTemplate = restTemplate
-    }
-
-    private KubernetesConfig mockConfig(File createdFile) {
-        kubernetesConfig = Stub(KubernetesConfig)
-        kubernetesConfig
-    }
-
 
 }

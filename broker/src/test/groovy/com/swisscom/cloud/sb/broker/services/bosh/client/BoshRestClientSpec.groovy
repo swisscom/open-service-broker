@@ -2,7 +2,8 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
 import com.swisscom.cloud.sb.broker.util.HttpHelper
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -19,19 +20,28 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class BoshRestClientSpec extends Specification {
     MockRestServiceServer mockServer
     BoshRestClient boshRestClient
+    RestTemplateBuilderFactory restTemplateBuilderFactory
+    RestTemplateBuilder restTemplateBuilder
     String username = 'username'
     String password = 'password'
-    void setup() {
+
+    def setup() {
         RestTemplate restTemplate = new RestTemplate()
         mockServer = MockRestServiceServer.createServer(restTemplate)
+        restTemplateBuilder = Mock(RestTemplateBuilder)
+        restTemplateBuilder.build() >> restTemplate
+
         and:
-        def factory = Mock(RestTemplateFactory)
-        factory.buildWithSSLValidationDisabled() >> restTemplate
+        restTemplateBuilder.withSSLValidationDisabled() >> restTemplateBuilder
+        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
+        restTemplateBuilderFactory.build() >> restTemplateBuilder
+
         and:
         boshRestClient = new BoshRestClient(new DummyConfig(boshDirectorBaseUrl: '',
-                                                            boshDirectorUsername: username,
-                                                            boshDirectorPassword: password),factory)
+                boshDirectorUsername: username,
+                boshDirectorPassword: password), restTemplateBuilderFactory)
     }
+
 
     def "GetBoshInfo"() {
         given:
@@ -67,7 +77,7 @@ class BoshRestClientSpec extends Specification {
         given:
         def response = '/1'
         def data = 'data'
-        def redirectLocation = 'http://localhost/' + BoshRestClient.TASKS  + '/1'
+        def redirectLocation = 'http://localhost/' + BoshRestClient.TASKS + '/1'
         and:
         def headers = new HttpHeaders()
         headers.setLocation(new URI(redirectLocation))
@@ -88,11 +98,11 @@ class BoshRestClientSpec extends Specification {
         given:
         def response = '/1'
         def id = 'ud'
-        def redirectLocation = 'http://localhost/' + BoshRestClient.TASKS  + '/1'
+        def redirectLocation = 'http://localhost/' + BoshRestClient.TASKS + '/1'
         and:
         def headers = new HttpHeaders()
         headers.setLocation(new URI(redirectLocation))
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS)+"/${id}"))
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS) + "/${id}"))
                 .andExpect(method(HttpMethod.DELETE))
                 .andExpect(autHeader())
                 .andRespond(withStatus(HttpStatus.FOUND).headers(headers))
@@ -122,7 +132,7 @@ class BoshRestClientSpec extends Specification {
     def "PostCloudConfig"() {
         given:
         def data = 'data'
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS )))
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS)))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(autHeader())
                 .andExpect(content().contentType(BoshRestClient.CONTENT_TYPE_YAML))

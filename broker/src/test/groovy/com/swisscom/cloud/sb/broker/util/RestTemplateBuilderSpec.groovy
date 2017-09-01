@@ -38,7 +38,7 @@ class RestTemplateBuilderSpec extends Specification {
         given:
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
         when:
-        restTemplateBuilder.withProxy("")
+        restTemplateBuilder.withProxy("", 9000)
         then:
         def restTemplate = restTemplateBuilder.build()
         then:
