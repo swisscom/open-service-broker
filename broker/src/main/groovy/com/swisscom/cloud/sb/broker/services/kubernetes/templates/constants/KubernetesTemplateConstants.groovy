@@ -9,6 +9,7 @@ enum KubernetesTemplateConstants {
     ORG_ID("ORG_ID"),
     PLAN_ID("PLAN_ID"),
     ROLE_MASTER("master"),
+    ROLE_SLAVE("slave"),
     REDIS_PASS("REDIS_PASS"),
     NODE_PORT_REDIS_SLAVE0("NODE_PORT_REDIS_SLAVE0"),
     NODE_PORT_REDIS_MASTER("NODE_PORT_REDIS_MASTER"),

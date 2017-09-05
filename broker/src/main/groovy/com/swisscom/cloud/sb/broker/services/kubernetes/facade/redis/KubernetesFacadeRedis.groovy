@@ -81,16 +81,26 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
     }
 
     private Collection<ServiceDetail> buildServiceDetailsList(String redisPassword, List<ResponseEntity> responses) {
-        def redisMasters = responses.findAll { it?.getBody() instanceof ServiceResponse }.collect {
+        def serviceResponses = responses.findAll { it?.getBody() instanceof ServiceResponse }.collect {
             it.getBody().asType(ServiceResponse.class)
-        }.findAll {
-            KubernetesTemplateConstants.ROLE_MASTER.getValue().equals(it.spec.selector.role)
         }
-        def redisMasterPorts = redisMasters.collect { it.spec.ports?.first().nodePort.toString() }
 
-        return [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost()),
-                ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT, (!redisMasterPorts.empty) ? redisMasterPorts.first() : ""),
-                ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword)
-        ]
+        def masterPortList = serviceResponses.findAll {
+            it.spec.selector.role?.equals(KubernetesTemplateConstants.ROLE_MASTER.getValue())
+        }.collect { it.spec.ports?.first()?.nodePort.toString() }
+        def masterPort = masterPortList.isEmpty() ? "" : masterPortList.first() ?: ""
+
+        def slavePorts = serviceResponses.findAll {
+            it.spec.selector.role?.startsWith(KubernetesTemplateConstants.ROLE_SLAVE.getValue())
+        }.collect { it.spec.ports?.first()?.nodePort.toString() }
+        def serviceDetailsSlavePorts = slavePorts.collect {
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it)
+        }
+
+        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost()),
+                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, masterPort),
+                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword)
+        ] + serviceDetailsSlavePorts
+        return serviceDetails
     }
 }
