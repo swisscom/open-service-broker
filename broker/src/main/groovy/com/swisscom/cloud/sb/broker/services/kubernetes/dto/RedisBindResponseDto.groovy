@@ -5,12 +5,13 @@ import groovy.json.JsonBuilder
 
 class RedisBindResponseDto implements BindResponseDto {
     String host
-    int port
+    int masterPort
+    List<Integer> slavePorts
     String password
 
 
     String getUri() {
-        return "redis://:${password}@${host}:${port}"
+        return "redis://:${password}@${host}:${masterPort}"
     }
 
     @Override
@@ -18,7 +19,9 @@ class RedisBindResponseDto implements BindResponseDto {
         def jsonBuilder = new JsonBuilder()
         jsonBuilder.credentials(
                 host: host,
-                port: port,
+                port: masterPort,
+                master_port: masterPort,
+                slave_ports: slavePorts,
                 password: password
         )
         return jsonBuilder.toPrettyString()

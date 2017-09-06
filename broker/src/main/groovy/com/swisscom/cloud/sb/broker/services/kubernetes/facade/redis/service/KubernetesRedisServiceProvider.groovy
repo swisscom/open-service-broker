@@ -99,7 +99,10 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     BindResponse bind(BindRequest request) {
         RedisBindResponseDto credentials = new RedisBindResponseDto(
                 host: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_HOST).toString(),
-                port: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT) as int,
+                masterPort: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as int,
+                slavePorts: ServiceDetailsHelper.from(request.serviceInstance).getDetails().findAll {
+                    it.key.equals(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE.getKey())
+                }.collect { it.getValue() as int } as List,
                 password: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString()
         )
         return new BindResponse(credentials: credentials)
