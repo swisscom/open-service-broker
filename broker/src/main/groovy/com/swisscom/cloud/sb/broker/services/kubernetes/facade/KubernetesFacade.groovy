@@ -1,17 +1,18 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
+import com.swisscom.cloud.sb.broker.backup.SystemBackupOnShield
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.transform.CompileStatic
 
 @CompileStatic
-interface KubernetesFacade {
+trait KubernetesFacade extends SystemBackupOnShield {
 
-    Collection<ServiceDetail> provision(ProvisionRequest context)
+    abstract Collection<ServiceDetail> provision(ProvisionRequest context)
 
-    void deprovision(DeprovisionRequest request)
+    abstract void deprovision(DeprovisionRequest request)
 
-    boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
+    abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
 
 }

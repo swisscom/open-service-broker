@@ -19,6 +19,15 @@ enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<Kuberne
         }
     }),
 
+    UNREGISTER_SHIELD_SYSTEM_BACKUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            stateContext.kubernetesFacade.unregisterSystemBackupOnShield(stateContext.lastOperationJobContext.deprovisionRequest.serviceInstanceGuid)
+            return new StateChangeActionResult(go2NextState: true)
+        }
+    }),
+
     DEPROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp())
 
     public static final Map<String, ServiceStateWithAction> map = new TreeMap<>()

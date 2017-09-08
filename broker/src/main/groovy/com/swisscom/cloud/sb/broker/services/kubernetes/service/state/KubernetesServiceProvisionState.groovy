@@ -29,6 +29,16 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         }
     }),
 
+    REGISTER_SHIELD_BACKUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: true,
+                    details: stateContext.kubernetesFacade.registerAndRunSystemBackupOnShield(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid))
+        }
+    }),
+
     KUBERNETES_SERVICE_PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp()),
 
     KUBERNETES_SERVICE_PROVISION_FAILED(LastOperation.Status.FAILED, new NoOp())

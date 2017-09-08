@@ -1,8 +1,10 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
@@ -16,6 +18,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemp
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -100,5 +103,26 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
                               ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
                 masterPort + slavePorts
         return serviceDetails
+    }
+
+    @Override
+    ShieldTarget createShieldTarget(ServiceInstance serviceInstance) {
+        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as Integer
+        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
+    }
+
+    @Override
+    String jobName(String jobPrefix, String serviceInstanceId) {
+        "${jobPrefix}redis-${serviceInstanceId}"
+    }
+
+    @Override
+    String targetName(String targetPrefix, String serviceInstanceId) {
+        "${targetPrefix}redis-${serviceInstanceId}"
+    }
+
+    @Override
+    String shieldAgent(ServiceInstance serviceInstance) {
+        "${kubernetesRedisConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)}"
     }
 }

@@ -19,6 +19,9 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createParameter('QUORUM', '2', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('SENTINEL_MAX_CPU', '20', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('SENTINEL_MAX_MEMORY', '24', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('BACKUP_SCHEDULE_NAME', 'daily', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('BACKUP_POLICY_NAME', 'month', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
     }
 
     def "Create and remove a redis instance"() {

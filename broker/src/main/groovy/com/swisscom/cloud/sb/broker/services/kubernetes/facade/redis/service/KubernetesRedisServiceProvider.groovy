@@ -2,9 +2,13 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.model.Backup
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -12,6 +16,7 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisShieldTarget
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
@@ -26,7 +31,7 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> {
+class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 
@@ -65,6 +70,7 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     private StateMachine createProvisionStateMachine() {
         StateMachine stateMachine = new StateMachine([KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION,
                                                       KubernetesServiceProvisionState.CHECK_SERVICE_DEPLOYMENT_SUCCESSFUL,
+                                                      KubernetesServiceProvisionState.REGISTER_SHIELD_BACKUP,
                                                       KubernetesServiceProvisionState.KUBERNETES_SERVICE_PROVISION_SUCCESS])
         return stateMachine
     }
@@ -90,7 +96,8 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
 
     @VisibleForTesting
     private StateMachine createDeprovisionStateMachine() {
-        StateMachine stateMachine = new StateMachine([KubernetesServiceDeprovisionState.KUBERNETES_NAMESPACE_DELETION])
+        StateMachine stateMachine = new StateMachine([KubernetesServiceDeprovisionState.KUBERNETES_NAMESPACE_DELETION,
+                                                      KubernetesServiceDeprovisionState.UNREGISTER_SHIELD_SYSTEM_BACKUP])
         stateMachine.addAll([KubernetesServiceDeprovisionState.DEPROVISION_SUCCESS])
         return stateMachine
     }
@@ -111,5 +118,12 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     void unbind(UnbindRequest request) {
 
+    }
+
+    @Override
+    ShieldTarget targetForBackup(Backup backup) {
+        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(backup.serviceInstanceGuid)
+        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as Integer
+        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
     }
 }

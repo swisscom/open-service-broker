@@ -13,21 +13,17 @@ trait ShieldBackupRestoreProvider implements BackupRestoreProvider {
 
     abstract ShieldTarget targetForBackup(Backup backup)
 
-    //@Override
-    // Can not use @Override since groovyc does not compile then
-    // (Error:(16, 5) Groovyc: Method 'createBackup' from class
-    // 'com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider$Trait$Helper' does not override method from
-    // its superclass or interfaces but is annotated with @Override.)
+    @Override
     String createBackup(Backup backup) {
         shieldClient.registerAndRunJob(backup.serviceInstanceGuid, targetForBackup(backup))
     }
 
-    //@Override
+    @Override
     void deleteBackup(Backup backup) {
         shieldClient.deleteBackup(backup.externalId)
     }
 
-    //@Override
+    @Override
     Backup.Status getBackupStatus(Backup backup) {
         try {
             JobStatus status = shieldClient.getJobStatus(backup.externalId)
@@ -41,18 +37,18 @@ trait ShieldBackupRestoreProvider implements BackupRestoreProvider {
         }
     }
 
-    //@Override
+    @Override
     String restoreBackup(Restore restore) {
         shieldClient.restore(restore.backup.externalId)
     }
 
-    //@Override
+    @Override
     Backup.Status getRestoreStatus(Restore restore) {
         JobStatus status = shieldClient.getJobStatus(restore.externalId)
         return convertBackupStatus(status)
     }
 
-    //@Override
+    @Override
     void notifyServiceInstanceDeletion(ServiceInstance serviceInstance) {
         shieldClient.deleteJobsAndBackups(serviceInstance.guid)
     }

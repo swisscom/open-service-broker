@@ -1,8 +1,10 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
@@ -34,6 +36,26 @@ class AbstractKubernetesFacadeSpec extends Specification {
             @Override
             void deprovision(DeprovisionRequest request) {
 
+            }
+
+            @Override
+            ShieldTarget createShieldTarget(ServiceInstance serviceInstance) {
+                return null
+            }
+
+            @Override
+            String jobName(String jobPrefix, String serviceInstance) {
+                return null
+            }
+
+            @Override
+            String targetName(String targetPrefix, String serviceInstance) {
+                return null
+            }
+
+            @Override
+            String shieldAgent(ServiceInstance serviceInstance) {
+                return null
             }
         }
     }
