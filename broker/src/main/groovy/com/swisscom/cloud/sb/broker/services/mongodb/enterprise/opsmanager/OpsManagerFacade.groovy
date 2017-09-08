@@ -123,13 +123,13 @@ class OpsManagerFacade {
     }
 
     //TODO refactor this method ,passing in too many arguments
-    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser = null, String healthPassword = null) {
+    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion) {
         final List<String> hosts = findHostsForGroup(groupId)
         final List<HostPort> hostPorts = hosts.collect { String host -> new HostPort(host: host, port: port) }
 
         MongoDbEnterpriseDeployment deployment = null
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
-            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword)
+            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword, mongoDbVersion)
         })
 
         return deployment
@@ -148,7 +148,8 @@ class OpsManagerFacade {
     }
 
     private MongoDbEnterpriseDeployment configureInstancesWithReplicaSetMode(String database, List<HostPort> hostPorts, AutomationConfigDto automationConfig,
-                                                                             String healthUser, String healthPassword) {
+                                                                             String healthUser, String healthPassword,
+                                                                             String mongoDbVersion) {
         final String replicaSetId = "rs_${database}"
 
         if (!automationConfig.options) {
@@ -165,7 +166,7 @@ class OpsManagerFacade {
             HostPort hostPort, int i ->
                 String name = "${replicaSetId}_${i}"
                 String path = createDbPath(name)
-                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name)
+                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name, mongoDbVersion)
                 automationConfig.processes.add(processDto)
         }
 
@@ -229,8 +230,8 @@ class OpsManagerFacade {
         return result
     }
 
-    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name) {
-        ProcessDto processDto = new ProcessDto(version: mongoDbEnterpriseConfig.mongoDbVersion,
+    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name, String mongoDbVersion) {
+        ProcessDto processDto = new ProcessDto(version: mongoDbVersion,
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,

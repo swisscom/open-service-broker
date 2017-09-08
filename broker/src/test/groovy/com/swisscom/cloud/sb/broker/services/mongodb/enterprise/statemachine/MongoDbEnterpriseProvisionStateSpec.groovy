@@ -1,8 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
@@ -72,16 +70,18 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
     }
 
-    def "REQUEST_AUTOMATION_UPDATE"() {
+    def "REQUEST_AUTOMATION_UPDATE for a mongodb version specified in plan"() {
         given:
         def groupId = 'GroupId'
         def port = 666
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
-                                                                                                                     ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
-                                                                                                                     ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
-                                                                                                                     ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)])
+        def mongodb_version = 'Some Version'
+        context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(parameters: [new Parameter(name: MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION, value: mongodb_version)]),
+                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                               ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
+                                                               ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
+                                                               ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)])
                 , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
         def initialAutomationVersion = 1
@@ -89,7 +89,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
         and:
         def deployment = new MongoDbEnterpriseDeployment()
-        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password) >> deployment
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
 
         when:
         def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
@@ -107,6 +107,48 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD) == deployment.backupAgentPassword
     }
 
+    def "REQUEST_AUTOMATION_UPDATE without a mongodb version specified in plan"() {
+        given:
+        def groupId = 'GroupId'
+        def port = 666
+        def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
+        def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
+        def mongodb_version = 'A version from SB Config'
+
+        and:
+        context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(mongoDbVersion: mongodb_version)
+        and:
+        context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(),
+                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                               ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
+                                                               ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
+                                                               ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)])
+                , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
+        and:
+        def initialAutomationVersion = 1
+        1 * context.opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId) >> initialAutomationVersion
+
+        and:
+        def deployment = new MongoDbEnterpriseDeployment()
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
+
+        when:
+        def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
+
+        then:
+        result.go2NextState
+        def helper = ServiceDetailsHelper.from(result.details)
+
+        helper.getValue(ServiceDetailKey.DATABASE) == deployment.database
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) == (initialAutomationVersion + 1).toString()
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET) == deployment.replicaSet
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_USER) == deployment.monitoringAgentUser
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_PASSWORD) == deployment.monitoringAgentPassword
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_USER) == deployment.backupAgentUser
+        helper.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD) == deployment.backupAgentPassword
+    }
+
+
     def "CHECK_AUTOMATION_UPDATE_STATUS"() {
         given:
         def groupId = 'GroupId'
@@ -114,7 +156,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                                                                      ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, automationVersion.toString())]))
         and:
-        context.opsManagerFacade.isAutomationUpdateComplete(groupId,automationVersion) >>opsManagerResponse
+        context.opsManagerFacade.isAutomationUpdateComplete(groupId, automationVersion) >> opsManagerResponse
 
         when:
         def result = MongoDbEnterpriseProvisionState.CHECK_AUTOMATION_UPDATE_STATUS.triggerAction(context)
@@ -134,7 +176,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         def replicaSet = 'replicaSet'
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                                                                      ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, replicaSet)]))
-        context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(configureDefaultBackupOptions:  true,opsManagerIpWhiteList: 'localhost',opsManagerUser:'user')
+        context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(configureDefaultBackupOptions: true, opsManagerIpWhiteList: 'localhost', opsManagerUser: 'user')
 
         when:
         def result = MongoDbEnterpriseProvisionState.ENABLE_BACKUP_IF_CONFIGURED.triggerAction(context)
