@@ -116,11 +116,14 @@ class BoshFacadeSpec extends Specification {
         1 * customizer.customizeBoshTemplate(boshTemplate, request) >> serviceDetails
         and:
         1 * boshClient.postDeployment(_) >> 'taskId'
+        and:
+        serviceConfig.shuffleAzs = true
         when:
         def result = boshFacade.handleTemplatingAndCreateDeployment(request, customizer)
         then:
         1 * boshTemplate.replace('guid', request.serviceInstanceGuid)
         1 * boshTemplate.replace('name1', 'value1')
+        1 * boshTemplate.shuffleAzs()
         result.size() == 3
     }
 

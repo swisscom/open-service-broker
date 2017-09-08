@@ -11,4 +11,5 @@ trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
     String openstackPassword
     String openstackTenantName
     String boshManifestFolder
+    boolean shuffleAzs
 }
