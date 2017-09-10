@@ -1,0 +1,7 @@
+director_uuid: bla-bla-bla
+name: '{{prefix}}{{guid}}' #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+instance_groups:
+- azs:
+  - z1
+  - z2
+  - z3

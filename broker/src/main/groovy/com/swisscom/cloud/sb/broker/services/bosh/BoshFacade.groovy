@@ -88,10 +88,14 @@ class BoshFacade {
 
     Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
         BoshTemplate template = boshTemplateFactory.build(readTemplateContent(provisionRequest.plan.templateUniqueIdentifier))
+
+        if (serviceConfig.shuffleAzs) {
+            template.shuffleAzs()
+        }
+
         template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
         template.replace(PARAM_BOSH_DIRECTOR_UUID, createBoshClient().fetchBoshInfo().uuid)
-
         template.replace(BoshFacade.PARAM_VM_TYPE, shouldCreateOpenStackServerGroup(provisionRequest.plan)?provisionRequest.serviceInstanceGuid:findBoshVmInstanceType(provisionRequest.plan))
 
         updateTemplateFromDatabaseConfiguration(template, provisionRequest)
@@ -107,6 +111,7 @@ class BoshFacade {
         generateHostNames(provisionRequest.serviceInstanceGuid, template.instanceCount()).each {
             serviceDetails.add(ServiceDetail.from(ServiceDetailKey.HOST, it))
         }
+
 
         return serviceDetails
     }

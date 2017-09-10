@@ -5,7 +5,11 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum ServiceDetailType {
 
-    HOST("host"), PORT("port"), USERNAME("username"), PASSWORD("password"), OTHER("other")
+    HOST("host"),
+    PORT("port"),
+    USERNAME("username"),
+    PASSWORD("password"),
+    OTHER("other")
 
     private final String type
 

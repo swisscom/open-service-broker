@@ -136,7 +136,7 @@ class OpsManagerFacadeSpec extends Specification {
         opsManagerClient.listAutomationAgents(groupId) >> [new AutomationAgentDto(hostname: 'host')]
 
         when:
-        def result = opsManagerFacade.deployReplicaSet(groupId, database, 27000)
+        def result = opsManagerFacade.deployReplicaSet(groupId, database, 27000, 'healthuser', 'healthpassword', 'version')
 
         then:
         1 * opsManagerClient.updateAutomationConfig(groupId, config)

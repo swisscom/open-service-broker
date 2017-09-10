@@ -37,7 +37,18 @@ class BoshTemplate {
         }
     }
 
-    public int instanceCount() {
+    int instanceCount() {
         return ((Map) new Yaml().load(processed)).'instance_groups'.'instances'[0] as int
+    }
+
+    void shuffleAzs() {
+        TreeMap map = ((TreeMap) new Yaml().load(processed))
+        List azs = map.'instance_groups'.'azs'[0]
+        Collections.shuffle(azs)
+
+        def options = new org.yaml.snakeyaml.DumperOptions()
+        options.defaultFlowStyle = org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
+        options.defaultScalarStyle = org.yaml.snakeyaml.DumperOptions.ScalarStyle.PLAIN
+        processed = new Yaml(options).dump(map)
     }
 }
