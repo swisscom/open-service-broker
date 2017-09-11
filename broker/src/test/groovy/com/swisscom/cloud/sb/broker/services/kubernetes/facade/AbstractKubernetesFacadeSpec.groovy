@@ -38,7 +38,6 @@ class AbstractKubernetesFacadeSpec extends Specification {
         }
     }
 
-
     def "return correct provision status when service ready"() {
         when:
         String serviceInstance = 'test'
@@ -59,13 +58,11 @@ class AbstractKubernetesFacadeSpec extends Specification {
         deployTaskSuccessful == false
     }
 
-
     private String mockReadyPodListResponse() {
-        return new File('src/test/resources/kubernetes/kubernetes-podlist-response-ready.json').text
+        new File(this.getClass().getResource('/kubernetes/kubernetes-podlist-response-ready.json').getFile()).text
     }
 
     private String mockNotReadyPodListResponse() {
-        return new File('src/test/resources/kubernetes/kubernetes-podlist-response-notready.json').text
+        new File(this.getClass().getResource('/kubernetes/kubernetes-podlist-response-notready.json').getFile()).text
     }
-
 }

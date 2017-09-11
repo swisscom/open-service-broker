@@ -1,7 +1,11 @@
 # Open Service Broker
 
 ### Status
-Develop Branch:[![Develop branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=develop)](https://travis-ci.org/swisscom/open-service-broker)
+
+Master Branch: [![Master branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=master)](https://travis-ci.org/swisscom/open-service-broker)
+
+Develop Branch: [![Develop branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=develop)](https://travis-ci.org/swisscom/open-service-broker)
+
 ## Introduction
 
 Open Service Broker is an implementation of the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/blob/v2.11/spec.md). It enables platforms such as [Cloud Foundry](https://www.cloudfoundry.org/) & [Kubernetes](https://kubernetes.io/) to provision and manage services.
@@ -183,7 +187,7 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 https://github.com/swisscom/mongodb-enterprise-boshrelease
 
 ### Kubernetes based services
-Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes Server. All the templates are automatically read from provided directory and matched with k8s endpoint.
+Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes API. All the templates can be read from the `application.yml` and are automatically read inside a specific [ServiceProvider](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/redis/service/KubernetesRedisServiceProvider.groovy).
      
 ### OpenWhisk
 Open Service Broker can broker your local deployment of OpenWhisk.
