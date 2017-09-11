@@ -13,7 +13,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.ssl.SSLContexts
 import org.bouncycastle.openssl.PEMReader
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
@@ -32,15 +31,14 @@ import java.security.cert.Certificate
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 
+@Component('RestTemplateBuilder')
 @CompileStatic
-@Component
 @Scope("prototype")
 class RestTemplateBuilder {
     protected RestTemplate restTemplate
     protected HttpClientBuilder httpClientBuilder
     private boolean useDigestAuth = false
 
-    @Autowired
     RestTemplateBuilder() {
         restTemplate = new RestTemplate()
         httpClientBuilder = HttpClientBuilder.create()
