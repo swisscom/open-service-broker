@@ -3,7 +3,6 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -20,7 +19,6 @@ class OpenWhiskDbClientSpec extends Specification{
     private OpenWhiskDbClient openWhiskDbClient
     private MockRestServiceServer mockServer
     private final ObjectMapper mapper = new ObjectMapper()
-    private RestTemplateBuilderFactory restTemplateBuilderFactory
     private RestTemplateBuilder restTemplateBuilder
 
     def setup() {
@@ -31,13 +29,12 @@ class OpenWhiskDbClientSpec extends Specification{
 
         and:
         restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
-        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
-        restTemplateBuilderFactory.build() >> restTemplateBuilder
+
 
         and:
         openWhiskDbClient = new OpenWhiskDbClient(new OpenWhiskConfig(openWhiskDbProtocol: "http",
                 openWhiskDbHost: "openwhiskHost", openWhiskDbPort: "1234", openWhiskDbLocalUser: "ubuntu",
-                openWhiskDbHostname: "localhost"), restTemplateBuilderFactory)
+                openWhiskDbHostname: "localhost"), restTemplateBuilder)
     }
 
     def "Retrieve existing subject"() {

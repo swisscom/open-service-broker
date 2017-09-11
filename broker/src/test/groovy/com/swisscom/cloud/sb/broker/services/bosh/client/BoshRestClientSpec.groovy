@@ -3,7 +3,6 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
 import com.swisscom.cloud.sb.broker.util.HttpHelper
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -20,7 +19,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class BoshRestClientSpec extends Specification {
     MockRestServiceServer mockServer
     BoshRestClient boshRestClient
-    RestTemplateBuilderFactory restTemplateBuilderFactory
     RestTemplateBuilder restTemplateBuilder
     String username = 'username'
     String password = 'password'
@@ -29,17 +27,13 @@ class BoshRestClientSpec extends Specification {
         RestTemplate restTemplate = new RestTemplate()
         mockServer = MockRestServiceServer.createServer(restTemplate)
         restTemplateBuilder = Mock(RestTemplateBuilder)
-        restTemplateBuilder.build() >> restTemplate
-
-        and:
         restTemplateBuilder.withSSLValidationDisabled() >> restTemplateBuilder
-        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
-        restTemplateBuilderFactory.build() >> restTemplateBuilder
+        restTemplateBuilder.build() >> restTemplate
 
         and:
         boshRestClient = new BoshRestClient(new DummyConfig(boshDirectorBaseUrl: '',
                 boshDirectorUsername: username,
-                boshDirectorPassword: password), restTemplateBuilderFactory)
+                boshDirectorPassword: password), restTemplateBuilder)
     }
 
 

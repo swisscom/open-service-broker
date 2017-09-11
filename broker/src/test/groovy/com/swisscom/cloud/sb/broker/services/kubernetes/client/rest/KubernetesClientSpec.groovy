@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,7 +11,6 @@ import spock.lang.Specification
 class KubernetesClientSpec extends Specification {
     KubernetesClient kubernetesClient
     KubernetesConfig kubernetesConfig
-    RestTemplateBuilderFactory restTemplateBuilderFactory
     RestTemplateBuilder restTemplateBuilder
     RestTemplate restTemplate
 
@@ -21,10 +19,9 @@ class KubernetesClientSpec extends Specification {
         restTemplateBuilder = Mock(RestTemplateBuilder)
         restTemplateBuilder.build() >> restTemplate
         restTemplateBuilder.withMutualTLS(_, _) >> restTemplateBuilder
-        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
-        restTemplateBuilderFactory.build() >> restTemplateBuilder
+
         kubernetesConfig = Stub(kubernetesClientCertificate: "", kubernetesClientKey: "")
-        kubernetesClient = new KubernetesClient(kubernetesConfig, restTemplateBuilderFactory)
+        kubernetesClient = new KubernetesClient(kubernetesConfig, restTemplateBuilder)
     }
 
     def "exchange uses the right endpoint"() {

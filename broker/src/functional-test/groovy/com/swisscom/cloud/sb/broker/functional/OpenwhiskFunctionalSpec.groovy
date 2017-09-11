@@ -3,7 +3,7 @@ package com.swisscom.cloud.sb.broker.functional
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceProvider
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.web.client.RestTemplate
@@ -17,7 +17,7 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
     private RestTemplate restTemplate
 
     @Autowired
-    RestTemplateBuilderFactory restTemplateBuilderFactory
+    RestTemplateBuilder restTemplateBuilder
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('openwhiskTest', findInternalName(OpenWhiskServiceProvider))
@@ -41,7 +41,7 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
     def "Create, execute, delete an action"() {
         when:
         def credentials = serviceLifeCycler.getCredentials()
-        restTemplate = restTemplateBuilderFactory.build().withSSLValidationDisabled().withBasicAuthentication(credentials.get("uuid"), credentials.get("key")).build()
+        restTemplate = restTemplateBuilder.withSSLValidationDisabled().withBasicAuthentication(credentials.get("uuid"), credentials.get("key")).build()
         HttpHeaders headers = new HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
 

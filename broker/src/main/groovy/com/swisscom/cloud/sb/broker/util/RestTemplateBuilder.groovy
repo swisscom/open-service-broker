@@ -14,9 +14,11 @@ import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.ssl.SSLContexts
 import org.bouncycastle.openssl.PEMReader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Scope
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.client.support.BasicAuthorizationInterceptor
+import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 import javax.net.ssl.SSLContext
@@ -31,6 +33,8 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 
 @CompileStatic
+@Component
+@Scope("prototype")
 class RestTemplateBuilder {
     protected RestTemplate restTemplate
     protected HttpClientBuilder httpClientBuilder

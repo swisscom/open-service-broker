@@ -3,7 +3,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,17 +16,16 @@ import org.springframework.stereotype.Component
 class KubernetesClient<RESPONSE> {
 
     KubernetesConfig kubernetesConfig
-    RestTemplateBuilderFactory restTemplateBuilderFactory
+    RestTemplateBuilder restTemplateBuilder
 
     @Autowired
-    KubernetesClient(KubernetesConfig kubernetesConfig, RestTemplateBuilderFactory restTemplateBuilderFactory) {
+    KubernetesClient(KubernetesConfig kubernetesConfig, RestTemplateBuilder restTemplateBuilder) {
         this.kubernetesConfig = kubernetesConfig
-        this.restTemplateBuilderFactory = restTemplateBuilderFactory
+        this.restTemplateBuilder = restTemplateBuilder
     }
 
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       String body, Class<RESPONSE> responseType) {
-        def restTemplateBuilder = restTemplateBuilderFactory.build()
         def restTemplate = restTemplateBuilder.withMutualTLS(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
         log.info(url + " - " + convertYamlToJson(body))
         return restTemplate.exchange(

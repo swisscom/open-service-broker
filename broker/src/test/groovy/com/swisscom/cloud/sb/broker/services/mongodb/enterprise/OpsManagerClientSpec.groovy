@@ -9,7 +9,6 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsMa
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -28,7 +27,6 @@ class OpsManagerClientSpec extends Specification {
 
     OpsManagerClient opsManagerClient
     MockRestServiceServer mockServer
-    RestTemplateBuilderFactory restTemplateBuilderFactory
     RestTemplateBuilder restTemplateBuilder
 
     def setup() {
@@ -39,11 +37,9 @@ class OpsManagerClientSpec extends Specification {
 
         and:
         restTemplateBuilder.withDigestAuthentication(_, _) >> restTemplateBuilder
-        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
-        restTemplateBuilderFactory.build() >> restTemplateBuilder
 
         and:
-        opsManagerClient = new OpsManagerClient(restTemplateBuilderFactory, new MongoDbEnterpriseConfig(opsManagerUrl: URL))
+        opsManagerClient = new OpsManagerClient(restTemplateBuilder, new MongoDbEnterpriseConfig(opsManagerUrl: URL))
     }
 
     private String baseUrl() {

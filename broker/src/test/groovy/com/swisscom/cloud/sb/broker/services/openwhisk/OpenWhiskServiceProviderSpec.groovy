@@ -9,7 +9,6 @@ import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilderFactory
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -35,11 +34,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
     private MockRestServiceServer mockServer
     private ServiceInstanceRepository serviceInstanceRepository
     private ServiceBindingRepository serviceBindingRepository
-
-    private RestTemplateBuilderFactory restTemplateBuilderFactory
     private RestTemplateBuilder restTemplateBuilder
-
-
 
 
     def setup() {
@@ -54,8 +49,6 @@ class OpenWhiskServiceProviderSpec extends Specification{
 
         and:
         restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
-        restTemplateBuilderFactory = Mock(RestTemplateBuilderFactory)
-        restTemplateBuilderFactory.build() >> restTemplateBuilder
 
         and:
         openWhiskConfig = new OpenWhiskConfig(openWhiskDbProtocol: "http",
@@ -63,7 +56,7 @@ class OpenWhiskServiceProviderSpec extends Specification{
                 openWhiskDbHostname: "localhost", openWhiskPath: "/api/v1/")
         and:
         openWhiskServiceProvider = new OpenWhiskServiceProvider(openWhiskConfig,
-                new OpenWhiskDbClient(openWhiskConfig, restTemplateBuilderFactory), serviceInstanceRepository, serviceBindingRepository)
+                new OpenWhiskDbClient(openWhiskConfig, restTemplateBuilder), serviceInstanceRepository, serviceBindingRepository)
     }
 
     def "creating a new subject"() {
