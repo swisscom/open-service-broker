@@ -1,47 +1,26 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestTemplate
 
 @Component
 @Slf4j
-class ShieldClient {
+class ShieldClient_2_3_5 {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
-    private RestTemplateFactory restTemplateFactory
 
     @Autowired
-    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateFactory restTemplateFactory) {
+    ShieldClient_2_3_5(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory) {
         this.shieldConfig = shieldConfig
         this.shieldRestClientFactory = shieldRestClientFactory
-        this.restTemplateFactory = restTemplateFactory
     }
 
-    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgent) {
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgent)
-        String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig)
-
-        buildClient().runJob(jobUuid)
-    }
-
-    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgent) {
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgent)
-        String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig, false)
-
-        buildClient().runJob(jobUuid)
-
-        [ServiceDetail.from(ServiceDetailKey.SHIELD_JOB_UUID, jobUuid),
-         ServiceDetail.from(ServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
-    }
-
-    def unregisterSystemBackup(String jobName, String targetName) {
-        deleteJobIfExisting(jobName)
-        deleteTargetIfExisting(targetName)
+    String registerAndRunJob(String serviceInstanceId, ShieldTarget target) {
+        String jobId = registerJob(serviceInstanceId, target)
+        return buildClient().runJob(jobId)
     }
 
     JobStatus getJobStatus(String taskUuid) {
@@ -82,14 +61,16 @@ class ShieldClient {
         deleteTargetIfExisting(serviceInstanceId)
     }
 
-    private deleteJobIfExisting(String jobName) {
+    private deleteJobIfExisting(String serviceInstanceId) {
+        String jobName = targetName(serviceInstanceId)
         JobDto job = buildClient().getJobByName(jobName)
         if (job != null) {
             buildClient().deleteJob(job.uuid)
         }
     }
 
-    private deleteTargetIfExisting(String targetName) {
+    private deleteTargetIfExisting(String serviceInstanceId) {
+        String targetName = targetName(serviceInstanceId)
         TargetDto target = buildClient().getTargetByName(targetName)
         if (target != null) {
             buildClient().deleteTarget(target.uuid)
@@ -105,41 +86,52 @@ class ShieldClient {
         }
     }
 
-    private String registerJob(String jobName, String targetUuid, ShieldServiceConfig shieldServiceConfig, boolean paused = true) {
-        StoreDto store = buildClient().getStoreByName(shieldServiceConfig.storeName)
+    private String registerJob(String serviceInstanceId, ShieldTarget target) {
+        String targetUuid = createOrUpdateTarget(serviceInstanceId, target)
+        StoreDto store = buildClient().getStoreByName(shieldConfig.storeName)
         if (store == null) {
-            throw new RuntimeException("Store ${shieldServiceConfig.storeName} that is configured does not exist on shield")
+            throw new RuntimeException("Store ${shieldConfig.storeName} that is configured does not exist on shield")
         }
-        RetentionDto retention = buildClient().getRetentionByName(shieldServiceConfig.retentionName)
+        RetentionDto retention = buildClient().getRetentionByName(shieldConfig.retentionName)
         if (retention == null) {
-            throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
+            throw new RuntimeException("Retention ${shieldConfig.retentionName} that is configured does not exist on shield")
         }
-        ScheduleDto schedule = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
+        ScheduleDto schedule = buildClient().getScheduleByName(shieldConfig.scheduleName)
         if (schedule == null) {
-            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
+            throw new RuntimeException("Schedule ${shieldConfig.scheduleName} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule.uuid, paused)
+        createOrUpdateJob(serviceInstanceId, targetUuid, store.uuid, retention.uuid, schedule.uuid)
     }
 
-    private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
+    private String createOrUpdateTarget(String serviceInstanceId, ShieldTarget target) {
+        String targetName = targetName(serviceInstanceId)
         TargetDto targetOnShield = buildClient().getTargetByName(targetName)
-        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) : buildClient().updateTarget(targetOnShield, target)
+        targetOnShield == null ? buildClient().createTarget(targetName, target) : buildClient().updateTarget(targetOnShield, target)
     }
 
-    private String createOrUpdateJob(String jobName,
+    private String createOrUpdateJob(String serviceInstanceId,
                                      String targetUuid,
                                      String storeUuid,
                                      String retentionUuid,
                                      String scheduleUuid,
-                                     boolean paused) {
+                                     boolean paused = true) {
+        String jobName = jobName(serviceInstanceId)
         JobDto jobOnShield = buildClient().getJobByName(jobName)
         jobOnShield == null ?
                 buildClient().createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
                 buildClient().updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
     }
 
+    private String jobName(String serviceInstanceId) {
+        "${shieldConfig.jobPrefix}${serviceInstanceId}"
+    }
+
+    private String targetName(String serviceInstanceId) {
+        "${shieldConfig.targetPrefix}${serviceInstanceId}"
+    }
+
     private ShieldRestClient buildClient() {
-        shieldRestClientFactory.build(restTemplateFactory.buildWithSSLValidationDisabled(), shieldConfig.baseUrl, shieldConfig.apiKey)
+        shieldRestClientFactory.build(new RestTemplate(), shieldConfig.baseUrl, shieldConfig.apiKey, shieldConfig.agent)
     }
 }

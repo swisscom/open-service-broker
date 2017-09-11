@@ -16,7 +16,7 @@ class SystemBackupOnShieldTest extends BaseSpecification implements SystemBackup
 
     def "register and run system backup on shield"() {
         when:
-        def status = registerAndRunSystemBackupOnShield(SERVICE_INSTANCE_ID)
+        def status = configureSystemBackup(SERVICE_INSTANCE_ID)
         then:
         status.size() == 2
     }
@@ -35,12 +35,12 @@ class SystemBackupOnShieldTest extends BaseSpecification implements SystemBackup
     }
 
     @Override
-    String jobName(String jobPrefix, String serviceInstance) {
+    String systemBackupJobName(String jobPrefix, String serviceInstance) {
         "SystemBackupOnShieldTest-job"
     }
 
     @Override
-    String targetName(String targetPrefix, String serviceInstance) {
+    String systemBackupTargetName(String targetPrefix, String serviceInstance) {
         "SystemBackupOnShieldTest-target"
     }
 

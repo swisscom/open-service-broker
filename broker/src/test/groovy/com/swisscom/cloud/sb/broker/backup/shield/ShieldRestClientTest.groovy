@@ -12,7 +12,7 @@ class ShieldRestClientTest extends Specification {
 
     void setup() {
         def restTemplateFactory = new RestTemplateFactory()
-        restClient = new ShieldRestClient(restTemplateFactory.buildWithSSLValidationDisabled(), "https://localhost:18002", "averyhardkey", "127.0.0.1:5444")
+        restClient = new ShieldRestClient(restTemplateFactory.buildWithSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
     }
 
     def "obtain status"() {

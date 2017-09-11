@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider {
+class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 
@@ -118,12 +118,5 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     void unbind(UnbindRequest request) {
 
-    }
-
-    @Override
-    ShieldTarget targetForBackup(Backup backup) {
-        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(backup.serviceInstanceGuid)
-        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as Integer
-        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 trait ShieldBackupRestoreProvider implements BackupRestoreProvider {
     @Autowired
-    ShieldClient shieldClient
+    ShieldClient_2_3_5 shieldClient
 
     abstract ShieldTarget targetForBackup(Backup backup)
 

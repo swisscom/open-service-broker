@@ -37,26 +37,6 @@ class AbstractKubernetesFacadeSpec extends Specification {
             void deprovision(DeprovisionRequest request) {
 
             }
-
-            @Override
-            ShieldTarget createShieldTarget(ServiceInstance serviceInstance) {
-                return null
-            }
-
-            @Override
-            String jobName(String jobPrefix, String serviceInstance) {
-                return null
-            }
-
-            @Override
-            String targetName(String targetPrefix, String serviceInstance) {
-                return null
-            }
-
-            @Override
-            String shieldAgent(ServiceInstance serviceInstance) {
-                return null
-            }
         }
     }
 

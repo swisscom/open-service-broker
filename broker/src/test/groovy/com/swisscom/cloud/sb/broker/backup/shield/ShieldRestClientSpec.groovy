@@ -21,7 +21,6 @@ class ShieldRestClientSpec extends Specification {
 
     String baseUrl = "http://baseurl"
     String apiKey = "apiKey"
-    String agent = "agent-example"
 
     class DummyTarget implements ShieldTarget {
 
@@ -40,7 +39,7 @@ class ShieldRestClientSpec extends Specification {
         RestTemplate restTemplate = new RestTemplate()
         mockServer = MockRestServiceServer.createServer(restTemplate)
         and:
-        shieldRestClient = new ShieldRestClient(restTemplate, baseUrl, apiKey, agent)
+        shieldRestClient = new ShieldRestClient(restTemplate, baseUrl, apiKey)
     }
 
     def "get status"() {
@@ -117,6 +116,7 @@ class ShieldRestClientSpec extends Specification {
     def "create target"() {
         given:
         String targetName = "targetName"
+        String agent = "agent-example"
         def target = new DummyTarget()
         def body = new ObjectMapper().writeValueAsString([name    : targetName,
                                                           plugin  : target.pluginName(),
@@ -130,7 +130,7 @@ class ShieldRestClientSpec extends Specification {
                 .andRespond(withSuccess('{"uuid":"targetId"}', MediaType.APPLICATION_JSON))
 
         when:
-        def targetId = shieldRestClient.createTarget(targetName, target)
+        def targetId = shieldRestClient.createTarget(targetName, target, agent)
         then:
         mockServer.verify()
         targetId == "targetId"
@@ -138,6 +138,7 @@ class ShieldRestClientSpec extends Specification {
 
     def "update target"() {
         given:
+        String agent = "agent-example"
         TargetDto targetDto = new TargetDto(uuid: "targetUuid", name: "targetName")
         def target = new DummyTarget()
         def body = new ObjectMapper().writeValueAsString([name    : targetDto.name,
@@ -153,7 +154,7 @@ class ShieldRestClientSpec extends Specification {
                 .andRespond(withSuccess('', MediaType.APPLICATION_JSON))
 
         when:
-        def targetId = shieldRestClient.updateTarget(targetDto, target)
+        def targetId = shieldRestClient.updateTarget(targetDto, target, agent)
         then:
         mockServer.verify()
         targetId == targetDto.uuid

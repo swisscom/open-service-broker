@@ -7,7 +7,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.transform.CompileStatic
 
 @CompileStatic
-trait KubernetesFacade extends SystemBackupOnShield {
+trait KubernetesFacade {
 
     abstract Collection<ServiceDetail> provision(ProvisionRequest context)
 

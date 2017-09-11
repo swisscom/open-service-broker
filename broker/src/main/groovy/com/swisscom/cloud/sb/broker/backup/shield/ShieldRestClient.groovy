@@ -14,13 +14,11 @@ class ShieldRestClient {
     private RestTemplate restTemplate
     private String baseUrl
     private String apiKey
-    private String agent
 
-    ShieldRestClient(RestTemplate restTemplate, String baseUrl, String apiKey, String agent) {
+    ShieldRestClient(RestTemplate restTemplate, String baseUrl, String apiKey) {
         this.restTemplate = restTemplate
         this.baseUrl = baseUrl
         this.apiKey = apiKey
-        this.agent = agent
     }
 
     Object getStatus() {
@@ -80,7 +78,7 @@ class ShieldRestClient {
         getResources(targetsUrl() + arguments, TargetDto[].class)
     }
 
-    String createTarget(String targetName, ShieldTarget target) {
+    String createTarget(String targetName, ShieldTarget target, String agent) {
         def body = [name    : targetName,
                     plugin  : target.pluginName(),
                     endpoint: target.endpointJson(),
@@ -91,7 +89,7 @@ class ShieldRestClient {
         new JsonSlurper().parseText(response.body).uuid
     }
 
-    String updateTarget(TargetDto existingTarget, ShieldTarget target) {
+    String updateTarget(TargetDto existingTarget, ShieldTarget target, String agent) {
         def body = [name    : existingTarget.name,
                     summary : existingTarget.summary,
                     plugin  : target.pluginName(),
