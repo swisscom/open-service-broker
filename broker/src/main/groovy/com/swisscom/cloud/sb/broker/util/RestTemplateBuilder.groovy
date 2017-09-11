@@ -4,16 +4,24 @@ import groovy.transform.CompileStatic
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.client.AuthCache
 import org.apache.http.client.CredentialsProvider
+import org.apache.http.client.HttpClient
+import org.apache.http.client.protocol.ClientContext
 import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.conn.ssl.TrustStrategy
 import org.apache.http.conn.ssl.X509HostnameVerifier
+import org.apache.http.impl.auth.BasicScheme
+import org.apache.http.impl.client.BasicAuthCache
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.protocol.BasicHttpContext
+import org.apache.http.protocol.HttpContext
 import org.apache.http.ssl.SSLContexts
 import org.bouncycastle.openssl.PEMReader
 import org.springframework.context.annotation.Scope
+import org.springframework.http.HttpMethod
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.client.support.BasicAuthorizationInterceptor
@@ -141,6 +149,24 @@ class RestTemplateBuilder {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password)
         provider.setCredentials(AuthScope.ANY, credentials)
         return provider
+    }
+
+    private
+    static class HttpComponentsClientHttpRequestFactoryDigestAuth extends HttpComponentsClientHttpRequestFactory {
+        HttpComponentsClientHttpRequestFactoryDigestAuth(HttpClient client) {
+            super(client)
+        }
+
+        @Override
+        protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
+            AuthCache authCache = new BasicAuthCache()
+            BasicScheme basicAuth = new BasicScheme()
+            HttpHost targetHost = new HttpHost(uri.getHost(), uri.getPort())
+            authCache.put(targetHost, basicAuth)
+            BasicHttpContext localcontext = new BasicHttpContext()
+            localcontext.setAttribute(ClientContext.AUTH_CACHE, authCache)
+            return localcontext
+        }
     }
 
 }
