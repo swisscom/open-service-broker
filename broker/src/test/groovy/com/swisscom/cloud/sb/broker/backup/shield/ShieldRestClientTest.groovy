@@ -1,12 +1,12 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
-import spock.lang.IgnoreIf
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Stepwise
 
 @Stepwise
-@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
+@Ignore
 class ShieldRestClientTest extends Specification {
     ShieldRestClient restClient
 
