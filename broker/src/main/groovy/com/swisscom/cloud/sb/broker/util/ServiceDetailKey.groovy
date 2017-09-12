@@ -73,6 +73,7 @@ enum ServiceDetailKey {
     OPENWHISK_KEY("openwhisk_key", ServiceDetailType.PASSWORD),
     OPENWHISK_NAMESPACE("openwhisk_namespace", ServiceDetailType.OTHER),
     OPENWHISK_SUBJECT("openwhisk_subject", ServiceDetailType.OTHER),
+    SHIELD_AGENT_PORT("shield_agent_port", ServiceDetailType.PORT),
     SHIELD_JOB_UUID("shield_job_uuid", ServiceDetailType.OTHER),
     SHIELD_TARGET_UUID("shield_target_uuid", ServiceDetailType.OTHER)
 
