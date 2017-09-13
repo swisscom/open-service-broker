@@ -1,58 +1,49 @@
 package com.swisscom.cloud.sb.broker.util
 
+import com.swisscom.cloud.sb.broker.util.http.SimpleHttpServer
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
+import spock.lang.Shared
 import spock.lang.Specification
 
 class RestTemplateBuilderSpec extends Specification {
+    private static final int port = 35000
+    @Shared
+    SimpleHttpServer httpServer
+    @Shared
+    RestTemplateBuilder restTemplateBuilder
 
-    def "build simple RestTemplate"() {
-        given:
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
-        when:
-        restTemplateBuilder.build() as RestTemplate
-        then:
-        noExceptionThrown()
+    def setupSpec() {
+        restTemplateBuilder = new RestTemplateBuilder()
     }
 
-    def "build RestTemplate with Basic Auth"() {
-        given:
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
-        when:
-        def restTemplate = restTemplateBuilder.withBasicAuthentication("test", "password").build()
-        then:
-        restTemplate.interceptors.size() == 1
+    def cleanupSpec() {
+        httpServer?.stop()
     }
 
-    def "build RestTemplate with Diggest Auth"() {
+    def "build restTemplate with no features enabled"() {
         given:
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
+        httpServer = SimpleHttpServer.create(port).buildAndStart()
         when:
-        restTemplateBuilder.withDigestAuthentication("test", "password")
+        def response = makeGetRequest(restTemplateBuilder.build())
         then:
-        def restTemplate = restTemplateBuilder.build()
-        then:
-        noExceptionThrown()
+        response.statusCode == HttpStatus.OK
     }
 
-    def "build RestTemplate with Proxy"() {
+    def "build restTemplate with basic auth"() {
         given:
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
+        String username = 'aUsername'
+        String password = 'aPassword'
+        httpServer = SimpleHttpServer.create(port).withSimpleHttpAuthentication(username, password).buildAndStart()
         when:
-        restTemplateBuilder.withProxy("", 9000)
+        def response = makeGetRequest(restTemplateBuilder.withBasicAuthentication(username, password).build())
         then:
-        def restTemplate = restTemplateBuilder.build()
-        then:
-        noExceptionThrown()
+        response.statusCode == HttpStatus.OK
     }
 
-    def "build RestTemplate with Basic Auth and skip SSL"() {
-        given:
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
-        when:
-        restTemplateBuilder.withBasicAuthentication("test", "password").withSSLValidationDisabled()
-        then:
-        def restTemplate = restTemplateBuilder.build()
-        restTemplate.interceptors.size() == 1
-        noExceptionThrown()
+    private def makeGetRequest(RestTemplate template) {
+        return template.exchange("http://localhost:${port}", HttpMethod.GET, new HttpEntity(), String.class)
     }
 }

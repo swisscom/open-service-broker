@@ -58,12 +58,6 @@ class RestTemplateBuilder {
         return this.restTemplate
     }
 
-    RestTemplateBuilder withDigestAuthentication(String user, String password) {
-        useDigestAuth = true
-        httpClientBuilder.setDefaultCredentialsProvider(provider(user, password)).useSystemProperties()
-        this
-    }
-
     RestTemplateBuilder withBasicAuthentication(String username, String password) {
         List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
         if (interceptors == null) {
@@ -76,8 +70,9 @@ class RestTemplateBuilder {
         this
     }
 
-    RestTemplateBuilder withProxy(String host, int port) {
-        httpClientBuilder.setProxy(new HttpHost(host, port, "http"))
+    RestTemplateBuilder withDigestAuthentication(String user, String password) {
+        useDigestAuth = true
+        httpClientBuilder.setDefaultCredentialsProvider(provider(user, password)).useSystemProperties()
         this
     }
 
