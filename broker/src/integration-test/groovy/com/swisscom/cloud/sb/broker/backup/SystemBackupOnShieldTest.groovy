@@ -45,7 +45,7 @@ class SystemBackupOnShieldTest extends BaseSpecification implements SystemBackup
     }
 
     @Override
-    String shieldAgent(ServiceInstance serviceInstance) {
+    String shieldAgentUrl(ServiceInstance serviceInstance) {
         "localhost:1234"
     }
 }

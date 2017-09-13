@@ -126,7 +126,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
     }
 
     @Override
-    String shieldAgent(ServiceInstance serviceInstance) {
+    String shieldAgentUrl(ServiceInstance serviceInstance) {
         "${kubernetesRedisConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT)}"
     }
 }

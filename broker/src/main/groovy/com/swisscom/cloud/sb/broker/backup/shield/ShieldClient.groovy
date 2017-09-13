@@ -22,15 +22,15 @@ class ShieldClient {
         this.restTemplateFactory = restTemplateFactory
     }
 
-    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgent) {
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgent)
+    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgentUrl) {
+        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig)
 
         buildClient().runJob(jobUuid)
     }
 
-    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgent) {
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgent)
+    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgentUrl) {
+        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig, false)
 
         buildClient().runJob(jobUuid)
@@ -71,10 +71,16 @@ class ShieldClient {
         buildClient().restoreArchive(task.archive_uuid)
     }
 
+    // avoid throwing exceptions in this method so that users can delete failed backups.
     void deleteBackup(String taskUuid) {
-        TaskDto task = buildClient().getTaskByUuid(taskUuid)
-        // TODO need to check for archive, status etc. here?
-        buildClient().deleteArchive(task.archive_uuid)
+        try {
+            TaskDto task = buildClient().getTaskByUuid(taskUuid)
+            buildClient().deleteArchive(task.archive_uuid)
+        }
+        catch (ShieldResourceNotFoundException e) {
+            // either task or archive is not existing on shield (anymore); probably because it was deleted already
+            log.warn("Could not delete backup because it was not found anymore on Shield; do not fail though", e)
+        }
     }
 
     void deleteJobsAndBackups(String serviceInstanceId) {
