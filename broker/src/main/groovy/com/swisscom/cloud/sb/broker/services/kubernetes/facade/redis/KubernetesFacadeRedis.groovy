@@ -110,7 +110,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
     }
 
     @Override
-    ShieldTarget createShieldTarget(ServiceInstance serviceInstance) {
+    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
         Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT) as Integer
         new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
     }

@@ -24,7 +24,7 @@ trait SystemBackupOnShield {
     @Autowired
     protected ShieldConfig shieldConfig
 
-    abstract ShieldTarget createShieldTarget(ServiceInstance serviceInstance)
+    abstract ShieldTarget buildShieldTarget(ServiceInstance serviceInstance)
 
     abstract String systemBackupJobName(String jobPrefix, String serviceInstance)
 
@@ -35,7 +35,7 @@ trait SystemBackupOnShield {
     Collection<ServiceDetail> configureSystemBackup(String serviceInstanceId) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(serviceInstanceId)
         def shieldServiceConfig = shieldServiceConfig(serviceInstance.plan.parameters)
-        def shieldTarget = createShieldTarget(serviceInstance)
+        def shieldTarget = buildShieldTarget(serviceInstance)
         def jobName = systemBackupJobName(shieldConfig.jobPrefix, serviceInstanceId)
         def targetName = systemBackupTargetName(shieldConfig.targetPrefix, serviceInstanceId)
         shieldClient.registerAndRunSystemBackup(jobName, targetName, shieldTarget, shieldServiceConfig, shieldAgent(serviceInstance))

@@ -30,7 +30,7 @@ class SystemBackupOnShieldTest extends BaseSpecification implements SystemBackup
     }
 
     @Override
-    ShieldTarget createShieldTarget(ServiceInstance serviceInstance) {
+    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
         return new KubernetesRedisShieldTarget(namespace: "dummy-namespace", port: 1234)
     }
 
