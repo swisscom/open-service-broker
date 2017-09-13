@@ -1,46 +1,52 @@
 package com.swisscom.cloud.sb.broker.util
 
-import com.swisscom.cloud.sb.broker.util.http.SimpleHttpServer
+import com.swisscom.cloud.sb.broker.util.httpserver.HttpServerApp
+import com.swisscom.cloud.sb.broker.util.httpserver.HttpServerConfig
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
-import spock.lang.Shared
 import spock.lang.Specification
 
 class RestTemplateBuilderSpec extends Specification {
     private static final int port = 35000
-    @Shared
-    SimpleHttpServer httpServer
-    @Shared
-    RestTemplateBuilder restTemplateBuilder
 
-    def setupSpec() {
-        restTemplateBuilder = new RestTemplateBuilder()
-    }
 
-    def cleanupSpec() {
-        httpServer?.stop()
-    }
-
-    def "build restTemplate with no features enabled"() {
+    def "restTemplate with no features enabled"() {
         given:
-        httpServer = SimpleHttpServer.create(port).buildAndStart()
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(port))
         when:
-        def response = makeGetRequest(restTemplateBuilder.build())
+        def response = makeGetRequest(new RestTemplateBuilder().build())
         then:
         response.statusCode == HttpStatus.OK
+        cleanup:
+        httpServer.stop()
     }
 
-    def "build restTemplate with basic auth"() {
+    def "restTemplate with basic auth"() {
         given:
         String username = 'aUsername'
         String password = 'aPassword'
-        httpServer = SimpleHttpServer.create(port).withSimpleHttpAuthentication(username, password).buildAndStart()
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(port).withSimpleHttpAuthentication(username, password))
         when:
-        def response = makeGetRequest(restTemplateBuilder.withBasicAuthentication(username, password).build())
+        def response = makeGetRequest(new RestTemplateBuilder().withBasicAuthentication(username, password).build())
         then:
         response.statusCode == HttpStatus.OK
+        cleanup:
+        httpServer.stop()
+    }
+
+    def "restTemplate with digest"() {
+        given:
+        String username = 'aUsername'
+        String password = 'aPassword'
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(port).withDigestAuthentication(username, password))
+        when:
+        def response = makeGetRequest(new RestTemplateBuilder().withDigestAuthentication(username, password).build())
+        then:
+        response.statusCode == HttpStatus.OK
+        cleanup:
+        httpServer.stop()
     }
 
     private def makeGetRequest(RestTemplate template) {
