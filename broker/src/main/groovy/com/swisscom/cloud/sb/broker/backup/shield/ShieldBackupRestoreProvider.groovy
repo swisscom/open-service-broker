@@ -25,16 +25,12 @@ trait ShieldBackupRestoreProvider implements BackupRestoreProvider {
 
     @Override
     Backup.Status getBackupStatus(Backup backup) {
-        try {
-            JobStatus status = shieldClient.getJobStatus(backup.externalId)
-            return convertBackupStatus(status)
-        } catch (ShieldResourceNotFoundException e) {
-            if (Backup.Operation.DELETE == backup.operation) {
-                return Backup.Status.SUCCESS
-            } else {
-                throw e
-            }
+        // for shield, there is no async delete job. there's no need to check for the outcome, it's fine if deleteBackup was successful.
+        if (Backup.Operation.DELETE == backup.operation) {
+            return Backup.Status.SUCCESS
         }
+        JobStatus status = shieldClient.getJobStatus(backup.externalId)
+        return convertBackupStatus(status)
     }
 
     @Override
