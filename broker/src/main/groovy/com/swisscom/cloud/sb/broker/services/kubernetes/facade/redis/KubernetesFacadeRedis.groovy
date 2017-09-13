@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -87,22 +88,17 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
             it.getBody().asType(ServiceResponse.class)
         }
 
-        def masterPortList = serviceResponses.findAll {
-            it.spec.selector.role?.equals(KubernetesTemplateConstants.ROLE_MASTER.getValue())
-        }.collect { it.spec.ports?.first()?.nodePort.toString() }
-        def masterPort = masterPortList.isEmpty() ? "" : masterPortList.first() ?: ""
-
-        def slavePorts = serviceResponses.findAll {
-            it.spec.selector.role?.startsWith(KubernetesTemplateConstants.ROLE_SLAVE.getValue())
-        }.collect { it.spec.ports?.first()?.nodePort.toString() }
-        def serviceDetailsSlavePorts = slavePorts.collect {
-            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it)
+        def allPorts = serviceResponses.collect { it.spec.ports }.flatten() as List<Port>
+        def masterPort = allPorts.findAll { it.name.equals("redis-master") }.collect {
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
+        }
+        def slavePorts = allPorts.findAll { it.name.startsWith("redis-slave") }.collect {
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
         }
 
-        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost()),
-                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, masterPort),
-                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword)
-        ] + serviceDetailsSlavePorts
+        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword),
+                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
+                masterPort + slavePorts
         return serviceDetails
     }
 }
