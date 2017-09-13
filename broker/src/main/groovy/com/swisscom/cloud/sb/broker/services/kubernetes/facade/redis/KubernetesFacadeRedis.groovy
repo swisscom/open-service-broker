@@ -97,12 +97,15 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
             ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
         }
         def slavePorts = allPorts.findAll { it.name.startsWith("redis-slave") }.collect {
-            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it.nodePort.toString())
+        }
+        def shieldPort = allPorts.findAll { it.name.equals("shield-ssh") }.collect {
+            ServiceDetail.from(ServiceDetailKey.SHIELD_AGENT_PORT, it.nodePort.toString())
         }
 
         def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword),
                               ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
-                masterPort + slavePorts
+                masterPort + slavePorts + shieldPort
         return serviceDetails
     }
 
