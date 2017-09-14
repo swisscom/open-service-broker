@@ -51,15 +51,15 @@ trait SystemBackupOnShield {
         def planParamtersForBackup = parameters.findAll {
             it.getName().startsWith(SERVICE_DEFINITION_PARAMETER_BACKUP_PREFIX)
         }
-        String scheduleName = (planParamtersForBackup.find {
+        String scheduleName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_SCHEDULE_NAME")
-        } as Parameter).getValue()
-        String policyName = (planParamtersForBackup.find {
+        }?.getValue()
+        String policyName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_POLICY_NAME")
-        } as Parameter).getValue()
-        String storageName = (planParamtersForBackup.find {
+        }?.getValue()
+        String storageName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_STORAGE_NAME")
-        } as Parameter).getValue()
+        }?.getValue()
         new ShieldServiceConfig(scheduleName: scheduleName, retentionName: policyName, storeName: storageName)
     }
 }
