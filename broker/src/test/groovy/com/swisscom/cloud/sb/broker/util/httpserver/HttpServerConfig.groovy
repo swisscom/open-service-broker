@@ -1,7 +1,8 @@
 package com.swisscom.cloud.sb.broker.util.httpserver
 
 class HttpServerConfig {
-    private final int port
+    private final int httpPort
+    private int httpsPort
 
     private String username
     private String password
@@ -12,10 +13,15 @@ class HttpServerConfig {
         NONE, SIMPLE, DIGEST
     }
 
-    private HttpServerConfig(int port) { this.port = port }
+    private HttpServerConfig(int httpPort) { this.httpPort = httpPort }
 
     static HttpServerConfig create(int port) {
         new HttpServerConfig(port)
+    }
+
+    HttpServerConfig withHttpsPort(int port) {
+        this.httpsPort = port
+        return this
     }
 
     HttpServerConfig withSimpleHttpAuthentication(String username, String password) {
@@ -32,8 +38,8 @@ class HttpServerConfig {
         return this
     }
 
-    int getPort() {
-        return port
+    int getHttpPort() {
+        return httpPort
     }
 
     String getUsername() {
@@ -46,5 +52,9 @@ class HttpServerConfig {
 
     AuthenticationType getAuthenticationType() {
         return authenticationType
+    }
+
+    int getHttpsPort() {
+        return httpsPort
     }
 }

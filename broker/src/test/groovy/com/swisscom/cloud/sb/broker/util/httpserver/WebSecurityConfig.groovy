@@ -38,9 +38,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         switch (httpServerConfig.authenticationType) {
             case HttpServerConfig.AuthenticationType.NONE:
                 http.authorizeRequests()
-                        .anyRequest().authenticated()
-                        .and()
-                        .formLogin()
+                        .anyRequest().permitAll()
                         .and()
                         .httpBasic().disable()
                 break
