@@ -148,7 +148,7 @@ subprojects {
     processResources {
         filesMatching("**/application-secrets.yml") { matchedFile ->
             filter { line ->
-                line.replace('${', '\\${')
+                line.replace('${', '\\${').replace('$(', '\\$(').replace('$\"', '\\$\"')
             }
         }
     }
