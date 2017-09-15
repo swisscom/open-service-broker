@@ -2,9 +2,8 @@ package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
-import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.model.Restore
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 
 class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
     class DummyShieldBackupRestoreProvider implements ShieldBackupRestoreProvider {
@@ -23,23 +22,42 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         DummyTarget target
 
         @Override
-        ShieldTarget targetForBackup(Backup backup) { target }
+        ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
+            target
+        }
+
+        @Override
+        String shieldAgentUrl(ServiceInstance serviceInstance) {
+            ""
+        }
     }
 
     DummyShieldBackupRestoreProvider shieldBackupRestoreProvider
-    ShieldClient_2_3_5 shieldClient
+    ShieldClient shieldClient
 
     def setup() {
-        shieldClient = Mock(ShieldClient_2_3_5)
+        shieldClient = Mock(ShieldClient)
         shieldBackupRestoreProvider = new DummyShieldBackupRestoreProvider()
         shieldBackupRestoreProvider.shieldClient = shieldClient
+        def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        def serviceInstance = new ServiceInstance(guid: "guid")
+        serviceInstance.plan = new Plan(parameters: [
+                new Parameter(name: "BACKUP_SCHEDULE_NAME", value: "daily"),
+                new Parameter(name: "BACKUP_POLICY_NAME", value: "month"),
+                new Parameter(name: "BACKUP_STORAGE_NAME", value: "default"),
+        ])
+        provisioningPersistenceService.getServiceInstance(_) >> serviceInstance
+        shieldBackupRestoreProvider.provisioningPersistenceService = provisioningPersistenceService
+        shieldBackupRestoreProvider.shieldConfig = Mock(ShieldConfig)
+        shieldBackupRestoreProvider.shieldConfig.jobPrefix >> ""
+        shieldBackupRestoreProvider.shieldConfig.targetPrefix >> ""
     }
 
     def "create backup"() {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE)
-        shieldClient.registerAndRunJob(backup.serviceInstanceGuid, shieldBackupRestoreProvider.target) >> taskId
+        shieldClient.registerAndRunJob(_, _, _, _, _) >> taskId
         when:
         def externalId = shieldBackupRestoreProvider.createBackup(backup)
         then:
@@ -81,7 +99,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> {throw new ShieldResourceNotFoundException("Doesntmatter")}
+        shieldClient.getJobStatus(backup.externalId) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -93,7 +111,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.DELETE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> {throw new ShieldResourceNotFoundException("Doesntmatter")}
+        shieldClient.getJobStatus(backup.externalId) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:

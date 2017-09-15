@@ -4,12 +4,15 @@ import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
+
 @Component
 @Slf4j
+@CompileStatic
 class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
@@ -130,7 +133,7 @@ class ShieldClient {
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
         TargetDto targetOnShield = buildClient().getTargetByName(targetName)
-        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) : buildClient().updateTarget(targetOnShield, target)
+        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) : buildClient().updateTarget(targetOnShield, target, agent)
     }
 
     private String createOrUpdateJob(String jobName,
