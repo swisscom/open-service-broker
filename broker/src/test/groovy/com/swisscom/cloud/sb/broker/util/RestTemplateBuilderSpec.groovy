@@ -77,6 +77,20 @@ class RestTemplateBuilderSpec extends Specification {
         httpServer?.stop()
     }
 
+    def 'GET request over https with a server that expects a client side certificate'() {
+        given:
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
+                .withClientSideCertificate(this.getClass().getResource('/clientkeystore').file,
+                '123456'))
+        when:
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withMutualTLS(new File(this.getClass().getResource('/client.cer').file).text, new File(this.getClass().getResource('/client-key.pem').file).text).build())
+        then:
+        response.statusCode == HttpStatus.OK
+        response.body.equalsIgnoreCase('hello')
+        cleanup:
+        httpServer?.stop()
+    }
+
     private def makeGetRequest(RestTemplate template) {
         return template.exchange("http://localhost:${http_port}", HttpMethod.GET, new HttpEntity(), String.class)
     }

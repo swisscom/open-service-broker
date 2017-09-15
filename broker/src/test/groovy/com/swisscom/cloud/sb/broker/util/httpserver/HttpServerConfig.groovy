@@ -7,7 +7,8 @@ class HttpServerConfig {
     private String username
     private String password
     private AuthenticationType authenticationType = AuthenticationType.NONE
-
+    private String clientSideKeyStorePath
+    private String clientSideKeyStorePassword
 
     static enum AuthenticationType {
         NONE, SIMPLE, DIGEST
@@ -38,6 +39,12 @@ class HttpServerConfig {
         return this
     }
 
+    HttpServerConfig withClientSideCertificate(String keyStorePath, String keyStorePassword) {
+        this.clientSideKeyStorePath = keyStorePath
+        this.clientSideKeyStorePassword = keyStorePassword
+        return this
+    }
+
     int getHttpPort() {
         return httpPort
     }
@@ -56,5 +63,13 @@ class HttpServerConfig {
 
     int getHttpsPort() {
         return httpsPort
+    }
+
+    String getClientSideKeyStorePath() {
+        return clientSideKeyStorePath
+    }
+
+    String getClientSideKeyStorePassword() {
+        return clientSideKeyStorePassword
     }
 }

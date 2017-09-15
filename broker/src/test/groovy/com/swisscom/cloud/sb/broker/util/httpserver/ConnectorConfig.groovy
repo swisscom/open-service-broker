@@ -38,6 +38,11 @@ class ConnectorConfig {
             protocol.setKeystoreFile(this.getClass().getResource('/keystore.jks').getFile())
             protocol.setKeystorePass("123456")
             protocol.setKeyAlias("selfsigned")
+            if (httpServerConfig.clientSideKeyStorePath && httpServerConfig.clientSideKeyStorePassword) {
+                protocol.truststoreFile = httpServerConfig.clientSideKeyStorePath
+                protocol.truststorePass = httpServerConfig.clientSideKeyStorePassword
+                protocol.clientAuth = 'want'
+            }
             return connector
         }
         catch (IOException ex) {
