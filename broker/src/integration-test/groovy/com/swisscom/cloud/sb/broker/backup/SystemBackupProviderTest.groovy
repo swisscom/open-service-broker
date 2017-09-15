@@ -7,7 +7,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesR
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
-class SystemBackupOnShieldTest extends BaseSpecification implements SystemBackupOnShield {
+class SystemBackupProviderTest extends BaseSpecification implements SystemBackupProvider {
 
     private final String SERVICE_INSTANCE_ID = "44651d63-b7c0-4f20-86bb-efef081a99ca"
     void setup() {

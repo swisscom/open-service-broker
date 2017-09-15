@@ -5,19 +5,19 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import groovy.transform.CompileStatic
 
 @CompileStatic
-trait SystemBackupOnShield extends BackupOnShield {
+trait SystemBackupProvider extends BackupOnShield {
 
     def systemBackupJobName(String jobPrefix, String serviceInstanceId) {
-        "${jobPrefix}-${serviceInstanceId}"
+        backupJobName(jobPrefix, serviceInstanceId)
     }
 
     def systemBackupTargetName(String targetPrefix, String serviceInstanceId) {
-        "${targetPrefix}-${serviceInstanceId}"
+        backupTargetName(targetPrefix, serviceInstanceId)
     }
 
     Collection<ServiceDetail> configureSystemBackup(String serviceInstanceId) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(serviceInstanceId)
-        def shieldServiceConfig = shieldServiceConfig(serviceInstance)
+        def shieldServiceConfig = getBackupParameter(serviceInstance)
         def shieldTarget = buildShieldTarget(serviceInstance)
         String jobName = systemBackupJobName(shieldConfig.jobPrefix, serviceInstanceId)
         String targetName = systemBackupTargetName(shieldConfig.targetPrefix, serviceInstanceId)

@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.service.state
 
-import com.swisscom.cloud.sb.broker.backup.SystemBackupOnShield
+import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -27,7 +27,7 @@ enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<Kuberne
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
             try {
-                def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupOnShield
+                def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupProvider
                 facadeWithBackup.unregisterSystemBackupOnShield(stateContext.lastOperationJobContext.deprovisionRequest.serviceInstanceGuid)
                 return new StateChangeActionResult(go2NextState: true)
             } catch (ClassCastException cce) {

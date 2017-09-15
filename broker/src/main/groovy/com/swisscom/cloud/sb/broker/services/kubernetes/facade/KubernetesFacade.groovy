@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
-import com.swisscom.cloud.sb.broker.backup.SystemBackupOnShield
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail

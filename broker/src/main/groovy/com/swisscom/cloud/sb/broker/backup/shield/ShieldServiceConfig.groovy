@@ -1,9 +1,7 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.config.BackupServiceConfig
+import com.swisscom.cloud.sb.broker.config.Config
 
-class ShieldServiceConfig implements BackupServiceConfig {
-    String storeName
-    String retentionName
-    String scheduleName
+trait ShieldServiceConfig implements Config {
+    String shieldAgentUrl // can be a fixed agent path or a dynamic with is generted from ServiceDetails
 }

@@ -25,14 +25,14 @@ class ShieldClient {
         this.restTemplateFactory = restTemplateFactory
     }
 
-    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgentUrl) {
+    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig)
 
         buildClient().runJob(jobUuid)
     }
 
-    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, ShieldServiceConfig shieldServiceConfig, String shieldAgentUrl) {
+    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig, false)
 
@@ -114,7 +114,7 @@ class ShieldClient {
         }
     }
 
-    private String registerJob(String jobName, String targetUuid, ShieldServiceConfig shieldServiceConfig, boolean paused = true) {
+    private String registerJob(String jobName, String targetUuid, BackupParameter shieldServiceConfig, boolean paused = true) {
         StoreDto store = buildClient().getStoreByName(shieldServiceConfig.storeName)
         if (store == null) {
             throw new RuntimeException("Store ${shieldServiceConfig.storeName} that is configured does not exist on shield")

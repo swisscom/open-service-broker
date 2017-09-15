@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.service.state
 
-import com.swisscom.cloud.sb.broker.backup.SystemBackupOnShield
+import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -37,7 +37,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
             try {
-                def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupOnShield
+                def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupProvider
                 return new StateChangeActionResult(
                         go2NextState: true,
                         details: facadeWithBackup.configureSystemBackup(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid))
