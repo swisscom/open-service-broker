@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class RestTemplateBuilderSpec extends Specification {
@@ -79,6 +80,7 @@ class RestTemplateBuilderSpec extends Specification {
         httpServer?.stop()
     }
 
+    @Ignore
     def 'GET request over https with a server that expects a client side certificate'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
@@ -96,6 +98,7 @@ class RestTemplateBuilderSpec extends Specification {
         httpServer?.stop()
     }
 
+    @Ignore
     def 'GET request over https with a server that expects a client side certificate fails when certificates don\'t match'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
