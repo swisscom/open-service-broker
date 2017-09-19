@@ -86,12 +86,19 @@ class RestTemplateBuilder {
         this
     }
 
+    RestTemplateBuilder withClientSideKeystore(String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword) {
+        httpClientBuilder.setSSLContext(SSLContexts.custom()
+                .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
+                .loadTrustMaterial(new File(trustStorePath), trustStorePassword.toCharArray(), TrustSelfSignedStrategy.INSTANCE)
+                .build())
+        this
+    }
+
     private SSLContext getSSLContext(String cert, String key) {
-        SSLContext sslContext = SSLContexts.custom()
+        return SSLContexts.custom()
                 .loadKeyMaterial(getKeyStore(cert, key), null)
                 .loadTrustMaterial(new TrustSelfSignedStrategy())
                 .build()
-        return sslContext
     }
 
     private KeyStore getKeyStore(String certificate, String key) {
@@ -102,6 +109,13 @@ class RestTemplateBuilder {
         keyStore.setCertificateEntry("", cert)
         keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(key))).readObject()).getPrivate(), "".toCharArray(), createCertChain(cert))
         return keyStore
+    }
+
+    private KeyStore loadKeyStore(String path, String password) {
+        FileInputStream is = new FileInputStream(path)
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType())
+        keystore.load(is, password.toCharArray())
+        return keystore
     }
 
     private Certificate[] createCertChain(X509Certificate cert) {

@@ -35,13 +35,18 @@ class ConnectorConfig {
             connector.setSecure(true)
             connector.setPort(httpServerConfig.httpsPort)
             protocol.setSSLEnabled(true)
-            protocol.setKeystoreFile(this.getClass().getResource('/keystore.jks').getFile())
-            protocol.setKeystorePass("123456")
-            protocol.setKeyAlias("selfsigned")
-            if (httpServerConfig.clientSideKeyStorePath && httpServerConfig.clientSideKeyStorePassword) {
-                protocol.truststoreFile = httpServerConfig.clientSideKeyStorePath
-                protocol.truststorePass = httpServerConfig.clientSideKeyStorePassword
-                protocol.clientAuth = 'want'
+            if (httpServerConfig.keyStorePath == null || httpServerConfig.keyStorePassword == null || httpServerConfig.keyStoreAlias == null) {
+                throw new RuntimeException("Invalid configuration")
+            }
+            protocol.setKeystoreFile(httpServerConfig.keyStorePath)
+            protocol.setKeystorePass(httpServerConfig.keyStorePassword)
+            protocol.setKeyAlias(httpServerConfig.keyStoreAlias)
+
+
+            if (httpServerConfig.trustStorePath && httpServerConfig.trustStorePassword) {
+                protocol.truststoreFile = httpServerConfig.trustStorePath
+                protocol.truststorePass = httpServerConfig.trustStorePassword
+                protocol.clientAuth = 'need'
             }
             return connector
         }

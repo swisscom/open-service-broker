@@ -2,18 +2,21 @@ package com.swisscom.cloud.sb.test.httpserver
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter
 
-@Configuration
-@EnableWebSecurity
+import static com.swisscom.cloud.sb.test.httpserver.HttpServerConfig.AuthenticationType.*
+import static org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList
+
+@EnableWebSecurity(debug = false)
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -33,28 +36,45 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
-
         switch (httpServerConfig.authenticationType) {
-            case HttpServerConfig.AuthenticationType.NONE:
+            case NONE:
                 http.authorizeRequests()
                         .anyRequest().permitAll()
                         .and()
                         .httpBasic().disable()
                 break
-            case HttpServerConfig.AuthenticationType.SIMPLE:
+            case SIMPLE:
                 break
-            case HttpServerConfig.AuthenticationType.DIGEST:
+            case DIGEST:
                 http.exceptionHandling().authenticationEntryPoint(digestEntryPoint())
                         .and().addFilterAfter(digestAuthenticationFilter(digestEntryPoint()), BasicAuthenticationFilter.class)
                         .antMatcher("/**")
                         .authorizeRequests().anyRequest().authenticated()
                 break
+            case MUTUAL:
+                http.authorizeRequests().anyRequest().authenticated()
+                        .and()
+                        .x509().authenticationDetailsSource()
+                        .userDetailsService(userDetailsService1())
+
+                break
         }
     }
 
     @Bean
-    public DigestAuthenticationEntryPoint digestEntryPoint() {
+    public UserDetailsService userDetailsService1() {
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) {
+                return new User(username, "", commaSeparatedStringToAuthorityList("ROLE_USER"))
+
+            }
+        };
+    }
+
+
+    @Bean
+    DigestAuthenticationEntryPoint digestEntryPoint() {
         DigestAuthenticationEntryPoint digestAuthenticationEntryPoint = new DigestAuthenticationEntryPoint()
         digestAuthenticationEntryPoint.setKey("acegi")
         digestAuthenticationEntryPoint.setRealmName("Digest Realm")
@@ -63,7 +83,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public DigestAuthenticationFilter digestAuthenticationFilter(DigestAuthenticationEntryPoint digestAuthenticationEntryPoint) {
+    DigestAuthenticationFilter digestAuthenticationFilter(DigestAuthenticationEntryPoint digestAuthenticationEntryPoint) {
         DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter()
         digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint())
         digestAuthenticationFilter.setUserDetailsService(userDetailsServiceBean())

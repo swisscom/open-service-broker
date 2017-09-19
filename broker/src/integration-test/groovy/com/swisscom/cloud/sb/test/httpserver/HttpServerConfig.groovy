@@ -7,11 +7,15 @@ class HttpServerConfig {
     private String username
     private String password
     private AuthenticationType authenticationType = AuthenticationType.NONE
-    private String clientSideKeyStorePath
-    private String clientSideKeyStorePassword
+    private String keyStorePath
+    private String keyStorePassword
+    private String keyStoreAlias
+    private String trustStorePath
+    private String trustStorePassword
+
 
     static enum AuthenticationType {
-        NONE, SIMPLE, DIGEST
+        NONE, SIMPLE, DIGEST, MUTUAL
     }
 
     private HttpServerConfig(int httpPort) { this.httpPort = httpPort }
@@ -24,6 +28,14 @@ class HttpServerConfig {
         this.httpsPort = port
         return this
     }
+
+    HttpServerConfig withKeyStore(String keyStorePath, String keyStorePassword, String keyStoreAlias) {
+        this.keyStorePath = keyStorePath
+        this.keyStorePassword = keyStorePassword
+        this.keyStoreAlias = keyStoreAlias
+        return this
+    }
+
 
     HttpServerConfig withSimpleHttpAuthentication(String username, String password) {
         this.authenticationType = authenticationType.SIMPLE
@@ -39,9 +51,10 @@ class HttpServerConfig {
         return this
     }
 
-    HttpServerConfig withClientSideCertificate(String keyStorePath, String keyStorePassword) {
-        this.clientSideKeyStorePath = keyStorePath
-        this.clientSideKeyStorePassword = keyStorePassword
+    HttpServerConfig withTrustStore(String trustStorePath, String trustStorePassword) {
+        this.authenticationType = authenticationType.MUTUAL
+        this.trustStorePath = trustStorePath
+        this.trustStorePassword = trustStorePassword
         return this
     }
 
@@ -65,11 +78,23 @@ class HttpServerConfig {
         return httpsPort
     }
 
-    String getClientSideKeyStorePath() {
-        return clientSideKeyStorePath
+    String getKeyStorePath() {
+        return keyStorePath
     }
 
-    String getClientSideKeyStorePassword() {
-        return clientSideKeyStorePassword
+    String getKeyStorePassword() {
+        return keyStorePassword
+    }
+
+    String getKeyStoreAlias() {
+        return keyStoreAlias
+    }
+
+    String getTrustStorePath() {
+        return trustStorePath
+    }
+
+    String getTrustStorePassword() {
+        return trustStorePassword
     }
 }

@@ -30,7 +30,9 @@ class HttpServerApp {
 
 
     static void main(String[] args) {
-        new HttpServerApp().startServer(HttpServerConfig.create(DEFAULT_HTTP_PORT).withHttpsPort(DEFAULT_HTTPS_PORT))
+        new HttpServerApp().startServer(HttpServerConfig.create(DEFAULT_HTTP_PORT).withHttpsPort(DEFAULT_HTTPS_PORT)
+                .withKeyStore(HttpServerApp.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
+                .withTrustStore(HttpServerApp.getClass().getResource('/server-truststore.jks').file, 'secret'))
     }
 
     def startServer(HttpServerConfig serverConfig) {
