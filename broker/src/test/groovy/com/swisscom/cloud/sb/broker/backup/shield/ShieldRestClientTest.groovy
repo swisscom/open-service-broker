@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import org.springframework.web.client.RestTemplate
+import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -11,7 +11,8 @@ class ShieldRestClientTest extends Specification {
     ShieldRestClient restClient
 
     void setup() {
-        restClient = new ShieldRestClient(new RestTemplate(), "http://localhost:8001", "averyhardkey", "10.244.2.2:5444")
+        def restTemplateFactory = new RestTemplateFactory()
+        restClient = new ShieldRestClient(restTemplateFactory.buildWithSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
     }
 
     def "obtain status"() {
@@ -23,7 +24,7 @@ class ShieldRestClientTest extends Specification {
 
     def "get store by name"() {
         when:
-        def store = restClient.getStoreByName("local")
+        def store = restClient.getStoreByName("default")
         then:
         store
     }
@@ -51,7 +52,7 @@ class ShieldRestClientTest extends Specification {
 
     def "get schedule by name"() {
         when:
-        def schedule = restClient.getScheduleByName("schedu")
+        def schedule = restClient.getScheduleByName("default")
         then:
         schedule
     }

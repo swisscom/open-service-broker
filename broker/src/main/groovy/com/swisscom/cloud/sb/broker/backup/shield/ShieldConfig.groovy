@@ -9,11 +9,6 @@ import org.springframework.context.annotation.Configuration
 class ShieldConfig implements Config {
     String baseUrl
     String apiKey
-    String agent
-
     String jobPrefix
     String targetPrefix
-    String storeName
-    String retentionName
-    String scheduleName
 }

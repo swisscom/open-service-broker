@@ -6,12 +6,12 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.transform.CompileStatic
 
 @CompileStatic
-interface KubernetesFacade {
+trait KubernetesFacade {
 
-    Collection<ServiceDetail> provision(ProvisionRequest context)
+    abstract Collection<ServiceDetail> provision(ProvisionRequest context)
 
-    void deprovision(DeprovisionRequest request)
+    abstract void deprovision(DeprovisionRequest request)
 
-    boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
+    abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
 
 }

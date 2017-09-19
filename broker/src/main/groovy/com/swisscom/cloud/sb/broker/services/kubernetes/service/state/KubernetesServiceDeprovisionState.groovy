@@ -1,12 +1,15 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.service.state
 
+import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 
+@Slf4j
 @CompileStatic
 enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<KubernetesServiceStateMachineContext> {
 
@@ -16,6 +19,20 @@ enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<Kuberne
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
             stateContext.kubernetesFacade.deprovision(stateContext.lastOperationJobContext.deprovisionRequest)
             return new StateChangeActionResult(go2NextState: true)
+        }
+    }),
+
+    UNREGISTER_SHIELD_SYSTEM_BACKUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            try {
+                def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupProvider
+                facadeWithBackup.unregisterSystemBackupOnShield(stateContext.lastOperationJobContext.deprovisionRequest.serviceInstanceGuid)
+                return new StateChangeActionResult(go2NextState: true)
+            } catch (ClassCastException cce) {
+                log.error("Cast to SystemBackupOnShield for ${stateContext.kubernetesFacade.class} failed")
+            }
         }
     }),
 
