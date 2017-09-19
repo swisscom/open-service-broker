@@ -187,6 +187,4 @@ kind: Namespace""")
             }
         }
     }
-
-
 }

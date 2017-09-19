@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.util.test
 
 import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -85,5 +86,16 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         return new ServiceUsage(value: "0", type: ServiceUsageType.TRANSACTIONS)
+    }
+
+    @Override
+    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
+        throw new NotImplementedException()
+    }
+
+    @Override
+    String shieldAgentUrl(ServiceInstance serviceInstance) {
+        log.info("shieldAgentUrl for ${serviceInstance.guid}")
+        return StringGenerator.randomUuid()
     }
 }
