@@ -108,6 +108,10 @@ class ShieldRestClient {
         getJob("?name=${name}")
     }
 
+    JobDto getJobByUuid(String uuid) {
+        getResources(jobUrl(uuid), JobDto.class).first()
+    }
+
     JobDto getJob(String arguments) {
         def jobs = getJobs(arguments)
         jobs ? jobs.first() : null

@@ -68,6 +68,10 @@ class ShieldClient {
         throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
     }
 
+    String getJobName(String jobUuid) {
+        buildClient().getJobByUuid(jobUuid).name
+    }
+
     String restore(String taskUuid) {
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         // TODO need to check for archive, status etc. here?
