@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util.httpserver
+package com.swisscom.cloud.sb.test.httpserver
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 
-@SpringBootApplication(scanBasePackageClasses = com.swisscom.cloud.sb.broker.util.httpserver.HttpServerApp.class, exclude = [ServiceBrokerAutoConfiguration.class,
+@SpringBootApplication(scanBasePackageClasses = com.swisscom.cloud.sb.test.httpserver.HttpServerApp.class, exclude = [ServiceBrokerAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,

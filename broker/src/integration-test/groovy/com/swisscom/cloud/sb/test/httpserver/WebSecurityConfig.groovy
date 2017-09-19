@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util.httpserver
+package com.swisscom.cloud.sb.test.httpserver
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean

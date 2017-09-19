@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util.httpserver
+package com.swisscom.cloud.sb.test.httpserver
 
 import groovy.transform.CompileStatic
 import org.springframework.web.bind.annotation.RequestMapping

@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.util
 
-import com.swisscom.cloud.sb.broker.util.httpserver.HttpServerApp
-import com.swisscom.cloud.sb.broker.util.httpserver.HttpServerConfig
+import com.swisscom.cloud.sb.test.httpserver.HttpServerApp
+import com.swisscom.cloud.sb.test.httpserver.HttpServerConfig
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus

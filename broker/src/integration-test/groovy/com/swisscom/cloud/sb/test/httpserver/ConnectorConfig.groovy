@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util.httpserver
+package com.swisscom.cloud.sb.test.httpserver
 
 import org.apache.catalina.connector.Connector
 import org.apache.coyote.http11.Http11NioProtocol

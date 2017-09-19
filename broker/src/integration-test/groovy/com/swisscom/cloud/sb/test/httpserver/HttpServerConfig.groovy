@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util.httpserver
+package com.swisscom.cloud.sb.test.httpserver
 
 class HttpServerConfig {
     private final int httpPort
