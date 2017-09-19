@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
 import org.springframework.context.annotation.Bean
-import org.springframework.stereotype.Component
+import org.springframework.context.annotation.Configuration
 
-@Component
+@Configuration
 class ConnectorConfig {
 
     private final HttpServerConfig httpServerConfig
@@ -46,7 +46,7 @@ class ConnectorConfig {
             if (httpServerConfig.trustStorePath && httpServerConfig.trustStorePassword) {
                 protocol.truststoreFile = httpServerConfig.trustStorePath
                 protocol.truststorePass = httpServerConfig.trustStorePassword
-                protocol.clientAuth = 'need'
+                protocol.clientAuth = 'true'
             }
             return connector
         }

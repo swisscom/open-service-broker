@@ -41,6 +41,7 @@ class HttpServerApp {
         HashMap<String, Object> props = new HashMap<>()
         props."server.port" = serverConfig.httpPort
         props."spring.jmx.enabled" = false
+        props."logging.level.org.springframework.security" = 'DEBUG'
 
         context = new SpringApplicationBuilder()
                 .sources(HttpServerApp.class)

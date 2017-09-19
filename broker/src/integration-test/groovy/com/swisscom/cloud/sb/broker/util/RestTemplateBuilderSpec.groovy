@@ -80,7 +80,6 @@ class RestTemplateBuilderSpec extends Specification {
         httpServer?.stop()
     }
 
-    @Ignore
     def 'GET request over https with a server that expects a client side certificate'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
@@ -88,9 +87,7 @@ class RestTemplateBuilderSpec extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideKeystore(this.getClass().getResource('/client-keystore.jks').file,
-                'secret', this.getClass().getResource('/client-truststore.jks').file, 'secret').build())
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
         then:
         response.statusCode == HttpStatus.OK
         response.body.equalsIgnoreCase('hello')

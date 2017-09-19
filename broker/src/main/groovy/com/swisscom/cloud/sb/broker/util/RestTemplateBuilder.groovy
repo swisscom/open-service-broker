@@ -86,10 +86,10 @@ class RestTemplateBuilder {
         this
     }
 
-    RestTemplateBuilder withClientSideKeystore(String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword) {
+    RestTemplateBuilder withClientSideKeystore(String keyStorePath, String keyStorePassword) {
         httpClientBuilder.setSSLContext(SSLContexts.custom()
                 .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
-                .loadTrustMaterial(new File(trustStorePath), trustStorePassword.toCharArray(), TrustSelfSignedStrategy.INSTANCE)
+                .loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE)
                 .build())
         this
     }
@@ -113,7 +113,7 @@ class RestTemplateBuilder {
 
     private KeyStore loadKeyStore(String path, String password) {
         FileInputStream is = new FileInputStream(path)
-        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType())
+        KeyStore keystore = KeyStore.getInstance("JKS")
         keystore.load(is, password.toCharArray())
         return keystore
     }

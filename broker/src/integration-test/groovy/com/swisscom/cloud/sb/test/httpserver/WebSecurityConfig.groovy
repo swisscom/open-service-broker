@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -14,7 +15,6 @@ import org.springframework.security.web.authentication.www.DigestAuthenticationE
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter
 
 import static com.swisscom.cloud.sb.test.httpserver.HttpServerConfig.AuthenticationType.*
-import static org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList
 
 @EnableWebSecurity(debug = false)
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -56,6 +56,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .and()
                         .x509().authenticationDetailsSource()
                         .userDetailsService(userDetailsService1())
+                        .and().csrf().disable()
+                        .httpBasic().disable()
 
                 break
         }
@@ -66,8 +68,11 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) {
-                return new User(username, "", commaSeparatedStringToAuthorityList("ROLE_USER"))
-
+                if (username.equals("codependent-client1") || username.equals("codependent-client2") || username.equals("codependent-client")) {
+                    return new User(username, "", AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
+                } else {
+                    return null;
+                }
             }
         };
     }
