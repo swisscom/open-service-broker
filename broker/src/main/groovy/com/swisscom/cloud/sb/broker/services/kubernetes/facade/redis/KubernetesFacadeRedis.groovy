@@ -90,6 +90,9 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
                     HttpMethod.DELETE, "", Object.class)
         } catch (HttpStatusCodeException e) {
             if (e.statusCode != HttpStatus.NOT_FOUND) throw e
+            else {
+                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
+            }
         }
     }
 
