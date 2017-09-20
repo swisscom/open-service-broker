@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+#this script generates a bunch certificates that are used for testing, the generated certificates are already committed to repo
 keytool -genkeypair -alias secure-server -keyalg RSA -dname "CN=localhost,OU=myorg,O=myorg,L=mycity,S=mystate,C=es" -keypass secret -keystore server-keystore.jks -storepass secret -validity 3650
 keytool -genkeypair -alias secure-client -keyalg RSA -dname "CN=codependent-client,OU=myorg,O=myorg,L=mycity,S=mystate,C=es" -keypass secret -keystore client-keystore.jks -storepass secret -validity 3650
 
