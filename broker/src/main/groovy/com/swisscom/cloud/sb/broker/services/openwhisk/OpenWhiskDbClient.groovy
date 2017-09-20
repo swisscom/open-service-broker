@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,10 +22,10 @@ class OpenWhiskDbClient {
     private final String password
     private final String localUser
     private final String hostname
-    private final RestTemplateFactory restTemplateFactory
+    private final RestTemplateBuilder restTemplateBuilder
 
     @Autowired
-    OpenWhiskDbClient(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory){
+    OpenWhiskDbClient(OpenWhiskConfig openWhiskConfig, RestTemplateBuilder restTemplateBuilder) {
         this.protocol = openWhiskConfig.openWhiskDbProtocol
         this.host = openWhiskConfig.openWhiskDbHost
         this.port = openWhiskConfig.openWhiskDbPort
@@ -33,11 +33,11 @@ class OpenWhiskDbClient {
         this.password = openWhiskConfig.openWhiskDbPass
         this.localUser = openWhiskConfig.openWhiskDbLocalUser
         this.hostname = openWhiskConfig.openWhiskDbHostname
-        this.restTemplateFactory = restTemplateFactory
+        this.restTemplateBuilder = restTemplateBuilder
     }
 
     private RestTemplate createRestTemplate() {
-        return restTemplateFactory.buildWithBasicAuthentication(username, password)
+        return restTemplateBuilder.withBasicAuthentication(username, password).build()
     }
 
     String getSubjectFromDB(String subject){

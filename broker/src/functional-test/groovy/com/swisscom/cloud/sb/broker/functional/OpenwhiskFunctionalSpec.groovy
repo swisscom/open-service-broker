@@ -3,18 +3,13 @@ package com.swisscom.cloud.sb.broker.functional
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceProvider
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.client.RestTemplate
-
-import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.*
+import org.springframework.web.client.RestTemplate
 import spock.lang.IgnoreIf
 
+import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
@@ -22,7 +17,7 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
     private RestTemplate restTemplate
 
     @Autowired
-    private RestTemplateFactory restTemplatefactory
+    RestTemplateBuilder restTemplateBuilder
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('openwhiskTest', findInternalName(OpenWhiskServiceProvider))
@@ -46,7 +41,7 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
     def "Create, execute, delete an action"() {
         when:
         def credentials = serviceLifeCycler.getCredentials()
-        restTemplate = restTemplatefactory.buildWithSSLValidationDisabledAndBasicAuthentication(credentials.get("uuid"), credentials.get("key"))
+        restTemplate = restTemplateBuilder.withSSLValidationDisabled().withBasicAuthentication(credentials.get("uuid"), credentials.get("key")).build()
         HttpHeaders headers = new HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_JSON)
 

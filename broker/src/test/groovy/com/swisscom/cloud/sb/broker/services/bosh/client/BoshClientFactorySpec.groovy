@@ -2,15 +2,14 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
 import com.swisscom.cloud.sb.broker.util.MutexFactory
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import spock.lang.Specification
-
 
 class BoshClientFactorySpec extends Specification {
     BoshClientFactory boshClientFactory
 
     def setup() {
-        boshClientFactory = new BoshClientFactory(Stub(RestTemplateFactory), Stub(MutexFactory))
+        boshClientFactory = new BoshClientFactory(Stub(RestTemplateBuilder), Stub(MutexFactory))
     }
 
     def "happy path:build bosh client"() {
@@ -20,7 +19,6 @@ class BoshClientFactorySpec extends Specification {
         BoshClient client = boshClientFactory.build(config)
         then:
         client.mutexFactory == boshClientFactory.mutexFactory
-        client.boshRestClient.restTemplateFactory == boshClientFactory.restTemplateFactory
         client.boshConfig == config
     }
 }

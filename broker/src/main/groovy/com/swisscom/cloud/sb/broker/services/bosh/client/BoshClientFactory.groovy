@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.util.MutexFactory
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -11,21 +11,17 @@ import org.springframework.stereotype.Component
 @CompileStatic
 class BoshClientFactory {
 
-    private final RestTemplateFactory restTemplateFactory
+    RestTemplateBuilder restTemplateBuilder
     private final MutexFactory mutexFactory
 
     @Autowired
-    BoshClientFactory(RestTemplateFactory restTemplateFactory, MutexFactory mutexFactory) {
-        this.restTemplateFactory = restTemplateFactory
+    BoshClientFactory(RestTemplateBuilder restTemplateBuilder, MutexFactory mutexFactory) {
+        this.restTemplateBuilder = restTemplateBuilder
         this.mutexFactory = mutexFactory
     }
 
     BoshClient build(BoshConfig boshConfig) {
-        return new BoshClient(new BoshRestClient(boshConfig, restTemplateFactory), mutexFactory)
-    }
-
-    RestTemplateFactory getRestTemplateFactory() {
-        return restTemplateFactory
+        return new BoshClient(new BoshRestClient(boshConfig, restTemplateBuilder), mutexFactory)
     }
 
     MutexFactory getMutexFactory() {

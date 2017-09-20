@@ -8,7 +8,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.Group
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -26,18 +26,20 @@ class OpsManagerClientSpec extends Specification {
     public static final String GROUP_NAME = 'pub'
 
     OpsManagerClient opsManagerClient
-    RestTemplateFactory restTemplateFactory
     MockRestServiceServer mockServer
+    RestTemplateBuilder restTemplateBuilder
 
     def setup() {
-        restTemplateFactory = Mock(RestTemplateFactory)
         RestTemplate restTemplate = new RestTemplate()
-        restTemplateFactory.buildWithDigestAuthentication(_, _) >> restTemplate
         mockServer = MockRestServiceServer.createServer(restTemplate)
+        restTemplateBuilder = Mock(RestTemplateBuilder)
+        restTemplateBuilder.build() >> restTemplate
+
         and:
-        opsManagerClient = new OpsManagerClient(restTemplateFactory, new MongoDbEnterpriseConfig(opsManagerUrl: URL))
+        restTemplateBuilder.withDigestAuthentication(_, _) >> restTemplateBuilder
 
-
+        and:
+        opsManagerClient = new OpsManagerClient(restTemplateBuilder, new MongoDbEnterpriseConfig(opsManagerUrl: URL))
     }
 
     private String baseUrl() {

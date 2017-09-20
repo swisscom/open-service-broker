@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 
@@ -14,7 +14,7 @@ class BoshRestClientTest extends BaseSpecification {
 
 
     def setup() {
-        client = new BoshRestClient(config, new RestTemplateFactory())
+        client = new BoshRestClient(config, new RestTemplateBuilder())
     }
 
     def "get info works correctly"() {

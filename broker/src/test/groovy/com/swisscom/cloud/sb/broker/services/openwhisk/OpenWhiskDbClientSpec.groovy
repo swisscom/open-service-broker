@@ -2,9 +2,9 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
-import org.springframework.http.HttpStatus
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
@@ -17,19 +17,24 @@ class OpenWhiskDbClientSpec extends Specification{
     private final String SUBJECT = "testing"
 
     private OpenWhiskDbClient openWhiskDbClient
-    private RestTemplateFactory restTemplateFactory
     private MockRestServiceServer mockServer
     private final ObjectMapper mapper = new ObjectMapper()
+    private RestTemplateBuilder restTemplateBuilder
 
     def setup() {
-        restTemplateFactory = Mock(RestTemplateFactory)
         RestTemplate restTemplate = new RestTemplate()
-        restTemplateFactory.buildWithBasicAuthentication(_,_) >> restTemplate
         mockServer = MockRestServiceServer.createServer(restTemplate)
+        restTemplateBuilder = Mock(RestTemplateBuilder)
+        restTemplateBuilder.build() >> restTemplate
+
+        and:
+        restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
+
+
         and:
         openWhiskDbClient = new OpenWhiskDbClient(new OpenWhiskConfig(openWhiskDbProtocol: "http",
                 openWhiskDbHost: "openwhiskHost", openWhiskDbPort: "1234", openWhiskDbLocalUser: "ubuntu",
-                openWhiskDbHostname: "localhost"), restTemplateFactory)
+                openWhiskDbHostname: "localhost"), restTemplateBuilder)
     }
 
     def "Retrieve existing subject"() {

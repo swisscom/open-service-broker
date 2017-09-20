@@ -6,7 +6,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpris
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,12 +38,12 @@ class OpsManagerClient {
     public static final String WHITE_LIST = '/whitelist'
 
     public static final String AUTOMATION = '/AUTOMATION'
-    private final RestTemplateFactory restTemplateFactory
+    private final RestTemplateBuilder restTemplateBuilder
     private final MongoDbEnterpriseConfig mongoDbEnterpriseConfig
 
     @Autowired
-    OpsManagerClient(RestTemplateFactory restTemplateFactory, MongoDbEnterpriseConfig mongoDbEnterpriseConfig) {
-        this.restTemplateFactory = restTemplateFactory
+    OpsManagerClient(RestTemplateBuilder restTemplateBuilder, MongoDbEnterpriseConfig mongoDbEnterpriseConfig) {
+        this.restTemplateBuilder = restTemplateBuilder
         this.mongoDbEnterpriseConfig = mongoDbEnterpriseConfig
     }
 
@@ -183,7 +183,7 @@ class OpsManagerClient {
 
 
     private RestTemplate createRestTemplate() {
-        def restTemplate = restTemplateFactory.buildWithDigestAuthentication(mongoDbEnterpriseConfig.opsManagerUser, mongoDbEnterpriseConfig.opsManagerApiKey)
+        def restTemplate = restTemplateBuilder.withDigestAuthentication(mongoDbEnterpriseConfig.opsManagerUser, mongoDbEnterpriseConfig.opsManagerApiKey).build()
         restTemplate.setErrorHandler(new CustomErrorHandler())
         return restTemplate
     }

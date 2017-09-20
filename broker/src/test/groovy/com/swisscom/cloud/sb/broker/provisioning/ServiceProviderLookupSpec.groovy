@@ -8,7 +8,7 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskConfig
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskDbClient
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceProvider
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.context.ApplicationContext
 import spock.lang.Specification
 
@@ -25,7 +25,7 @@ class ServiceProviderLookupSpec extends Specification {
         plan = new Plan()
         applicationContext = Mock(ApplicationContext)
         serviceProviderLookup = new ServiceProviderLookup(appContext: applicationContext)
-        openWhiskServiceProvider = new OpenWhiskServiceProvider(new OpenWhiskConfig(), new RestTemplateFactory(), new OpenWhiskDbClient(new OpenWhiskConfig(), new RestTemplateFactory()), serviceInstanceRepository, serviceBindingRepository)
+        openWhiskServiceProvider = new OpenWhiskServiceProvider(new OpenWhiskConfig(), new OpenWhiskDbClient(new OpenWhiskConfig(), new RestTemplateBuilder()), serviceInstanceRepository, serviceBindingRepository)
     }
 
     def "find service provider by plan.serviceProviderName"() {

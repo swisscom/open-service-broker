@@ -9,34 +9,28 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
-import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import com.swisscom.cloud.sb.model.usage.ServiceUsageUnit
-import org.apache.commons.lang.RandomStringUtils
-import org.springframework.beans.factory.annotation.Autowired
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.RandomStringUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_ADMIN_URL
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_EXECUTION_URL
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_KEY
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_UUID
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
 
 @Component
 @CompileStatic
@@ -44,15 +38,13 @@ import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_UUID
 class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
 
     private final OpenWhiskConfig openWhiskConfig
-    private final RestTemplateFactory restTemplateFactory
     private final OpenWhiskDbClient openWhiskDbClient
     private final ServiceInstanceRepository serviceInstanceRepository
     private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    OpenWhiskServiceProvider(OpenWhiskConfig openWhiskConfig, RestTemplateFactory restTemplateFactory, OpenWhiskDbClient openWhiskDbClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
+    OpenWhiskServiceProvider(OpenWhiskConfig openWhiskConfig, OpenWhiskDbClient openWhiskDbClient, ServiceInstanceRepository serviceInstanceRepository, ServiceBindingRepository serviceBindingRepository) {
         this.openWhiskConfig = openWhiskConfig
-        this.restTemplateFactory = restTemplateFactory
         this.openWhiskDbClient = openWhiskDbClient
         this.serviceInstanceRepository = serviceInstanceRepository
         this.serviceBindingRepository = serviceBindingRepository
