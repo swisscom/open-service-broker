@@ -107,7 +107,9 @@ class RestTemplateBuilder {
         X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(certificate)))).readObject()
         keyStore.load(null, "".toCharArray())
         keyStore.setCertificateEntry("", cert)
-        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(key))).readObject()).getPrivate(), "".toCharArray(), createCertChain(cert))
+        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(key))).readObject()).getPrivate(),
+                "".toCharArray(),
+                [cert].toArray(new Certificate[0]))
         return keyStore
     }
 
@@ -116,12 +118,6 @@ class RestTemplateBuilder {
         KeyStore keystore = KeyStore.getInstance("JKS")
         keystore.load(is, password.toCharArray())
         return keystore
-    }
-
-    private Certificate[] createCertChain(X509Certificate cert) {
-        Certificate[] cer = new Certificate[1]
-        cer[0] = cert
-        cer
     }
 
     static class DummyTrustStrategy implements TrustStrategy {
