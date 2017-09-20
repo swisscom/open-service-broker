@@ -86,7 +86,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificateBasedOnKeyStore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
 
         then:
         response.statusCode == HttpStatus.OK
@@ -102,7 +102,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
 
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificateBasedOnKeyStore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
 
         then:
         Exception ex = thrown(Exception)
@@ -118,7 +118,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withMutualTLS(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:
@@ -135,7 +135,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
 
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withMutualTLS(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:

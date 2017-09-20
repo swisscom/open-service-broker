@@ -8,10 +8,7 @@ import org.apache.http.client.AuthCache
 import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.HttpClient
 import org.apache.http.client.protocol.ClientContext
-import org.apache.http.conn.ssl.SSLSocketFactory
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.conn.ssl.TrustStrategy
-import org.apache.http.conn.ssl.X509HostnameVerifier
 import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.BasicAuthCache
 import org.apache.http.impl.client.BasicCredentialsProvider
@@ -29,9 +26,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLException
-import javax.net.ssl.SSLSession
-import javax.net.ssl.SSLSocket
 import java.security.KeyPair
 import java.security.KeyStore
 import java.security.Security
@@ -77,27 +71,29 @@ class RestTemplateBuilder {
     }
 
     RestTemplateBuilder withSSLValidationDisabled() {
-        httpClientBuilder.setSSLSocketFactory(new SSLSocketFactory(new DummyTrustStrategy(), new DummyX509HostnameVerifier()))
-        this
-    }
-
-    RestTemplateBuilder withMutualTLS(String cert, String key) {
-        httpClientBuilder.setSSLContext(createSSLContext(cert, key))
-        this
-    }
-
-    RestTemplateBuilder withKeystore(String keyStorePath, String keyStorePassword) {
         httpClientBuilder.setSSLContext(SSLContexts.custom()
-                .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
-                .loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE)
+                .loadTrustMaterial(new TrustAnyCertificateStrategy())
                 .build())
         this
     }
 
-    private SSLContext createSSLContext(String cert, String key) {
+    RestTemplateBuilder withClientSideCertificate(String cert, String key) {
+        httpClientBuilder.setSSLContext(createSSLContext(cert, key))
+        this
+    }
+
+    RestTemplateBuilder withClientSideCertificateBasedOnKeyStore(String keyStorePath, String keyStorePassword) {
+        httpClientBuilder.setSSLContext(SSLContexts.custom()
+                .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
+                .loadTrustMaterial(new TrustAnyCertificateStrategy())
+                .build())
+        this
+    }
+
+    private SSLContext createSSLContext(String cert = null, String key = null) {
         return SSLContexts.custom()
                 .loadKeyMaterial(getKeyStore(cert, key), null)
-                .loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE)
+                .loadTrustMaterial(new TrustAnyCertificateStrategy())
                 .build()
     }
 
@@ -118,35 +114,6 @@ class RestTemplateBuilder {
         KeyStore keystore = KeyStore.getInstance("JKS")
         keystore.load(is, password.toCharArray())
         return keystore
-    }
-
-    static class DummyTrustStrategy implements TrustStrategy {
-        @Override
-        boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            return true
-        }
-    }
-
-    static class DummyX509HostnameVerifier implements X509HostnameVerifier {
-        @Override
-        public void verify(String host, SSLSocket ssl) throws IOException {
-
-        }
-
-        @Override
-        public void verify(String host, X509Certificate cert) throws SSLException {
-
-        }
-
-        @Override
-        public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-
-        }
-
-        @Override
-        public boolean verify(String s, SSLSession sslSession) {
-            return true
-        }
     }
 
     private CredentialsProvider provider(String user, String password) {
@@ -174,4 +141,10 @@ class RestTemplateBuilder {
         }
     }
 
+    private static class TrustAnyCertificateStrategy implements TrustStrategy {
+        @Override
+        boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            return true
+        }
+    }
 }

@@ -26,7 +26,7 @@ class KubernetesClient<RESPONSE> {
 
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       String body, Class<RESPONSE> responseType) {
-        def restTemplate = restTemplateBuilder.withMutualTLS(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
+        def restTemplate = restTemplateBuilder.withClientSideCertificate(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
         log.info(url + " - " + convertYamlToJson(body))
         return restTemplate.exchange(
                 "https://" + kubernetesConfig.getKubernetesHost() + ":" + kubernetesConfig.getKubernetesPort() + "/" +
