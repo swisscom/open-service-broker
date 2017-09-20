@@ -1,10 +1,14 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -15,6 +19,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemp
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -27,7 +32,7 @@ import org.springframework.stereotype.Component
 @Component
 @Slf4j
 @CompileStatic
-class KubernetesFacadeRedis extends AbstractKubernetesFacade {
+class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBackupProvider {
     private final KubernetesTemplateManager kubernetesTemplateManager
     private final EndpointMapperParamsDecorated endpointMapperParamsDecorated
     private final KubernetesRedisConfig kubernetesRedisConfig
@@ -43,11 +48,13 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
 
     Collection<ServiceDetail> provision(ProvisionRequest context) {
         def bindingMap = createBindingMap(context)
+        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
         def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
         def templateEngine = new groovy.text.SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : templates) {
             def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(bindingMap).toString()
+            log.trace("Request this template for k8s provision: ${bindedTemplate}")
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
         }
@@ -85,22 +92,41 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade {
             it.getBody().asType(ServiceResponse.class)
         }
 
-        def masterPortList = serviceResponses.findAll {
-            it.spec.selector.role?.equals(KubernetesTemplateConstants.ROLE_MASTER.getValue())
-        }.collect { it.spec.ports?.first()?.nodePort.toString() }
-        def masterPort = masterPortList.isEmpty() ? "" : masterPortList.first() ?: ""
-
-        def slavePorts = serviceResponses.findAll {
-            it.spec.selector.role?.startsWith(KubernetesTemplateConstants.ROLE_SLAVE.getValue())
-        }.collect { it.spec.ports?.first()?.nodePort.toString() }
-        def serviceDetailsSlavePorts = slavePorts.collect {
-            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it)
+        def allPorts = serviceResponses.collect { it.spec.ports }.flatten() as List<Port>
+        def masterPort = allPorts.findAll { it.name.equals("redis-master") }.collect {
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
+        }
+        def slavePorts = allPorts.findAll { it.name.startsWith("redis-slave") }.collect {
+            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it.nodePort.toString())
+        }
+        def shieldPort = allPorts.findAll { it.name.equals("shield-ssh") }.collect {
+            ServiceDetail.from(ServiceDetailKey.SHIELD_AGENT_PORT, it.nodePort.toString())
         }
 
-        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost()),
-                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, masterPort),
-                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword)
-        ] + serviceDetailsSlavePorts
+        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword),
+                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
+                masterPort + slavePorts + shieldPort
         return serviceDetails
+    }
+
+    @Override
+    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
+        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT) as Integer
+        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
+    }
+
+    @Override
+    String systemBackupJobName(String jobPrefix, String serviceInstanceId) {
+        "${jobPrefix}redis-${serviceInstanceId}"
+    }
+
+    @Override
+    String systemBackupTargetName(String targetPrefix, String serviceInstanceId) {
+        "${targetPrefix}redis-${serviceInstanceId}"
+    }
+
+    @Override
+    String shieldAgentUrl(ServiceInstance serviceInstance) {
+        "${kubernetesRedisConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT)}"
     }
 }

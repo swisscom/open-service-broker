@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TargetDto
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.web.client.RestTemplate
@@ -13,6 +14,7 @@ import spock.lang.Specification
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 
 class ShieldRestClientSpec extends Specification {
@@ -21,7 +23,6 @@ class ShieldRestClientSpec extends Specification {
 
     String baseUrl = "http://baseurl"
     String apiKey = "apiKey"
-    String agent = "agent-example"
 
     class DummyTarget implements ShieldTarget {
 
@@ -40,7 +41,7 @@ class ShieldRestClientSpec extends Specification {
         RestTemplate restTemplate = new RestTemplate()
         mockServer = MockRestServiceServer.createServer(restTemplate)
         and:
-        shieldRestClient = new ShieldRestClient(restTemplate, baseUrl, apiKey, agent)
+        shieldRestClient = new ShieldRestClientFactory().build(restTemplate, baseUrl, apiKey)
     }
 
     def "get status"() {
@@ -117,6 +118,7 @@ class ShieldRestClientSpec extends Specification {
     def "create target"() {
         given:
         String targetName = "targetName"
+        String agent = "agent-example"
         def target = new DummyTarget()
         def body = new ObjectMapper().writeValueAsString([name    : targetName,
                                                           plugin  : target.pluginName(),
@@ -130,7 +132,7 @@ class ShieldRestClientSpec extends Specification {
                 .andRespond(withSuccess('{"uuid":"targetId"}', MediaType.APPLICATION_JSON))
 
         when:
-        def targetId = shieldRestClient.createTarget(targetName, target)
+        def targetId = shieldRestClient.createTarget(targetName, target, agent)
         then:
         mockServer.verify()
         targetId == "targetId"
@@ -138,6 +140,7 @@ class ShieldRestClientSpec extends Specification {
 
     def "update target"() {
         given:
+        String agent = "agent-example"
         TargetDto targetDto = new TargetDto(uuid: "targetUuid", name: "targetName")
         def target = new DummyTarget()
         def body = new ObjectMapper().writeValueAsString([name    : targetDto.name,
@@ -153,7 +156,7 @@ class ShieldRestClientSpec extends Specification {
                 .andRespond(withSuccess('', MediaType.APPLICATION_JSON))
 
         when:
-        def targetId = shieldRestClient.updateTarget(targetDto, target)
+        def targetId = shieldRestClient.updateTarget(targetDto, target, agent)
         then:
         mockServer.verify()
         targetId == targetDto.uuid
@@ -190,12 +193,12 @@ class ShieldRestClientSpec extends Specification {
 
     def "create job"() {
         given:
-        def job = [name     : "jobName",
-                   target   : "target-id",
-                   store    : "store-id",
-                   retention: "retention-id",
-                   schedule : "schedule-id",
-                   paused   : false]
+        def job = [ name: "jobName",
+                    target: "target-id",
+                    store: "store-id",
+                    retention: "retention-id",
+                    schedule: "schedule-id",
+                    paused: false]
         mockServer.expect(requestTo(shieldRestClient.jobsUrl()))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
@@ -218,13 +221,13 @@ class ShieldRestClientSpec extends Specification {
     def "update job"() {
         given:
         JobDto jobDto = new JobDto(uuid: "jobUuid", name: "jobName")
-        def job = [name     : jobDto.name,
-                   summary  : jobDto.summary,
-                   target   : "target-id",
-                   store    : "store-id",
-                   retention: "retention-id",
-                   schedule : "schedule-id",
-                   paused   : false]
+        def job = [ name: jobDto.name,
+                    summary: jobDto.summary,
+                    target: "target-id",
+                    store: "store-id",
+                    retention: "retention-id",
+                    schedule: "schedule-id",
+                    paused: false]
         mockServer.expect(requestTo(shieldRestClient.jobUrl(jobDto.uuid)))
                 .andExpect(method(HttpMethod.PUT))
                 .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
@@ -338,5 +341,101 @@ class ShieldRestClientSpec extends Specification {
         shieldRestClient.deleteArchive(archiveId)
         then:
         mockServer.verify()
+    }
+
+    def "handle 501 response when getting null task"() {
+        given:
+        String taskId = null
+        mockServer.expect(requestTo(shieldRestClient.taskUrl(taskId)))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.getTaskByUuid(taskId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
+    }
+
+    def "handle 501 response when getting empty task"() {
+        given:
+        String taskId = ""
+        mockServer.expect(requestTo(shieldRestClient.taskUrl(taskId)))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.getTaskByUuid(taskId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
+    }
+
+    def "handle 501 response when getting null archive"() {
+        given:
+        String archiveId = null
+        mockServer.expect(requestTo(shieldRestClient.archiveUrl(archiveId)))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.getArchiveByUuid(archiveId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
+    }
+
+    def "handle 501 response when getting empty archive"() {
+        given:
+        String archiveId = ""
+        mockServer.expect(requestTo(shieldRestClient.archiveUrl(archiveId)))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.getArchiveByUuid(archiveId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
+    }
+
+    def "handle 501 response when deleting null archive"() {
+        given:
+        String archiveId = null
+        mockServer.expect(requestTo(shieldRestClient.archiveUrl(archiveId)))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.deleteArchive(archiveId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
+    }
+
+    def "handle 501 response when deleting empty archive"() {
+        given:
+        String archiveId = ""
+        mockServer.expect(requestTo(shieldRestClient.archiveUrl(archiveId)))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andRespond(withStatus(HttpStatus.NOT_IMPLEMENTED))
+
+        when:
+        shieldRestClient.deleteArchive(archiveId)
+        then:
+        mockServer.verify()
+        thrown(ShieldResourceNotFoundException)
     }
 }

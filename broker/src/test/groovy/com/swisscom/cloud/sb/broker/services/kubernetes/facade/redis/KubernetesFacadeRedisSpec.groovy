@@ -16,6 +16,8 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
+import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -112,7 +114,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "112" == results.get(1).getValue()
+        "112" == ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)
     }
 
     def "return correct host to the client from SB"() {
@@ -123,7 +125,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "host.redis" == results.get(0).getValue()
+        "host.redis" == ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_HOST)
     }
 
     def "returned password has proper length"() {
@@ -134,7 +136,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        30 <= results.get(2).getValue().toString().length()
+        30 <= ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).length()
     }
 
     def "deletion of service calls proper endpoint"() {
@@ -160,6 +162,7 @@ kind: Namespace""")
 
     private void mockPorts(Spec spec) {
         Port port = Stub()
+        port.name >> "redis-master"
         port.nodePort >> 112
         spec.ports >> [port]
     }
@@ -184,6 +187,4 @@ kind: Namespace""")
             }
         }
     }
-
-
 }

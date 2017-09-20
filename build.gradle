@@ -139,4 +139,17 @@ subprojects {
             html.destination "${buildDir}/jacocoHtml"
         }
     }
+
+    /**
+     * Escape the placeholders in the application-secrets.yml to prevent Gradle's template expanding to throw
+     * `MissingPropertyException` because these placeholders are later used from the OSB to parametrized provisioning
+     * templates.
+     */
+    processResources {
+        filesMatching("**/application-secrets.yml") { matchedFile ->
+            filter { line ->
+                line.replace('${', '\\${').replace('$(', '\\$(').replace('$\"', '\\$\"')
+            }
+        }
+    }
 }

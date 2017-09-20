@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.4.0] - 2017-09-18
+- Add system level backups for k8s services
+- Fix extract Shield agent port from k8s deployment response
+- Fix escaping list in `build.gradle` to handle provisioning templates with placeholders properly
+
+## [2.3.6] - 2017-09-12
+- Add debug messages to k8s provision template binding
+
 ## [2.3.5] - 2017-09-10
 - Add option to shuffle availability zones in Bosh templates
 - Add mongodb version field for Ops Manager automation update
