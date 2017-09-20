@@ -26,8 +26,10 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpStatusCodeException
 
 @Component
 @Slf4j
@@ -83,8 +85,12 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
     }
 
     void deprovision(DeprovisionRequest request) {
-        kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
-                HttpMethod.DELETE, "", Object.class)
+        try {
+            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
+                    HttpMethod.DELETE, "", Object.class)
+        } catch (HttpStatusCodeException e) {
+            if (e.statusCode != HttpStatus.NOT_FOUND) throw e
+        }
     }
 
     private Collection<ServiceDetail> buildServiceDetailsList(String redisPassword, List<ResponseEntity> responses) {
