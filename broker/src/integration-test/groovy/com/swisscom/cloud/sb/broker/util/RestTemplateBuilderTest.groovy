@@ -79,7 +79,7 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
-    def 'GET request over https with a server that expects a client side certificate'() {
+    def 'GET request over https with a server that expects a client side certificate in jks'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
                 .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
@@ -107,6 +107,42 @@ class RestTemplateBuilderTest extends Specification {
         then:
         Exception ex = thrown(Exception)
         ex
+        cleanup:
+        httpServer?.stop()
+    }
+
+    def 'GET request over https with a server that expects a client side certificate in pcks #12'() {
+        given:
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
+                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
+                .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
+                'secret'))
+        when:
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withMutualTLS(new File(this.getClass().getResource('/client.crt').file).text,
+                new File(this.getClass().getResource('/client.key').file).text).build())
+
+        then:
+        response.statusCode == HttpStatus.OK
+        response.body.equalsIgnoreCase('hello')
+        cleanup:
+        httpServer?.stop()
+    }
+
+    def 'GET request over https with a server that expects a client side certificate in pcks #12 should fail when certificate don\'t match'() {
+        given:
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
+                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
+                .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
+
+        when:
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withMutualTLS(new File(this.getClass().getResource('/client.crt').file).text,
+                new File(this.getClass().getResource('/client.key').file).text).build())
+
+        then:
+        Exception ex = thrown(Exception)
+        ex
+        cleanup:
+        httpServer?.stop()
     }
 
     private def makeGetRequest(RestTemplate template) {
