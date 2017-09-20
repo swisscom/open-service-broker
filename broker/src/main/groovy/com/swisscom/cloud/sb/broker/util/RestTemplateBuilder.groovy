@@ -82,11 +82,11 @@ class RestTemplateBuilder {
     }
 
     RestTemplateBuilder withMutualTLS(String cert, String key) {
-        httpClientBuilder.setSSLContext(getSSLContext(cert, key))
+        httpClientBuilder.setSSLContext(createSSLContext(cert, key))
         this
     }
 
-    RestTemplateBuilder withClientSideKeystore(String keyStorePath, String keyStorePassword) {
+    RestTemplateBuilder withKeystore(String keyStorePath, String keyStorePassword) {
         httpClientBuilder.setSSLContext(SSLContexts.custom()
                 .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
                 .loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE)
@@ -94,10 +94,10 @@ class RestTemplateBuilder {
         this
     }
 
-    private SSLContext getSSLContext(String cert, String key) {
+    private SSLContext createSSLContext(String cert, String key) {
         return SSLContexts.custom()
                 .loadKeyMaterial(getKeyStore(cert, key), null)
-                .loadTrustMaterial(new TrustSelfSignedStrategy())
+                .loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE)
                 .build()
     }
 

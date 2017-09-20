@@ -6,7 +6,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class RestTemplateBuilderSpec extends Specification {
@@ -87,7 +86,8 @@ class RestTemplateBuilderSpec extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
+
         then:
         response.statusCode == HttpStatus.OK
         response.body.equalsIgnoreCase('hello')
@@ -95,20 +95,18 @@ class RestTemplateBuilderSpec extends Specification {
         httpServer?.stop()
     }
 
-    @Ignore
     def 'GET request over https with a server that expects a client side certificate fails when certificates don\'t match'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
                 .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
-                .withTrustStore(this.getClass().getResource('/anotherkeystore').file,
-                '123456'))
+                .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
 
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withMutualTLS(new File(this.getClass().getResource('/client-public.cer').file).text,
-                new File(this.getClass().getResource('/client-key.pem').file).text).build())
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withKeystore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
+
         then:
-        response.statusCode == HttpStatus.OK
-        response.body.equalsIgnoreCase('hello')
+        Exception ex = thrown(Exception)
+        ex
     }
 
     private def makeGetRequest(RestTemplate template) {
