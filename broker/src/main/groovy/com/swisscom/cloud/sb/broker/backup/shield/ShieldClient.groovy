@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component
 class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
-    private RestTemplateFactory restTemplateFactory
+    protected RestTemplateBuilder restTemplateBuilder
 
     @Autowired
-    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateFactory restTemplateFactory) {
+    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder) {
         this.shieldConfig = shieldConfig
         this.shieldRestClientFactory = shieldRestClientFactory
-        this.restTemplateFactory = restTemplateFactory
+        this.restTemplateBuilder = restTemplateBuilder
     }
 
     String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
@@ -153,6 +153,6 @@ class ShieldClient {
     }
 
     private ShieldRestClient buildClient() {
-        shieldRestClientFactory.build(restTemplateFactory.buildWithSSLValidationDisabled(), shieldConfig.baseUrl, shieldConfig.apiKey)
+        shieldRestClientFactory.build(restTemplateBuilder.withSSLValidationDisabled().build(), shieldConfig.baseUrl, shieldConfig.apiKey)
     }
 }

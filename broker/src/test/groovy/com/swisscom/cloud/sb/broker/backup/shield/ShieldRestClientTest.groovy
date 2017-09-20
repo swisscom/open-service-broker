@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.util.RestTemplateFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -11,8 +11,7 @@ class ShieldRestClientTest extends Specification {
     ShieldRestClient restClient
 
     void setup() {
-        def restTemplateFactory = new RestTemplateFactory()
-        restClient = new ShieldRestClient(restTemplateFactory.buildWithSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
+        restClient = new ShieldRestClient(new RestTemplateBuilder().withSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
     }
 
     def "obtain status"() {
