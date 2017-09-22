@@ -82,14 +82,6 @@ class RestTemplateBuilder {
         this
     }
 
-    RestTemplateBuilder withClientSideCertificateBasedOnKeyStore(String keyStorePath, String keyStorePassword) {
-        httpClientBuilder.setSSLContext(SSLContexts.custom()
-                .loadKeyMaterial(loadKeyStore(keyStorePath, keyStorePassword), keyStorePassword.toCharArray())
-                .loadTrustMaterial(new TrustAnyCertificateStrategy())
-                .build())
-        this
-    }
-
     private SSLContext createSSLContext(String cert = null, String key = null) {
         return SSLContexts.custom()
                 .loadKeyMaterial(getKeyStore(cert, key), null)
