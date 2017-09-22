@@ -18,8 +18,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import com.swisscom.cloud.sb.model.usage.ServiceUsageUnit
@@ -30,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
+import static com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceDetailKey.*
 
 @Component
 @CompileStatic
@@ -114,7 +113,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         ObjectMapper mapper = new ObjectMapper()
-        ArrayNode usageArray = (ArrayNode) mapper.readTree(openWhiskDbClient.getUsageForNamespace(ServiceDetailsHelper.from(serviceInstance).getValue(ServiceDetailKey.OPENWHISK_NAMESPACE))).path("rows")
+        ArrayNode usageArray = (ArrayNode) mapper.readTree(openWhiskDbClient.getUsageForNamespace(ServiceDetailsHelper.from(serviceInstance).getValue(OpenWhiskServiceDetailKey.OPENWHISK_NAMESPACE))).path("rows")
         def usageMS = 0
         usageArray.each {
             usageMS = usageMS + it.path("value").intValue()

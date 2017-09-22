@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.cfextensions.endpoint
 
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.util.ServiceDetailType
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component

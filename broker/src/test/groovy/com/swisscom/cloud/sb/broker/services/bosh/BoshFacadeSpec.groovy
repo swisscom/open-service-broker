@@ -9,7 +9,6 @@ import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import org.openstack4j.model.compute.ServerGroup
 import spock.lang.Specification
 
@@ -69,7 +68,7 @@ class BoshFacadeSpec extends Specification {
         def serverGroupId = 'serverGroupId'
         def context = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: id),
                 plan: new Plan(parameters: [new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: vmType)]),
-                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
+                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
         when:
         boshFacade.addOrUpdateVmInBoshCloudConfig(context)
         then:
@@ -78,7 +77,7 @@ class BoshFacadeSpec extends Specification {
 
     def "findServerGroupId works for service instance with existing detail"() {
         given:
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
+        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
         expect:
         serverGroupId == boshFacade.findServerGroupId(context).get()
     }
@@ -130,7 +129,7 @@ class BoshFacadeSpec extends Specification {
     def "bosh Deploy task state checking is handled correctly for normal cases"() {
         given:
         def taskId = 'taskId'
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, taskId)]))
+        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, taskId)]))
         and:
         1 * boshClient.getTask(taskId) >> new TaskDto(state: boskTaskState)
         expect:
@@ -183,7 +182,7 @@ class BoshFacadeSpec extends Specification {
     def "bosh UNDeploy task state checking is handled correctly for normal cases"() {
         given:
         def taskId = 'taskId'
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, taskId)]))
+        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, taskId)]))
         and:
         1 * boshClient.getTask(taskId) >> new TaskDto(state: boskTaskState)
         expect:
@@ -199,7 +198,7 @@ class BoshFacadeSpec extends Specification {
         given:
         Optional<String> taskId = Optional.absent()
         def deploymentId = "deploymentId"
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.BOSH_DEPLOYMENT_ID, deploymentId)]))
+        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.BOSH_DEPLOYMENT_ID, deploymentId)]))
         1 * boshClient.deleteDeploymentIfExists(deploymentId) >> taskId
 
         expect:
@@ -231,7 +230,7 @@ class BoshFacadeSpec extends Specification {
 
     def "delete existing OpenStack group"() {
         given:
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
+        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
 
         when:
         boshFacade.deleteOpenStackServerGroupIfExists(context)
