@@ -86,7 +86,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:
@@ -103,7 +103,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
 
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:

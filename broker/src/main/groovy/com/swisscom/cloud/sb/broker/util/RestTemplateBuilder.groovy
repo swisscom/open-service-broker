@@ -40,16 +40,31 @@ class RestTemplateBuilder {
     protected RestTemplate restTemplate
     protected HttpClientBuilder httpClientBuilder
     private boolean useDigestAuth = false
+    private org.apache.http.ssl.TrustStrategy trustStrategy
+    private KeyStore keyStore
 
     RestTemplateBuilder() {
         restTemplate = new RestTemplate()
         httpClientBuilder = HttpClientBuilder.create()
+
     }
 
     RestTemplate build() {
+        httpClientBuilder.setSSLContext(createSSLContext())
         def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
+    }
+
+    private SSLContext createSSLContext() {
+        def contextBuilder = SSLContexts.custom()
+        if (keyStore) {
+            contextBuilder.loadKeyMaterial(keyStore, null)
+        }
+        if (trustStrategy) {
+            contextBuilder.loadTrustMaterial(new TrustAnyCertificateStrategy())
+        }
+        return contextBuilder.build()
     }
 
     RestTemplateBuilder withBasicAuthentication(String username, String password) {
@@ -71,25 +86,16 @@ class RestTemplateBuilder {
     }
 
     RestTemplateBuilder withSSLValidationDisabled() {
-        httpClientBuilder.setSSLContext(SSLContexts.custom()
-                .loadTrustMaterial(new TrustAnyCertificateStrategy())
-                .build())
+        trustStrategy = TrustAnyCertificateStrategy.INSTANCE
         this
     }
 
     RestTemplateBuilder withClientSideCertificate(String cert, String key) {
-        httpClientBuilder.setSSLContext(createSSLContext(cert, key))
+        keyStore = createKeyStore(cert, key)
         this
     }
 
-    private SSLContext createSSLContext(String cert = null, String key = null) {
-        return SSLContexts.custom()
-                .loadKeyMaterial(getKeyStore(cert, key), null)
-                .loadTrustMaterial(new TrustAnyCertificateStrategy())
-                .build()
-    }
-
-    private KeyStore getKeyStore(String certificate, String key) {
+    private KeyStore createKeyStore(String certificate, String key) {
         def keyStore = KeyStore.getInstance("PKCS12")
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider())
         X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(certificate)))).readObject()
@@ -99,13 +105,6 @@ class RestTemplateBuilder {
                 "".toCharArray(),
                 [cert].toArray(new Certificate[0]))
         return keyStore
-    }
-
-    private KeyStore loadKeyStore(String path, String password) {
-        FileInputStream is = new FileInputStream(path)
-        KeyStore keystore = KeyStore.getInstance("JKS")
-        keystore.load(is, password.toCharArray())
-        return keystore
     }
 
     private CredentialsProvider provider(String user, String password) {
@@ -134,9 +133,12 @@ class RestTemplateBuilder {
     }
 
     private static class TrustAnyCertificateStrategy implements TrustStrategy {
+        public static final TrustAnyCertificateStrategy INSTANCE = new TrustAnyCertificateStrategy()
+
         @Override
         boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
             return true
         }
     }
+
 }
