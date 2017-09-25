@@ -26,7 +26,9 @@ class KubernetesClient<RESPONSE> {
 
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       String body, Class<RESPONSE> responseType) {
-        def restTemplate = restTemplateBuilder.withClientSideCertificate(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
+        //TODO get rid of SSL validation disabling, trust the server side certificate instead
+        def restTemplate = restTemplateBuilder.withSSLValidationDisabled().
+                withClientSideCertificate(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
         log.info(url + " - " + convertYamlToJson(body))
         return restTemplate.exchange(
                 "https://" + kubernetesConfig.getKubernetesHost() + ":" + kubernetesConfig.getKubernetesPort() + "/" +
