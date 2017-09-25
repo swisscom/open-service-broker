@@ -97,6 +97,7 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @VisibleForTesting
     private StateMachine createDeprovisionStateMachine() {
         StateMachine stateMachine = new StateMachine([KubernetesServiceDeprovisionState.KUBERNETES_NAMESPACE_DELETION,
+                                                      KubernetesServiceDeprovisionState.CHECK_NAMESPACE_DELETION_SUCCESSFUL,
                                                       KubernetesServiceDeprovisionState.UNREGISTER_SHIELD_SYSTEM_BACKUP])
         stateMachine.addAll([KubernetesServiceDeprovisionState.DEPROVISION_SUCCESS])
         return stateMachine

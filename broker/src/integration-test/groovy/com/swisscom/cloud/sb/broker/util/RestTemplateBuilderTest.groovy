@@ -79,38 +79,6 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
-    def 'GET request over https with a server that expects a client side certificate in jks'() {
-        given:
-        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
-                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
-                .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
-                'secret'))
-        when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificateBasedOnKeyStore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
-
-        then:
-        response.statusCode == HttpStatus.OK
-        response.body.equalsIgnoreCase('hello')
-        cleanup:
-        httpServer?.stop()
-    }
-
-    def 'GET request over https with a server that expects a client side certificate fails when certificates don\'t match'() {
-        given:
-        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
-                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
-                .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
-
-        when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificateBasedOnKeyStore(this.getClass().getResource('/client-keystore.jks').file, 'secret').build())
-
-        then:
-        Exception ex = thrown(Exception)
-        ex
-        cleanup:
-        httpServer?.stop()
-    }
-
     def 'GET request over https with a server that expects a client side certificate in pcks #12'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
@@ -118,7 +86,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
                 'secret'))
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:
@@ -135,7 +103,7 @@ class RestTemplateBuilderTest extends Specification {
                 .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
 
         when:
-        def response = makeHttpsGetRequest(new RestTemplateBuilder().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
+        def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
 
         then:

@@ -22,6 +22,15 @@ enum KubernetesServiceDeprovisionState implements ServiceStateWithAction<Kuberne
         }
     }),
 
+    CHECK_NAMESPACE_DELETION_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: stateContext.kubernetesFacade.isKubernetesNamespaceDeleted(stateContext.lastOperationJobContext.deprovisionRequest.serviceInstanceGuid))
+        }
+    }),
+
     UNREGISTER_SHIELD_SYSTEM_BACKUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
     () {
         @Override

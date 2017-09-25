@@ -8,6 +8,7 @@ import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpStatusCodeException
 
@@ -38,10 +39,23 @@ abstract class AbstractKubernetesFacade implements KubernetesFacade {
         }
     }
 
+    @Override
+    boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid) {
+        def statusCode = getNamespaceStatusCode(serviceInstanceGuid)
+        return (statusCode == HttpStatus.NOT_FOUND)
+    }
+
+    private HttpStatus getNamespaceStatusCode(String serviceInstanceGuid) {
+        ResponseEntity namespaceResponse = kubernetesClient.exchange(
+                EndpointMapper.INSTANCE.getEndpointUrlByType('Namespace').getFirst() + '/' + serviceInstanceGuid,
+                HttpMethod.GET, "", String.class)
+        return namespaceResponse.statusCode
+    }
+
     @TypeChecked(SKIP)
     private List getPodList(String serviceInstanceGuid) throws HttpStatusCodeException {
         ResponseEntity<String> podListResponse = kubernetesClient.exchange(
-                EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + '/' + serviceInstanceGuid + '/pods',
+                EndpointMapper.INSTANCE.getEndpointUrlByType('Namespace').getFirst() + '/' + serviceInstanceGuid + '/pods',
                 HttpMethod.GET, "", String.class)
         def jsonSlurper = new JsonSlurper()
         def podList = jsonSlurper.parseText(podListResponse.body)

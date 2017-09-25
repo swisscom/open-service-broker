@@ -19,7 +19,7 @@ class KubernetesClientSpec extends Specification {
         restTemplateBuilder = Mock(RestTemplateBuilder)
         restTemplateBuilder.build() >> restTemplate
         restTemplateBuilder.withClientSideCertificate(_, _) >> restTemplateBuilder
-
+        restTemplateBuilder.withSSLValidationDisabled() >> restTemplateBuilder
         kubernetesConfig = Stub(kubernetesClientCertificate: "", kubernetesClientKey: "")
         kubernetesClient = new KubernetesClient(kubernetesConfig, restTemplateBuilder)
     }
