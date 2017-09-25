@@ -17,7 +17,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.AbstractKubernete
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
@@ -60,15 +60,15 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
         }
-        return buildServiceDetailsList(bindingMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue()), responses)
+        return buildServiceDetailsList(bindingMap.get(KubernetesRedisTemplateConstants.REDIS_PASS.getValue()), responses)
     }
 
     private Map<String, String> createBindingMap(ProvisionRequest context) {
         def serviceDetailBindings = [
-                (KubernetesTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
-                (KubernetesTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
-                (KubernetesTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
-                (KubernetesTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
+                (BaseTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
+                (BaseTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
+                (BaseTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
+                (BaseTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
         ]
         Map<String, String> planBindings = context.plan.parameters.collectEntries {
             [(it.getName() as String): it.getValue() as String]
@@ -77,9 +77,9 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
         def slaveofCommand = new StringGenerator().randomAlphaNumeric(30)
         def configCommand = new StringGenerator().randomAlphaNumeric(30)
         def otherBindings = [
-                (KubernetesTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
-                (KubernetesTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
-                (KubernetesTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
+                (KubernetesRedisTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
+                (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
+                (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
         kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
     }
