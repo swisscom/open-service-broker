@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.0] - 2017-09-25
+- Add new `RestTemplateBuilder` for advanced `RestTemplate` capabilities
+- Refactoring to `AbstractServiceDetailKey` which enables service specific detail keys
+- Refactoring to `AbstractTemplateConstants` which enables service specific template constants
+
 ## [2.4.0] - 2017-09-18
 - Add system level backups for k8s services
 - Fix extract Shield agent port from k8s deployment response
