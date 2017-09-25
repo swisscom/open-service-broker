@@ -4,8 +4,8 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
+import com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
 import spock.lang.Specification
 
 class BoshProvisionStateSpec extends Specification {
@@ -26,7 +26,7 @@ class BoshProvisionStateSpec extends Specification {
         def result = BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
         then:
         result.go2NextState
-        result.details.find({it.key ==  ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
+        result.details.find({it.key ==  BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
     }
 
     def "UPDATE_BOSH_CLOUD_CONFIG"(){

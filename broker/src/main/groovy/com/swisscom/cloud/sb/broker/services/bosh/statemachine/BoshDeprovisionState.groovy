@@ -6,7 +6,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -17,7 +17,7 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
             Optional<String> optionalTaskId = context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext)
             Collection<ServiceDetail> details = []
             if(optionalTaskId.present) {
-                details.add(ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get()))
+                details.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get()))
             }
             return new StateChangeActionResult(go2NextState: true,details: details)
         }

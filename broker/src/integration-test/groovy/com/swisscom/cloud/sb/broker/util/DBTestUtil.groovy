@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

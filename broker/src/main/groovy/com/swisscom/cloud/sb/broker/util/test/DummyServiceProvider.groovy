@@ -21,8 +21,9 @@ import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
@@ -85,13 +86,13 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
             })
             if (params.containsKey('success') && !params.get('success')) {
                 return new AsyncOperationResult(status: LastOperation.Status.FAILED,
-                        details: [ServiceDetail.from(ServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
+                        details: [ServiceDetail.from(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
             }
         }
 
         if (isServiceReady(context.lastOperation.dateCreation, delay)) {
             return new AsyncOperationResult(status: LastOperation.Status.SUCCESS,
-                    details: [ServiceDetail.from(ServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
+                    details: [ServiceDetail.from(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
         } else {
             return new AsyncOperationResult(status: LastOperation.Status.IN_PROGRESS)
         }
@@ -99,7 +100,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        int delay = ServiceDetailsHelper.from(context.serviceInstance.details).getValue(ServiceDetailKey.DELAY_IN_SECONDS) as int
+        int delay = ServiceDetailsHelper.from(context.serviceInstance.details).getValue(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS) as int
         return Optional.of(processOperationResultBasedOnIfEnoughTimeHasElapsed(context, delay))
     }
 
@@ -110,5 +111,15 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     @Override
     Collection<Endpoint> findEndpoints(ServiceInstance serviceInstance) {
         return [new Endpoint(protocol: 'tcp', destination: '127.0.0.1', ports: '666')]
+    }
+
+    enum DummyServiceProviderServiceDetailKey implements AbstractServiceDetailKey{
+
+        DELAY_IN_SECONDS("delay_in_seconds", ServiceDetailType.OTHER)
+
+        DummyServiceProviderServiceDetailKey(String key, ServiceDetailType serviceDetailType) {
+            com_swisscom_cloud_sb_broker_util_servicedetail_AbstractServiceDetailKey__key = key
+            com_swisscom_cloud_sb_broker_util_servicedetail_AbstractServiceDetailKey__serviceDetailType = serviceDetailType
+        }
     }
 }

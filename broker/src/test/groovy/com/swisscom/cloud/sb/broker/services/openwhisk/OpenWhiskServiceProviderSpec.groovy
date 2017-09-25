@@ -19,9 +19,9 @@ import org.springframework.test.web.client.response.MockRestResponseCreators
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_NAMESPACE
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.OPENWHISK_SUBJECT
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper.from
+import static OpenWhiskServiceDetailKey.OPENWHISK_NAMESPACE
+import static OpenWhiskServiceDetailKey.OPENWHISK_SUBJECT
+import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 
 class OpenWhiskServiceProviderSpec extends Specification{
     private final String NAMESPACE = "TEST_NAMESPACE"

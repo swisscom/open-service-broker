@@ -14,8 +14,8 @@ import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cloud.sb.broker.util.Resource
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
@@ -60,7 +60,7 @@ class BoshFacade {
 
     @VisibleForTesting
     private Optional<String> findServerGroupId(LastOperationJobContext context) {
-        Optional<String> maybeGroupId = ServiceDetailsHelper.from(context.serviceInstance.details).findValue(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID)
+        Optional<String> maybeGroupId = ServiceDetailsHelper.from(context.serviceInstance.details).findValue(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID)
         if (maybeGroupId.present) {
             return maybeGroupId
         } else {
@@ -75,7 +75,7 @@ class BoshFacade {
     }
 
     private static String findBoshTaskIdForDeploy(LastOperationJobContext context) {
-        return ServiceDetailsHelper.from(context.serviceInstance.details).getValue(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY)
+        return ServiceDetailsHelper.from(context.serviceInstance.details).getValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY)
     }
 
     private static String findBoshVmInstanceType(Plan plan) {
@@ -105,8 +105,8 @@ class BoshFacade {
         if (!serviceDetails) {
             serviceDetails = []
         }
-        serviceDetails.add(ServiceDetail.from(ServiceDetailKey.BOSH_DEPLOYMENT_ID, generateDeploymentId(provisionRequest.serviceInstanceGuid)))
-        serviceDetails.add(ServiceDetail.from(ServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, createBoshClient().postDeployment(template.build())))
+        serviceDetails.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_DEPLOYMENT_ID, generateDeploymentId(provisionRequest.serviceInstanceGuid)))
+        serviceDetails.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY, createBoshClient().postDeployment(template.build())))
 
         generateHostNames(provisionRequest.serviceInstanceGuid, template.instanceCount()).each {
             serviceDetails.add(ServiceDetail.from(ServiceDetailKey.HOST, it))
@@ -165,7 +165,7 @@ class BoshFacade {
     }
 
     private static String findBoshDeploymentId(LastOperationJobContext context) {
-        return ServiceDetailsHelper.from(context.serviceInstance.details).findValue(ServiceDetailKey.BOSH_DEPLOYMENT_ID).or(generateDeploymentId(context.serviceInstance.guid))
+        return ServiceDetailsHelper.from(context.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_DEPLOYMENT_ID).or(generateDeploymentId(context.serviceInstance.guid))
     }
 
     Optional<String> deleteBoshDeploymentIfExists(LastOperationJobContext lastOperationJobContext) {
@@ -192,7 +192,7 @@ class BoshFacade {
     }
 
     boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
-        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(ServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
+        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
         if(maybe.present){
             return isBoshTaskSuccessful(maybe.get())
         }else{

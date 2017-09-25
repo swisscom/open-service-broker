@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util
+package com.swisscom.cloud.sb.broker.util.servicedetail
 
 import groovy.transform.CompileStatic
 

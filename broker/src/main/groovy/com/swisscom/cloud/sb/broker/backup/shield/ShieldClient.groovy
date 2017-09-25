@@ -3,12 +3,11 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-
 
 @Component
 @Slf4j
@@ -38,8 +37,8 @@ class ShieldClient {
 
         buildClient().runJob(jobUuid)
 
-        [ServiceDetail.from(ServiceDetailKey.SHIELD_JOB_UUID, jobUuid),
-         ServiceDetail.from(ServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
+        [ServiceDetail.from(ShieldServiceDetailKey.SHIELD_JOB_UUID, jobUuid),
+         ServiceDetail.from(ShieldServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
     }
 
     def unregisterSystemBackup(String jobName, String targetName) {
