@@ -8,7 +8,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
 
 class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification {

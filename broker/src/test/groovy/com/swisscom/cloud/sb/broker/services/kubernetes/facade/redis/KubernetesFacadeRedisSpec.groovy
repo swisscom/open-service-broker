@@ -1,23 +1,14 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Selector
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Spec
-import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -114,7 +105,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "112" == ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)
+        "112" == ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)
     }
 
     def "return correct host to the client from SB"() {
@@ -125,7 +116,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "host.redis" == ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_HOST)
+        "host.redis" == ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST)
     }
 
     def "returned password has proper length"() {
@@ -136,7 +127,7 @@ kind: Namespace""")
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        30 <= ServiceDetailsHelper.from(results).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).length()
+        30 <= ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).length()
     }
 
     def "deletion of service calls proper endpoint"() {

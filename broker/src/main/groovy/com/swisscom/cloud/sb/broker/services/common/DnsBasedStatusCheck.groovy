@@ -2,8 +2,8 @@ package com.swisscom.cloud.sb.broker.services.common
 
 import com.google.common.collect.Sets
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.util.ServiceDetailType
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.util.logging.Slf4j
 import groovyx.gpars.GParsPool
 import org.springframework.stereotype.Component

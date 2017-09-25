@@ -17,10 +17,10 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.AbstractKubernete
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.KubernetesTemplateConstants
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.StringGenerator
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,15 +60,15 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
         }
-        return buildServiceDetailsList(bindingMap.get(KubernetesTemplateConstants.REDIS_PASS.getValue()), responses)
+        return buildServiceDetailsList(bindingMap.get(KubernetesRedisTemplateConstants.REDIS_PASS.getValue()), responses)
     }
 
     private Map<String, String> createBindingMap(ProvisionRequest context) {
         def serviceDetailBindings = [
-                (KubernetesTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
-                (KubernetesTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
-                (KubernetesTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
-                (KubernetesTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
+                (BaseTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
+                (BaseTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
+                (BaseTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
+                (BaseTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
         ]
         Map<String, String> planBindings = context.plan.parameters.collectEntries {
             [(it.getName() as String): it.getValue() as String]
@@ -77,9 +77,9 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
         def slaveofCommand = new StringGenerator().randomAlphaNumeric(30)
         def configCommand = new StringGenerator().randomAlphaNumeric(30)
         def otherBindings = [
-                (KubernetesTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
-                (KubernetesTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
-                (KubernetesTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
+                (KubernetesRedisTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
+                (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
+                (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
         kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
     }
@@ -103,24 +103,24 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
 
         def allPorts = serviceResponses.collect { it.spec.ports }.flatten() as List<Port>
         def masterPort = allPorts.findAll { it.name.equals("redis-master") }.collect {
-            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
+            ServiceDetail.from(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER, it.nodePort.toString())
         }
         def slavePorts = allPorts.findAll { it.name.startsWith("redis-slave") }.collect {
-            ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it.nodePort.toString())
+            ServiceDetail.from(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE, it.nodePort.toString())
         }
         def shieldPort = allPorts.findAll { it.name.equals("shield-ssh") }.collect {
-            ServiceDetail.from(ServiceDetailKey.SHIELD_AGENT_PORT, it.nodePort.toString())
+            ServiceDetail.from(ShieldServiceDetailKey.SHIELD_AGENT_PORT, it.nodePort.toString())
         }
 
-        def serviceDetails = [ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword),
-                              ServiceDetail.from(ServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
+        def serviceDetails = [ServiceDetail.from(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD, redisPassword),
+                              ServiceDetail.from(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST, kubernetesRedisConfig.getKubernetesRedisHost())] +
                 masterPort + slavePorts + shieldPort
         return serviceDetails
     }
 
     @Override
     ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
-        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT) as Integer
+        Integer portMaster = ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT) as Integer
         new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: portMaster)
     }
 
@@ -136,6 +136,6 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
 
     @Override
     String shieldAgentUrl(ServiceInstance serviceInstance) {
-        "${kubernetesRedisConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.SHIELD_AGENT_PORT)}"
+        "${kubernetesRedisConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT)}"
     }
 }

@@ -6,7 +6,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -15,7 +15,7 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             String serverGroupId = context.boshFacade.createOpenStackServerGroup(context.lastOperationJobContext.provisionRequest.serviceInstanceGuid)
-            new StateChangeActionResult(go2NextState: true, details:[ServiceDetail.from(ServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)])
+            new StateChangeActionResult(go2NextState: true, details:[ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)])
         }
     }),
     UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
