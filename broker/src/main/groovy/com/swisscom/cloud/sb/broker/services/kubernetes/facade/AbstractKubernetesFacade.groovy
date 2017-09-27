@@ -1,11 +1,13 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -14,6 +16,7 @@ import org.springframework.web.client.HttpStatusCodeException
 
 import static groovy.transform.TypeCheckingMode.SKIP
 
+@Slf4j
 abstract class AbstractKubernetesFacade implements KubernetesFacade {
     protected final KubernetesClient<?> kubernetesClient
     protected final KubernetesConfig kubernetesConfig
@@ -61,6 +64,18 @@ abstract class AbstractKubernetesFacade implements KubernetesFacade {
         def podList = jsonSlurper.parseText(podListResponse.body)
         assert podList.kind == 'PodList'
         return podList.items
+    }
+
+    void deprovision(DeprovisionRequest request) {
+        try {
+            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
+                    HttpMethod.DELETE, "", Object.class)
+        } catch (HttpStatusCodeException e) {
+            if (e.statusCode != HttpStatus.NOT_FOUND) throw e
+            else {
+                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
+            }
+        }
     }
 
     /**

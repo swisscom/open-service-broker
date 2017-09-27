@@ -84,18 +84,6 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
         kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
     }
 
-    void deprovision(DeprovisionRequest request) {
-        try {
-            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
-                    HttpMethod.DELETE, "", Object.class)
-        } catch (HttpStatusCodeException e) {
-            if (e.statusCode != HttpStatus.NOT_FOUND) throw e
-            else {
-                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
-            }
-        }
-    }
-
     private Collection<ServiceDetail> buildServiceDetailsList(String redisPassword, List<ResponseEntity> responses) {
         def serviceResponses = responses.findAll { it?.getBody() instanceof ServiceResponse }.collect {
             it.getBody().asType(ServiceResponse.class)
