@@ -3,7 +3,7 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.mongodb.MongoDBServiceDetailKey
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
@@ -23,8 +23,8 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
         given:
         def groupId = 'GroupId'
         def replicaset = 'replicaset'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
-                                                                                                                     ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, replicaset)]))
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                                                                                     ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, replicaset)]))
 
         when:
         def result = MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED.triggerAction(context)
@@ -37,7 +37,7 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
     def "UPDATE_AUTOMATION_CONFIG"() {
         given:
         def groupId = 'GroupId'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
 
         when:
         def result = MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG.triggerAction(context)
@@ -50,7 +50,7 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
     def "CHECK_AUTOMATION_CONFIG_STATE"() {
         given:
         def groupId = 'GroupId'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
 
         and:
         context.opsManagerFacade.isAutomationUpdateComplete(groupId) >> opsManagerResponse
@@ -70,7 +70,7 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
     def "DELETE_HOSTS_ON_OPS_MANAGER"() {
         given:
         def groupId = 'GroupId'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
 
         when:
         def result = MongoDbEnterpriseDeprovisionState.DELETE_HOSTS_ON_OPS_MANAGER.triggerAction(context)
@@ -83,7 +83,7 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
     def "CLEAN_UP_GROUP"() {
         given:
         def groupId = 'GroupId'
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDBServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId)]))
 
         when:
         def result = MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP.triggerAction(context)
