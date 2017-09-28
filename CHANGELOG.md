@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.0] - TBD
+- Remove `MongoDbClient` because its not used
+- Optimized abstraction for k8s provisioning
+
 ## [2.5.0] - 2017-09-25
 - Add new `RestTemplateBuilder` for advanced `RestTemplate` capabilities
 - Refactoring to `AbstractServiceDetailKey` which enables service specific detail keys
