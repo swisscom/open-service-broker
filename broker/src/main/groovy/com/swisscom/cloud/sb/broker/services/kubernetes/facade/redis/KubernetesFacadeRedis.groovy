@@ -12,7 +12,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
-import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesRedisConfigUrlParams
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesConfigUrlParams
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.AbstractKubernetesFacade
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
@@ -57,7 +57,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
         for (KubernetesTemplate kubernetesTemplate : templates) {
             def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(bindingMap).toString()
             log.trace("Request this template for k8s provision: ${bindedTemplate}")
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesRedisConfigUrlParams()).getParameters(context))
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
         }
         return buildServiceDetailsList(bindingMap.get(KubernetesRedisTemplateConstants.REDIS_PASS.getValue()), responses)
@@ -82,18 +82,6 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
                 (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
         kubernetesRedisConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
-    }
-
-    void deprovision(DeprovisionRequest request) {
-        try {
-            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
-                    HttpMethod.DELETE, "", Object.class)
-        } catch (HttpStatusCodeException e) {
-            if (e.statusCode != HttpStatus.NOT_FOUND) throw e
-            else {
-                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
-            }
-        }
     }
 
     private Collection<ServiceDetail> buildServiceDetailsList(String redisPassword, List<ResponseEntity> responses) {

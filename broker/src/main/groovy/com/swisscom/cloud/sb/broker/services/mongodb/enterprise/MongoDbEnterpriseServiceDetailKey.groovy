@@ -1,11 +1,11 @@
-package com.swisscom.cloud.sb.broker.services.mongodb
+package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum MongoDBServiceDetailKey implements AbstractServiceDetailKey{
+enum MongoDbEnterpriseServiceDetailKey implements AbstractServiceDetailKey{
 
     MONGODB_ENTERPRISE_GROUP_ID("mongodb_enterprise_group_id", ServiceDetailType.OTHER),
     MONGODB_ENTERPRISE_GROUP_NAME("mongodb_enterprise_group_name", ServiceDetailType.OTHER),
@@ -23,7 +23,7 @@ enum MongoDBServiceDetailKey implements AbstractServiceDetailKey{
     MONGODB_ENTERPRISE_HEALTH_CHECK_USER("mongodb_enterprise_health_check_user", ServiceDetailType.OTHER),
     MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD("mongodb_enterprise_health_check_password", ServiceDetailType.OTHER)
 
-    MongoDBServiceDetailKey(String key, ServiceDetailType serviceDetailType) {
+    MongoDbEnterpriseServiceDetailKey(String key, ServiceDetailType serviceDetailType) {
         com_swisscom_cloud_sb_broker_util_servicedetail_AbstractServiceDetailKey__key = key
         com_swisscom_cloud_sb_broker_util_servicedetail_AbstractServiceDetailKey__serviceDetailType = serviceDetailType
     }

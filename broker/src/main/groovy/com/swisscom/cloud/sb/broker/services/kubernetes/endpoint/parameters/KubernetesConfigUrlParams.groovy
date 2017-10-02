@@ -6,7 +6,7 @@ import groovy.transform.CompileStatic
 
 @AutoClone
 @CompileStatic
-class KubernetesRedisConfigUrlParams {
+class KubernetesConfigUrlParams {
 
     HashMap<String, String> getParameters(ProvisionRequest context) {
         return new HashMap<String, String>() {

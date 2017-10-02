@@ -15,7 +15,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.util.logging.Slf4j
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.services.mongodb.MongoDBServiceDetailKey.*
+import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.util.StringGenerator.randomAlphaNumeric
 
 @Slf4j
