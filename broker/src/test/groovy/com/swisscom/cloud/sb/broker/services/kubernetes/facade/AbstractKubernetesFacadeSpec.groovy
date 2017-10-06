@@ -84,6 +84,24 @@ class AbstractKubernetesFacadeSpec extends Specification {
         noExceptionThrown()
     }
 
+    def "isKubernetesNamespaceDeleted returns false when namespace exists"() {
+        given:
+        1 * kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity("{}", HttpStatus.OK)
+        when:
+        def isKubernetesNamespaceDeleted = kubernetesFacade.isKubernetesNamespaceDeleted('test')
+        then:
+        isKubernetesNamespaceDeleted == false
+    }
+
+    def "isKubernetesNamespaceDeleted returns true when namespace doesn't exist"() {
+        given:
+        1 * kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity("{}", HttpStatus.NOT_FOUND)
+        when:
+        def isKubernetesNamespaceDeleted = kubernetesFacade.isKubernetesNamespaceDeleted('test')
+        then:
+        isKubernetesNamespaceDeleted == true
+    }
+
     private String mockReadyPodListResponse() {
         new File(this.getClass().getResource('/kubernetes/kubernetes-podlist-response-ready.json').getFile()).text
     }

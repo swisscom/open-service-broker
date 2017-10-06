@@ -44,8 +44,16 @@ abstract class AbstractKubernetesFacade implements KubernetesFacade {
 
     @Override
     boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid) {
-        def statusCode = getNamespaceStatusCode(serviceInstanceGuid)
-        return (statusCode == HttpStatus.NOT_FOUND)
+        try {
+            def statusCode = getNamespaceStatusCode(serviceInstanceGuid)
+            return (statusCode == HttpStatus.NOT_FOUND)
+        } catch (HttpStatusCodeException e) {
+            if (e.statusCode != HttpStatus.NOT_FOUND) {
+                throw e
+            } else {
+                return true
+            }
+        }
     }
 
     private HttpStatus getNamespaceStatusCode(String serviceInstanceGuid) {

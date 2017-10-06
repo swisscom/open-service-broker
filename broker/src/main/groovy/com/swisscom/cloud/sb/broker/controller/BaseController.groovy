@@ -60,9 +60,6 @@ abstract class BaseController {
         if (serviceInstance.deleted) {
             ErrorCode.SERVICE_INSTANCE_DELETED.throwNew("ID = ${serviceInstanceId}")
         }
-        if (!serviceInstance.completed) {
-            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew("ID = ${serviceInstanceId}")
-        }
         return serviceInstance
     }
 
