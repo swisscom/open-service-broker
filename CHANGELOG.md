@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.1] - 2017-10-06
+- Fix check for k8s namespace deletion
+- Fix preconditions for service deprovision
+
 ## [2.6.0] - 2017-10-02
 - Remove `MongoDbClient` because its not used
 - Optimized abstraction for k8s provisioning
