@@ -55,7 +55,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade implements SystemBa
         def templateEngine = new groovy.text.SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : templates) {
-            def bindedTemplate = templateEngine.createTemplate(kubernetesTemplate.template).make(bindingMap).toString()
+            def bindedTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
             log.trace("Request this template for k8s provision: ${bindedTemplate}")
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
             responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))

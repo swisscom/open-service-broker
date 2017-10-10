@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesCl
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -105,5 +106,15 @@ abstract class AbstractKubernetesFacade implements KubernetesFacade {
             it.status == 'False'
         }
         return (hasConditionsReadyAndStatusFalse.size() == 0 && !pods.empty)
+    }
+
+    /**
+     * If a k8s templates contains bash scripts some literals must be escaped additionally because otherwise
+     * `SimpleTemplateEngine` will strugle because everything with `$` would be a template expression.
+     */
+    protected String fixTemplateEscaping(KubernetesTemplate kubernetesTemplate) {
+        def escapedTemplate = kubernetesTemplate.template.replace('$(', '\\$(').
+                replace('$"', '\\$"')
+        escapedTemplate
     }
 }
