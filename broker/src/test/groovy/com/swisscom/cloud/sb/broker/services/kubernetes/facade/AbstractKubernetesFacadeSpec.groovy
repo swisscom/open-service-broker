@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -17,21 +18,28 @@ import java.nio.charset.Charset
 
 class AbstractKubernetesFacadeSpec extends Specification {
     AbstractKubernetesFacade kubernetesFacade
-    AbstractKubernetesServiceConfig kubernetesServiceConfig
     KubernetesClient kubernetesClient
-    KubernetesTemplateManager kubernetesTemplateManager
     KubernetesConfig kubernetesConfig
+    KubernetesTemplateManager kubernetesTemplateManager
+    EndpointMapperParamsDecorated endpointMapperParamsDecorated
+    AbstractKubernetesServiceConfig kubernetesServiceConfig
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
+        kubernetesTemplateManager = Mock()
+        endpointMapperParamsDecorated = Mock()
         kubernetesServiceConfig = Mock()
         kubernetesServiceConfig.enablePodLabelHealthzFilter >> true
-        kubernetesTemplateManager = Mock()
         and:
-        kubernetesFacade = new AbstractKubernetesFacade(kubernetesClient, kubernetesConfig, kubernetesServiceConfig) {
+        kubernetesFacade = new AbstractKubernetesFacade<AbstractKubernetesServiceConfig>(kubernetesClient, kubernetesConfig, kubernetesTemplateManager, endpointMapperParamsDecorated, kubernetesServiceConfig) {
             @Override
-            Collection<ServiceDetail> provision(ProvisionRequest context) {
+            protected Map<String, String> getBindingMap(ProvisionRequest context) {
+                ["DUMMY_PLACEHOLDER": "dummy_value"]
+            }
+
+            @Override
+            protected Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses) {
                 return null
             }
         }

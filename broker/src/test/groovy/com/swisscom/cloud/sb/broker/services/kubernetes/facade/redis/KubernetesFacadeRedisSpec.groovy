@@ -30,19 +30,20 @@ metadata:
 
     KubernetesFacadeRedis kubernetesRedisClientRedisDecorated
     KubernetesClient kubernetesClient
+    KubernetesConfig kubernetesConfig
     KubernetesTemplateManager kubernetesTemplateManager
+    EndpointMapperParamsDecorated endpointMapperParamsDecorated
+    KubernetesRedisConfig kubernetesRedisConfig
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
-    KubernetesConfig kubernetesConfig
-    KubernetesRedisConfig kubernetesRedisConfig
-    EndpointMapperParamsDecorated endpointMapperParamsDecorated
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
-        kubernetesRedisConfig = Stub()
-        deprovisionRequest = Stub()
+        kubernetesTemplateManager = Mock()
         endpointMapperParamsDecorated = Mock()
+        deprovisionRequest = Stub()
+        kubernetesRedisConfig = Stub()
         kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
@@ -55,7 +56,7 @@ metadata:
         }
         mockProvisionRequest()
         and:
-        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient, kubernetesConfig, kubernetesRedisConfig, kubernetesTemplateManager, endpointMapperParamsDecorated)
+        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient, kubernetesConfig, kubernetesTemplateManager, endpointMapperParamsDecorated, kubernetesRedisConfig)
     }
 
 
