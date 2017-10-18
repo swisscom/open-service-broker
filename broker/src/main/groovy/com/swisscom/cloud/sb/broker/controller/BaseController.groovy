@@ -12,6 +12,7 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -45,7 +46,7 @@ abstract class BaseController {
     @ExceptionHandler
     ResponseEntity<ErrorDto> serviceBrokerException(ServiceBrokerException exception) {
         log.error("Service Broker exception", exception)
-        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception), exception.httpStatus)
+        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception), exception.httpStatus ?: HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     protected ServiceProvider findServiceProvider(Plan plan) {
