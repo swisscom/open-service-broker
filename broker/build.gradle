@@ -17,6 +17,7 @@ licenseReport {
 }
 
 ext['tomcat.version'] = '7.0.63'
+ext['flyway.version'] = '4.0.3'
 
 apply plugin: 'org.springframework.boot'
 
@@ -49,7 +50,6 @@ dependencies {
     compile('io.springfox:springfox-swagger-ui:2.6.0')
     compile('org.pacesys:openstack4j-core:2.20')
     compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
-    compile('org.mongodb:mongo-java-driver:2.13.0')
     compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.46'
     compile project(':model')
     compile project(':client')

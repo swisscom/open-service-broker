@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.model
 
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -19,7 +19,7 @@ class ServiceDetail extends BaseModel{
 
     static ServiceDetail from(String key, String value) { return new ServiceDetail(key: key, value: value) }
 
-    static ServiceDetail from(ServiceDetailKey detailKey, String value) {
+    static ServiceDetail from(AbstractServiceDetailKey detailKey, String value) {
         return new ServiceDetail(key: detailKey.key, value: value, type: detailKey.detailType().type)
     }
 }

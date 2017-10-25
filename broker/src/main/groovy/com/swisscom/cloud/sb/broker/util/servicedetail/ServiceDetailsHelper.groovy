@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.util
+package com.swisscom.cloud.sb.broker.util.servicedetail
 
 import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
@@ -35,7 +35,7 @@ class ServiceDetailsHelper {
         return this
     }
 
-    ServiceDetailsHelper add(ServiceDetailKey key, Object value, boolean uniqueKey = false) {
+    ServiceDetailsHelper add(AbstractServiceDetailKey key, Object value, boolean uniqueKey = false) {
         details.add(new ServiceDetail(key: key.key, type: key.detailType().type, value: value.toString(), uniqueKey: uniqueKey))
         return this
     }
@@ -44,7 +44,7 @@ class ServiceDetailsHelper {
         return details.find { it.key == key }.value
     }
 
-    def String getValue(ServiceDetailKey detailKey) {
+    def String getValue(AbstractServiceDetailKey detailKey) {
         return getValue(detailKey.key)
     }
 
@@ -57,7 +57,7 @@ class ServiceDetailsHelper {
         return result
     }
 
-    def Optional<String> findValue(ServiceDetailKey detailKey) {
+    def Optional<String> findValue(AbstractServiceDetailKey detailKey) {
         return findValue(detailKey.key)
     }
 

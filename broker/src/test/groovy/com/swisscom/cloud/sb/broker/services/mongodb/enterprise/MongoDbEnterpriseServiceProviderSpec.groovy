@@ -11,16 +11,16 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsMa
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.json.JsonSlurper
 
+import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 import static MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
 import static MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
 import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
 import static ServiceDetail.from
 import static ServiceDetailKey.DATABASE
-import static ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 
 class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderSpec<MongoDbEnterpriseServiceProvider> {
     private String serviceInstanceGuid = 'serviceInstanceGuid'
@@ -41,10 +41,10 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
 
         and:
 
-        def serviceInstance = new ServiceInstance(details: [ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID,mongoOpsManagerGroupId),
-                                                            ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY, mongoAgentApiKey),
-                                                            ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, healthCheckUser),
-                                                            ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, healthCheckPassword),
+        def serviceInstance = new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID,mongoOpsManagerGroupId),
+                                                            ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY, mongoAgentApiKey),
+                                                            ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, healthCheckUser),
+                                                            ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, healthCheckPassword),
                                                             ServiceDetail.from(ServiceDetailKey.PORT, port)])
         1 * serviceProvider.provisioningPersistenceService.getServiceInstance(serviceInstanceGuid) >> serviceInstance
         and:
@@ -65,7 +65,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         1 * template.replace(MongoDbEnterpriseServiceProvider.MONGODB_BINARY_PATH,serviceProvider.getMongoDbBinaryPath())
         1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_USER,healthCheckUser)
         1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_PASSWORD,healthCheckPassword)
-        ServiceDetailsHelper.from(details).getValue(ServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) == instanceCount.toString()
+        ServiceDetailsHelper.from(details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) == instanceCount.toString()
     }
 
     def "StateMachineContext is created correctly"(){
@@ -149,7 +149,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
                           from(ServiceDetailKey.HOST, 'host1'),
                           from(ServiceDetailKey.HOST, 'host2'),
                           from(ServiceDetailKey.PORT, '27000'),
-                          from(ServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, 'replicaSet')]))
+                          from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, 'replicaSet')]))
         and:
         def dbUser = 'dbUser'
         def dbPassword = 'dbPassword'
@@ -167,9 +167,9 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def details = ServiceDetailsHelper.from(bindResult.details)
         details.getValue(ServiceDetailKey.USER) == dbUser
         details.getValue(ServiceDetailKey.PASSWORD) == dbPassword
-        details.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME) == opsManagerUser
-        details.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID) == opsManagerUserId
-        details.getValue(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD) == opsManagerPassword
+        details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME) == opsManagerUser
+        details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID) == opsManagerUserId
+        details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD) == opsManagerPassword
         and:
         def credentials = bindResult.credentials.toJson()
         def json = new JsonSlurper().parseText(credentials)
@@ -180,7 +180,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         given:
         UnbindRequest request = new UnbindRequest(serviceInstance: new ServiceInstance(details: [from(MONGODB_ENTERPRISE_GROUP_ID, 'groupId'), from(DATABASE, 'db')]),
                 binding: new ServiceBinding(details: [from(ServiceDetailKey.USER, 'dbUser'),
-                                                      from(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, 'opsManagerUserId')]))
+                                                      from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, 'opsManagerUserId')]))
         when:
         serviceProvider.unbind(request)
         then:

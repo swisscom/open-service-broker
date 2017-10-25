@@ -8,12 +8,10 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAc
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshDeprovisionState
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceProvider
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.util.logging.Slf4j
-
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET
 
 @Slf4j
 enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDbEnterperiseStateMachineContext> {
@@ -21,7 +19,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-            Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MONGODB_ENTERPRISE_REPLICA_SET)
+            Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
             if (optionalReplicaSet.present) {
                 context.opsManagerFacade.disableAndTerminateBackup(groupId, optionalReplicaSet.get())
             } else {
@@ -55,7 +53,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     CLEAN_UP_GROUP(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            context.opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID))
+            context.opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID))
             return new StateChangeActionResult(go2NextState: true)
         }
     }),

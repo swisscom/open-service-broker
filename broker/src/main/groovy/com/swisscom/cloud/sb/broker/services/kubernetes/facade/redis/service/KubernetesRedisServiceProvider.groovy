@@ -2,13 +2,9 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -16,13 +12,12 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
-import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisShieldTarget
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -106,12 +101,12 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     BindResponse bind(BindRequest request) {
         RedisBindResponseDto credentials = new RedisBindResponseDto(
-                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_HOST).toString(),
-                masterPort: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as int,
+                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST).toString(),
+                masterPort: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as int,
                 slavePorts: ServiceDetailsHelper.from(request.serviceInstance).getDetails().findAll {
-                    it.key.equals(ServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE.getKey())
+                    it.key.equals(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE.getKey())
                 }.collect { it.getValue() as int } as List,
-                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(ServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString()
+                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString()
         )
         return new BindResponse(credentials: credentials)
     }

@@ -24,9 +24,9 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsMa
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailType
-import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +37,6 @@ import javax.annotation.PostConstruct
 import static ServiceDetail.from
 import static com.google.common.base.Strings.isNullOrEmpty
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
 
 @Component
 @CompileStatic
@@ -70,10 +69,10 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, ProvisionRequest provisionRequest) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(provisionRequest.serviceInstanceGuid)
 
-        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID)
+        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
         Preconditions.checkArgument(!isNullOrEmpty(opsManagerGroupId), "A valid OpsManager GroupId is required")
 
-        String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_AGENT_API_KEY)
+        String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY)
         Preconditions.checkArgument(!isNullOrEmpty(agentApiKey), "A valid AgentApiKey is required")
 
         template.replace(PARAM_MMS_BASE_URL, getOpsManagerUrl())
@@ -81,13 +80,13 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
         template.replace(MMS_GROUP_ID, opsManagerGroupId)
         template.replace(MongoDbEnterpriseServiceProvider.PORT, ServiceDetailsHelper.from(serviceInstance.details).getValue(PORT))
         template.replace(MONGODB_BINARY_PATH, getMongoDbBinaryPath())
-        template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
-        template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
+        template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
+        template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
 
 
 
 
-        return [from(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
+        return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
     }
 
     @VisibleForTesting
@@ -169,7 +168,7 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
 
     @Override
     BindResponse bind(BindRequest request) {
-        def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(DATABASE)
+        def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
         def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).findAllWithServiceDetailType(ServiceDetailType.HOST)
         def groupId = getMongoDbGroupId(request.serviceInstance)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
@@ -177,9 +176,9 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
 
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           ServiceDetail.from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
-                                          ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME, opsManagerCredentials.user),
-                                          ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD, opsManagerCredentials.password),
-                                          ServiceDetail.from(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, opsManagerCredentials.userId)],
+                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME, opsManagerCredentials.user),
+                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD, opsManagerCredentials.password),
+                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, opsManagerCredentials.userId)],
                 credentials: new MongoDbEnterpriseBindResponseDto(
                         database: database,
                         username: dbUserCredentials.username,
@@ -189,7 +188,7 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
                         opsManagerUrl: getOpsManagerUrl(),
                         opsManagerUser: opsManagerCredentials.user,
                         opsManagerPassword: opsManagerCredentials.password,
-                        replicaSet: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(MONGODB_ENTERPRISE_REPLICA_SET)))
+                        replicaSet: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)))
     }
 
     @Override
@@ -197,7 +196,7 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
         opsManagerFacade.deleteDbUser(getMongoDbGroupId(request.serviceInstance),
                 ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
                 ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
-        opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+        opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
     }
 
     public static String getMongoDbGroupId(LastOperationJobContext context) {
@@ -205,7 +204,7 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     }
 
     public static String getMongoDbGroupId(ServiceInstance serviceInstance) {
-        return ServiceDetailsHelper.from(serviceInstance.details).getValue(MONGODB_ENTERPRISE_GROUP_ID)
+        return ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 
     BoshFacade getBoshFacade() {
