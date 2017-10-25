@@ -64,4 +64,11 @@ abstract class BaseController {
         return serviceInstance
     }
 
+    protected ServiceInstance verifyServiceInstanceIsReady(ServiceInstance serviceInstance) {
+        if (!serviceInstance.completed) {
+            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew("ID = ${serviceInstance.guid}")
+        }
+        return serviceInstance
+    }
+
 }

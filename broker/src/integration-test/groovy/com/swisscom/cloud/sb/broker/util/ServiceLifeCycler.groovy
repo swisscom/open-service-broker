@@ -9,7 +9,6 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
-import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
@@ -156,9 +155,9 @@ public class ServiceLifeCycler {
         }
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async, Map<String, Object> parameters) {
+    ResponseEntity requestServiceProvisioning(boolean async, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
         def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', parameters)
-        return createServiceBrokerClient().createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true) {
@@ -233,8 +232,12 @@ public class ServiceLifeCycler {
         return serviceInstanceId
     }
 
-    private ServiceBrokerClient createServiceBrokerClient() {
-        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+    private ServiceBrokerClient createServiceBrokerClient(boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        if (throwExceptionWhenNon2xxHttpStatusCode) {
+            return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+        } else {
+            return createServiceBrokerClientWithCustomErrorHandler()
+        }
     }
 
     private ServiceBrokerClient createServiceBrokerClientExternal() {
@@ -244,7 +247,7 @@ public class ServiceLifeCycler {
 
     private ServiceBrokerClient createServiceBrokerClientWithCustomErrorHandler() {
         def template = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
-        template.setErrorHandler(new NoOpResponseErrorHandler())
+        template.errorHandler = new NoOpResponseErrorHandler()
         return new ServiceBrokerClient(template, 'http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
     }
 
