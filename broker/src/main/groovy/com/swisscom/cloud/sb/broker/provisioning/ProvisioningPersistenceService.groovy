@@ -60,8 +60,7 @@ class ProvisioningPersistenceService {
                 serviceDetailRepository.save(detail)
                 instance.details.add(detail)
         }
-        serviceInstanceRepository.save(instance)
-        return instance
+        return serviceInstanceRepository.save(instance)
     }
 
     private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {
