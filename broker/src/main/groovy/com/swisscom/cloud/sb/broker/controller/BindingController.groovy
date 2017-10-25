@@ -48,6 +48,7 @@ class BindingController extends BaseController {
         log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceId}")
 
         ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
+        verifyServiceInstanceIsReady(serviceInstance) //Don't allow binding if service is not ready
         CFService service = getAndCheckService(bindingDto)
         failIfServiceBindingAlreadyExists(bindingId)
 
