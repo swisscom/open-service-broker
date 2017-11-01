@@ -113,6 +113,32 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
+    def 'GET request over https to self signed certificate endpoint fails when SSL checking is disabled but hostname is wrong'() {
+        given:
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
+                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server'))
+        when:
+        def response = makeHttpsGetRequestTo(new RestTemplateBuilder().withSSLValidationDisabled().build(), "127.0.0.1")
+        then:
+        Exception ex = thrown(Exception)
+        ex
+        cleanup:
+        httpServer?.stop()
+    }
+
+    def 'GET request over https to self signed certificate endpoint with wrong hostname works when SSL and Hostname checking is disabled'() {
+        given:
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
+                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server'))
+        when:
+        def response = makeHttpsGetRequestTo(new RestTemplateBuilder().withSSLValidationDisabled().withHostNameVerificationDisabled().build(), "127.0.0.1")
+        then:
+        response.statusCode == HttpStatus.OK
+        response.body.equalsIgnoreCase('hello')
+        cleanup:
+        httpServer?.stop()
+    }
+
     private def makeGetRequest(RestTemplate template) {
         return template.exchange("http://localhost:${http_port}", HttpMethod.GET, new HttpEntity(), String.class)
     }
@@ -120,5 +146,9 @@ class RestTemplateBuilderTest extends Specification {
 
     private def makeHttpsGetRequest(RestTemplate template) {
         return template.exchange("https://localhost:${https_port}", HttpMethod.GET, new HttpEntity(), String.class)
+    }
+
+    private def makeHttpsGetRequestTo(RestTemplate template, String hostname) {
+        return template.exchange("https://${hostname}:${https_port}", HttpMethod.GET, new HttpEntity(), String.class)
     }
 }
