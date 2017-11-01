@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.joda.time.LocalDateTime
@@ -23,11 +24,8 @@ class ServiceInstanceCleanup {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
-    //TODO
-/*
     @Autowired
     LastOperationPersistenceService lastOperationPersistenceService
-*/
 
     def cleanOrphanedServiceInstances() {
         def deleteOlderThan = new LocalDateTime().minusMonths(MONTHS_TO_KEEP_DELETED_INSTANCE_REFERENCES).toDate()
@@ -36,7 +34,7 @@ class ServiceInstanceCleanup {
         log.info("Found ${candidateCount} serviceInstance candidate(s) to clean up!")
         oprhanedServiceInstances.each { ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
-            //lastOperationPersistenceService.deleteLastOpeation(si.guid)
+            lastOperationPersistenceService.deleteLastOpeation(si.guid)
         }
         return candidateCount
     }

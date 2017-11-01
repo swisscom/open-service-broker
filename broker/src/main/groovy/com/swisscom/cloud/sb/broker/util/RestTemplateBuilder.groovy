@@ -9,6 +9,7 @@ import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.HttpClient
 import org.apache.http.client.protocol.ClientContext
 import org.apache.http.conn.ssl.TrustStrategy
+import org.apache.http.conn.ssl.X509HostnameVerifier
 import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.BasicAuthCache
 import org.apache.http.impl.client.BasicCredentialsProvider
@@ -26,6 +27,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLSession
+import javax.net.ssl.SSLSocket
 import java.security.KeyPair
 import java.security.KeyStore
 import java.security.Security
@@ -37,20 +41,24 @@ import java.security.cert.X509Certificate
 @CompileStatic
 @Scope("prototype")
 class RestTemplateBuilder {
+
     protected RestTemplate restTemplate
     protected HttpClientBuilder httpClientBuilder
     private boolean useDigestAuth = false
     private org.apache.http.ssl.TrustStrategy trustStrategy
     private KeyStore keyStore
+    private boolean disableHostNameVerification
 
     RestTemplateBuilder() {
         restTemplate = new RestTemplate()
         httpClientBuilder = HttpClientBuilder.create()
-
     }
 
     RestTemplate build() {
         httpClientBuilder.setSSLContext(createSSLContext())
+        if (disableHostNameVerification) {
+            httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
+        }
         def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
@@ -64,6 +72,7 @@ class RestTemplateBuilder {
         if (trustStrategy) {
             contextBuilder.loadTrustMaterial(new TrustAnyCertificateStrategy())
         }
+
         return contextBuilder.build()
     }
 
@@ -87,6 +96,11 @@ class RestTemplateBuilder {
 
     RestTemplateBuilder withSSLValidationDisabled() {
         trustStrategy = TrustAnyCertificateStrategy.INSTANCE
+        this
+    }
+
+    RestTemplateBuilder withHostNameVerificationDisabled() {
+        disableHostNameVerification = true
         this
     }
 
@@ -137,6 +151,30 @@ class RestTemplateBuilder {
 
         @Override
         boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            return true
+        }
+    }
+
+    private static class DummyHostnameVerifier implements X509HostnameVerifier {
+        public static final DummyHostnameVerifier INSTANCE = new DummyHostnameVerifier()
+
+        @Override
+        void verify(String host, SSLSocket ssl) throws IOException {
+
+        }
+
+        @Override
+        void verify(String host, X509Certificate cert) throws SSLException {
+
+        }
+
+        @Override
+        void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
+
+        }
+
+        @Override
+        boolean verify(String s, SSLSession sslSession) {
             return true
         }
     }

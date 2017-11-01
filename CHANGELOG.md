@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.5] - 2017-11-01
+- make it possible to ignore false hostnames in HTTPS requests
+
 ## [2.6.2] - 2017-10-10
 - Add fix to escape template literals for k8s templates
 - Refactor `AbstractKubernetesFacade` to more common abstract methods `provision` and `getServiceBinding`
