@@ -34,7 +34,7 @@ class ServiceInstanceCleanup {
         log.info("Found ${candidateCount} serviceInstance candidate(s) to clean up!")
         oprhanedServiceInstances.each { ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
-            lastOperationPersistenceService.deleteLastOpeation(si.guid)
+            lastOperationPersistenceService.deleteLastOperation(si.guid)
         }
         return candidateCount
     }
