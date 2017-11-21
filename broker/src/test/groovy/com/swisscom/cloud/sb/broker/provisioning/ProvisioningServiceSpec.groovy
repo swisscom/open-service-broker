@@ -81,7 +81,7 @@ class ProvisioningServiceSpec extends Specification {
         when:
         def result = provisioningService.provision(provisionRequest)
         then:
-        createServiceInstanceCalled == false
+        createServiceInstanceCalled == true
         result.isAsync == true
     }
 
