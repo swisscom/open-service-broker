@@ -8,7 +8,10 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientException
 
 @CompileStatic
 @Component
@@ -17,6 +20,8 @@ class KubernetesClient<RESPONSE> {
 
     KubernetesConfig kubernetesConfig
     RestTemplateBuilder restTemplateBuilder
+    public static final Long BACKOFFDELAY = 10000l
+    public static final Double BACKOFFMULTIPLIER = 2.1d
 
     @Autowired
     KubernetesClient(KubernetesConfig kubernetesConfig, RestTemplateBuilder restTemplateBuilder) {
@@ -24,6 +29,7 @@ class KubernetesClient<RESPONSE> {
         this.restTemplateBuilder = restTemplateBuilder
     }
 
+    @Retryable(maxAttempts=3,value=RestClientException.class,backoff = @Backoff(delay=KubernetesClient.BACKOFFDELAY ,multiplier=KubernetesClient.BACKOFFMULTIPLIER))
     ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
                                       String body, Class<RESPONSE> responseType) {
         //TODO get rid of SSL validation disabling, trust the server side certificate instead
