@@ -26,9 +26,7 @@ class ProvisioningService {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
         ProvisionResponse provisionResponse = serviceProviderLookup.findServiceProvider(provisionRequest.plan).provision(provisionRequest)
-        if (!provisionResponse.isAsync) {
-            provisioningPersistenceService.createServiceInstance(provisionRequest, provisionResponse)
-        }
+        provisioningPersistenceService.createServiceInstance(provisionRequest, provisionResponse)
         return provisionResponse
     }
 
