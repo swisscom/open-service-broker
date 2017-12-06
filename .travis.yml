@@ -19,7 +19,7 @@ addons:
 script: "./gradlew clean build -x functionalTest"
 before_install:
 - 'mysql -e "CREATE DATABASE CFBroker;"'
-- 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
