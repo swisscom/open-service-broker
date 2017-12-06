@@ -246,3 +246,5 @@ eden catalog
 eden provision -s redis -p small -i test_redis
 ```
 Before you are able to run these commands above make sure to have Open Service Broker running and desired service definitions got published.
+
+Test PR on Wed Dec  6 07:02:32 CET 2017
