@@ -241,7 +241,7 @@ As the OpenWhisk API does not provide the create/update/delete functionality tha
 All operations of the API are supported: discover/provision/bind/unbind/deprovision. 
 After [installing Eden](https://github.com/starkandwayne/eden#installation) you can use the following commands to interact with your broker:
 ```
-export SB_BROKER_URL=http://localhost:8080 && export SB_BROKER_USERNAME=cc_admin SB_BROKER_PASSWORD=change_me
+export SB_BROKER_URL=http://localhost:8080 && export SB_BROKER_USERNAME=cc_admin && export SB_BROKER_PASSWORD=change_me
 eden catalog
 eden provision -s redis -p small -i test_redis
 ```
