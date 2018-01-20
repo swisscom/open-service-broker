@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -25,8 +26,9 @@ class ProvisioningService {
     ProvisionResponse provision(ProvisionRequest provisionRequest) {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
+        def instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
         ProvisionResponse provisionResponse = serviceProviderLookup.findServiceProvider(provisionRequest.plan).provision(provisionRequest)
-        provisioningPersistenceService.createServiceInstance(provisionRequest, provisionResponse)
+        provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
         return provisionResponse
     }
 
