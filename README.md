@@ -239,9 +239,9 @@ As the OpenWhisk API does not provide the create/update/delete functionality tha
 
 [Eden](https://github.com/starkandwayne/eden) is a CLI to interact with any Open Service Broker API. 
 All operations of the API are supported: discover/provision/bind/unbind/deprovision. 
-After [install of Eden](https://github.com/starkandwayne/eden#installation) you can use this commands to play with your broker:
+After [installing Eden](https://github.com/starkandwayne/eden#installation) you can use the following commands to interact with your broker:
 ```
-export EDEN_BROKER_URL=http://localhost:8080 && export EDEN_BROKER_CLIENT=cc_admin EDEN_BROKER_CLIENT_SECRET=change_me
+export SB_BROKER_URL=http://localhost:8080 && export SB_BROKER_USERNAME=cc_admin && export SB_BROKER_PASSWORD=change_me
 eden catalog
 eden provision -s redis -p small -i test_redis
 ```

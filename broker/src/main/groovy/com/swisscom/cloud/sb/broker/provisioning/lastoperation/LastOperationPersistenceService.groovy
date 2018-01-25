@@ -30,7 +30,7 @@ class LastOperationPersistenceService {
         return lastOperation
     }
 
-    void deleteLastOpeation(String guid) {
+    void deleteLastOperation(String guid) {
         lastOperationRepository.deleteByGuid(guid)
     }
 
