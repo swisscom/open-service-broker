@@ -1,7 +1,8 @@
 package com.swisscom.cloud.sb.broker.util
 
 import com.google.common.collect.Sets
-import com.swisscom.cloud.sb.broker.config.AuthenticationConfig
+import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
+import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.*
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
@@ -13,6 +14,7 @@ import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
@@ -26,10 +28,12 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
+import javax.annotation.PostConstruct
+
 @Component
 @Scope('prototype')
 @CompileStatic
-public class ServiceLifeCycler {
+class ServiceLifeCycler {
     private CFService cfService
     private Plan plan
     private PlanMetadata planMetaData
@@ -40,6 +44,11 @@ public class ServiceLifeCycler {
 
     private final String serviceInstanceId
     private final String serviceBindingId
+
+    @Autowired
+    private ApplicationUserConfig userConfig
+    private UserConfig cfAdminUser
+    private UserConfig cfExtUser
 
     ServiceLifeCycler() {
         this(UUID.randomUUID().toString(), UUID.randomUUID().toString())
@@ -52,6 +61,12 @@ public class ServiceLifeCycler {
     ServiceLifeCycler(String serviceInstanceId, String serviceBindingId) {
         this.serviceInstanceId = serviceInstanceId
         this.serviceBindingId = serviceBindingId
+    }
+
+    @PostConstruct
+    private void init() {
+        cfAdminUser = userConfig.applicationUsers[0]
+        cfExtUser = userConfig.applicationUsers[1]
     }
 
     @Autowired
@@ -74,9 +89,6 @@ public class ServiceLifeCycler {
 
     @Autowired
     private ParameterRepository parameterRepository
-
-    @Autowired
-    private AuthenticationConfig authenticationConfig
 
     private Map<String, Object> credentials
 
@@ -234,21 +246,21 @@ public class ServiceLifeCycler {
 
     private ServiceBrokerClient createServiceBrokerClient(boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
         if (throwExceptionWhenNon2xxHttpStatusCode) {
-            return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+            return new ServiceBrokerClient('http://localhost:8080', cfAdminUser.username, cfAdminUser.password)
         } else {
             return createServiceBrokerClientWithCustomErrorHandler()
         }
     }
 
     private ServiceBrokerClient createServiceBrokerClientExternal() {
-        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfExtUsername, authenticationConfig.cfExtPassword)
+        return new ServiceBrokerClient('http://localhost:8080', cfExtUser.username, cfExtUser.password)
     }
 
 
     private ServiceBrokerClient createServiceBrokerClientWithCustomErrorHandler() {
         def template = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
         template.errorHandler = new NoOpResponseErrorHandler()
-        return new ServiceBrokerClient(template, 'http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+        return new ServiceBrokerClient(template, 'http://localhost:8080', cfAdminUser.username, cfAdminUser.password)
     }
 
     public static def pauseExecution(int seconds) {
