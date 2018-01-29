@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.broker.util
 import com.google.common.collect.Sets
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
+import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -74,8 +75,8 @@ class ServiceLifeCycler {
 
     @PostConstruct
     private void init() {
-        cfAdminUser = userConfig.applicationUsers[0]
-        cfExtUser = userConfig.applicationUsers[1]
+        cfAdminUser = getUserByRole(WebSecurityConfig.ROLE_CF_ADMIN)
+        cfExtUser = getUserByRole(WebSecurityConfig.ROLE_CF_EXT_ADMIN)
     }
 
     @Autowired
@@ -312,5 +313,9 @@ class ServiceLifeCycler {
         public void handleError(ClientHttpResponse response) throws IOException {
         }
 
+    }
+
+    protected UserConfig getUserByRole(String role) {
+        return userConfig.applicationUsers.find { c -> c.role == role }
     }
 }

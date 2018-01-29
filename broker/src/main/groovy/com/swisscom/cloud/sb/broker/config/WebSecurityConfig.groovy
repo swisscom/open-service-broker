@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.config
 
+import com.swisscom.cloud.sb.broker.security.ApplicationUserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -8,11 +9,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-
-import javax.sql.DataSource
 
 @Configuration
 @EnableWebSecurity
@@ -21,10 +19,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String ROLE_CF_EXT_ADMIN = 'CF_EXT_ADMIN'
 
     @Autowired
-    private DataSource dataSource
-
-    @Autowired
-    private UserDetailsService userDetailsService
+    private ApplicationUserDetailsService userDetailsService
 
     @Bean
     PasswordEncoder passwordEncoder() {

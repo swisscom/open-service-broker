@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
-class UserDetailService implements UserDetailsService {
+class ApplicationUserDetailsService implements UserDetailsService {
 
     final static ROLE_PREFIX = "ROLE_"
 

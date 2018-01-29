@@ -30,13 +30,13 @@ class ApplicationUserInitializer {
     }
 
     void checkForMissingUsers() {
-        List<ApplicationUser> userList = userRepository.findAll()
-        def dbUsernameList = userList.collect { it.username }
+        List<ApplicationUser> users = userRepository.findAll()
+        def dbUsernames = users.collect { it.username }
 
-        def configUsernameList = applicationUserConfig.applicationUsers.collect { it.username }
-        if (configUsernameList.size() != 0) {
-            if (!configUsernameList.containsAll(dbUsernameList)) {
-                throw new RuntimeException("Missing application user configuration exception. DB Username list - ${dbUsernameList}")
+        def configUsernames = applicationUserConfig.applicationUsers.collect { it.username }
+        if (configUsernames.size() != 0) {
+            if (!configUsernames.containsAll(dbUsernames)) {
+                throw new RuntimeException("Missing application user configuration exception. DB Username list - ${dbUsernames}")
             }
         }
     }

@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
+import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import groovy.transform.CompileStatic
@@ -36,18 +37,24 @@ abstract class BaseFunctionalSpec extends Specification {
 
     @Autowired
     private ApplicationUserConfig userConfig
-    private UserConfig cfAdminUser
-    private UserConfig cfExtUser
+    @Shared
+    protected UserConfig cfAdminUser
+    @Shared
+    protected UserConfig cfExtUser
 
     @Autowired
     void init(ServiceLifeCycler serviceLifeCycler) {
         if (!initialized) {
-            cfAdminUser = userConfig.applicationUsers[0]
-            cfExtUser = userConfig.applicationUsers[1]
+            cfAdminUser = getUserByRole(WebSecurityConfig.ROLE_CF_ADMIN)
+            cfExtUser = getUserByRole(WebSecurityConfig.ROLE_CF_EXT_ADMIN)
 
             this.serviceLifeCycler = serviceLifeCycler
             serviceBrokerClient = new ServiceBrokerClientExtended(new RestTemplate(), appBaseUrl, cfAdminUser.username, cfAdminUser.password, cfExtUser.username, cfExtUser.password)
             initialized = true
         }
+    }
+
+    protected UserConfig getUserByRole(String role) {
+        return userConfig.applicationUsers.find { c -> c.role == role }
     }
 }

@@ -31,4 +31,13 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
         then:
         response.statusCode == HttpStatus.OK
     }
+
+    def "catalog controller returns Forbidden 403 when wrong role provided"() {
+        when:
+        def response = new ServiceBrokerClient(appBaseUrl, cfExtUser.username, cfExtUser.password).getCatalog()
+
+        then:
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.FORBIDDEN
+    }
 }
