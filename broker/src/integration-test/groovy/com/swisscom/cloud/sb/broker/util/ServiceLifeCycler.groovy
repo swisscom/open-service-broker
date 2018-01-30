@@ -315,7 +315,12 @@ class ServiceLifeCycler {
 
     }
 
+    /**
+     * Find first occurrence of a UserConfig with a requested role across all guids.
+     * @param role
+     * @return
+     */
     protected UserConfig getUserByRole(String role) {
-        return userConfig.applicationUsers.find { c -> c.role == role }
+        return userConfig.platformUsers.find { it.users }.users.find { it.role == role }
     }
 }

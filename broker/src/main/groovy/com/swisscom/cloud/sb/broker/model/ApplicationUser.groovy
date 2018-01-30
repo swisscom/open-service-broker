@@ -11,4 +11,5 @@ class ApplicationUser extends BaseModel{
     String password
     Boolean enabled
     String role
+    String platformGuid
 }

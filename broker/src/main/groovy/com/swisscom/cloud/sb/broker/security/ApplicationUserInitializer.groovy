@@ -33,7 +33,7 @@ class ApplicationUserInitializer {
         List<ApplicationUser> users = userRepository.findAll()
         def dbUsernames = users.collect { it.username }
 
-        def configUsernames = applicationUserConfig.applicationUsers.collect { it.username }
+        def configUsernames = applicationUserConfig.platformUsers[0]*.collect { it.users.username }[0][0]
         if (configUsernames.size() != 0) {
             if (!configUsernames.containsAll(dbUsernames)) {
                 throw new RuntimeException("Missing application user configuration exception. DB Username list - ${dbUsernames}")
@@ -42,15 +42,20 @@ class ApplicationUserInitializer {
     }
 
     void addApplicationUsers() {
-        applicationUserConfig.applicationUsers.each {
-            def u = userRepository.findByUsername(it.username)
-            if (!u) {
-                def user = new ApplicationUser()
-                user.username = it.username
-                user.password = passwordEncoder.encode(it.password)
-                user.enabled = true
-                user.role = it.role
-                userRepository.saveAndFlush(user)
+        applicationUserConfig.platformUsers.each {
+            g ->
+                g.users.each {
+                    u ->
+                    def user = userRepository.findByUsername(u.username)
+                    if (!user) {
+                        user = new ApplicationUser()
+                        user.username = u.username
+                        user.password = passwordEncoder.encode(u.password)
+                        user.enabled = true
+                        user.role = u.role
+                        user.platformGuid = g.guid
+                        userRepository.saveAndFlush(user)
+                    }
             }
         }
     }
