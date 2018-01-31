@@ -33,7 +33,7 @@ class ApplicationUserInitializer {
         List<ApplicationUser> users = userRepository.findAll()
         def dbUsernames = users.collect { it.username }
 
-        def configUsernames = applicationUserConfig.platformUsers.collect { it.users.username }[0]
+        def configUsernames = applicationUserConfig.platformUsers.collect { it.users.username }.flatten()
         if (configUsernames.size() != 0) {
             if (!configUsernames.containsAll(dbUsernames)) {
                 throw new RuntimeException("Missing application user configuration exception. DB Username list - ${dbUsernames}")
