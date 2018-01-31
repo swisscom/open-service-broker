@@ -87,10 +87,11 @@ class ProvisioningPersistenceService {
         }
     }
 
-    def updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
+    ServiceInstance updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
         instance = serviceInstanceRepository.merge(instance)
         instance.completed = completed
         serviceInstanceRepository.save(instance)
+        return instance
     }
 
     def markServiceInstanceAsDeleted(ServiceInstance instance) {

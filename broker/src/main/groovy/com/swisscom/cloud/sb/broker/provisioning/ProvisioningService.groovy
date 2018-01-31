@@ -28,6 +28,7 @@ class ProvisioningService {
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
         def instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
         ProvisionResponse provisionResponse = serviceProviderLookup.findServiceProvider(provisionRequest.plan).provision(provisionRequest)
+        instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)
         provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
         return provisionResponse
     }
