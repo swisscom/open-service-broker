@@ -1,23 +1,42 @@
 package com.swisscom.cloud.sb.broker.config
 
+import com.swisscom.cloud.sb.broker.security.ApplicationUserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String ROLE_CF_ADMIN = 'CF_ADMIN'
     public static final String ROLE_CF_EXT_ADMIN = 'CF_EXT_ADMIN'
 
-    private final AuthenticationConfig authenticationConfig
-
     @Autowired
-    WebSecurityConfig(AuthenticationConfig authenticationConfig) {
-        this.authenticationConfig = authenticationConfig
+    private ApplicationUserDetailsService userDetailsService
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder()
+    }
+
+    @Bean
+    DaoAuthenticationProvider authProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider()
+        authProvider.userDetailsService = userDetailsService
+        authProvider.passwordEncoder = passwordEncoder()
+        return authProvider
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authProvider())
     }
 
     @Override
@@ -31,9 +50,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser(authenticationConfig.cfUsername).password(authenticationConfig.cfPassword).roles(ROLE_CF_ADMIN)
-        auth.inMemoryAuthentication().withUser(authenticationConfig.cfExtUsername).password(authenticationConfig.cfExtPassword).roles(ROLE_CF_EXT_ADMIN)
-    }
 }

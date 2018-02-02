@@ -1,9 +1,21 @@
 package com.swisscom.cloud.sb.broker.util
 
 import com.google.common.collect.Sets
-import com.swisscom.cloud.sb.broker.config.AuthenticationConfig
-import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
+import com.swisscom.cloud.sb.broker.config.UserConfig
+import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
+import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -26,10 +38,12 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
+import javax.annotation.PostConstruct
+
 @Component
 @Scope('prototype')
 @CompileStatic
-public class ServiceLifeCycler {
+class ServiceLifeCycler {
     private CFService cfService
     private Plan plan
     private PlanMetadata planMetaData
@@ -40,6 +54,11 @@ public class ServiceLifeCycler {
 
     private final String serviceInstanceId
     private final String serviceBindingId
+
+    @Autowired
+    private ApplicationUserConfig userConfig
+    private UserConfig cfAdminUser
+    private UserConfig cfExtUser
 
     ServiceLifeCycler() {
         this(UUID.randomUUID().toString(), UUID.randomUUID().toString())
@@ -52,6 +71,12 @@ public class ServiceLifeCycler {
     ServiceLifeCycler(String serviceInstanceId, String serviceBindingId) {
         this.serviceInstanceId = serviceInstanceId
         this.serviceBindingId = serviceBindingId
+    }
+
+    @PostConstruct
+    private void init() {
+        cfAdminUser = getUserByRole(WebSecurityConfig.ROLE_CF_ADMIN)
+        cfExtUser = getUserByRole(WebSecurityConfig.ROLE_CF_EXT_ADMIN)
     }
 
     @Autowired
@@ -74,9 +99,6 @@ public class ServiceLifeCycler {
 
     @Autowired
     private ParameterRepository parameterRepository
-
-    @Autowired
-    private AuthenticationConfig authenticationConfig
 
     private Map<String, Object> credentials
 
@@ -234,21 +256,21 @@ public class ServiceLifeCycler {
 
     private ServiceBrokerClient createServiceBrokerClient(boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
         if (throwExceptionWhenNon2xxHttpStatusCode) {
-            return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+            return new ServiceBrokerClient('http://localhost:8080', cfAdminUser.username, cfAdminUser.password)
         } else {
             return createServiceBrokerClientWithCustomErrorHandler()
         }
     }
 
     private ServiceBrokerClient createServiceBrokerClientExternal() {
-        return new ServiceBrokerClient('http://localhost:8080', authenticationConfig.cfExtUsername, authenticationConfig.cfExtPassword)
+        return new ServiceBrokerClient('http://localhost:8080', cfExtUser.username, cfExtUser.password)
     }
 
 
     private ServiceBrokerClient createServiceBrokerClientWithCustomErrorHandler() {
         def template = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
         template.errorHandler = new NoOpResponseErrorHandler()
-        return new ServiceBrokerClient(template, 'http://localhost:8080', authenticationConfig.cfUsername, authenticationConfig.cfPassword)
+        return new ServiceBrokerClient(template, 'http://localhost:8080', cfAdminUser.username, cfAdminUser.password)
     }
 
     public static def pauseExecution(int seconds) {
@@ -291,5 +313,14 @@ public class ServiceLifeCycler {
         public void handleError(ClientHttpResponse response) throws IOException {
         }
 
+    }
+
+    /**
+     * Find first occurrence of a UserConfig with a requested role across all guids.
+     * @param role
+     * @return
+     */
+    protected UserConfig getUserByRole(String role) {
+        return userConfig.platformUsers.find { it.users }.users.find { it.role == role }
     }
 }
