@@ -1,0 +1,14 @@
+---
+applications:
+- name: open-service-broker
+  memory: 1G
+  instances: 2
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  path: .\broker\build\libs\broker-2.6.6-SNAPSHOT.jar
+  env:
+    ENV_OSB_USERNAME: 'd4PXFw1yZUyHNS85YmMD'
+    ENV_OSB_PASSWORD: 'BKog8eqdSnSQbqj8YofX'
+    ENV_OSB_EXTUSERNAME: 'iiLNd1NHDccXKP9siZQJ'
+    ENV_OSB_EXTPASSWORD: 'eoKiTtBJRV5l1Yy7WmiJ'
+  services:
+    - cfbrokerdb
