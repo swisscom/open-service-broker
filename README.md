@@ -88,6 +88,22 @@ to Cloud Foundry.
 Before a `cf create-service-broker` or `update-service-broker` call is made, please make sure that Service Broker is configured correctly.
 For configuring the catalog, see the service definition section.
 
+### Deploy in Cloud Foundry
+
+It is also supported to host the open service broker as an app in cloudfoundry. The project contains in the root folder a 'manifest.yml' which contains a default configuration for the cloud foundry deployment.
+To deploy:
+* build or ensure the Broker binaries are built
+* navigate to the root folder for the project (where the manifest.yml is)
+* login to cloud foundry with 'cf login ...'
+* execute the command 'cf push' which will parse the manifest and upload the application
+
+````bash
+    cf login -a https://api.scapp-console.swisscom.com --sso
+    cf push
+````
+
+[detailed documentation about manifest](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#find-manifest)
+
 ### JAVA_OPTS
 ```bash
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx2048m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC"
