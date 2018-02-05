@@ -37,7 +37,11 @@ class CFExtensionsController extends BaseController {
     def usage(
             @PathVariable('service_instance') String serviceInstanceId,
             @RequestParam(value = 'end_date', required = false) String enddate) {
-        return serviceUsageLookup.usage(super.getAndCheckServiceInstance(serviceInstanceId), parseEnddate(enddate))
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
+        if (!serviceInstance) {
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("ID = ${serviceInstanceId}")
+        }
+        return serviceUsageLookup.usage(serviceInstance, parseEnddate(enddate))
     }
 
     private Optional<Date> parseEnddate(String enddate) {
