@@ -2,8 +2,18 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.google.common.collect.Sets
 import com.swisscom.cloud.sb.broker.config.AuthenticationConfig
-import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
+import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -13,6 +23,8 @@ import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.BindResource
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
@@ -138,15 +150,15 @@ public class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse)
-        bindServiceInstanceAndAssert()
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, context)
+        bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false,
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Context context = null,
                                         Map<String, Object> provisionParameters = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, provisionParameters)
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -155,24 +167,24 @@ public class ServiceLifeCycler {
         }
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', parameters)
+    ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, null, null, context, parameters)
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true) {
-        def bindResponse = requestBindService(bindingId, bindingParameters)
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
     }
 
-    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null) {
+    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, Context context = null) {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
 
-        def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, 'app_guid', null, bindingParameters)
+        def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, null, context, bindingParameters)
 
         return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
                 .withBindingId(bindingId))
@@ -263,7 +275,8 @@ public class ServiceLifeCycler {
     void waitUntilMaxTimeOrTargetState(int seconds) {
         int sleepTime = 1000
         if (seconds > 0) {
-            for (def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
+            for (
+                    def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
                     LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).getBody().state

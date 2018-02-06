@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
+import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -38,7 +39,8 @@ class BindingController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
-
+    @Autowired
+    private ContextPersistenceService contextPersistenceService
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
@@ -55,6 +57,7 @@ class BindingController extends BaseController {
         BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
 
         serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details)
+        contextPersistenceService.createUpdateContext(serviceInstanceId, bindingDto.context)
 
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }

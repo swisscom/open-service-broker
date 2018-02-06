@@ -25,6 +25,8 @@ class ServiceInstance extends BaseModel{
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     List<ServiceDetail> details = []
+    @OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL)
+    List<ServiceContext> contexts = []
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan

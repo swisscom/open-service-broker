@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
@@ -13,9 +14,10 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.cleanup()
     }
 
-    def "provision async service instance"() {
+    def "provision async service instance with Context"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
+        def context = new CloudFoundryContext("org_id", "space_id")
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, context)
 
         when:
         serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])

@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
+import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
@@ -15,6 +16,8 @@ import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
+import org.springframework.cloud.servicebroker.model.ServiceBrokerRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -40,12 +43,14 @@ class ProvisioningController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
-
+    @Autowired
+    private ContextPersistenceService contextPersistenceService
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
     ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
+                                                   @RequestHeader(value = ServiceBrokerRequest.ORIGINATING_IDENTITY_HEADER, required = false) String originatingIdentityHeader,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto) {
 
         log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
@@ -54,6 +59,7 @@ class ProvisioningController extends BaseController {
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
         ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
+        contextPersistenceService.createUpdateContext(serviceInstanceGuid, provisioningDto.context)
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
@@ -69,6 +75,13 @@ class ProvisioningController extends BaseController {
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
         provisionRequest.acceptsIncomplete = acceptsIncomple
         provisionRequest.parameters = serializeJson(provisioning.parameters)
+
+        if (provisioning.context instanceof CloudFoundryContext) {
+            def cfContext = provisioning.context as CloudFoundryContext
+            provisionRequest.organizationGuid = cfContext.organizationGuid
+            provisionRequest.spaceGuid = cfContext.spaceGuid
+        }
+
         return provisionRequest
     }
 
