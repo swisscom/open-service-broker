@@ -50,7 +50,6 @@ class ProvisioningController extends BaseController {
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
     ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
-                                                   @RequestHeader(value = ServiceBrokerRequest.ORIGINATING_IDENTITY_HEADER, required = false) String originatingIdentityHeader,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto) {
 
         log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
@@ -70,11 +69,13 @@ class ProvisioningController extends BaseController {
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
         provisionRequest.serviceInstanceGuid = serviceInstanceGuid
-        provisionRequest.organizationGuid = provisioning.organization_guid
-        provisionRequest.spaceGuid = provisioning.space_guid
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
         provisionRequest.acceptsIncomplete = acceptsIncomple
         provisionRequest.parameters = serializeJson(provisioning.parameters)
+
+        if (provisioning.organization_guid && provisioning.space_guid && !provisioning.context) {
+            provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
+        }
 
         if (provisioning.context instanceof CloudFoundryContext) {
             def cfContext = provisioning.context as CloudFoundryContext

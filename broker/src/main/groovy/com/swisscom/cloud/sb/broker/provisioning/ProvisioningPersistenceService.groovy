@@ -42,8 +42,6 @@ class ProvisioningPersistenceService {
     def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
-        instance.org = provisionRequest.organizationGuid
-        instance.space = provisionRequest.spaceGuid
         instance.completed = !provisionResponse.isAsync
         instance.plan = provisionRequest.plan
 

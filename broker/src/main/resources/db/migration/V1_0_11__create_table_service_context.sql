@@ -69,3 +69,57 @@ CREATE PROCEDURE migrate_cf_context()
 
 DELIMITER ;
 CALL migrate_cf_context();
+
+/* VERIFY MIGRATION AND DROP COLUMNS 'ORG' AND 'SPACE' FROM SERVICE_INSTANCE */
+DROP PROCEDURE IF EXISTS remove_org_space_fields_from_service_instance;
+DELIMITER //
+CREATE PROCEDURE remove_org_space_fields_from_service_instance()
+  BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE ERROR_MSG CHAR(255);
+    DECLARE siid INT; -- service_instance_id
+    DECLARE sc_count INT DEFAULT 0; -- service_context_count
+    DECLARE cur1 CURSOR FOR SELECT si.id
+                            FROM service_instance si
+                            WHERE si.org IS NOT NULL;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur1;
+
+    read_loop: LOOP
+      FETCH cur1
+      INTO siid;
+
+      IF done
+      THEN
+        LEAVE read_loop;
+      END IF;
+
+      -- check if all service_instance have migrated service_context records
+      SELECT count(1)
+      INTO sc_count
+      FROM service_context
+      WHERE service_instance_id = siid AND `_key` IN ('platform', 'organization_guid', 'space_guid');
+
+      IF sc_count != 3
+      THEN
+        SELECT CONCAT('SERVICE INSTANCE WAS NOT MIGRATED: ', siid)
+        INTO ERROR_MSG;
+
+        SIGNAL SQLSTATE '90000'
+        SET MESSAGE_TEXT = ERROR_MSG;
+      END IF;
+
+    END LOOP;
+
+    ALTER TABLE service_instance
+      DROP COLUMN org;
+    ALTER TABLE service_instance
+      DROP COLUMN space;
+
+    CLOSE cur1;
+
+  END//
+
+DELIMITER ;
+CALL remove_org_space_fields_from_service_instance();

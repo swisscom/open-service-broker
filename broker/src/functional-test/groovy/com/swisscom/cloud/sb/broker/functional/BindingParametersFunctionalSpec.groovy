@@ -17,7 +17,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance with Context"() {
         given:
         def context = new CloudFoundryContext("org_id", "space_id")
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, context)
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, null, context)
 
         when:
         serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])

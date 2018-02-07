@@ -151,13 +151,12 @@ public class ServiceLifeCycler {
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, context)
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Context context = null,
-                                        Map<String, Object> provisionParameters = null) {
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
         ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
@@ -168,7 +167,7 @@ public class ServiceLifeCycler {
     }
 
     ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, null, null, context, parameters)
+        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
