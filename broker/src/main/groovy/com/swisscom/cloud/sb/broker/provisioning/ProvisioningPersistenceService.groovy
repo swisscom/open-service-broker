@@ -39,11 +39,16 @@ class ProvisioningPersistenceService {
         deprovisionRequestRepository.save(deprovisionRequest)
     }
 
-    def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+    def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
-        instance.completed = !provisionResponse.isAsync
         instance.plan = provisionRequest.plan
+        serviceInstanceRepository.save(instance)
+    }
+
+    def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+        ServiceInstance instance = createServiceInstance(provisionRequest)
+        instance.completed = !provisionResponse.isAsync
 
         return updateServiceDetails(provisionResponse.details, instance)
     }
@@ -58,7 +63,7 @@ class ProvisioningPersistenceService {
                 serviceDetailRepository.save(detail)
                 instance.details.add(detail)
         }
-        return serviceInstanceRepository.save(instance)
+        serviceInstanceRepository.save(instance)
     }
 
     private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {
@@ -80,10 +85,11 @@ class ProvisioningPersistenceService {
         }
     }
 
-    def updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
+    ServiceInstance updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
         instance = serviceInstanceRepository.merge(instance)
         instance.completed = completed
         serviceInstanceRepository.save(instance)
+        return instance
     }
 
     def markServiceInstanceAsDeleted(ServiceInstance instance) {
