@@ -26,9 +26,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-
 import javax.annotation.PostConstruct
-
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
