@@ -53,8 +53,9 @@ class ServiceLifeCycler {
     private boolean serviceCreated
     private boolean planCreated
 
-    private final String serviceInstanceId
-    private final String serviceBindingId
+    private List<String> serviceInstanceIds = []
+    private String serviceInstanceId
+    private String serviceBindingId
 
     @Autowired
     private ApplicationUserConfig userConfig
@@ -72,6 +73,7 @@ class ServiceLifeCycler {
     ServiceLifeCycler(String serviceInstanceId, String serviceBindingId) {
         this.serviceInstanceId = serviceInstanceId
         this.serviceBindingId = serviceBindingId
+        this.serviceInstanceIds << serviceInstanceId
     }
 
     @PostConstruct
@@ -139,7 +141,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        serviceInstanceRepository.deleteByGuid(serviceInstanceId)
+        serviceInstanceIds.each { it ->
+            serviceInstanceRepository.deleteByGuid(it)
+        }
 
         if (parameter) {
             parameterRepository.delete(parameter)
@@ -323,5 +327,14 @@ class ServiceLifeCycler {
      */
     protected UserConfig getUserByRole(String role) {
         return userConfig.platformUsers.find { it.users }.users.find { it.role == role }
+    }
+
+    void setServiceInstanceId(String serviceInstanceId) {
+        this.serviceInstanceId = serviceInstanceId
+        this.serviceInstanceIds << serviceInstanceId
+    }
+
+    void setServiceBindingId(String serviceBindingId) {
+        this.serviceBindingId = serviceBindingId
     }
 }
