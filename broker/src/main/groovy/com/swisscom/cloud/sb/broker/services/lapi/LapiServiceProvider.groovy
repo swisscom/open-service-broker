@@ -5,36 +5,18 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
-import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-
-import javax.annotation.PostConstruct
-
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 
 @Component
 @CompileStatic
@@ -67,7 +49,7 @@ class LapiServiceProvider implements ServiceProvider {
         log.info("lets deprovision!")
 
         RestTemplate restTemplate = restTemplateBuilder.build()
-        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstanceGuid}"
+        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstanceGuid}"
         restTemplate.delete(url)
         return new DeprovisionResponse(isAsync: false)
     }
@@ -76,16 +58,25 @@ class LapiServiceProvider implements ServiceProvider {
     //putting and reading bindingID from request.parameters ok?
     BindResponse bind(BindRequest request) {
         log.info("lets bind!")
-        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstance.guid}/service_bindings/${request.binding_guid}"
+        String serviceBindingId = getServiceBindingId(request.parameters)
+        //bindingId not part of BindRequest, generate? how to do in test?
+        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/${request.parameters["serviceBindingId"]}"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.put(url, request, BindResponse.class)
         return new BindResponse()
     }
 
+    String getServiceBindingId(Map parameters) {
+        if (parameters.containsKey("serviceBindingId")) {
+            return parameters["serviceBindingId"];
+        }
+        return "";
+    }
+
     @Override
     void unbind(UnbindRequest request) {
         log.info("lets unbind")
-        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstance.guid}/service_bindings/serviceBindingId"
+        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/serviceBindingId"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.delete(url)
     }
