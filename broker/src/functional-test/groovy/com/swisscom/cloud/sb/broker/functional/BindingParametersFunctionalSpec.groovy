@@ -8,8 +8,6 @@ import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 
-import static org.junit.Assert.assertNotNull
-
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
@@ -78,11 +76,11 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     void assertCloudFoundryContext(String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        assertNotNull(serviceInstance)
+        assert serviceInstance != null
 
-        assertNotNull(contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.PLATFORM, serviceInstance))
-        assertNotNull(contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_ORGANIZATION_GUID, serviceInstance))
-        assertNotNull(contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_SPACE_GUID, serviceInstance))
+        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.PLATFORM, serviceInstance) != null
+        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_ORGANIZATION_GUID, serviceInstance) != null
+        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_SPACE_GUID, serviceInstance) != null
     }
 
 }
