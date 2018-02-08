@@ -2,6 +2,13 @@ package com.swisscom.cloud.sb.broker.services.lapi
 
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -17,10 +24,9 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
-class LapiServiceProviderSpec extends Specification {
+class LapiServiceProviderSpec extends Specification{
 
     private LapiServiceProvider lapiServiceProvider
-    private LapiConfig lapiConfig
 
     private MockRestServiceServer mockServer
     private ServiceInstanceRepository serviceInstanceRepository
@@ -33,7 +39,6 @@ class LapiServiceProviderSpec extends Specification {
 
         and:
         RestTemplate restTemplate = new RestTemplate()
-        lapiConfig = new LapiConfig()
         mockServer = MockRestServiceServer.createServer(restTemplate)
         restTemplateBuilder = Mock(RestTemplateBuilder)
         restTemplateBuilder.build() >> restTemplate
@@ -42,14 +47,14 @@ class LapiServiceProviderSpec extends Specification {
         restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
 
         and:
-        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder, lapiConfig)
+        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder)
     }
 
     def "provision service instance"() {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: new Plan())
 
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instances/${provisionRequest.serviceInstanceGuid}"))
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                 .andRespond(MockRestResponseCreators.withSuccess())
 
@@ -68,10 +73,10 @@ class LapiServiceProviderSpec extends Specification {
         given:
         def serviceId = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceId)
-        //ServiceInstance serviceInstance = new ServiceInstance()
-        //serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
+        ServiceInstance serviceInstance = new ServiceInstance()
+        serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
-        def url = "http://0.0.0.0:4567/v2/service_instances/${serviceId}"
+        def url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -93,10 +98,10 @@ class LapiServiceProviderSpec extends Specification {
         String serviceBindingId = "serviceBindingId"
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId)
-        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, binding_guid: serviceBindingId)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: ["serviceBindingId": serviceBindingId])
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
-        String url = "http://0.0.0.0:4567/v2/service_instances/${serviceId}/service_bindings/${serviceBindingId}"
+        String url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}/service-bindings/${serviceBindingId}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
@@ -118,7 +123,7 @@ class LapiServiceProviderSpec extends Specification {
         UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance)
         serviceBindingRepository.findByGuid(serviceBindingId) >> serviceBinding
 
-        String url = "http://0.0.0.0:4567/v2/service_instances/${unbindRequest.serviceInstance.guid}/service_bindings/${serviceBinding.guid}"
+        String url = "http://0.0.0.0:4567/v2/service-instances/${unbindRequest.serviceInstance.guid}/service-bindings/${serviceBinding.guid}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -133,4 +138,89 @@ class LapiServiceProviderSpec extends Specification {
         and:
         mockServer.verify()
     }
+
+    //not implemented on LAPI side, yet
+    def "provision already existing service"() {
+
+            given:
+            ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: new Plan())
+
+            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
+                    .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                    .andRespond(MockRestResponseCreators.withSuccess())
+
+            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
+                    .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                    .andRespond(MockRestResponseCreators.withBadRequest())
+
+            when:
+            def provisionResponse = lapiServiceProvider.provision(provisionRequest)
+
+            then:
+            thrown(HttpServerErrorException)
+
+            and:
+            mockServer.verify()
+    }
+
+    //not implemented on LAPI side, yet
+    def "bind already existing binding to service instance"() {
+        given:
+        String serviceBindingId = "serviceBindingId"
+        def serviceId = "serviceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: ["serviceBindingId": serviceBindingId])
+        serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
+
+        String url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}/service-bindings/${serviceBindingId}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.CONFLICT))
+
+        when:
+        lapiServiceProvider.bind(bindRequest)
+
+        then:
+        thrown()
+
+        and:
+        mockServer.verify()
+    }
+
+    //not implemented on LAPI side, yet
+    def "unbind non-existing binding from service instance"() {
+        given:
+        def serviceId = "serviceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId)
+        String serviceBindingId = "serviceBindingId"
+        ServiceBinding serviceBinding = new ServiceBinding(guid: serviceBindingId)
+        UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance)
+        serviceBindingRepository.findByGuid(serviceBindingId) >> serviceBinding
+
+        String url = "http://0.0.0.0:4567/v2/service-instances/${unbindRequest.serviceInstance.guid}/service-bindings/${serviceBinding.guid}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
+                .andRespond(MockRestResponseCreators.withStatus(HttpStatus.GONE))
+
+        when:
+        lapiServiceProvider.unbind(unbindRequest)
+
+        then:
+        thrown()
+
+        and:
+        mockServer.verify()
+    }
+}
+
 }
