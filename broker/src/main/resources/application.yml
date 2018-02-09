@@ -59,7 +59,7 @@ com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskDbHostname:
 
 com.swisscom.cloud.sb.broker.service.mongodbent:
-  opsManagerUrl: 'http://opsmanager.service.consul:55000'
+  opsManagerUrl: 'http://opsmanager.service.consul:8080'
   opsManagerUrlForAutomationAgent: '' #This parameter is optional
   opsManagerUser:
   opsManagerApiKey:
