@@ -48,6 +48,7 @@ class ServiceLifeCycler {
     private Plan plan
     private PlanMetadata planMetaData
     private Parameter parameter
+    private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
 
     private boolean serviceCreated
     private boolean planCreated
@@ -140,8 +141,10 @@ class ServiceLifeCycler {
     void cleanup() {
         serviceInstanceRepository.deleteByGuid(serviceInstanceId)
 
-        if (parameter) {
-            parameterRepository.delete(parameter)
+        if (parameters.size() > 0) {
+            parameters.each {
+                parameterRepository.delete(it)
+            }
         }
 
         if (serviceCreated) {
@@ -235,6 +238,7 @@ class ServiceLifeCycler {
 
     Parameter createParameter(String name, String value, Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
+        parameters.add(parameter)
         return parameterRepository.save(parameter)
     }
 
