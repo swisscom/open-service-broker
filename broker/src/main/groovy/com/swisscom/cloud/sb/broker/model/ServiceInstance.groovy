@@ -28,6 +28,11 @@ class ServiceInstance extends BaseModel{
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan
+    @ManyToOne
+    @JoinColumn(name = "parent_service_instance_id")
+    ServiceInstance parentServiceInstance
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
+    List<ServiceInstance> childs = []
 
     @Override
     public String toString() {
@@ -39,6 +44,6 @@ class ServiceInstance extends BaseModel{
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
-                '}';
+                '}'
     }
 }

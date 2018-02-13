@@ -8,6 +8,7 @@ import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepositor
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,6 +47,34 @@ class ProvisioningPersistenceService {
         instance.space = provisionRequest.spaceGuid
         instance.plan = provisionRequest.plan
         serviceInstanceRepository.save(instance)
+
+        // set parent service instance if specified
+        setParentServiceInstance(provisionRequest, instance)
+
+        return instance
+    }
+
+    private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
+        ServiceInstance parentInstance = null
+        def jsonSlurper = new JsonSlurper()
+        def parameters = jsonSlurper.parseText(provisionRequest.parameters) as Map
+        def parentServiceInstanceGuid = parameters?.parentAlias as String
+        if (parentServiceInstanceGuid) {
+            parentInstance = serviceInstanceRepository.findByGuid(parentServiceInstanceGuid)
+            if (!parentInstance) {
+                throw new IllegalArgumentException("Unknown parent ServiceInstance specified: ${parentServiceInstanceGuid}")
+            }
+            instance.parentServiceInstance = parentInstance
+        }
+        serviceInstanceRepository.merge(instance)
+
+        // merge parent instance with children
+        if (parentInstance) {
+            parentInstance.childs << instance
+            serviceInstanceRepository.merge(parentInstance)
+        }
+
+        parentInstance
     }
 
     def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
