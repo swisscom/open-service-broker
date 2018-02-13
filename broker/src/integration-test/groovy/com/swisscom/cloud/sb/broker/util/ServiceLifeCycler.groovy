@@ -25,6 +25,7 @@ import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.BindResource
 import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
@@ -197,8 +198,8 @@ class ServiceLifeCycler {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
-
-        def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, null, context, bindingParameters)
+        def bindResource = new BindResource('app-id', 'app-id.example.com', null)
+        def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, bindResource, context, bindingParameters)
 
         return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
                 .withBindingId(bindingId))
