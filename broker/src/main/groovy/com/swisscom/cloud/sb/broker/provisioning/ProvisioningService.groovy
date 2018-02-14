@@ -24,7 +24,7 @@ class ProvisioningService {
     /*@Autowired
     BackupService backupService*/
 
-    ProvisionResponse provision(ProvisionRequest provisionRequest, Context context) {
+    ProvisionResponse provision(ProvisionRequest provisionRequest, Context context = null) {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
         def instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
