@@ -93,7 +93,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             jobName.equals("${shieldConfig.jobPrefix}redis-${serviceInstance.guid}")
 
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
-            pollBackupStatus(0, serviceInstance.guid, createBU.id)
+            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_IN_PROGRESS)
 
             def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
             def restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
@@ -111,7 +111,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             }
 
             serviceBrokerClient.deleteBackup(serviceInstance.guid, createBU.id).getBody()
-            pollBackupStatus(0, serviceInstance.guid, createBU.id)
+            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.DELETE_IN_PROGRESS)
         }
         finally {
             serviceLifeCycler.deleteServiceBindingAndAssert()
@@ -122,10 +122,10 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
-    def pollBackupStatus(int count, String serviceInstanceId, String backupId) {
+    def pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status) {
         def getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
 
-        while(getBU.status == BackupStatus.CREATE_IN_PROGRESS){
+        while(getBU.status == status){
             println("Attempt number ${count + 1}. Backup status = ${getBU.status}.")
             count += 1
             serviceLifeCycler.pauseExecution(10)
