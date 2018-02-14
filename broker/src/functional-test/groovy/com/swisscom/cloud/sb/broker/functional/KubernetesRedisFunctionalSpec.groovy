@@ -9,6 +9,8 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import com.swisscom.cloud.sb.model.backup.BackupStatus
 import com.swisscom.cloud.sb.model.backup.RestoreStatus
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 import spock.lang.IgnoreIf
 
 import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
@@ -27,7 +29,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('redis-kubernetes-functional-test', findInternalName(KubernetesRedisServiceProvider),
-                'redis', null, null, 10)
+                'redis', null, null, 1)
 
         serviceLifeCycler.createParameter('PLAN_ID', 'redis.small', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('REDIS_DISK_QUOTA', '128Mi', serviceLifeCycler.plan)
@@ -77,22 +79,15 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
     }
 
-    def cleanupSpec() {
-        serviceLifeCycler.cleanup()
-    }
-
-    def "Create redis instance, check backup and remove it"() {
+    def "Create redis instance and create backup"() {
         when:
-        try {
-            when:
             serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(300, true, true)
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
             def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
             def jobName = shieldClient.getJobName(jobUuid)
-            then:
-            jobName.equals("${shieldConfig.jobPrefix}redis-${serviceInstance.guid}")
 
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
+            serviceLifeCycler.setBackupId(createBU.id)
             pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_IN_PROGRESS)
 
             def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
@@ -110,19 +105,38 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
                 }
             }
 
-            serviceBrokerClient.deleteBackup(serviceInstance.guid, createBU.id).getBody()
-            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.DELETE_IN_PROGRESS)
-        }
-        finally {
+        then:
+            jobName == "${shieldConfig.jobPrefix}redis-${serviceInstance.guid}" as String
+            noExceptionThrown()
+    }
+
+    def "Verify backup limit is reached"() {
+        when:
+            serviceBrokerClient.createBackup(serviceLifeCycler.serviceInstanceId).getBody()
+        then:
+            def exception = thrown(HttpClientErrorException)
+            exception.statusCode == HttpStatus.CONFLICT
+    }
+
+    def "Delete backup"() {
+        when:
+            serviceBrokerClient.deleteBackup(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId()).getBody()
+            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_IN_PROGRESS)
+        then:
+            noExceptionThrown()
+    }
+
+    def "Remove service"() {
+        when:
             serviceLifeCycler.deleteServiceBindingAndAssert()
             serviceLifeCycler.deleteServiceInstanceAndAssert(true)
             serviceLifeCycler.pauseExecution(50)
-        }
+
         then:
-        noExceptionThrown()
+            noExceptionThrown()
     }
 
-    def pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status) {
+    void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status) {
         def getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
 
         while(getBU.status == status){

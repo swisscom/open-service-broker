@@ -49,6 +49,7 @@ class ServiceLifeCycler {
     private PlanMetadata planMetaData
     private Parameter parameter
     private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
+    private String backupId
 
     private boolean serviceCreated
     private boolean planCreated
@@ -256,6 +257,14 @@ class ServiceLifeCycler {
 
     String getServiceInstanceId() {
         return serviceInstanceId
+    }
+
+    void setBackupId(String id) {
+        backupId = id
+    }
+
+    String getBackupId() {
+        backupId
     }
 
     private ServiceBrokerClient createServiceBrokerClient(boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
