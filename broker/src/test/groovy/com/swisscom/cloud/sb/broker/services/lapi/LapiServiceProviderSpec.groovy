@@ -2,20 +2,12 @@ package com.swisscom.cloud.sb.broker.services.lapi
 
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
@@ -54,7 +46,7 @@ class LapiServiceProviderSpec extends Specification{
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: new Plan())
 
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service-instances/${provisionRequest.serviceInstanceGuid}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                 .andRespond(MockRestResponseCreators.withSuccess())
 
@@ -145,11 +137,11 @@ class LapiServiceProviderSpec extends Specification{
             given:
             ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: new Plan())
 
-            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
+            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service-instances/${provisionRequest.serviceInstanceGuid}"))
                     .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                     .andRespond(MockRestResponseCreators.withSuccess())
 
-            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instance/${provisionRequest.serviceInstanceGuid}"))
+            mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service-instances/${provisionRequest.serviceInstanceGuid}"))
                     .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                     .andRespond(MockRestResponseCreators.withBadRequest())
 
@@ -221,6 +213,4 @@ class LapiServiceProviderSpec extends Specification{
         and:
         mockServer.verify()
     }
-}
-
 }
