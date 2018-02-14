@@ -39,8 +39,6 @@ class BindingController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
-    @Autowired
-    private ContextPersistenceService contextPersistenceService
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
@@ -56,8 +54,7 @@ class BindingController extends BaseController {
 
         BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
 
-        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details)
-        contextPersistenceService.createUpdateContext(serviceInstanceId, bindingDto.context)
+        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details, bindingDto.context)
 
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }

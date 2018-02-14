@@ -31,69 +31,41 @@ class ContextPersistenceService {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
-    void createUpdateContext(String serviceInstanceId, Context context) {
+    List<ServiceContext> create(Context context) {
         if (!context) {
             return
         }
 
-        ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
         if (context instanceof CloudFoundryContext) {
-            processCloudFoundryContext(serviceInstance, context as CloudFoundryContext)
+            return processCloudFoundryContext(context as CloudFoundryContext)
         } else if (context instanceof KubernetesContext) {
-            processKubernetesContext(serviceInstance, context as KubernetesContext)
+            return processKubernetesContext(context as KubernetesContext)
         }
     }
 
-    private void processCloudFoundryContext(ServiceInstance serviceInstance, CloudFoundryContext context) {
-        def platform = contextRepository.findByKeyAndServiceInstance(PLATFORM, serviceInstance)
-        if (!platform) {
-            createServiceContextRecord(serviceInstance, PLATFORM, CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM)
-        }
-        def organizationGuid = contextRepository.findByKeyAndServiceInstance(CF_ORGANIZATION_GUID, serviceInstance)
-        if (!organizationGuid) {
-            createServiceContextRecord(serviceInstance, CF_ORGANIZATION_GUID, context.organizationGuid)
-        }
-        def spaceGuid = contextRepository.findByKeyAndServiceInstance(CF_SPACE_GUID, serviceInstance)
-        if (!spaceGuid) {
-            createServiceContextRecord(serviceInstance, CF_SPACE_GUID, context.spaceGuid)
-        }
+    private List<ServiceContext> processCloudFoundryContext(CloudFoundryContext context) {
+        def contexts = []
+        contexts << createServiceContextRecord(PLATFORM, CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM)
+        contexts << createServiceContextRecord(CF_ORGANIZATION_GUID, context.organizationGuid)
+        contexts << createServiceContextRecord(CF_SPACE_GUID, context.spaceGuid)
         contextRepository.flush()
+        return contexts
     }
 
-    private void processKubernetesContext(ServiceInstance serviceInstance, KubernetesContext context) {
-        def platform = contextRepository.findByKeyAndServiceInstance(PLATFORM, serviceInstance)
-        if (!platform) {
-            createServiceContextRecord(serviceInstance, PLATFORM, KubernetesContext.KUBERNETES_PLATFORM)
-        }
-        def namespace = contextRepository.findByKeyAndServiceInstance(KUBENETES_NAMESPACE, serviceInstance)
-        if (!namespace) {
-            createServiceContextRecord(serviceInstance, KUBENETES_NAMESPACE, context.namespace)
-        }
+    private List<ServiceContext> processKubernetesContext(KubernetesContext context) {
+        def contexts = []
+        contexts << createServiceContextRecord(PLATFORM, KubernetesContext.KUBERNETES_PLATFORM)
+        contexts << createServiceContextRecord(KUBENETES_NAMESPACE, context.namespace)
         contextRepository.flush()
+        return contexts
     }
 
-    private ServiceContext createServiceContextRecord(ServiceInstance serviceInstance, String key, String value) {
+    private ServiceContext createServiceContextRecord(String key, String value) {
         def sc = new ServiceContext()
         sc.key = key
         sc.value = value
-        sc.serviceInstance = serviceInstance
         sc = contextRepository.save(sc)
-
-        serviceInstance.contexts << sc
-        serviceInstanceRepository.save(serviceInstance)
-
         return sc
-    }
-
-    protected ServiceInstance getAndCheckServiceInstance(String serviceInstanceId) {
-        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
-        if (!serviceInstance) {
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("ID = ${serviceInstanceId}")
-        }
-        if (serviceInstance.deleted) {
-            ErrorCode.SERVICE_INSTANCE_DELETED.throwNew("ID = ${serviceInstanceId}")
-        }
-        return serviceInstance
     }
 
 }

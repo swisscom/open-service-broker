@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
@@ -11,6 +12,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,6 +32,9 @@ class ProvisioningPersistenceService {
 
     @Autowired
     private ServiceDetailRepository serviceDetailRepository
+
+    @Autowired
+    private ContextPersistenceService contextPersistenceService
 
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
         provisionRequestRepository.save(provisionRequest)
@@ -64,6 +69,14 @@ class ProvisioningPersistenceService {
                 instance.details.add(detail)
         }
         serviceInstanceRepository.save(instance)
+    }
+
+    ServiceInstance createServiceContext(Context context, final ServiceInstance instance) {
+        if (context) {
+            instance.contexts.addAll(contextPersistenceService.create(context))
+            return serviceInstanceRepository.merge(instance)
+        }
+        return instance
     }
 
     private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {

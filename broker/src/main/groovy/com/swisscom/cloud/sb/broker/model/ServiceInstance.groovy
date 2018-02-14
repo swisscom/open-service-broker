@@ -22,20 +22,23 @@ class ServiceInstance extends BaseModel{
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     List<ServiceDetail> details = []
-    @OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL)
-    List<ServiceContext> contexts = []
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "service_instance_service_context",
+            joinColumns = @JoinColumn(name = "service_instance_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_context_id"))
+    Set<ServiceContext> contexts = []
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan
 
     @Override
-    public String toString() {
+    String toString() {
         return "ServiceInstance{" +
                 "id=" + id +
                 ", guid='" + guid + '\'' +
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
-                '}';
+                "}"
     }
 }

@@ -6,18 +6,47 @@ CREATE PROCEDURE create_table_service_context()
 
     CREATE TABLE service_context
     (
-      id                  BIGINT                      NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      `_key`              VARCHAR(255)                NOT NULL,
-      `_value`            VARCHAR(255) DEFAULT 'NULL' NULL,
-      service_instance_id BIGINT                      NOT NULL,
-      CONSTRAINT FK_CONTEXT_SERVICE_INSTANCE FOREIGN KEY (service_instance_id) REFERENCES service_instance (id)
+      id       BIGINT                      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      `_key`   VARCHAR(255)                NOT NULL,
+      `_value` VARCHAR(255) DEFAULT 'NULL' NULL
     );
 
-    CREATE INDEX FK_CONTEXT_SERVICE_INSTANCE
-      ON service_context (service_instance_id);
+    CREATE INDEX FK_CONTEXT_SERVICE_INSTANCE_KEY_VALUE
+      ON service_context (`_key`, `_value`);
 
-    ALTER TABLE service_context
-      ADD CONSTRAINT service_context__key__value_service_instance_id_pk UNIQUE (`_key`, `_value`, service_instance_id);
+    -- table service_instance 2 service_context
+    CREATE TABLE service_instance_service_context
+    (
+      service_instance_id BIGINT NOT NULL,
+      service_context_id  BIGINT NOT NULL,
+      CONSTRAINT FK_service_instance_context2instance
+      FOREIGN KEY (service_instance_id) REFERENCES service_instance (id),
+      CONSTRAINT FK_service_instance_context2context
+      FOREIGN KEY (service_context_id) REFERENCES service_context (id)
+    );
+
+    CREATE INDEX FK_service_instance_context2instance
+      ON service_instance_service_context (service_instance_id);
+
+    CREATE INDEX FK_service_instance_context2context
+      ON service_instance_service_context (service_context_id);
+
+    -- table service_binding 2 service_context
+    CREATE TABLE service_binding_service_context
+    (
+      service_binding_id BIGINT NOT NULL,
+      service_context_id BIGINT NOT NULL,
+      CONSTRAINT FK_service_binding_service_context2binding
+      FOREIGN KEY (service_binding_id) REFERENCES service_binding (id),
+      CONSTRAINT FK_service_binding_service_context2context
+      FOREIGN KEY (service_context_id) REFERENCES service_context (id)
+    );
+
+    CREATE INDEX FK_service_binding_service_context2binding
+      ON service_binding_service_context (service_binding_id);
+
+    CREATE INDEX FK_service_binding_service_context2context
+      ON service_binding_service_context (service_context_id);
 
   END//
 
@@ -37,8 +66,8 @@ CREATE PROCEDURE migrate_cf_context()
                               si.org,
                               si.space
                             FROM service_instance si
-                            WHERE si.org IS NOT NULL AND si.id NOT IN (SELECT sc.service_instance_id
-                                                                       FROM service_context sc);
+                            WHERE si.org IS NOT NULL AND si.id NOT IN (SELECT sisc.service_instance_id
+                                                                       FROM service_instance_service_context sisc);
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
     OPEN cur1;
@@ -52,13 +81,20 @@ CREATE PROCEDURE migrate_cf_context()
         LEAVE read_loop;
       END IF;
 
+      INSERT INTO service_context (`_key`, `_value`)
+      VALUES ('platform', 'cloudfoundry');
+      INSERT INTO service_instance_service_context (service_instance_id, service_context_id)
+      VALUES (service_instance_id, LAST_INSERT_ID());
 
-      INSERT INTO service_context (`_key`, `_value`, service_instance_id)
-      VALUES ('platform', 'cloudfoundry', service_instance_id);
-      INSERT INTO service_context (`_key`, `_value`, service_instance_id)
-      VALUES ('organization_guid', org_id, service_instance_id);
-      INSERT INTO service_context (`_key`, `_value`, service_instance_id)
-      VALUES ('space_guid', space_id, service_instance_id);
+      INSERT INTO service_context (`_key`, `_value`)
+      VALUES ('organization_guid', org_id);
+      INSERT INTO service_instance_service_context (service_instance_id, service_context_id)
+      VALUES (service_instance_id, LAST_INSERT_ID());
+
+      INSERT INTO service_context (`_key`, `_value`)
+      VALUES ('space_guid', space_id);
+      INSERT INTO service_instance_service_context (service_instance_id, service_context_id)
+      VALUES (service_instance_id, LAST_INSERT_ID());
 
     END LOOP;
 
@@ -99,7 +135,8 @@ CREATE PROCEDURE remove_org_space_fields_from_service_instance()
       SELECT count(1)
       INTO sc_count
       FROM service_context
-      WHERE service_instance_id = siid AND `_key` IN ('platform', 'organization_guid', 'space_guid');
+        JOIN service_instance_service_context sisc ON service_context.id = sisc.service_context_id
+      WHERE sisc.service_instance_id = siid AND `_key` IN ('platform', 'organization_guid', 'space_guid');
 
       IF sc_count != 3
       THEN

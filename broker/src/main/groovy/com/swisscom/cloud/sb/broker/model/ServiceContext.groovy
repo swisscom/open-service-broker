@@ -15,11 +15,6 @@ class ServiceContext extends BaseModel {
     @Column(name = '_value')
     String value
 
-    @ManyToOne
-    @JoinColumn(name = 'service_instance_id')
-    @JsonIgnore
-    ServiceInstance serviceInstance
-
     static ServiceContext from(String key, String value) { return new ServiceContext(key: key, value: value) }
 
 }

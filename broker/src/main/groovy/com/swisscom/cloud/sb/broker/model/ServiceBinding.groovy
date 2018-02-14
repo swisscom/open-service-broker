@@ -20,6 +20,12 @@ class ServiceBinding extends BaseModel{
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     Set<ServiceDetail> details = []
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "service_binding_service_context",
+            joinColumns = @JoinColumn(name = "service_binding_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_context_id"))
+    Set<ServiceContext> contexts = []
+
     @ManyToOne
     @JoinColumn(name = 'service_instance_id')
     @JsonIgnore

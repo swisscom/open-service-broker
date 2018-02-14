@@ -84,16 +84,16 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance != null
 
-        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.PLATFORM, serviceInstance) != null
-        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_ORGANIZATION_GUID, serviceInstance) != null
-        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.CF_SPACE_GUID, serviceInstance) != null
+        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.PLATFORM) != null
+        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.CF_ORGANIZATION_GUID) != null
+        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.CF_SPACE_GUID) != null
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance != null
 
-        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.PLATFORM, serviceInstance) != null
-        assert contextRepository.findByKeyAndServiceInstance(ContextPersistenceService.KUBENETES_NAMESPACE, serviceInstance) != null
+        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.PLATFORM) != null
+        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.KUBENETES_NAMESPACE) != null
     }
 }
