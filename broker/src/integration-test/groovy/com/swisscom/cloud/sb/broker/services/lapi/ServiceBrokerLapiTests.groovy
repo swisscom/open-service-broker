@@ -1,33 +1,34 @@
 package com.swisscom.cloud.sb.broker.services.lapi
 
-import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 
 class ServiceBrokerLapiTests extends BaseTransactionalSpecification {
 
     private LapiServiceProvider lapiServiceProvider
+    private String SERVICE_INSTANCE_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a8912"
 
     def "setup"() {
-        lapiServiceProvider = new LapiServiceProvider()
+        def restTemplateBuilder = new RestTemplateBuilder()
+        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder)
     }
 
-    def "provision & bind a lapi service instance"() {
+    def "provision a lapi service instance"() {
         given:
-        def serviceInstanceGuid = "serviceInstanceGuid"
-        def provisionRequest = new ProvisionRequest(serviceInstanceGuid, plan: new Plan())
-        lapiServiceProvider.provision(provisionRequest)
+        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: new Plan())
 
         when:
-        def serviceInstance = new ServiceInstance(serviceInstanceGuid)
-        def serviceBindingId = "serviceBindingId"
-        def bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: ["serviceBindingId": serviceBindingId])
-        lapiServiceProvider.bind(bindRequest)
+        lapiServiceProvider.provision(provisionRequest)
 
         then:
         noExceptionThrown()
+    }
+
+    def "bind provisioned instance"() {
+
     }
 }
