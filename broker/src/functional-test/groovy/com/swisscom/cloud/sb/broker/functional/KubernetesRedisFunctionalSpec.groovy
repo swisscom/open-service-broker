@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
-import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
@@ -102,12 +101,12 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
                 println("Attempt number ${count + 1}. Restore status = ${restoreStatus.status}.")
 
                 if(count == 11) {
-                    ErrorCode.RESTORE_NOT_FOUND.throwNew("Restore timed out.")
+                    throw new Exception("Restore timed out.")
                 }
 
                 if(restoreStatus.status == RestoreStatus.FAILED)
                 {
-                    ErrorCode.RESTORE_NOT_FOUND.throwNew("Restore failed.")
+                    throw new Exception("Restore failed.")
                 }
             }
 
@@ -151,11 +150,11 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             println("Attempt number ${count + 1}. Backup status = ${getBU.status}.")
 
             if(count == 11) {
-                ErrorCode.BACKUP_NOT_FOUND.throwNew("Backup creation timed out.")
+                throw new Exception("Backup creation timed out.")
             }
 
             if(getBU.status == failedStatus){
-                ErrorCode.BACKUP_NOT_FOUND.throwNew("Backup failed.")
+                throw new Exception("Backup failed.")
             }
         }
     }
