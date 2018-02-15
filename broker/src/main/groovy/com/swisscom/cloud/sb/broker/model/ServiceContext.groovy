@@ -1,11 +1,7 @@
 package com.swisscom.cloud.sb.broker.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-
 import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
 
 @Entity
 class ServiceContext extends BaseModel {

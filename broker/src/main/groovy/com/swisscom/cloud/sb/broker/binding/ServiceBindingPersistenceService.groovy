@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.binding
 
 import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
@@ -41,7 +40,7 @@ class ServiceBindingPersistenceService {
                 serviceBinding.details.add(detail)
         }
         if (context) {
-            serviceBinding.contexts.addAll(contextPersistenceService.create(serviceInstance.guid, context))
+            serviceBinding.contexts.addAll(contextPersistenceService.create(context))
         }
         serviceBindingRepository.save(serviceBinding)
         serviceInstance.bindings.add(serviceBinding)
