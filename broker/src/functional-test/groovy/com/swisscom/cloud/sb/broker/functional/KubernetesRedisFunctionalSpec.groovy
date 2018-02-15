@@ -88,7 +88,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
             serviceLifeCycler.setBackupId(createBU.id)
-            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_IN_PROGRESS)
+            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_IN_PROGRESS, BackupStatus.CREATE_SUCCEEDED)
 
             def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
             def restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
@@ -121,7 +121,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     def "Delete backup"() {
         when:
             serviceBrokerClient.deleteBackup(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId()).getBody()
-            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_IN_PROGRESS)
+            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_IN_PROGRESS, BackupStatus.DELETE_SUCCEEDED)
         then:
             noExceptionThrown()
     }
@@ -136,7 +136,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             noExceptionThrown()
     }
 
-    void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status) {
+    void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status, BackupStatus goalStatus = null) {
         def getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
 
         while(getBU.status == status){
@@ -148,6 +148,9 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             if(count == 11) {
                 ErrorCode.BACKUP_NOT_FOUND.throwNew("Backup creation timed out.")
             }
+        }
+        if (goalStatus != null && getBU.status != goalStatus) {
+            throw new Exception("PollBackupStatus goal status ${goalStatus} not reached. ${goalStatus} != ${getBU.status}")
         }
     }
 
