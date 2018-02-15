@@ -88,20 +88,26 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
             serviceLifeCycler.setBackupId(createBU.id)
-            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_IN_PROGRESS, BackupStatus.CREATE_SUCCEEDED)
+
+            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_SUCCEEDED, BackupStatus.CREATE_FAILED)
 
             def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
             def restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
 
             def count = 0
-            while(restoreStatus.status == RestoreStatus.IN_PROGRESS){
-                println("Attempt number ${count + 1}. Restore status = ${restoreStatus.status}.")
+            while(restoreStatus.status != RestoreStatus.SUCCEEDED){
                 count += 1
                 serviceLifeCycler.pauseExecution(10)
                 restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
+                println("Attempt number ${count + 1}. Restore status = ${restoreStatus.status}.")
 
                 if(count == 11) {
                     ErrorCode.RESTORE_NOT_FOUND.throwNew("Restore timed out.")
+                }
+
+                if(restoreStatus.status == RestoreStatus.FAILED)
+                {
+                    ErrorCode.RESTORE_NOT_FOUND.throwNew("Restore failed.")
                 }
             }
 
@@ -121,7 +127,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     def "Delete backup"() {
         when:
             serviceBrokerClient.deleteBackup(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId()).getBody()
-            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_IN_PROGRESS, BackupStatus.DELETE_SUCCEEDED)
+            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_SUCCEEDED, BackupStatus.DELETE_FAILED)
         then:
             noExceptionThrown()
     }
@@ -135,22 +141,22 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         then:
             noExceptionThrown()
     }
-
-    void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status, BackupStatus goalStatus = null) {
+    void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status, BackupStatus failedStatus) {
         def getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
 
-        while(getBU.status == status){
-            println("Attempt number ${count + 1}. Backup status = ${getBU.status}.")
+        while(getBU.status != status){
             count += 1
             serviceLifeCycler.pauseExecution(10)
             getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
+            println("Attempt number ${count + 1}. Backup status = ${getBU.status}.")
 
             if(count == 11) {
                 ErrorCode.BACKUP_NOT_FOUND.throwNew("Backup creation timed out.")
             }
-        }
-        if (goalStatus != null && getBU.status != goalStatus) {
-            throw new Exception("PollBackupStatus goal status ${goalStatus} not reached. ${goalStatus} != ${getBU.status}")
+
+            if(getBU.status == failedStatus){
+                ErrorCode.BACKUP_NOT_FOUND.throwNew("Backup failed.")
+            }
         }
     }
 
