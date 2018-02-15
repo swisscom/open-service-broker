@@ -1,27 +1,15 @@
 package com.swisscom.cloud.sb.broker.services.lapi
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
 import spock.lang.Ignore
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 
 @Ignore
 class ServiceBrokerLapiTests extends BaseSpecification {
 
     private LapiServiceProvider lapiServiceProvider
-    private String SERVICE_INSTANCE_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a8912"
     private String SERVICE_INSTANCE_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a8912"
     private String SERVICE_BINDING_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
 
@@ -30,14 +18,11 @@ class ServiceBrokerLapiTests extends BaseSpecification {
 
     def "setup"() {
         def restTemplateBuilder = new RestTemplateBuilder()
-        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder)
-        def restTemplateBuilder = new RestTemplateBuilder()
         lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder, lapiConfig)
     }
 
     def "provision a lapi service instance"() {
         given:
-        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: new Plan())
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: new Plan())
 
         when:
