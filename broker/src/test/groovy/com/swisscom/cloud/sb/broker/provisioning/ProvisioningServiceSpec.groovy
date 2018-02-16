@@ -35,15 +35,9 @@ class ProvisioningServiceSpec extends Specification {
         provisioningService.serviceProviderLookup = serviceProviderLookup
 
         and:
-        def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_) >> {
-            createServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
-        def updateServiceInstanceCalled = false
-        provisioningPersistenceService.updateServiceDetails(_, _) >> {
-            updateServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
+        1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
+        1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
         1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
@@ -56,8 +50,6 @@ class ProvisioningServiceSpec extends Specification {
         when:
         def result = provisioningService.provision(provisionRequest)
         then:
-        createServiceInstanceCalled == true
-        updateServiceInstanceCalled == true
         result.isAsync == false
     }
 
@@ -70,15 +62,9 @@ class ProvisioningServiceSpec extends Specification {
         provisioningService.serviceProviderLookup = serviceProviderLookup
 
         and:
-        def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_) >> {
-            createServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
-        def updateServiceInstanceCalled = false
-        provisioningPersistenceService.updateServiceDetails(_, _) >> {
-            updateServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
+        1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
+        1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
         1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
