@@ -44,6 +44,7 @@ class ProvisioningServiceSpec extends Specification {
         provisioningPersistenceService.updateServiceDetails(_, _) >> {
             updateServiceInstanceCalled = true; Mock(ServiceInstance)
         }
+        1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
@@ -78,6 +79,7 @@ class ProvisioningServiceSpec extends Specification {
         provisioningPersistenceService.updateServiceDetails(_, _) >> {
             updateServiceInstanceCalled = true; Mock(ServiceInstance)
         }
+        1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
