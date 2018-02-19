@@ -2,7 +2,13 @@ package com.swisscom.cloud.sb.broker.model
 
 import org.hibernate.validator.constraints.NotBlank
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 
 @Entity
 class ServiceInstance extends BaseModel{
@@ -31,8 +37,8 @@ class ServiceInstance extends BaseModel{
     @ManyToOne
     @JoinColumn(name = "parent_service_instance_id")
     ServiceInstance parentServiceInstance
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
-    List<ServiceInstance> childs = []
+    @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
+    Set<ServiceInstance> childs = []
 
     @Override
     public String toString() {

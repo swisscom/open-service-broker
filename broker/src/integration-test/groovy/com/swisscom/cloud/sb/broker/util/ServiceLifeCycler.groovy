@@ -52,7 +52,7 @@ class ServiceLifeCycler {
     private boolean serviceCreated
     private boolean planCreated
 
-    private List<String> serviceInstanceIds = []
+    private Set<String> serviceInstanceIds = []
     private String serviceInstanceId
     private String serviceBindingId
 
@@ -140,7 +140,7 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        serviceInstanceIds.each { it ->
+        (serviceInstanceIds as String[]).reverseEach { it ->
             serviceInstanceRepository.deleteByGuid(it)
         }
 

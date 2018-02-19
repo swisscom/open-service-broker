@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.model.repository
 
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import org.springframework.data.jpa.repository.Query
 import org.springframework.transaction.annotation.Transactional
 
 interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Integer>, ServiceInstanceRepositoryCustom {
@@ -11,8 +10,9 @@ interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Inte
     List<ServiceInstance> findByPlanIdIn(List<Integer> planIds)
 
     List<ServiceInstance> findByPlan(Plan plan)
+
     @Transactional
     Integer deleteByGuid(String guid)
 
-    List<ServiceInstance> findByDetails_KeyAndValue(String key, String value)
+    List<ServiceInstance> findByDetails_KeyAndDetails_Value(String key, String value)
 }
