@@ -58,6 +58,9 @@ class ProvisioningPersistenceService {
     }
 
     private ServiceInstance createServiceDetailsFromParameters(ProvisionRequest provisionRequest, ServiceInstance instance) {
+        if (!provisionRequest.parameters) {
+            return instance
+        }
         def jsonSlurper = new JsonSlurper()
         def parameters = jsonSlurper.parseText(provisionRequest.parameters) as Map
         def alias = parameters?.alias as String
@@ -71,7 +74,7 @@ class ProvisioningPersistenceService {
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
         ServiceInstance parentInstance = null
-        if (provisionRequest.parameters.contains("parentAlias")) {
+        if (provisionRequest.parameters && provisionRequest.parameters.contains("parentAlias")) {
             parentInstance = findParentServiceInstance(provisionRequest.parameters)
             if (parentInstance) {
                 instance.parentServiceInstance = parentInstance
