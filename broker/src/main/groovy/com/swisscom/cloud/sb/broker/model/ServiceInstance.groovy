@@ -2,7 +2,14 @@ package com.swisscom.cloud.sb.broker.model
 
 import org.hibernate.validator.constraints.NotBlank
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
+import javax.persistence.OneToOne
 
 @Entity
 class ServiceInstance extends BaseModel{
@@ -22,14 +29,11 @@ class ServiceInstance extends BaseModel{
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     List<ServiceDetail> details = []
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "service_instance_service_context",
-            joinColumns = @JoinColumn(name = "service_instance_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_context_id"))
-    Set<ServiceContext> contexts = []
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan
+    @OneToOne
+    ServiceContext serviceContext
 
     @Override
     String toString() {

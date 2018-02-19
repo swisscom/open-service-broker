@@ -85,12 +85,6 @@ class ProvisioningController extends BaseController {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
         }
 
-        if (provisioning.context instanceof CloudFoundryContext) {
-            def cfContext = provisioning.context as CloudFoundryContext
-            provisionRequest.organizationGuid = cfContext.organizationGuid
-            provisionRequest.spaceGuid = cfContext.spaceGuid
-        }
-
         return provisionRequest
     }
 

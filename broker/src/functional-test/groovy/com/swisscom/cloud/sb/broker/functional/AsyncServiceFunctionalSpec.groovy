@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
-import com.swisscom.cloud.sb.broker.model.repository.ContextRepository
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
+import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
@@ -14,7 +14,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
     @Autowired
-    private ContextRepository contextRepository
+    private ServiceContextDetailRepository contextRepository
 
     private int processDelayInSeconds = DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2
 
@@ -83,17 +83,17 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     void assertCloudFoundryContext(String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance != null
-
-        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.PLATFORM) != null
-        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.CF_ORGANIZATION_GUID) != null
-        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.CF_SPACE_GUID) != null
+        assert serviceInstance.serviceContext != null
+        assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.CF_ORGANIZATION_GUID }.value == "org_id"
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.CF_SPACE_GUID }.value == "space_id"
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance != null
-
-        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.PLATFORM) != null
-        assert serviceInstanceRepository.findByGuidAndContexts_Key(serviceInstanceGuid, ContextPersistenceService.KUBENETES_NAMESPACE) != null
+        assert serviceInstance.serviceContext != null
+        assert serviceInstance.serviceContext.platform == KubernetesContext.KUBERNETES_PLATFORM
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.KUBERNETES_NAMESPACE }.value == "namespace_guid"
     }
 }

@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.swisscom.cloud.sb.broker.context.ContextPersistenceService
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
@@ -34,7 +34,7 @@ class ProvisioningPersistenceService {
     private ServiceDetailRepository serviceDetailRepository
 
     @Autowired
-    private ContextPersistenceService contextPersistenceService
+    private ServiceContextPersistenceService contextPersistenceService
 
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
         provisionRequestRepository.save(provisionRequest)
@@ -73,7 +73,7 @@ class ProvisioningPersistenceService {
 
     ServiceInstance createServiceContext(Context context, final ServiceInstance instance) {
         if (context) {
-            instance.contexts.addAll(contextPersistenceService.create(context))
+            instance.serviceContext = contextPersistenceService.create(context)
             return serviceInstanceRepository.merge(instance)
         }
         return instance

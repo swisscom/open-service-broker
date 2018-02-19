@@ -15,8 +15,6 @@ class ProvisionRequest extends BaseModel{
     @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
-    String organizationGuid
-    String spaceGuid
     String parameters
     boolean acceptsIncomplete
 
@@ -26,10 +24,8 @@ class ProvisionRequest extends BaseModel{
                 "id=" + id +
                 ", serviceInstanceGuid='" + serviceInstanceGuid + '\'' +
                 ", plan=" + plan +
-                ", organizationGuid='" + organizationGuid + '\'' +
-                ", spaceGuid='" + spaceGuid + '\'' +
                 ", parameters='" + parameters + '\'' +
                 ", acceptsIncomplete=" + acceptsIncomplete +
-                '}';
+                "}"
     }
 }

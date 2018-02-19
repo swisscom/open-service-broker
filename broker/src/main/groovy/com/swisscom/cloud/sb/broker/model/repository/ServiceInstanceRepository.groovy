@@ -13,6 +13,4 @@ interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Inte
 
     @Transactional
     Integer deleteByGuid(String guid)
-
-    ServiceInstance findByGuidAndContexts_Key(String guid, String key)
 }
