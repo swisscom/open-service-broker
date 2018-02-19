@@ -8,13 +8,15 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
-class ProvisionRequest extends BaseModel{
+class ProvisionRequest extends BaseModel {
     @Column(unique = true)
     String serviceInstanceGuid
     @OneToOne()
     @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
+    String organizationGuid
+    String spaceGuid
     String parameters
     boolean acceptsIncomplete
 

@@ -77,6 +77,8 @@ class ProvisioningController extends BaseController {
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
         provisionRequest.serviceInstanceGuid = serviceInstanceGuid
+        provisionRequest.organizationGuid = provisioning.organization_guid
+        provisionRequest.spaceGuid = provisioning.space_guid
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
         provisionRequest.acceptsIncomplete = acceptsIncomple
         provisionRequest.parameters = serializeJson(provisioning.parameters)

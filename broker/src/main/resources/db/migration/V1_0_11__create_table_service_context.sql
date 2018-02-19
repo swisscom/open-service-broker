@@ -129,11 +129,6 @@ CREATE PROCEDURE remove_org_space_fields_from_service_instance()
     ALTER TABLE service_instance
       DROP COLUMN space;
 
-    ALTER TABLE provision_request
-      DROP COLUMN organization_guid;
-    ALTER TABLE provision_request
-      DROP COLUMN space_guid;
-
     CLOSE cur1;
 
   END//
