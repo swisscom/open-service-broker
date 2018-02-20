@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -16,9 +17,10 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
-class LapiServiceProviderSpec extends Specification{
+class LapiServiceProviderSpec extends Specification {
 
     private LapiServiceProvider lapiServiceProvider
+    private LapiConfig lapiConfig
 
     private MockRestServiceServer mockServer
     private ServiceInstanceRepository serviceInstanceRepository
@@ -31,6 +33,7 @@ class LapiServiceProviderSpec extends Specification{
 
         and:
         RestTemplate restTemplate = new RestTemplate()
+        lapiConfig = new LapiConfig()
         mockServer = MockRestServiceServer.createServer(restTemplate)
         restTemplateBuilder = Mock(RestTemplateBuilder)
         restTemplateBuilder.build() >> restTemplate
@@ -39,7 +42,7 @@ class LapiServiceProviderSpec extends Specification{
         restTemplateBuilder.withBasicAuthentication(_, _) >> restTemplateBuilder
 
         and:
-        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder)
+        lapiServiceProvider = new LapiServiceProvider(restTemplateBuilder, lapiConfig)
     }
 
     def "provision service instance"() {
@@ -65,8 +68,8 @@ class LapiServiceProviderSpec extends Specification{
         given:
         def serviceId = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceId)
-        ServiceInstance serviceInstance = new ServiceInstance()
-        serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
+        //ServiceInstance serviceInstance = new ServiceInstance()
+        //serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         def url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}"
 
@@ -90,7 +93,7 @@ class LapiServiceProviderSpec extends Specification{
         String serviceBindingId = "serviceBindingId"
         def serviceId = "serviceId"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId)
-        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, parameters: ["serviceBindingId": serviceBindingId])
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, binding_guid: serviceBindingId)
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
         String url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}/service-bindings/${serviceBindingId}"
