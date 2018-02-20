@@ -46,7 +46,15 @@ class ServiceBrokerLapiTests extends BaseSpecification {
     }
 
     def "bind provisioned instance"() {
+        given:
+        ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID)
+        BindRequest bindRequest = new BindRequest(binding_guid: SERVICE_BINDING_GUID, serviceInstance: serviceInstance)
 
+        when:
+        lapiServiceProvider.bind(bindRequest)
+
+        then:
+        noExceptionThrown()
     }
 
     def "unbind from provisioned instance"() {
@@ -87,47 +95,4 @@ class ServiceBrokerLapiTests extends BaseSpecification {
         HttpClientErrorException e = thrown()
         e.statusCode == HttpStatus.BAD_REQUEST
     }
-
-    // Tests can be activated once the LAPI implementation is OSB-compliant
-    /*def "bind the same binding twice"() {
-        given:
-        ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID)
-        BindRequest bindRequest = new BindRequest(binding_guid: SERVICE_BINDING_GUID, serviceInstance: serviceInstance)
-
-        when:
-        lapiServiceProvider.bind(bindRequest)
-        lapiServiceProvider.bind(bindRequest)
-
-        then:
-        HttpClientErrorException e = thrown()
-        e.statusCode == HttpStatus.CONFLICT
-    }
-
-    def "unbind non-existant binding"() {
-        given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID)
-        ServiceBinding serviceBinding= new ServiceBinding(guid: SERVICE_BINDING_GUID)
-        UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance)
-
-        when:
-        lapiServiceProvider.unbind(unbindRequest)
-        lapiServiceProvider.unbind(unbindRequest)
-
-        then:
-        HttpClientErrorException e = thrown()
-        e.statusCode e = HttpStatus.GONE
-    }
-
-    def "deprovision non-existant service instance"() {
-        given:
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID)
-
-        when:
-        lapiServiceProvider.deprovision(deprovisionRequest)
-        lapiServiceProvider.deprovision(deprovisionRequest)
-
-        then:
-        HttpClientErrorException e = thrown()
-        e.statusCode e = HttpStatus.GONE
-    }*/
 }
