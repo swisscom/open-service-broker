@@ -70,7 +70,7 @@ class BindingController extends BaseController {
         CFService service = getAndCheckService(bindingDto)
         failIfServiceBindingAlreadyExists(bindingId)
 
-        BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
+        BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingId ,bindingDto, service, serviceInstance))
 
         serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
 
@@ -110,8 +110,9 @@ class BindingController extends BaseController {
         return plan
     }
 
-    private BindRequest createBindRequest(BindRequestDto bindingDto, CFService service, ServiceInstance serviceInstance) {
+    private BindRequest createBindRequest(String bindingId, BindRequestDto bindingDto, CFService service, ServiceInstance serviceInstance) {
         BindRequest bindRequest = new BindRequest()
+        bindRequest.binding_guid = bindingId
         bindRequest.app_guid = bindingDto.app_guid
         bindRequest.serviceInstance = serviceInstance
         bindRequest.service = service
