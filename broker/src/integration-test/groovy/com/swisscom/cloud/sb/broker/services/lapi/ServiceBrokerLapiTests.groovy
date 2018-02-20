@@ -3,7 +3,11 @@ package com.swisscom.cloud.sb.broker.services.lapi
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 import spock.lang.Ignore
 
 @Ignore
@@ -39,18 +43,6 @@ class ServiceBrokerLapiTests extends BaseSpecification {
 
         when:
         lapiServiceProvider.provision(provisionRequest)
-        lapiServiceProvider.bind(bindRequest)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "bind provisioned instance"() {
-        given:
-        ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID)
-        BindRequest bindRequest = new BindRequest(binding_guid: SERVICE_BINDING_GUID, serviceInstance: serviceInstance)
-
-        when:
         lapiServiceProvider.bind(bindRequest)
 
         then:
