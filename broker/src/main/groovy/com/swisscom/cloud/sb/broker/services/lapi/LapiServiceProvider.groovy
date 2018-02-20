@@ -55,19 +55,10 @@ class LapiServiceProvider implements ServiceProvider {
     //putting and reading bindingID from request.parameters ok?
     BindResponse bind(BindRequest request) {
         log.info("lets bind!")
-        String serviceBindingId = getServiceBindingId(request.parameters)
-        //bindingId not part of BindRequest, generate? how to do in test?
-        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/${request.parameters["serviceBindingId"]}"
+        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/${request.binding_guid}"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.put(url, request, BindResponse.class)
         return new BindResponse()
-    }
-
-    String getServiceBindingId(Map parameters) {
-        if (parameters.containsKey("serviceBindingId")) {
-            return parameters["serviceBindingId"];
-        }
-        return "";
     }
 
     @Override
