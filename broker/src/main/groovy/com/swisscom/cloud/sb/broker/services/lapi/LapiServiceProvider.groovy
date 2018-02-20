@@ -10,6 +10,9 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
+import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -21,6 +24,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
+
+import javax.annotation.PostConstruct
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
@@ -36,10 +41,13 @@ class LapiServiceProvider implements ServiceProvider {
 
     private RestTemplateBuilder restTemplateBuilder
 
+    LapiConfig lapiConfig
+
     @Autowired
-    LapiServiceProvider(RestTemplateBuilder restTemplateBuilder) {
+    LapiServiceProvider(RestTemplateBuilder restTemplateBuilder, LapiConfig lapiConfig) {
+        this.lapiConfig = lapiConfig
         this.restTemplateBuilder = restTemplateBuilder
-        this.restTemplateBuilder = restTemplateBuilder.withBasicAuthentication("username", "password")
+        this.restTemplateBuilder = restTemplateBuilder.withBasicAuthentication(lapiConfig.lapiUsername, lapiConfig.lapiPassword)
     }
 
     @Override
