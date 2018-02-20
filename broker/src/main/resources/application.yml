@@ -119,6 +119,10 @@ com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
     ENVIRONMENT: # Deployment
     SHIELD_AUTHORIZED_KEYS: # Deployment
 
+com.swisscom.cloud.sb.broker.service.lapi:
+  lapiUsername:
+  lapiPassword:
+
 com.swisscom.cloud.sb.broker.serviceDefinitions: []
 
 com.swisscom.cloud.sb.broker.serviceTemplates:
