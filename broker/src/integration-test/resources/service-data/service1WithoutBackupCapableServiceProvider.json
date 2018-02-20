@@ -3,7 +3,7 @@
   "name": "service1Name",
   "description": "description",
   "bindable": true,
-  "internalName": "dummySynchronousBackupCapable",
+  "internalName": "dummySynchronous",
   "displayIndex": 1,
   "asyncRequired": true,
   "tags": [

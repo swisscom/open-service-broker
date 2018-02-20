@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.common
 
 import com.google.common.base.Preconditions
+import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,14 +38,28 @@ class ServiceProviderLookup {
             return findServiceProvider(plan.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
-        if (plan.service.serviceProviderClass){
+        if (plan?.service?.serviceProviderClass){
             return findServiceProvider(plan.service.serviceProviderClass)
         }
 
         return findServiceProvider(plan.service.internalName + POSTFIX_SERVICE_PROVIDER)
     }
 
-    public static String findInternalName(Class clazz) {
+    ServiceProvider findServiceProvider(CFService service, Plan plan){
+        Preconditions.checkNotNull(service, "A valid service is needed for finding the corresponding ServiceProvider")
+
+        if(service?.serviceProviderClass){
+            return findServiceProvider(service.serviceProviderClass)
+        }
+
+        if(service?.internalName){
+            return findServiceProvider(service.internalName + POSTFIX_SERVICE_PROVIDER)
+        }
+
+        return findServiceProvider(plan)
+    }
+
+    static String findInternalName(Class clazz) {
         def partialClassName = clazz.getSimpleName().substring(0, clazz.getSimpleName().lastIndexOf(POSTFIX_SERVICE_PROVIDER))
         return Introspector.decapitalize(partialClassName)
     }

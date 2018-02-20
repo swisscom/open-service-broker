@@ -252,7 +252,7 @@ class ServiceDefinitionProcessor {
         if (plan.maxBackups <= 0) {
             return
         }
-        def provider = serviceProviderLookup.findServiceProvider(plan)
+        def provider = serviceProviderLookup.findServiceProvider(cfService, plan)
         if (!(provider instanceof BackupRestoreProvider)) {
             throw new RuntimeException("Not allowed to set up maxBackups:${plan.maxBackups} for a service provider that does not support backup/restore")
         }
