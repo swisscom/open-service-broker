@@ -13,7 +13,9 @@ import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
+import spock.lang.Ignore
 
+@Ignore
 class ServiceBrokerLapiTests extends BaseSpecification {
 
     private LapiServiceProvider lapiServiceProvider
