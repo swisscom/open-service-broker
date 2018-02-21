@@ -33,7 +33,7 @@ class ServiceContextPersistenceService {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
-    ServiceContext create(Context context) {
+    ServiceContext findOrCreate(Context context) {
         if (!context) {
             return
         }
@@ -58,6 +58,14 @@ class ServiceContextPersistenceService {
     }
 
     private ServiceContext processCloudFoundryContext(CloudFoundryContext context) {
+        def existingServiceContext = serviceContextRepository.findCloudFoundryServiceContext(context.organizationGuid, context.spaceGuid)
+        if (existingServiceContext) {
+            return existingServiceContext
+        }
+        return createCloudFoundryContext(context)
+    }
+
+    private ServiceContext createCloudFoundryContext(CloudFoundryContext context) {
         def serviceContext = new ServiceContext(platform: CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM)
         serviceContextRepository.save(serviceContext)
 
@@ -74,6 +82,14 @@ class ServiceContextPersistenceService {
     }
 
     private ServiceContext processKubernetesContext(KubernetesContext context) {
+        def existingServiceContext = serviceContextRepository.findKubernetesServiceContext(context.namespace)
+        if (existingServiceContext) {
+            return existingServiceContext
+        }
+        return createKubernetesContext(context)
+    }
+
+    private ServiceContext createKubernetesContext(KubernetesContext context) {
         def serviceContext = new ServiceContext(platform: KubernetesContext.KUBERNETES_PLATFORM)
         serviceContextRepository.save(serviceContext)
 

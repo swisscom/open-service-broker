@@ -27,13 +27,13 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
     @Autowired
     private ProvisionRequestRepository provisionRequestRepository
 
-    protected LastOperationJobContext enrichContext(LastOperationJobContext context) {
-        String serviceInstanceGuid = context.lastOperation.guid
+    protected LastOperationJobContext enrichContext(LastOperationJobContext jobContext) {
+        String serviceInstanceGuid = jobContext.lastOperation.guid
         ProvisionRequest provisionRequest = provisionRequestRepository.findByServiceInstanceGuid(serviceInstanceGuid)
-        context.provisionRequest = provisionRequest
-        context.plan = provisionRequest.plan
-        context.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        return context
+        jobContext.provisionRequest = provisionRequest
+        jobContext.plan = provisionRequest.plan
+        jobContext.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        return jobContext
     }
 
     @Override

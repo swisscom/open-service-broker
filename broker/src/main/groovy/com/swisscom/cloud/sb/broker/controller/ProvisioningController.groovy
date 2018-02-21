@@ -66,13 +66,13 @@ class ProvisioningController extends BaseController {
         failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
-        ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete), provisioningDto.context)
+        ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
     }
 
-    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomple) {
+    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {
         getAndCheckService(provisioning.service_id)
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
@@ -80,17 +80,19 @@ class ProvisioningController extends BaseController {
         provisionRequest.organizationGuid = provisioning.organization_guid
         provisionRequest.spaceGuid = provisioning.space_guid
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
-        provisionRequest.acceptsIncomplete = acceptsIncomple
+        provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
 
         if (provisioning.organization_guid && provisioning.space_guid && !provisioning.context) {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
         }
 
+        provisionRequest.context = serializeJson(provisioning.context)
+
         return provisionRequest
     }
 
-    private String serializeJson(Map object) {
+    private static String serializeJson(Object object) {
         if (!object) return null
         return new ObjectMapper().writeValueAsString(object)
     }
@@ -143,7 +145,7 @@ class ProvisioningController extends BaseController {
     }
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
+    ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
         ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
         return new ResponseEntity<Object>(HttpStatus.UNPROCESSABLE_ENTITY)
     }

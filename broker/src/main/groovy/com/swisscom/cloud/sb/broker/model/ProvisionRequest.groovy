@@ -19,9 +19,10 @@ class ProvisionRequest extends BaseModel {
     String spaceGuid
     String parameters
     boolean acceptsIncomplete
+    String context
 
     @Override
-    public String toString() {
+    String toString() {
         return "ProvisionRequest{" +
                 "id=" + id +
                 ", serviceInstanceGuid='" + serviceInstanceGuid + '\'' +

@@ -8,7 +8,6 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,15 +22,13 @@ class ProvisioningService {
     //TODO
     /*@Autowired
     BackupService backupService*/
-
-    ProvisionResponse provision(ProvisionRequest provisionRequest, Context context = null) {
+    ProvisionResponse provision(ProvisionRequest provisionRequest) {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
         def instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
         ProvisionResponse provisionResponse = serviceProviderLookup.findServiceProvider(provisionRequest.plan).provision(provisionRequest)
         instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)
-        instance = provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
-        provisioningPersistenceService.createServiceContext(context, instance)
+        provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
         return provisionResponse
     }
 
