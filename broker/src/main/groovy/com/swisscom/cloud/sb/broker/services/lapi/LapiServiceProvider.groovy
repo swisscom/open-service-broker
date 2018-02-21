@@ -46,7 +46,7 @@ class LapiServiceProvider implements ServiceProvider {
         log.info("lets deprovision!")
 
         RestTemplate restTemplate = restTemplateBuilder.build()
-        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstanceGuid}"
+        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstanceGuid}"
         restTemplate.delete(url)
         return new DeprovisionResponse(isAsync: false)
     }
@@ -55,7 +55,7 @@ class LapiServiceProvider implements ServiceProvider {
     //putting and reading bindingID from request.parameters ok?
     BindResponse bind(BindRequest request) {
         log.info("lets bind!")
-        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/${request.binding_guid}"
+        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstance.guid}/service-bindings/${request.binding_guid}"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.put(url, request, BindResponse.class)
         return new BindResponse()
@@ -64,7 +64,7 @@ class LapiServiceProvider implements ServiceProvider {
     @Override
     void unbind(UnbindRequest request) {
         log.info("lets unbind")
-        String url = "http://0.0.0.0:4567/v2/service-instances/${request.serviceInstance.guid}/service-bindings/serviceBindingId"
+        String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstance.guid}/service-bindings/serviceBindingId"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.delete(url)
     }
