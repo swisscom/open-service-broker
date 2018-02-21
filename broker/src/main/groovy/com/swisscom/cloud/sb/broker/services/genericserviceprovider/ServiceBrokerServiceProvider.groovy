@@ -1,14 +1,11 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
-import com.google.common.annotations.VisibleForTesting
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
-import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
-import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
@@ -21,27 +18,19 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderFacade
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderRestClient
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderDeprovisionState
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderProvisionState
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderStateMachineContext
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
-import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.client.ClientHttpResponse
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
-import org.springframework.web.client.DefaultResponseErrorHandler
-import org.springframework.web.client.RestTemplate
 
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
