@@ -118,6 +118,12 @@ task functionalTest(type: Test) {
     classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
+task buildCloudFoundryManifest() {
+    String fileContent = new File("$projectDir/../manifest.yml").text;
+    fileContent = fileContent.replaceAll("%releasePackage%", "broker-$version");
+    new File("$projectDir/build/libs/manifest.yml").text = fileContent;
+}
+
 configurations {
     testArtifacts.extendsFrom testRuntime
 }
