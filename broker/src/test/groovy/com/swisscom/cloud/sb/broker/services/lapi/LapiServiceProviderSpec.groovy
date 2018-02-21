@@ -49,7 +49,7 @@ class LapiServiceProviderSpec extends Specification {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: new Plan())
 
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service-instances/${provisionRequest.serviceInstanceGuid}"))
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://0.0.0.0:4567/v2/service_instances/${provisionRequest.serviceInstanceGuid}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                 .andRespond(MockRestResponseCreators.withSuccess())
 
@@ -71,7 +71,7 @@ class LapiServiceProviderSpec extends Specification {
         //ServiceInstance serviceInstance = new ServiceInstance()
         //serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
-        def url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}"
+        def url = "http://0.0.0.0:4567/v2/service_instances/${serviceId}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -97,7 +97,7 @@ class LapiServiceProviderSpec extends Specification {
         BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, binding_guid: serviceBindingId)
         serviceInstanceRepository.findByGuid(serviceId) >> serviceInstance
 
-        String url = "http://0.0.0.0:4567/v2/service-instances/${serviceId}/service-bindings/${serviceBindingId}"
+        String url = "http://0.0.0.0:4567/v2/service_instances/${serviceId}/service_bindings/${serviceBindingId}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
@@ -119,7 +119,7 @@ class LapiServiceProviderSpec extends Specification {
         UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance)
         serviceBindingRepository.findByGuid(serviceBindingId) >> serviceBinding
 
-        String url = "http://0.0.0.0:4567/v2/service-instances/${unbindRequest.serviceInstance.guid}/service-bindings/${serviceBinding.guid}"
+        String url = "http://0.0.0.0:4567/v2/service_instances/${unbindRequest.serviceInstance.guid}/service_bindings/${serviceBinding.guid}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
