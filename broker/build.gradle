@@ -119,7 +119,7 @@ task functionalTest(type: Test) {
 }
 
 task buildCloudFoundryManifest() {
-    String fileContent = new File("$projectDir/../manifest.yml").text;
+    String fileContent = new File("$projectDir/../manifest-template.yml").text;
     fileContent = fileContent.replaceAll("%releasePackage%", "broker-$version");
     new File("$projectDir/build/libs/manifest.yml").text = fileContent;
 }
