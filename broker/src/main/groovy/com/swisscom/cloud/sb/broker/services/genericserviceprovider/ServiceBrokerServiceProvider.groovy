@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
+import com.sun.tools.javah.Gen
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -11,6 +12,7 @@ import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.util.logging.Slf4j
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
@@ -77,7 +79,16 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
 
     @Override
     void unbind(UnbindRequest request) {
-        log.info("lets unbind")
+        def serviceInstanceId = request.serviceInstance.guid
+        def bindingId = request.binding.guid
+        def serviceId = request.service.guid
+        def planId = request.serviceInstance.plan.guid
+        def params = request.serviceInstance.plan.parameters
+
+        GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
+        ServiceBrokerClient sbc = createServiceBrokerClient(req)
+        DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest = new DeleteServiceInstanceBindingRequest(serviceInstanceId, bindingId, serviceId, planId)
+        sbc.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
     }
 
     GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
