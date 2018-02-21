@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
+import com.swisscom.cloud.sb.broker.async.job.JobConfig
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.CFService
@@ -16,12 +18,15 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -43,6 +48,8 @@ class ProvisioningController extends BaseController {
 
     @Autowired
     private ProvisioningService provisioningService
+    @Autowired
+    private AsyncProvisioningService asyncProvisioningService
     @Autowired
     private ProvisioningPersistenceService provisioningPersistenceService
     @Autowired
@@ -67,12 +74,26 @@ class ProvisioningController extends BaseController {
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
-        // check if parent alias exists, if not queue async provisioning
-
-        ProvisionResponse provisionResponse = provisioningService.provision(request)
+        ProvisionResponse provisionResponse
+        // check if parent alias specified and doesn't exist, queue async provisioning
+        if (StringUtils.contains(request.parameters, "parentAlias") &&
+                !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
+            provisionResponse = scheduleProvision(request)
+        } else {
+            provisionResponse = provisioningService.provision(request)
+        }
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+    }
+
+    private ProvisionResponse scheduleProvision(ProvisionRequest request) {
+        asyncProvisioningService.scheduleProvision(
+                new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
+                        JobConfig.RETRY_INTERVAL_IN_SECONDS,
+                        JobConfig.MAX_RETRY_DURATION_IN_MINUTES,
+                        JobConfig.DELAY_IN_SECONDS))
+        return new ProvisionResponse(isAsync: true)
     }
 
     private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomple) {

@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
@@ -76,11 +77,13 @@ class ProvisioningPersistenceService {
         ServiceInstance parentInstance = null
         if (provisionRequest.parameters && provisionRequest.parameters.contains("parentAlias")) {
             parentInstance = findParentServiceInstance(provisionRequest.parameters)
-            if (parentInstance) {
+            if (parentInstance != null) {
                 instance.parentServiceInstance = parentInstance
                 serviceInstanceRepository.merge(instance)
                 parentInstance.childs << instance
                 serviceInstanceRepository.merge(parentInstance)
+            } else {
+                ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
             }
         }
         parentInstance
