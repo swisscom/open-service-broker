@@ -1,10 +1,15 @@
 package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
-import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -21,6 +26,7 @@ class LastOperationJobContext {
     Plan plan
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
+    Context context
 
     void notifySuccess(String message = null) {
         notifyResult(true, message)

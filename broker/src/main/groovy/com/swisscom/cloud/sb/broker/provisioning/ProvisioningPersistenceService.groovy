@@ -1,5 +1,7 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -13,7 +15,9 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,6 +38,9 @@ class ProvisioningPersistenceService {
     @Autowired
     private ServiceDetailRepository serviceDetailRepository
 
+    @Autowired
+    private ServiceContextPersistenceService contextPersistenceService
+
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
         provisionRequestRepository.save(provisionRequest)
     }
@@ -42,11 +49,9 @@ class ProvisioningPersistenceService {
         deprovisionRequestRepository.save(deprovisionRequest)
     }
 
-    def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
+    ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
-        instance.org = provisionRequest.organizationGuid
-        instance.space = provisionRequest.spaceGuid
         instance.plan = provisionRequest.plan
         serviceInstanceRepository.save(instance)
 
@@ -54,6 +59,9 @@ class ProvisioningPersistenceService {
 
         // set parent service instance if specified
         setParentServiceInstance(provisionRequest, instance)
+
+        def context = StringUtils.isNotBlank(provisionRequest.context) ? new ObjectMapper().readValue(provisionRequest.context, Context) : null
+        instance = createServiceContext(context as Context, instance)
 
         return instance
     }
@@ -108,7 +116,7 @@ class ProvisioningPersistenceService {
         parentInstance
     }
 
-    def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+    ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
         ServiceInstance instance = createServiceInstance(provisionRequest)
         instance.completed = !provisionResponse.isAsync
 
@@ -128,6 +136,14 @@ class ProvisioningPersistenceService {
         serviceInstanceRepository.save(instance)
     }
 
+    ServiceInstance createServiceContext(Context context, final ServiceInstance instance) {
+        if (context) {
+            instance.serviceContext = contextPersistenceService.findOrCreate(context)
+            return serviceInstanceRepository.merge(instance)
+        }
+        return instance
+    }
+
     private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {
         def existingDetails = instance.details.findAll { it.key == newServiceDetail.key }
         existingDetails?.each {
@@ -138,7 +154,7 @@ class ProvisioningPersistenceService {
         serviceInstanceRepository.save(instance)
     }
 
-    def ServiceInstance createServiceInstanceOrUpdateDetails(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+    ServiceInstance createServiceInstanceOrUpdateDetails(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
         def serviceInstace = getServiceInstance(provisionRequest.serviceInstanceGuid)
         if (serviceInstace) {
             return updateServiceDetails(provisionResponse.details, serviceInstace)
@@ -160,7 +176,7 @@ class ProvisioningPersistenceService {
         serviceInstanceRepository.save(instance)
     }
 
-    def ServiceInstance getServiceInstance(String guid) {
+    ServiceInstance getServiceInstance(String guid) {
         return serviceInstanceRepository.findByGuid(guid)
     }
 

@@ -9,15 +9,13 @@ import javax.persistence.JoinColumn
 import javax.persistence.JoinTable
 import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
+import javax.persistence.OneToOne
 
 @Entity
 class ServiceInstance extends BaseModel{
     @NotBlank
     @Column(unique = true)
     String guid
-    String org
-    String space
-
     Date dateCreated = new Date()
     @Column(columnDefinition='tinyint(1) default 1')
     boolean completed
@@ -39,17 +37,17 @@ class ServiceInstance extends BaseModel{
     ServiceInstance parentServiceInstance
     @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
     Set<ServiceInstance> childs = []
+    @OneToOne
+    ServiceContext serviceContext
 
     @Override
-    public String toString() {
+    String toString() {
         return "ServiceInstance{" +
                 "id=" + id +
                 ", guid='" + guid + '\'' +
-                ", org='" + org + '\'' +
-                ", space='" + space + '\'' +
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
-                '}'
+                "}"
     }
 }

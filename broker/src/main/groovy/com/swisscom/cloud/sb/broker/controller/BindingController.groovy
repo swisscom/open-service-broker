@@ -21,7 +21,11 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 
 import javax.validation.Valid
 
@@ -39,7 +43,6 @@ class BindingController extends BaseController {
     @Autowired
     private PlanRepository planRepository
 
-
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
     ResponseEntity<String> bind(@PathVariable('id') String bindingId,
@@ -54,7 +57,7 @@ class BindingController extends BaseController {
 
         BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
 
-        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details)
+        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details, bindingDto.context)
 
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }

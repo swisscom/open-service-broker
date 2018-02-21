@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning.job
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.async.job.AbstractLastOperationJob
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -12,7 +13,9 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Component
 
 @CompileStatic
@@ -27,13 +30,14 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
     @Autowired
     private ProvisionRequestRepository provisionRequestRepository
 
-    protected LastOperationJobContext enrichContext(LastOperationJobContext context) {
-        String serviceInstanceGuid = context.lastOperation.guid
+    protected LastOperationJobContext enrichContext(LastOperationJobContext jobContext) {
+        String serviceInstanceGuid = jobContext.lastOperation.guid
         ProvisionRequest provisionRequest = provisionRequestRepository.findByServiceInstanceGuid(serviceInstanceGuid)
-        context.provisionRequest = provisionRequest
-        context.plan = provisionRequest.plan
-        context.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        return context
+        jobContext.provisionRequest = provisionRequest
+        jobContext.plan = provisionRequest.plan
+        jobContext.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        jobContext.context = StringUtils.isNotBlank(provisionRequest.context) ? new ObjectMapper().readValue(provisionRequest.context, Context) : null
+        return jobContext
     }
 
     @Override

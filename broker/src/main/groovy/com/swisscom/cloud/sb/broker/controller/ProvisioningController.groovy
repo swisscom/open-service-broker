@@ -28,6 +28,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
@@ -61,7 +62,6 @@ class ProvisioningController extends BaseController {
     @Autowired
     private PlanRepository planRepository
 
-
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
     ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
@@ -75,7 +75,7 @@ class ProvisioningController extends BaseController {
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
         ProvisionResponse provisionResponse
-        // check if parent alias specified and doesn't exist, queue async provisioning
+        // check if parent alias is specified and doesn't exist, queue async provisioning
         if (StringUtils.contains(request.parameters, "parentAlias") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
             provisionResponse = scheduleProvision(request)
@@ -96,7 +96,7 @@ class ProvisioningController extends BaseController {
         return new ProvisionResponse(isAsync: true)
     }
 
-    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomple) {
+    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {
         getAndCheckService(provisioning.service_id)
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
@@ -104,12 +104,19 @@ class ProvisioningController extends BaseController {
         provisionRequest.organizationGuid = provisioning.organization_guid
         provisionRequest.spaceGuid = provisioning.space_guid
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
-        provisionRequest.acceptsIncomplete = acceptsIncomple
+        provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
+
+        if (provisioning.organization_guid && provisioning.space_guid && !provisioning.context) {
+            provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
+        }
+
+        provisionRequest.context = serializeJson(provisioning.context)
+
         return provisionRequest
     }
 
-    private String serializeJson(Map object) {
+    private static String serializeJson(Object object) {
         if (!object) return null
         return new ObjectMapper().writeValueAsString(object)
     }
@@ -155,14 +162,14 @@ class ProvisioningController extends BaseController {
     }
 
     @ApiOperation(value = "Get the last operation status", response = LastOperationResponseDto.class,
-            notes = "List all the backups for the given service instance")
+            notes = "Returns the last operation status for the given service instance")
     @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
     LastOperationResponseDto lastOperation(@PathVariable("instanceId") String serviceInstanceGuid) {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
     }
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
+    ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
         ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
         return new ResponseEntity<Object>(HttpStatus.UNPROCESSABLE_ENTITY)
     }
