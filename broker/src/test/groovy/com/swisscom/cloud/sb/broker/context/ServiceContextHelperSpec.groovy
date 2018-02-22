@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.context
 
 import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import spock.lang.Specification
