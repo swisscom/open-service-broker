@@ -38,7 +38,6 @@ class ProvisioningServiceSpec extends Specification {
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
         1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
         1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
-        1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
@@ -65,7 +64,6 @@ class ProvisioningServiceSpec extends Specification {
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
         1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
         1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
-        1 * provisioningPersistenceService.createServiceContext(_, _)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
@@ -109,4 +107,5 @@ class ProvisioningServiceSpec extends Specification {
         false       | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
         true        | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
     }
+
 }

@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
@@ -51,6 +52,8 @@ class ProvisioningController extends BaseController {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
     @Autowired
+    private ServiceContextPersistenceService serviceContextService
+    @Autowired
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
@@ -77,8 +80,6 @@ class ProvisioningController extends BaseController {
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
         provisionRequest.serviceInstanceGuid = serviceInstanceGuid
-        provisionRequest.organizationGuid = provisioning.organization_guid
-        provisionRequest.spaceGuid = provisioning.space_guid
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
         provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
@@ -87,7 +88,7 @@ class ProvisioningController extends BaseController {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
         }
 
-        provisionRequest.context = serializeJson(provisioning.context)
+        provisionRequest.serviceContext = serviceContextService.findOrCreate(provisioning.context)
 
         return provisionRequest
     }

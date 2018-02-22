@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -12,9 +11,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -50,9 +47,8 @@ class ProvisioningPersistenceService {
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
         instance.plan = provisionRequest.plan
-        serviceInstanceRepository.save(instance)
-        def context = StringUtils.isNotBlank(provisionRequest.context) ? new ObjectMapper().readValue(provisionRequest.context, Context) : null
-        instance = createServiceContext(context as Context, instance)
+        instance.serviceContext = provisionRequest.serviceContext
+        return serviceInstanceRepository.save(instance)
     }
 
     def ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
@@ -73,14 +69,6 @@ class ProvisioningPersistenceService {
                 instance.details.add(detail)
         }
         serviceInstanceRepository.save(instance)
-    }
-
-    ServiceInstance createServiceContext(Context context, final ServiceInstance instance) {
-        if (context) {
-            instance.serviceContext = contextPersistenceService.findOrCreate(context)
-            return serviceInstanceRepository.merge(instance)
-        }
-        return instance
     }
 
     private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {

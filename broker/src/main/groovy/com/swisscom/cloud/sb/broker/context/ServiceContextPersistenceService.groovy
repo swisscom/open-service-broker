@@ -20,11 +20,6 @@ import org.springframework.transaction.annotation.Transactional
 @CompileStatic
 class ServiceContextPersistenceService {
 
-    public static final String CF_SPACE_GUID = "space_guid"
-    public static final String CF_ORGANIZATION_GUID = "organization_guid"
-    public static final String KUBERNETES_NAMESPACE = "namespace"
-    public static final String PLATFORM = "platform"
-
     @Autowired
     private ServiceContextDetailRepository serviceContextDetailRepository
     @Autowired
@@ -45,18 +40,6 @@ class ServiceContextPersistenceService {
         }
     }
 
-    Context convertFrom(List<ServiceContextDetail> contextDetails) {
-        def platform = contextDetails.find { it -> it.key == PLATFORM }?.value
-        if (platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM) {
-            String organizationGuid = contextDetails.find { it -> it.key == CF_ORGANIZATION_GUID }.value
-            String spaceGuid = contextDetails.find { it -> it.key == CF_SPACE_GUID }.value
-            return new CloudFoundryContext(organizationGuid, spaceGuid)
-        } else {
-            String namespace = contextDetails.find { it -> it.key == KUBERNETES_NAMESPACE }.value
-            return new KubernetesContext(namespace)
-        }
-    }
-
     private ServiceContext processCloudFoundryContext(CloudFoundryContext context) {
         def existingServiceContext = serviceContextRepository.findCloudFoundryServiceContext(context.organizationGuid, context.spaceGuid)
         if (existingServiceContext) {
@@ -70,8 +53,8 @@ class ServiceContextPersistenceService {
         serviceContextRepository.save(serviceContext)
 
         def contextDetails = [] as Set<ServiceContextDetail>
-        contextDetails << createServiceContextDetailRecord(CF_ORGANIZATION_GUID, context.organizationGuid, serviceContext)
-        contextDetails << createServiceContextDetailRecord(CF_SPACE_GUID, context.spaceGuid, serviceContext)
+        contextDetails << createServiceContextDetailRecord(ServiceContextHelper.CF_ORGANIZATION_GUID, context.organizationGuid, serviceContext)
+        contextDetails << createServiceContextDetailRecord(ServiceContextHelper.CF_SPACE_GUID, context.spaceGuid, serviceContext)
         serviceContextDetailRepository.flush()
 
         serviceContext.details.addAll(contextDetails)
@@ -94,7 +77,7 @@ class ServiceContextPersistenceService {
         serviceContextRepository.save(serviceContext)
 
         def contextDetails = [] as Set<ServiceContextDetail>
-        contextDetails << createServiceContextDetailRecord(KUBERNETES_NAMESPACE, context.namespace, serviceContext)
+        contextDetails << createServiceContextDetailRecord(ServiceContextHelper.KUBERNETES_NAMESPACE, context.namespace, serviceContext)
         serviceContextDetailRepository.flush()
 
         serviceContext.details.addAll(contextDetails)

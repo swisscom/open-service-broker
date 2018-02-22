@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
+import com.swisscom.cloud.sb.broker.context.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -85,8 +85,8 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.CF_ORGANIZATION_GUID }.value == "org_id"
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.CF_SPACE_GUID }.value == "space_id"
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == "org_id"
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_SPACE_GUID }.value == "space_id"
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
@@ -94,6 +94,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == KubernetesContext.KUBERNETES_PLATFORM
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextPersistenceService.KUBERNETES_NAMESPACE }.value == "namespace_guid"
+        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.KUBERNETES_NAMESPACE }.value == "namespace_guid"
     }
 }

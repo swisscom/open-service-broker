@@ -33,9 +33,9 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
     }
 
     @Override
-    protected Map<String, String> getBindingMap(ProvisionRequest context) {
-        def serviceDetailBindings = getServiceDetailBindingMap(context)
-        def planBindings = getPlanParameterBindingMap(context.plan)
+    protected Map<String, String> getBindingMap(ProvisionRequest request) {
+        def serviceDetailBindings = getServiceDetailBindingMap(request)
+        def planBindings = getPlanParameterBindingMap(request.plan)
         def redisPassword = new StringGenerator().randomAlphaNumeric(30)
         def slaveofCommand = new StringGenerator().randomAlphaNumeric(30)
         def configCommand = new StringGenerator().randomAlphaNumeric(30)

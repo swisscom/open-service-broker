@@ -15,11 +15,10 @@ class ProvisionRequest extends BaseModel {
     @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
-    String organizationGuid
-    String spaceGuid
     String parameters
     boolean acceptsIncomplete
-    String context
+    @OneToOne
+    ServiceContext serviceContext
 
     @Override
     String toString() {
