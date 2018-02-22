@@ -41,9 +41,14 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
 
         def createServiceInstanceRequest = new CreateServiceInstanceRequest()
         //Check out ResponseEntity
-        ResponseEntity<CreateServiceInstanceResponse> r = sbc.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(req.getServiceId()).withAsyncAccepted(false))
+        ResponseEntity<CreateServiceInstanceResponse> re = sbc.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(false))
 
-        return new ProvisionResponse(isAsync: false)
+        // || re.statusCode == 202 for async
+        if (re.statusCode == 201) {
+            return new ProvisionResponse(isAsync: false)
+        } else {
+
+        }
     }
 
     //So far only sync
