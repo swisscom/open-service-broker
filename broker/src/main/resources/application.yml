@@ -101,6 +101,7 @@ com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
   kubernetesRedisHost: 'kubernetes-service-node.service.consul'
   retryIntervalInSeconds: 10
   maxRetryDurationInMinutes: 3
+  discoveryURL: "http://localhost:8080/swagger-ui.html"
   ipRanges: []
   protocols: [] # 'tcp,udp,icmp'
   redisConfigurationDefaults:

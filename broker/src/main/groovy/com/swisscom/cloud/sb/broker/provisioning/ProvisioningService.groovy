@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
+import com.swisscom.cloud.sb.broker.cfextensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -37,6 +38,9 @@ class ProvisioningService {
         }
 
         ProvisionResponse provisionResponse = serviceProvider.provision(provisionRequest)
+        if (serviceProvider instanceof ExtensionProvider){
+            provisionResponse.extensions = [serviceProvider.buildExtension()]
+        }
         instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)
         provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
         return provisionResponse

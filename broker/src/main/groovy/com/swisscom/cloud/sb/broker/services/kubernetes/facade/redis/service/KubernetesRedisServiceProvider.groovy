@@ -9,6 +9,7 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.cfextensions.Extension
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -31,7 +32,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 @Component
 @Log4j
@@ -138,5 +138,10 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     String shieldAgentUrl(ServiceInstance serviceInstance) {
         "${serviceConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT)}"
+    }
+
+    @Override
+    Extension buildExtension(){
+        return new Extension(discovery_url: serviceConfig.discoveryURL)
     }
 }

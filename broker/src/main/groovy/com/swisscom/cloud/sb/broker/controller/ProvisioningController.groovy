@@ -72,8 +72,13 @@ class ProvisioningController extends BaseController {
 
         ProvisionResponse provisionResponse = provisioningService.provision(request)
 
-        return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
-                provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        if(provisionResponse.extensions){
+            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),
+                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        }else{
+            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
+                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        }
     }
 
     private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {

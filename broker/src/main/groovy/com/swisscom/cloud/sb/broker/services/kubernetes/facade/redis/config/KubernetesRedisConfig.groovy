@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config
 
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfig
+import com.swisscom.cloud.sb.broker.cfextensions.ExtensionConfig
 import com.swisscom.cloud.sb.broker.config.Config
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import groovy.transform.AutoClone
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1')
-class KubernetesRedisConfig implements Config, EndpointConfig, AbstractKubernetesServiceConfig {
+class KubernetesRedisConfig implements Config, EndpointConfig, AbstractKubernetesServiceConfig, ExtensionConfig {
     String kubernetesRedisHost
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes

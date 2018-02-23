@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
+import com.swisscom.cloud.sb.broker.cfextensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
@@ -11,7 +12,7 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 
 @CompileStatic
-trait BackupOnShield {
+trait BackupOnShield extends ExtensionProvider{
     private final String PLAN_PARAMETER_BACKUP_PREFIX = "BACKUP_"
 
     @Autowired
