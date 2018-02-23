@@ -68,7 +68,7 @@ class ProvisioningController extends BaseController {
         // check if parent alias is specified and doesn't exist, queue async provisioning
         if (StringUtils.contains(request.parameters, "parentAlias") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
-            provisionResponse = scheduleProvision(request)
+            provisionResponse = scheduleProvision(request, 60, 60, JobConfig.DELAY_IN_SECONDS)
         } else {
             provisionResponse = provisioningService.provision(request)
         }
@@ -77,12 +77,12 @@ class ProvisioningController extends BaseController {
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
     }
 
-    private ProvisionResponse scheduleProvision(ProvisionRequest request) {
+    private ProvisionResponse scheduleProvision(ProvisionRequest request, int retryIntervalInSeconds, int maxRetryDurationInMinutes, int delayInSeconds) {
         asyncProvisioningService.scheduleProvision(
                 new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
-                        JobConfig.RETRY_INTERVAL_IN_SECONDS,
-                        JobConfig.MAX_RETRY_DURATION_IN_MINUTES,
-                        JobConfig.DELAY_IN_SECONDS))
+                        retryIntervalInSeconds,
+                        maxRetryDurationInMinutes,
+                        delayInSeconds))
         return new ProvisionResponse(isAsync: true)
     }
 
