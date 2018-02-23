@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.util.servicecontext
 
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceContext
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.Context
@@ -25,7 +26,7 @@ class ServiceContextHelper {
                 String namespace = serviceContext.details.find { it -> it.key == KUBERNETES_NAMESPACE }.value
                 return new KubernetesContext(namespace)
             default:
-                throw new IllegalArgumentException("Unknown ServiceContext platform")
+                throw new ServiceBrokerException("Unsupported ServiceContext platform: ${platform}")
         }
     }
 }
