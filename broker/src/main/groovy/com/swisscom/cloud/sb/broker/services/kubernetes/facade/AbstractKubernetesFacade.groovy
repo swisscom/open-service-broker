@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
+import com.swisscom.cloud.sb.broker.context.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -17,6 +18,7 @@ import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -62,12 +64,13 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         return buildServiceDetailsList(bindingMap, responses)
     }
 
-    protected Map<String, String> getServiceDetailBindingMap(ProvisionRequest context) {
+    protected Map<String, String> getServiceDetailBindingMap(ProvisionRequest request) {
+        def context = ServiceContextHelper.convertFrom(request.serviceContext) as CloudFoundryContext
         [
-                (BaseTemplateConstants.SERVICE_ID.getValue()): context.getServiceInstanceGuid(),
-                (BaseTemplateConstants.SPACE_ID.getValue())  : context.getSpaceGuid(),
-                (BaseTemplateConstants.ORG_ID.getValue())    : context.getOrganizationGuid(),
-                (BaseTemplateConstants.PLAN_ID.getValue())   : context.plan.guid,
+                (BaseTemplateConstants.SERVICE_ID.getValue()): request.getServiceInstanceGuid(),
+                (BaseTemplateConstants.SPACE_ID.getValue())  : context.spaceGuid,
+                (BaseTemplateConstants.ORG_ID.getValue())    : context.organizationGuid,
+                (BaseTemplateConstants.PLAN_ID.getValue())   : request.plan.guid,
         ]
     }
 

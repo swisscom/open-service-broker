@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS create_table_service_context_detail;
 DELIMITER //
 
-CREATE PROCEDURE create_table_service_context_detail()
+CREATE PROCEDURE create_table_service_context()
   BEGIN
 
     CREATE TABLE service_context
@@ -31,6 +31,15 @@ CREATE PROCEDURE create_table_service_context_detail()
     ALTER TABLE service_binding
       ADD CONSTRAINT FK_service_binding2service_context
     FOREIGN KEY (service_context_id) REFERENCES service_context (id);
+    
+    ALTER TABLE provision_request
+      DROP COLUMN organization_guid,
+      DROP COLUMN space_guid,
+      ADD COLUMN service_context_id BIGINT;
+
+    ALTER TABLE provision_request
+      ADD CONSTRAINT FK_provision_request2service_context
+    FOREIGN KEY (service_context_id) REFERENCES service_context (id);
 
     ALTER TABLE provision_request
       ADD COLUMN context VARCHAR(1024);
@@ -38,7 +47,7 @@ CREATE PROCEDURE create_table_service_context_detail()
   END//
 
 DELIMITER ;
-CALL create_table_service_context_detail();
+CALL create_table_service_context();
 
 /*** MIGRATE CLOUD FOUNDRY CONTEXT SCRIPT ***/
 DROP PROCEDURE IF EXISTS migrate_cf_context;

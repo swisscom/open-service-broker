@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.provisioning.job
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.async.job.AbstractLastOperationJob
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -13,9 +12,7 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.stereotype.Component
 
 @CompileStatic
@@ -36,7 +33,6 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
         jobContext.provisionRequest = provisionRequest
         jobContext.plan = provisionRequest.plan
         jobContext.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        jobContext.context = StringUtils.isNotBlank(provisionRequest.context) ? new ObjectMapper().readValue(provisionRequest.context, Context) : null
         return jobContext
     }
 
