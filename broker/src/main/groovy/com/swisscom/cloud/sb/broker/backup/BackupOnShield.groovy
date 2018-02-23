@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
-import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
+import com.swisscom.cloud.sb.broker.cfextensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
