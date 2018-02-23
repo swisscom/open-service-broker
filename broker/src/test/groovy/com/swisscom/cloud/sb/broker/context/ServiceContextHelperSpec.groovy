@@ -1,7 +1,9 @@
 package com.swisscom.cloud.sb.broker.context
 
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import spock.lang.Specification
@@ -39,7 +41,7 @@ class ServiceContextHelperSpec extends Specification {
         assert context.namespace == "my_namespace"
     }
 
-    def "Convert Unnknown context"() {
+    def "Convert Unknown context"() {
         setup:
         def serviceContext = new ServiceContext()
         serviceContext.platform = "unknown"
@@ -49,7 +51,7 @@ class ServiceContextHelperSpec extends Specification {
         ServiceContextHelper.convertFrom(serviceContext) as KubernetesContext
 
         then:
-        thrown(IllegalArgumentException)
+        thrown(ServiceBrokerException)
     }
 }
 

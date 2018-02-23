@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
-import com.swisscom.cloud.sb.broker.context.ServiceContextHelper
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
