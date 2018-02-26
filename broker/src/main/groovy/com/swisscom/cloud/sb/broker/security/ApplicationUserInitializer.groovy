@@ -37,13 +37,8 @@ class ApplicationUserInitializer {
     }
 
     void checkForDuplicatedApplicationUserConfigurations() {
-        def duplicatedUserConfigurations = new ArrayList<UserConfig>()
-        applicationUserConfig.platformUsers.each {
-            configUser ->
-                def usersWithUsername = applicationUserConfig.platformUsers.findAll { it -> it.username == configUser.username }
-                if (usersWithUsername.size() > 1) {
-                    duplicatedUserConfigurations.add(configUser.username)
-                }
+        def duplicatedUserConfigurations = applicationUserConfig.platformUsers.findAll { configUser ->
+            applicationUserConfig.platformUsers.findAll { it -> it.username == configUser.username }.size() > 1
         }
 
         if (duplicatedUserConfigurations.size() > 0) {
