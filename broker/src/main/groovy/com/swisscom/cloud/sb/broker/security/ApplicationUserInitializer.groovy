@@ -17,20 +17,46 @@ import javax.annotation.PostConstruct
 @Slf4j
 class ApplicationUserInitializer {
 
-    @Autowired
     private ApplicationUserRepository userRepository
-    @Autowired
+
     private ApplicationUserConfig applicationUserConfig
-    @Autowired
+
     private PasswordEncoder passwordEncoder
+
+    @Autowired
+    ApplicationUserInitializer(ApplicationUserRepository userRepository, ApplicationUserConfig applicationUserConfig, PasswordEncoder passwordEncoder)
+    {
+        this.userRepository = userRepository;
+        this.applicationUserConfig = applicationUserConfig;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostConstruct
     void init() throws Exception {
+        checkForDuplicatedApplicationUserConfigurations()
         synchronizeApplicationUsers()
     }
 
+    void checkForDuplicatedApplicationUserConfigurations()
+    {
+        def duplicatedUserConfigurations = new ArrayList<UserConfig>()
+        applicationUserConfig.platformUsers.each {
+                configUser ->
+                    def usersWithUsername = applicationUserConfig.platformUsers.findAll{ it ->  it.username == configUser.username }
+                    if (usersWithUsername.size() > 1)
+                    {
+                        duplicatedUserConfigurations.add(configUser.username)
+                    }
+            }
+
+        if (duplicatedUserConfigurations.size() > 0)
+        {
+            throw new RuntimeException("Duplicated application users defined - ${duplicatedUserConfigurations}")
+        }
+    }
+
     void disableApplicationUser(ApplicationUser user) {
-        if (!user.enabled)
+        if (user.enabled)
         {
             user.enabled = false;
             userRepository.saveAndFlush(user);
@@ -41,20 +67,17 @@ class ApplicationUserInitializer {
         def allDbUser = userRepository.findAll();
 
         applicationUserConfig.platformUsers.each {
-            platformGroup ->
-                platformGroup.users.each {
-                    configUser ->
-                        def dbUser = allDbUser.findOne { user -> user.username == configUser.username && user.platformGuid == platformGroup.guid }
-                        if (dbUser == null)
-                        {
-                            addApplicationUser(platformGroup.guid, configUser)
-                        }
-                        else
-                        {
-                            synchronizeApplicationUser(dbUser, configUser)
-                            allDbUser.remove(dbUser);
-                        }
-            }
+            configUser ->
+                def dbUser = allDbUser.find { user -> user.username == configUser.username }
+                if (dbUser == null)
+                {
+                    addApplicationUser(configUser.platformId, configUser)
+                }
+                else
+                {
+                    synchronizeApplicationUser(dbUser, configUser)
+                    allDbUser.remove(dbUser);
+                }
         }
 
         allDbUser.each { oldUser -> disableApplicationUser(oldUser) };
@@ -73,6 +96,11 @@ class ApplicationUserInitializer {
             changed = true;
         }
 
+        if (user.platformGuid != userConfig.platformId) {
+            user.platformGuid = userConfig.platformId;
+            changed = true;
+        }
+
         if (!user.enabled)
         {
             user.enabled = true;
@@ -86,7 +114,7 @@ class ApplicationUserInitializer {
     }
 
     void addApplicationUser(String platformGuid, UserConfig userConfig) {
-        user = new ApplicationUser()
+        def user = new ApplicationUser()
         user.username = userConfig.username
         user.password = passwordEncoder.encode(userConfig.password)
         user.enabled = true
