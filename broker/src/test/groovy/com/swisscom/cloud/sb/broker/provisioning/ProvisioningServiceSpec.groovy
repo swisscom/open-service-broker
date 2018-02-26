@@ -37,8 +37,12 @@ class ProvisioningServiceSpec extends Specification {
         and:
         def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_, _) >> {
+        provisioningPersistenceService.createServiceInstance(_) >> {
             createServiceInstanceCalled = true; Mock(ServiceInstance)
+        }
+        def updateServiceInstanceCalled = false
+        provisioningPersistenceService.updateServiceDetails(_, _) >> {
+            updateServiceInstanceCalled = true; Mock(ServiceInstance)
         }
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
@@ -52,6 +56,7 @@ class ProvisioningServiceSpec extends Specification {
         def result = provisioningService.provision(provisionRequest)
         then:
         createServiceInstanceCalled == true
+        updateServiceInstanceCalled == true
         result.isAsync == false
     }
 
@@ -66,8 +71,12 @@ class ProvisioningServiceSpec extends Specification {
         and:
         def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_, _) >> {
+        provisioningPersistenceService.createServiceInstance(_) >> {
             createServiceInstanceCalled = true; Mock(ServiceInstance)
+        }
+        def updateServiceInstanceCalled = false
+        provisioningPersistenceService.updateServiceDetails(_, _) >> {
+            updateServiceInstanceCalled = true; Mock(ServiceInstance)
         }
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
@@ -81,7 +90,8 @@ class ProvisioningServiceSpec extends Specification {
         when:
         def result = provisioningService.provision(provisionRequest)
         then:
-        createServiceInstanceCalled == false
+        createServiceInstanceCalled == true
+        updateServiceInstanceCalled == true
         result.isAsync == true
     }
 

@@ -57,7 +57,6 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         if (request.acceptsIncomplete) {
-            provisioningPersistenceService.createServiceInstance(request, new ProvisionResponse(isAsync: true))
             asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
             return new ProvisionResponse(details: [], isAsync: true)
         } else {
@@ -80,7 +79,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         return processOperationResultBasedOnIfEnoughTimeHasElapsed(context, DEFAULT_PROCESSING_DELAY_IN_SECONDS)
     }
 
-    private AsyncOperationResult processOperationResultBasedOnIfEnoughTimeHasElapsed(LastOperationJobContext context, int delay) {
+    protected AsyncOperationResult processOperationResultBasedOnIfEnoughTimeHasElapsed(LastOperationJobContext context, int delay) {
         if (context.provisionRequest?.parameters) {
             Map<String, Object> params = new ObjectMapper().readValue(context.provisionRequest.parameters, new TypeReference<Map<String, Object>>() {
             })
