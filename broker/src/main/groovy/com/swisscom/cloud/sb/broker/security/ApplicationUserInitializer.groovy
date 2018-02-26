@@ -24,11 +24,10 @@ class ApplicationUserInitializer {
     private PasswordEncoder passwordEncoder
 
     @Autowired
-    ApplicationUserInitializer(ApplicationUserRepository userRepository, ApplicationUserConfig applicationUserConfig, PasswordEncoder passwordEncoder)
-    {
-        this.userRepository = userRepository;
-        this.applicationUserConfig = applicationUserConfig;
-        this.passwordEncoder = passwordEncoder;
+    ApplicationUserInitializer(ApplicationUserRepository userRepository, ApplicationUserConfig applicationUserConfig, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository
+        this.applicationUserConfig = applicationUserConfig
+        this.passwordEncoder = passwordEncoder
     }
 
     @PostConstruct
@@ -37,50 +36,43 @@ class ApplicationUserInitializer {
         synchronizeApplicationUsers()
     }
 
-    void checkForDuplicatedApplicationUserConfigurations()
-    {
+    void checkForDuplicatedApplicationUserConfigurations() {
         def duplicatedUserConfigurations = new ArrayList<UserConfig>()
         applicationUserConfig.platformUsers.each {
-                configUser ->
-                    def usersWithUsername = applicationUserConfig.platformUsers.findAll{ it ->  it.username == configUser.username }
-                    if (usersWithUsername.size() > 1)
-                    {
-                        duplicatedUserConfigurations.add(configUser.username)
-                    }
-            }
+            configUser ->
+                def usersWithUsername = applicationUserConfig.platformUsers.findAll { it -> it.username == configUser.username }
+                if (usersWithUsername.size() > 1) {
+                    duplicatedUserConfigurations.add(configUser.username)
+                }
+        }
 
-        if (duplicatedUserConfigurations.size() > 0)
-        {
+        if (duplicatedUserConfigurations.size() > 0) {
             throw new RuntimeException("Duplicated application users defined - ${duplicatedUserConfigurations}")
         }
     }
 
     void disableApplicationUser(ApplicationUser user) {
-        if (user.enabled)
-        {
-            user.enabled = false;
-            userRepository.saveAndFlush(user);
+        if (user.enabled) {
+            user.enabled = false
+            userRepository.saveAndFlush(user)
         }
     }
 
     void synchronizeApplicationUsers() {
-        def allDbUser = userRepository.findAll();
+        def allDbUser = userRepository.findAll()
 
         applicationUserConfig.platformUsers.each {
             configUser ->
                 def dbUser = allDbUser.find { user -> user.username == configUser.username }
-                if (dbUser == null)
-                {
+                if (dbUser == null) {
                     addApplicationUser(configUser.platformId, configUser)
-                }
-                else
-                {
+                } else {
                     synchronizeApplicationUser(dbUser, configUser)
-                    allDbUser.remove(dbUser);
+                    allDbUser.remove(dbUser)
                 }
         }
 
-        allDbUser.each { oldUser -> disableApplicationUser(oldUser) };
+        allDbUser.each { oldUser -> disableApplicationUser(oldUser) }
     }
 
     void synchronizeApplicationUser(ApplicationUser user, UserConfig userConfig) {
@@ -88,28 +80,26 @@ class ApplicationUserInitializer {
 
         if (user.password != passwordEncoder.encode(userConfig.password)) {
             user.password = passwordEncoder.encode(userConfig.password)
-            changed = true;
+            changed = true
         }
 
         if (user.role != userConfig.role) {
             user.role = userConfig.role
-            changed = true;
+            changed = true
         }
 
         if (user.platformGuid != userConfig.platformId) {
-            user.platformGuid = userConfig.platformId;
-            changed = true;
+            user.platformGuid = userConfig.platformId
+            changed = true
         }
 
-        if (!user.enabled)
-        {
-            user.enabled = true;
-            changed = true;
+        if (!user.enabled) {
+            user.enabled = true
+            changed = true
         }
 
-        if (changed)
-        {
-            userRepository.saveAndFlush(user);
+        if (changed) {
+            userRepository.saveAndFlush(user)
         }
     }
 
