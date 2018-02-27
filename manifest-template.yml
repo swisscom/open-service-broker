@@ -1,0 +1,9 @@
+---
+applications:
+- name: open-service-broker
+  memory: 1G
+  instances: 2
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  path: .\%releasePackage%.jar
+  services:
+    - cfbrokerdb
