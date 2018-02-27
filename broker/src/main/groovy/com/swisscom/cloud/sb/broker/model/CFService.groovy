@@ -17,6 +17,8 @@ class CFService extends BaseModel{
     @Column(columnDefinition = 'int default 0')
     int displayIndex
     @Column(columnDefinition='tinyint(1) default 0')
+    Boolean plan_updateable
+    @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
 
     String dashboardClientId
