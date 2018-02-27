@@ -41,9 +41,6 @@ CREATE PROCEDURE create_table_service_context()
       ADD CONSTRAINT FK_provision_request2service_context
     FOREIGN KEY (service_context_id) REFERENCES service_context (id);
 
-    ALTER TABLE provision_request
-      ADD COLUMN context VARCHAR(1024);
-    
   END//
 
 DELIMITER ;

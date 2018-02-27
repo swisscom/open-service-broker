@@ -53,11 +53,10 @@ class ProvisioningPersistenceService {
         instance.serviceContext = provisionRequest.serviceContext
         serviceInstanceRepository.save(instance)
 
-        createServiceDetailsFromParameters(provisionRequest, instance)
-
         // set parent service instance if specified
         setParentServiceInstance(provisionRequest, instance)
 
+        createServiceDetailsFromParameters(provisionRequest, instance)
 
         return instance
     }
@@ -70,7 +69,7 @@ class ProvisioningPersistenceService {
         def parameters = jsonSlurper.parseText(provisionRequest.parameters) as Map
         def alias = parameters?.alias as String
         if (alias) {
-            def aliasServiceDetail = new ServiceDetail(key: ServiceDetailType.ALIAS.type, type: ServiceDetailType.ALIAS.type, value: alias, uniqueKey: false)
+            def aliasServiceDetail = new ServiceDetail(key: ServiceDetailType.ALIAS.type, type: ServiceDetailType.ALIAS.type, value: alias, uniqueKey: true)
             serviceDetailRepository.save(aliasServiceDetail)
             instance.details.add(aliasServiceDetail)
         }
@@ -82,6 +81,10 @@ class ProvisioningPersistenceService {
         if (provisionRequest.parameters && provisionRequest.parameters.contains("parentAlias")) {
             parentInstance = findParentServiceInstance(provisionRequest.parameters)
             if (parentInstance != null) {
+                // check for the same context
+                if (parentInstance?.serviceContext?.id != provisionRequest?.serviceContext?.id) {
+                    ErrorCode.SERVICE_INSTANCE_PARENT_CONTEXT_MISMATCH.throwNew()
+                }
                 instance.parentServiceInstance = parentInstance
                 serviceInstanceRepository.merge(instance)
                 parentInstance.childs << instance
@@ -104,7 +107,7 @@ class ProvisioningPersistenceService {
         def parametersMap = jsonSlurper.parseText(parameters) as Map
         def parentAlias = parametersMap?.parentAlias as String
         if (parentAlias) {
-            def parentInstances = serviceInstanceRepository.findByDetails_KeyAndDetails_Value(ServiceDetailType.ALIAS.name(), parentAlias)
+            def parentInstances = serviceInstanceRepository.findByDetailsAlias(parentAlias)
             if (parentInstances && parentInstances.size() > 0) {
                 parentInstance = parentInstances[0]
             }

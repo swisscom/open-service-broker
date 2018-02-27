@@ -2,8 +2,8 @@ package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
-import com.swisscom.cloud.sb.broker.async.job.JobConfig
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
+import com.swisscom.cloud.sb.broker.config.ParentAliasSchedulingConfig
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*
@@ -51,6 +51,8 @@ class ProvisioningController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
+    @Autowired
+    private ParentAliasSchedulingConfig parentAliasSchedulingConfig
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -65,10 +67,12 @@ class ProvisioningController extends BaseController {
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
         ProvisionResponse provisionResponse
-        // check if parent alias is specified and doesn't exist, queue async provisioning
+        // check if parent alias is specified and if doesn't exist, then queue async provisioning
         if (StringUtils.contains(request.parameters, "parentAlias") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
-            provisionResponse = scheduleProvision(request, 60, 3, JobConfig.DELAY_IN_SECONDS)
+            provisionResponse = scheduleProvision(request, parentAliasSchedulingConfig.retryIntervalInSeconds,
+                    parentAliasSchedulingConfig.maxRetryDurationInMinutes,
+                    parentAliasSchedulingConfig.delayInSeconds)
         } else {
             provisionResponse = provisioningService.provision(request)
         }
