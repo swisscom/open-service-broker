@@ -50,25 +50,23 @@ class UpdatingController extends BaseController {
         ServiceInstance instance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (!instance) {
             log.debug "Service instance with id ${instance.guid} does not exist - returning 410 GONE"
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew();
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
         }
         return instance
     }
 
     private UpdateRequest createUpdateRequest(String serviceInstanceGuid, UpdateDto updateDto, boolean acceptsIncomplete)
     {
-        return new UpdateRequest
-        (
-            serviceInstanceGuid: serviceInstanceGuid,
-            acceptsIncomplete: acceptsIncomplete,
-            organizationGuid: updateDto.previous_values.organization_id,
-            spaceGuid: updateDto.previous_values.space_id,
-            plan: getAndCheckPlan(updateDto.previous_values.plan_id),
-            parameters: serializeJson(updateDto.parameters)
+        return new UpdateRequest(
+                serviceInstanceGuid: serviceInstanceGuid,
+                acceptsIncomplete: acceptsIncomplete,
+                plan: getAndCheckPlan(updateDto.plan_id),
+                previousPlan: getAndCheckPlan(updateDto.previous_values.plan_id),
+                parameters: serializeJson(updateDto.parameters)
         )
     }
 
-    private String serializeJson(Map object) {
+    private static String serializeJson(Map object) {
         if (!object) return null
         return new ObjectMapper().writeValueAsString(object)
     }

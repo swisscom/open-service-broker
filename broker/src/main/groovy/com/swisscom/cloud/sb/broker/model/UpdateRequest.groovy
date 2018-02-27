@@ -7,34 +7,35 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
-public class UpdateRequest extends BaseModel {
+class UpdateRequest extends BaseModel {
     String serviceInstanceGuid
     @OneToOne
     @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
-    String organizationGuid
-    String spaceGuid
+    @OneToOne
+    @JoinColumn(name = "previous_plan_id")
+    @JsonIgnore
+    Plan previousPlan
     String parameters
     boolean acceptsIncomplete
     Date created
 
-    public UpdateRequest()
+    UpdateRequest()
     {
         created = new Date()
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return "ProvisionRequest{" +
                 "id=" + id +
                 ", serviceInstanceGuid='" + serviceInstanceGuid + '\'' +
                 ", plan=" + plan +
-                ", organizationGuid='" + organizationGuid + '\'' +
-                ", spaceGuid='" + spaceGuid + '\'' +
+                ", previousPlan=" + previousPlan +
                 ", parameters='" + parameters + '\'' +
                 ", acceptsIncomplete=" + acceptsIncomplete +
                 ", created='" + created +
-                '}';
+                '}'
     }
 }
