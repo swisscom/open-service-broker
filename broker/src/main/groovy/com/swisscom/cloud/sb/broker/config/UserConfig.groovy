@@ -9,6 +9,7 @@ class UserConfig {
     String username
     String password
     String role
+    String platformId
 
     @Override
     String toString() {
