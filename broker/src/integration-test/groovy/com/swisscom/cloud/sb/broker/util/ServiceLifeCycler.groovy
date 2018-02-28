@@ -334,6 +334,6 @@ class ServiceLifeCycler {
      * @return
      */
     protected UserConfig getUserByRole(String role) {
-        return userConfig.platformUsers.find { it.users }.users.find { it.role == role }
+        return userConfig.platformUsers.find { it.role == role }
     }
 }

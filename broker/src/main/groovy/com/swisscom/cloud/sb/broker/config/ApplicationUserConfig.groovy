@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.security')
 class ApplicationUserConfig {
-    List<GuidUserConfig> platformUsers
+    List<UserConfig> platformUsers
 
     @Override
     String toString() {
