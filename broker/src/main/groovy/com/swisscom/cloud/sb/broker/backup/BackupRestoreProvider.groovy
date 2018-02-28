@@ -6,7 +6,6 @@ import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 
 @CompileStatic
 trait BackupRestoreProvider extends BackupOnShield {

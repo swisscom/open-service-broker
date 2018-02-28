@@ -2,7 +2,8 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.cfextensions.Extension
+import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
