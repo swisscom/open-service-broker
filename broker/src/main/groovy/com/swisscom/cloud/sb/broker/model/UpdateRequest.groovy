@@ -19,12 +19,7 @@ class UpdateRequest extends BaseModel {
     Plan previousPlan
     String parameters
     boolean acceptsIncomplete
-    Date created
-
-    UpdateRequest()
-    {
-        created = new Date()
-    }
+    Date dateCreated = new Date()
 
     @Override
     String toString() {
@@ -35,7 +30,7 @@ class UpdateRequest extends BaseModel {
                 ", previousPlan=" + previousPlan +
                 ", parameters='" + parameters + '\'' +
                 ", acceptsIncomplete=" + acceptsIncomplete +
-                ", created='" + created +
+                ", dateCreated='" + dateCreated +
                 '}'
     }
 }
