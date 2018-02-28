@@ -21,6 +21,8 @@ import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.updating.UpdatableProvisioner
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
@@ -33,7 +35,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
-class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, EndpointProvider {
+class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, EndpointProvider, UpdatableProvisioner {
     public static final int RETRY_INTERVAL_IN_SECONDS = 10
     public static final int DEFAULT_PROCESSING_DELAY_IN_SECONDS = RETRY_INTERVAL_IN_SECONDS * 2
 
@@ -112,8 +114,17 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         return [new Endpoint(protocol: 'tcp', destination: '127.0.0.1', ports: '666')]
     }
 
-    enum DummyServiceProviderServiceDetailKey implements AbstractServiceDetailKey{
+    @Override
+    UpdateResponse updateParameters(UpdateRequest updateRequest) {
+        throw new NotImplementedException()
+    }
 
+    @Override
+    UpdateResponse updatePlanAndParameters(UpdateRequest updateRequest) {
+        throw new NotImplementedException()
+    }
+
+    enum DummyServiceProviderServiceDetailKey implements AbstractServiceDetailKey {
         DELAY_IN_SECONDS("delay_in_seconds", ServiceDetailType.OTHER)
 
         DummyServiceProviderServiceDetailKey(String key, ServiceDetailType serviceDetailType) {
