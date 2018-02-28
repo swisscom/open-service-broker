@@ -10,14 +10,17 @@ import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvid
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 @Component
 @Slf4j
@@ -37,6 +40,11 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
     @Override
     void unbind(UnbindRequest request) {
 
+    }
+
+    @Override
+    UpdateResponse update(UpdateRequest request) {
+        throw new NotImplementedException()
     }
 
     @Override
