@@ -23,6 +23,7 @@ class ServiceContextPersistenceService {
 
     @Autowired
     private ServiceContextDetailRepository serviceContextDetailRepository
+
     @Autowired
     private ServiceContextRepository serviceContextRepository
 
@@ -35,13 +36,13 @@ class ServiceContextPersistenceService {
         }
 
         if (context instanceof CloudFoundryContext) {
-            return processCloudFoundryContext(context as CloudFoundryContext)
+            return findOrCreateCloudFoundryContext(context as CloudFoundryContext)
         } else if (context instanceof KubernetesContext) {
-            return processKubernetesContext(context as KubernetesContext)
+            return findOrCreateKubernetesContext(context as KubernetesContext)
         }
     }
 
-    private ServiceContext processCloudFoundryContext(CloudFoundryContext context) {
+    private ServiceContext findOrCreateCloudFoundryContext(CloudFoundryContext context) {
         def existingServiceContext = serviceContextRepository.findCloudFoundryServiceContext(context.organizationGuid, context.spaceGuid)
         if (existingServiceContext) {
             return existingServiceContext
@@ -65,7 +66,7 @@ class ServiceContextPersistenceService {
         return serviceContext
     }
 
-    private ServiceContext processKubernetesContext(KubernetesContext context) {
+    private ServiceContext findOrCreateKubernetesContext(KubernetesContext context) {
         def existingServiceContext = serviceContextRepository.findKubernetesServiceContext(context.namespace)
         if (existingServiceContext) {
             return existingServiceContext
