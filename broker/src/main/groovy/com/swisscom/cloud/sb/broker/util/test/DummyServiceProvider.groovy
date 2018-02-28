@@ -29,6 +29,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
+import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -56,13 +57,22 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         throw new NotImplementedException()
     }
 
+    private static DummyServiceProviderParameters DeserializeParameters(String jsonParameters) {
+        return new ObjectMapper().readValue(jsonParameters, DummyServiceProviderParameters.class)
+    }
+
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
+        def serviceDetails = new ArrayList<ServiceDetail>()
+        if (!StringUtils.isEmpty(request.parameters)) {
+            serviceDetails.add(ServiceDetail.from("mode", DeserializeParameters(request.parameters).mode))
+        }
+
         if (request.acceptsIncomplete) {
             asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
-            return new ProvisionResponse(details: [], isAsync: true)
+            return new ProvisionResponse(details: serviceDetails, isAsync: true)
         } else {
-            return new ProvisionResponse(details: [], isAsync: false)
+            return new ProvisionResponse(details: serviceDetails, isAsync: false)
         }
     }
 
@@ -105,7 +115,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         return Optional.of(processOperationResultBasedOnIfEnoughTimeHasElapsed(context, delay))
     }
 
-    private boolean isServiceReady(Date dateCreation, int delayInSeconds) {
+    private static boolean isServiceReady(Date dateCreation, int delayInSeconds) {
         new DateTime(dateCreation).plusSeconds(delayInSeconds).isBeforeNow()
     }
 
@@ -116,12 +126,21 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
 
     @Override
     UpdateResponse updateParameters(UpdateRequest updateRequest) {
-        throw new NotImplementedException()
+        def serviceDetails = new ArrayList<ServiceDetail>()
+        if (!StringUtils.isEmpty(updateRequest.parameters)) {
+            serviceDetails.add(ServiceDetail.from("mode", DeserializeParameters(updateRequest.parameters).mode))
+        }
+
+        if (updateRequest.acceptsIncomplete) {
+            return new UpdateResponse(isAsync: true, details: serviceDetails)
+        } else {
+            return new UpdateResponse(isAsync: false, details: serviceDetails)
+        }
     }
 
     @Override
     UpdateResponse updatePlanAndParameters(UpdateRequest updateRequest) {
-        throw new NotImplementedException()
+        return updateParameters(updateRequest)
     }
 
     enum DummyServiceProviderServiceDetailKey implements AbstractServiceDetailKey {
