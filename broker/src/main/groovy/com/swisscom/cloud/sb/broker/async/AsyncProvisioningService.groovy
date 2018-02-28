@@ -22,15 +22,17 @@ class AsyncProvisioningService {
         this.jobManager = jobManager
     }
 
-    void scheduleProvision(ProvisioningjobConfig provisionjobConfig) {
+    String scheduleProvision(ProvisioningjobConfig provisionjobConfig) {
         provisioningPersistenceService.saveProvisionRequest(provisionjobConfig.provisionRequest)
-        lastOperationService.createOrUpdateLastOperation(provisionjobConfig.guid, LastOperation.Operation.PROVISION)
+        LastOperation lastOperation = lastOperationService.createOrUpdateLastOperation(provisionjobConfig.guid, LastOperation.Operation.PROVISION)
         jobManager.queue(provisionjobConfig)
+        return lastOperation.guid
     }
 
-    void scheduleDeprovision(DeprovisioningJobConfig deprovisioningJobConfig) {
+    String scheduleDeprovision(DeprovisioningJobConfig deprovisioningJobConfig) {
         provisioningPersistenceService.saveDeprovisionRequest(deprovisioningJobConfig.deprovisionRequest)
-        lastOperationService.createOrUpdateLastOperation(deprovisioningJobConfig.guid, LastOperation.Operation.DEPROVISION)
+        LastOperation lastOperation = lastOperationService.createOrUpdateLastOperation(deprovisioningJobConfig.guid, LastOperation.Operation.DEPROVISION)
         jobManager.queue(deprovisioningJobConfig)
+        return lastOperation.guid
     }
 }

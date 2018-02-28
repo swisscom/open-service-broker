@@ -39,18 +39,18 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig> implements Ser
     ProvisionResponse provision(ProvisionRequest request) {
         Utils.verifyAsychronousCapableClient(request)
 
-        asyncProvisioningService.scheduleProvision(
+        String lastOpId = asyncProvisioningService.scheduleProvision(
                 new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
                         serviceConfig.retryIntervalInSeconds,
                         serviceConfig.maxRetryDurationInMinutes))
-        return new ProvisionResponse(isAsync: true, operation: "task_10")
+        return new ProvisionResponse(isAsync: true, operation: lastOpId)
     }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
-        asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
+        String lastOpId = asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
                 serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
-        return new DeprovisionResponse(isAsync: true, operation: "task_10")
+        return new DeprovisionResponse(isAsync: true, operation: lastOpId)
     }
 
     @Override
