@@ -46,6 +46,10 @@ class ShieldClient {
         deleteTargetIfExisting(targetName)
     }
 
+    TaskDto getTaskDto(String taskUuid){
+        return buildClient().getTaskByUuid(taskUuid)
+    }
+
     JobStatus getJobStatus(String taskUuid) {
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         if (task.statusParsed.isRunning()) {
@@ -108,7 +112,7 @@ class ShieldClient {
         }
     }
 
-    private JobStatus statusOfArchive(TaskDto task) {
+    JobStatus statusOfArchive(TaskDto task) {
         ArchiveDto archive = buildClient().getArchiveByUuid(task.archive_uuid)
         if (archive != null && archive.statusParsed.isValid()) {
             return JobStatus.FINISHED

@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 
@@ -29,6 +30,11 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         @Override
         String shieldAgentUrl(ServiceInstance serviceInstance) {
             ""
+        }
+
+        @Override
+        Extension buildExtension(){
+            return new Extension(discovery_url: "something")
         }
     }
 

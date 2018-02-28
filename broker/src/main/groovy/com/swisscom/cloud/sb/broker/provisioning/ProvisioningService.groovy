@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
-import com.swisscom.cloud.sb.broker.cfextensions.ExtensionProvider
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
