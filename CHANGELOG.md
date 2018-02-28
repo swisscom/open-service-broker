@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.9.0] - 2018-02-28
+- Add Context to provision and bind while deprecating org and space ID for provisioning.
+- Add manifest for Cloud Foundry deployment
+- Add way to handle multiple users
+
 ## [2.8.0] - 2018-02-20
 - Add extensions for Redis backup and restore 
 
