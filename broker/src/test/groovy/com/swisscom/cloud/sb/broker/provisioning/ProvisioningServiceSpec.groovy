@@ -35,15 +35,9 @@ class ProvisioningServiceSpec extends Specification {
         provisioningService.serviceProviderLookup = serviceProviderLookup
 
         and:
-        def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_) >> {
-            createServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
-        def updateServiceInstanceCalled = false
-        provisioningPersistenceService.updateServiceDetails(_, _) >> {
-            updateServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
+        1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
+        1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
@@ -55,8 +49,6 @@ class ProvisioningServiceSpec extends Specification {
         when:
         def result = provisioningService.provision(provisionRequest)
         then:
-        createServiceInstanceCalled == true
-        updateServiceInstanceCalled == true
         result.isAsync == false
     }
 
@@ -69,15 +61,9 @@ class ProvisioningServiceSpec extends Specification {
         provisioningService.serviceProviderLookup = serviceProviderLookup
 
         and:
-        def createServiceInstanceCalled = false
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
-        provisioningPersistenceService.createServiceInstance(_) >> {
-            createServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
-        def updateServiceInstanceCalled = false
-        provisioningPersistenceService.updateServiceDetails(_, _) >> {
-            updateServiceInstanceCalled = true; Mock(ServiceInstance)
-        }
+        1 * provisioningPersistenceService.createServiceInstance(_) >> Mock(ServiceInstance)
+        1 * provisioningPersistenceService.updateServiceDetails(_, _) >> Mock(ServiceInstance)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
 
         and:
@@ -90,8 +76,6 @@ class ProvisioningServiceSpec extends Specification {
         when:
         def result = provisioningService.provision(provisionRequest)
         then:
-        createServiceInstanceCalled == true
-        updateServiceInstanceCalled == true
         result.isAsync == true
     }
 
@@ -123,4 +107,5 @@ class ProvisioningServiceSpec extends Specification {
         false       | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
         true        | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
     }
+
 }

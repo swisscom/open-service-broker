@@ -49,7 +49,8 @@ enum ErrorCode {
     SERVICE_UPDATE_NOT_ALLOWED("69040", "Service update is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY),
     OPENWHISK_NAMESPACE_ALREADY_EXISTS("69041", "OpenWhisk namespace already exists", "SC-SB-OPENWHISK-NAMESPACE-ALREADY-EXISTS", HttpStatus.CONFLICT),
     OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
-    OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST)
+    OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
+    CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT)
 
     final String code
     final String errorCode
