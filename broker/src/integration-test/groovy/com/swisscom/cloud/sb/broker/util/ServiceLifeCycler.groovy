@@ -50,6 +50,8 @@ class ServiceLifeCycler {
     private Plan plan
     private PlanMetadata planMetaData
     private Parameter parameter
+    private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
+    private String backupId
 
     private boolean serviceCreated
     private boolean planCreated
@@ -146,8 +148,10 @@ class ServiceLifeCycler {
             serviceInstanceRepository.deleteByGuid(it)
         }
 
-        if (parameter) {
-            parameterRepository.delete(parameter)
+        if (parameters.size() > 0) {
+            parameters.each {
+                parameterRepository.delete(it)
+            }
         }
 
         if (serviceCreated) {
@@ -240,6 +244,7 @@ class ServiceLifeCycler {
 
     Parameter createParameter(String name, String value, Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
+        parameters.add(parameter)
         return parameterRepository.save(parameter)
     }
 
@@ -257,6 +262,14 @@ class ServiceLifeCycler {
 
     String getServiceInstanceId() {
         return serviceInstanceId
+    }
+
+    void setBackupId(String id) {
+        backupId = id
+    }
+
+    String getBackupId() {
+        backupId
     }
 
     private ServiceBrokerClient createServiceBrokerClient(boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
@@ -327,7 +340,7 @@ class ServiceLifeCycler {
      * @return
      */
     protected UserConfig getUserByRole(String role) {
-        return userConfig.platformUsers.find { it.users }.users.find { it.role == role }
+        return userConfig.platformUsers.find { it.role == role }
     }
 
     void setServiceInstanceId(String serviceInstanceId) {
