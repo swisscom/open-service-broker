@@ -43,14 +43,14 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig> implements Ser
                 new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
                         serviceConfig.retryIntervalInSeconds,
                         serviceConfig.maxRetryDurationInMinutes))
-        return new ProvisionResponse(isAsync: true)
+        return new ProvisionResponse(isAsync: true, operation: "task_10")
     }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
         asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
                 serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
-        return new DeprovisionResponse(isAsync: true)
+        return new DeprovisionResponse(isAsync: true, operation: "task_10")
     }
 
     @Override

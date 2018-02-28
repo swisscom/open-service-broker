@@ -55,7 +55,7 @@ class ProvisioningController extends BaseController {
 
         ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
 
-        return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
+        return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, operation: provisionResponse.isAsync? null : provisionResponse.operation),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
     }
 
@@ -106,11 +106,11 @@ class ProvisioningController extends BaseController {
 
     @ApiOperation(value = "Deprovision a service instance")
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.DELETE)
-    ResponseEntity<String> deprovision(@PathVariable("instanceId") String serviceInstanceGuid,
+    ResponseEntity<DeprovisionResponse> deprovision(@PathVariable("instanceId") String serviceInstanceGuid,
                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete) {
         log.info("Deprovision request for ServiceInstanceGuid: ${serviceInstanceGuid}")
         DeprovisionResponse response = provisioningService.deprovision(createDeprovisionRequest(serviceInstanceGuid, acceptsIncomplete))
-        return new ResponseEntity<String>("{}", response.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
+        return new ResponseEntity<DeprovisionResponse>(response, response.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
     }
 
     private DeprovisionRequest createDeprovisionRequest(String serviceInstanceGuid, boolean acceptsIncomplete) {

@@ -8,4 +8,5 @@ class ProvisionResponse {
     Collection<ServiceDetail> details
     boolean isAsync
     String dashboardURL
+    String operation
 }

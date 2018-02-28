@@ -58,7 +58,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     ProvisionResponse provision(ProvisionRequest request) {
         if (request.acceptsIncomplete) {
             asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
-            return new ProvisionResponse(details: [], isAsync: true)
+            return new ProvisionResponse(details: [], isAsync: true, operation: "task_10")
         } else {
             return new ProvisionResponse(details: [], isAsync: false)
         }
@@ -68,7 +68,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     DeprovisionResponse deprovision(DeprovisionRequest request) {
         if (request.acceptsIncomplete) {
             asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
-            return new DeprovisionResponse(isAsync: true)
+            return new DeprovisionResponse(isAsync: true, operation: "task_10")
         } else {
             return new DeprovisionResponse(isAsync: false)
         }
