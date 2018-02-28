@@ -22,19 +22,23 @@ import javax.validation.Valid
 @Api(value = "Service instance updating", description = "Endpoint for updating parameters and plan on a service instance.")
 @RestController
 class UpdatingController extends BaseController {
-    @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
-    @Autowired
     private UpdatingService updatingService
-    @Autowired
     PlanRepository planRepository
+
+    @Autowired
+    UpdatingController(ServiceInstanceRepository serviceInstanceRepository, UpdatingService updatingService, PlanRepository planRepository)
+    {
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.updatingService = updatingService
+        this.planRepository = planRepository
+    }
 
     @ApiOperation(value = "Updates an existing service instance.", response = UpdateResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PATCH)
     ResponseEntity<UpdateResponseDto> update(@PathVariable("instanceId") String serviceInstanceGuid,
                                              @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                              @Valid @RequestBody UpdateDto updateDto) {
-
         log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto.parameters}")
         ServiceInstance serviceInstance = getServiceInstanceOrFail(serviceInstanceGuid)
 
@@ -55,20 +59,17 @@ class UpdatingController extends BaseController {
         return instance
     }
 
-    private UpdateRequest createUpdateRequest(String serviceInstanceGuid, UpdateDto updateDto, boolean acceptsIncomplete)
-    {
+    private UpdateRequest createUpdateRequest(String serviceInstanceGuid, UpdateDto updateDto, boolean acceptsIncomplete) {
         return new UpdateRequest(
                 serviceInstanceGuid: serviceInstanceGuid,
                 acceptsIncomplete: acceptsIncomplete,
                 plan: getAndCheckPlan(updateDto.plan_id),
                 previousPlan: getAndCheckPlan(updateDto.previous_values.plan_id),
-                parameters: serializeJson(updateDto.parameters)
-        )
+                parameters: serializeJson(updateDto.parameters))
     }
 
     private static String serializeJson(Map object) {
-        if (!object) return null
-        return new ObjectMapper().writeValueAsString(object)
+        return object ? new ObjectMapper().writeValueAsString(object) : null
     }
 
     private Plan getAndCheckPlan(String planGuid) {
