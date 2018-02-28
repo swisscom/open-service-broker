@@ -11,7 +11,7 @@ trait UpdatableProvisioner {
         if (!isPlanChangeSupported(updateRequest)) {
             ErrorCode.PLAN_UPDATE_NOT_ALLOWED.throwNew()
         }
-        return updatePlanAndParameters()
+        return updatePlanAndParameters(updateRequest)
     }
 
     UpdateResponse updatePlanAndParameters(UpdateRequest updateRequest) {
@@ -23,7 +23,9 @@ trait UpdatableProvisioner {
     }
 
     private boolean isPlanChanging(UpdateRequest updateRequest) {
-        return updateRequest.plan.guid != updateRequest.previousPlan.guid
+        return updateRequest.plan != null &&
+                updateRequest.previousPlan != null &&
+                updateRequest.plan.guid != updateRequest.previousPlan.guid
     }
 
     private boolean isPlanChangeSupported(UpdateRequest updateRequest) {

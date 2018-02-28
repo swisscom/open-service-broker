@@ -31,7 +31,9 @@ class UpdatingService {
     }
 
     boolean isPlanChanging(UpdateRequest updateRequest) {
-        return updateRequest.plan.guid != updateRequest.previousPlan.guid
+        return updateRequest.plan != null &&
+                updateRequest.previousPlan != null &&
+                updateRequest.plan.guid != updateRequest.previousPlan.guid
     }
 
     private static void handleAsyncClientRequirement(Plan plan, boolean acceptsIncomplete) {

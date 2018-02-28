@@ -50,7 +50,8 @@ enum ErrorCode {
     OPENWHISK_NAMESPACE_ALREADY_EXISTS("69041", "OpenWhisk namespace already exists", "SC-SB-OPENWHISK-NAMESPACE-ALREADY-EXISTS", HttpStatus.CONFLICT),
     OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
     OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
-    PLAN_UPDATE_NOT_ALLOWED("69044", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST)
+    PLAN_UPDATE_NOT_ALLOWED("69044", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
+    UPDATE_INCORRECT_PLAN_ID("69045", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode
