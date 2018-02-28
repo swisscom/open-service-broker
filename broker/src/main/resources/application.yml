@@ -28,14 +28,14 @@ com.swisscom.cloud.sb.broker.provisioning.parentAlias:
     delayInSeconds: 30
 
 com.swisscom.cloud.sb.broker.security.platformUsers:
- - guid: 00000000-0000-0000-0000-000000000000
-   users:
    - username: cc_admin
      password: change_me
      role: CF_ADMIN
+     platformId: 00000000-0000-0000-0000-000000000000
    - username: cc_ext
      password: change_me
      role: CF_EXT_ADMIN
+     platformId: 00000000-0000-0000-0000-000000000000
 
 com.swisscom.cloud.sb.broker.backup:
   retryIntervalInSeconds: 10
