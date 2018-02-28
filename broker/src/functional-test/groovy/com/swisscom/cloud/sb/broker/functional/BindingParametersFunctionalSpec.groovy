@@ -13,7 +13,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.cleanup()
     }
 
-    def "provision async service instance"() {
+    def "provision async service instance and bind with parameters"() {
         given:
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
 

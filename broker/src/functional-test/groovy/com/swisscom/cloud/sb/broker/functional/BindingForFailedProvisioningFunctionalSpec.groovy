@@ -17,7 +17,8 @@ class BindingForFailedProvisioningFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true, ['success': false])
+        // add +30s because of the startup delay of the quartz scheduler
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS + 30, true, true, ['success': false])
         assert serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.FAILED
         when:
         def response = serviceLifeCycler.requestBindService('someKindaServiceInstanceGuid')

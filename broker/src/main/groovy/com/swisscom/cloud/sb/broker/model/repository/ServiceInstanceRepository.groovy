@@ -10,6 +10,7 @@ interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Inte
     List<ServiceInstance> findByPlanIdIn(List<Integer> planIds)
 
     List<ServiceInstance> findByPlan(Plan plan)
+
     @Transactional
     Integer deleteByGuid(String guid)
 }

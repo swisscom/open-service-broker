@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+        <property name="dataSource" ref="dataSource" />
+        <property name="table" value="FLYWAY_schema_version"/>
+        <property name="validateOnMigrate" value="true"/>
+    </bean>
+
+    <bean id="cleanUpZombieServiceInstanceBean" class="com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup">
+    </bean>
+
+    <bean id="jobServiceInstanceCleanup" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="cleanUpZombieServiceInstanceBean" />
+        <property name="targetMethod" value="cleanOrphanedServiceInstances" />
+    </bean>
+
+    <bean id="triggerServiceInstanceCleanup" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobServiceInstanceCleanup" />
+        <property name="cronExpression" value="0 0 0 * * ?" />
+    </bean>
+
+    <bean id="quartzSchedulerWithPersistence" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="flyway">
+        <property name="dataSource" ref="dataSource" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="jobFactory" ref="autowiringSpringBeanJobFactory" />
+        <property name="autoStartup" value="false" />
+        <property name="configLocation" value="classpath:quartzWithDbPersistence.properties" />
+        <property name="schedulerName" value="quartzSchedulerWithPersistence" />
+        <property name="startupDelay" value="30" />
+        <property name="waitForJobsToCompleteOnShutdown" value="true" />
+    </bean>
+
+    <bean id="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobFactory" ref="autowiringSpringBeanJobFactory" />
+        <property name="triggers" ref="triggerServiceInstanceCleanup" />
+        <property name="autoStartup" value="false" />
+        <property name="configLocation" value="classpath:quartz.properties" />
+        <property name="schedulerName" value="quartzScheduler" />
+        <property name="startupDelay" value="30" />
+        <property name="waitForJobsToCompleteOnShutdown" value="false" />
+    </bean>
+    <!-- more bean definitions go here -->
+
+</beans>

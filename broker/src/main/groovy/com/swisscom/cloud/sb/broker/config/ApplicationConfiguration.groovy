@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @CompileStatic
 @Configuration
 @EnableJpaRepositories(value = 'com.swisscom.cloud.sb.broker.model.repository', repositoryBaseClass = BaseRepositoryImpl.class)
-@ImportResource(value = 'classpath:beans.groovy')
+@ImportResource(value = 'classpath:beans.xml')
 @EnableSwagger2
 @EnableTransactionManagement
 class ApplicationConfiguration {
