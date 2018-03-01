@@ -97,7 +97,7 @@ class ProvisioningController extends BaseController {
         provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
 
-        if (provisioning.organization_guid && provisioning.space_guid && !provisioning.context) {
+        if (!provisioning.context && (provisioning.organization_guid && provisioning.space_guid)) {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
         }
 
