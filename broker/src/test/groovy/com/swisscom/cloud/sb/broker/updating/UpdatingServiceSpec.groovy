@@ -15,8 +15,7 @@ class UpdatingServiceSpec extends Specification {
     protected UpdatingPersistenceService updatingPersistenceService;
     ServiceInstance serviceInstance
 
-    def setup()
-    {
+    def setup() {
         serviceProviderLookup = Mock(ServiceProviderLookup)
         updatingPersistenceService = Mock(UpdatingPersistenceService)
         serviceInstance = Mock(ServiceInstance)
@@ -37,8 +36,7 @@ class UpdatingServiceSpec extends Specification {
         updateResponse.details.find { it -> it.key == "mode" && it.value == "stopped" } != null
     }
 
-    def "Throws Exception if plan changes and async validation is not valid"()
-    {
+    def "Throws Exception if plan changes and async validation is not valid"() {
         def sut = new UpdatingService(serviceProviderLookup, updatingPersistenceService)
         def updateRequest = new UpdateRequest(
                 plan: new Plan(guid: "124654a0-f015-4e59-b806-c19f425c7a51", asyncRequired: true, service: new CFService()),
@@ -47,15 +45,14 @@ class UpdatingServiceSpec extends Specification {
         def asynchronous = false
 
         when:
-            sut.Update(serviceInstance, updateRequest, asynchronous)
+        sut.Update(serviceInstance, updateRequest, asynchronous)
 
         then:
-            def exception = thrown(Exception)
-            exception.message == ErrorCode.ASYNC_REQUIRED.description
+        def exception = thrown(Exception)
+        exception.message == ErrorCode.ASYNC_REQUIRED.description
     }
 
-    def "Throws No Exception if plan doesn't change and async validation is not valid"()
-    {
+    def "Throws No Exception if plan doesn't change and async validation is not valid"() {
         def sut = new UpdatingService(serviceProviderLookup, updatingPersistenceService)
         def updateRequest = new UpdateRequest(
                 plan: new Plan(guid: "124654a0-f015-4e59-b806-c19f425c7a51", asyncRequired: true, service: new CFService()),
@@ -67,11 +64,10 @@ class UpdatingServiceSpec extends Specification {
         sut.Update(serviceInstance, updateRequest, asynchronous)
 
         then:
-            noExceptionThrown()
+        noExceptionThrown()
     }
 
-    def "Throws No Exception if plan changes and async validation is valid"()
-    {
+    def "Throws No Exception if plan changes and async validation is valid"() {
         def sut = new UpdatingService(serviceProviderLookup, updatingPersistenceService)
         def updateRequest = new UpdateRequest(
                 plan: new Plan(guid: "124654a0-f015-4e59-b806-c19f425c7a51", asyncRequired: false, service: new CFService(plan_updateable: true)),
@@ -80,10 +76,10 @@ class UpdatingServiceSpec extends Specification {
         def asynchronous = false
 
         when:
-            sut.Update(serviceInstance, updateRequest, asynchronous)
+        sut.Update(serviceInstance, updateRequest, asynchronous)
 
         then:
-            noExceptionThrown()
+        noExceptionThrown()
     }
 
 

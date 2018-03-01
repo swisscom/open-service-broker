@@ -30,8 +30,7 @@ class UpdatingController extends BaseController {
     private UpdatingService updatingService
 
     @Autowired
-    UpdatingController(ServiceInstanceRepository serviceInstanceRepository, PlanRepository planRepository, UpdatingService updatingService)
-    {
+    UpdatingController(ServiceInstanceRepository serviceInstanceRepository, PlanRepository planRepository, UpdatingService updatingService) {
         this.serviceInstanceRepository = serviceInstanceRepository
         this.planRepository = planRepository
         this.updatingService = updatingService
@@ -83,15 +82,13 @@ class UpdatingController extends BaseController {
         return object ? new ObjectMapper().writeValueAsString(object) : null
     }
 
-    private Plan getAndCheckPreviousPlan(ServiceInstance serviceInstance, UpdateDto updateDto)
-    {
+    private Plan getAndCheckPreviousPlan(ServiceInstance serviceInstance, UpdateDto updateDto) {
         Plan previousPlan = serviceInstance.plan
 
         if (updateDto.previous_values != null && !StringUtils.isEmpty(updateDto.previous_values.plan_id)) {
             previousPlan = getAndCheckPlan(updateDto.previous_values.plan_id)
 
-            if (previousPlan.guid != serviceInstance.plan.guid)
-            {
+            if (previousPlan.guid != serviceInstance.plan.guid) {
                 ErrorCode.UPDATE_INCORRECT_PLAN_ID.throwNew()
             }
         }
