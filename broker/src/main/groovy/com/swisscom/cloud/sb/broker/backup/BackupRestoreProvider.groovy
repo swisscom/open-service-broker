@@ -65,7 +65,7 @@ trait BackupRestoreProvider extends BackupOnShield {
                 return shieldClient.statusOfArchive(task)
             } else {
                 // if it's a restore task, it's finished when done.
-                return JobStatus.FINISHED
+                return JobStatus.SUCCESSFUL
             }
         }
         throw new RuntimeException("Invalid task status ${task.status} for task ${task.job_uuid}")
@@ -77,7 +77,7 @@ trait BackupRestoreProvider extends BackupOnShield {
 
     static Backup.Status convertBackupStatus(JobStatus status) {
         switch (status) {
-            case JobStatus.FINISHED:
+            case JobStatus.SUCCESSFUL:
                 return Backup.Status.SUCCESS
             case JobStatus.FAILED:
                 return Backup.Status.FAILED

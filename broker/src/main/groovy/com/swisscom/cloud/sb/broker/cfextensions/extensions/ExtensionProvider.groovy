@@ -20,7 +20,7 @@ trait ExtensionProvider{
             return JobStatus.FAILED
         }
         if (task.statusParsed.isDone()) {
-            return JobStatus.FINISHED
+            return JobStatus.SUCCESSFUL
         }
         throw new RuntimeException("Invalid task status ${task.status} for task ${task.job_uuid}")
     }
