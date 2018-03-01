@@ -35,9 +35,9 @@ import javax.annotation.PostConstruct
 @CompileStatic
 class ServiceLifeCycler {
     private CFService cfService
-    private Plan plan
+    private com.swisscom.cloud.sb.broker.model.Plan plan
     private PlanMetadata planMetaData
-    private Parameter parameter
+    private com.swisscom.cloud.sb.broker.model.Parameter parameter
     private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
     private String backupId
 
@@ -100,14 +100,14 @@ class ServiceLifeCycler {
                                      String planName = null, int maxBackups = 0) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
-            def tag = tagRepository.save(new Tag(tag: 'tag1'))
+            def tag = tagRepository.saveAndFlush(new com.swisscom.cloud.sb.broker.model.Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
                     description: "functional test", bindable: true, tags: Sets.newHashSet(tag)))
             serviceCreated = true
         }
         if (cfService.plans.empty) {
-            plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
+            plan = planRepository.saveAndFlush(new com.swisscom.cloud.sb.broker.model.Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
@@ -253,17 +253,17 @@ class ServiceLifeCycler {
         return createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).body
     }
 
-    Parameter createParameter(String name, String value, Plan plan) {
+    Parameter createParameter(String name, String value, com.swisscom.cloud.sb.broker.model.Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
         parameters.add(parameter)
-        return parameterRepository.save(parameter)
+        return parameterRepository.saveAndFlush(parameter)
     }
 
     CFService getCfService() {
         return cfService
     }
 
-    Plan getPlan() {
+    com.swisscom.cloud.sb.broker.model.Plan getPlan() {
         return plan
     }
 
