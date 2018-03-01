@@ -26,15 +26,15 @@ import javax.validation.Valid
 @Slf4j
 class UpdatingController extends BaseController {
     private ServiceInstanceRepository serviceInstanceRepository
+    private PlanRepository planRepository
     private UpdatingService updatingService
-    PlanRepository planRepository
 
     @Autowired
-    UpdatingController(ServiceInstanceRepository serviceInstanceRepository, UpdatingService updatingService, PlanRepository planRepository)
+    UpdatingController(ServiceInstanceRepository serviceInstanceRepository, PlanRepository planRepository, UpdatingService updatingService)
     {
         this.serviceInstanceRepository = serviceInstanceRepository
-        this.updatingService = updatingService
         this.planRepository = planRepository
+        this.updatingService = updatingService
     }
 
     @ApiOperation(value = "Updates an existing service instance.", response = UpdateResponseDto.class)
@@ -56,7 +56,7 @@ class UpdatingController extends BaseController {
     private ServiceInstance getServiceInstanceOrFail(String serviceInstanceGuid) {
         ServiceInstance instance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (!instance) {
-            log.debug "Service instance with id ${instance.guid} does not exist - returning 410 GONE"
+            log.debug "Service instance with id ${serviceInstanceGuid} does not exist - returning 410 GONE"
             ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
         }
         return instance
