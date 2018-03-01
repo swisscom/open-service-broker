@@ -68,7 +68,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
             serviceDetails.add(new ServiceDetail(
                     key: "mode",
                     uniqueKey: true,
-                    value: DeserializeParameters(updateRequest.parameters).mode))
+                    value: DeserializeParameters(request.parameters).mode))
         }
 
         if (request.acceptsIncomplete) {
