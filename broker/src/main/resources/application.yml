@@ -25,7 +25,6 @@ server.tomcat.accesslog.enabled: true
 com.swisscom.cloud.sb.broker.provisioning.parentAlias:
     retryIntervalInSeconds: 60
     maxRetryDurationInMinutes: 360
-    delayInSeconds: 30
 
 com.swisscom.cloud.sb.broker.security.platformUsers:
    - username: cc_admin

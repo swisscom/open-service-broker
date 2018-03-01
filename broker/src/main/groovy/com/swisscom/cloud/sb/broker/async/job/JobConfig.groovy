@@ -5,8 +5,6 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 abstract class JobConfig {
-    public static final int NO_DELAY = 1
-    public static final int DELAY_IN_SECONDS = 30
     public static final int RETRY_INTERVAL_IN_SECONDS = 15
     public static final double MAX_RETRY_DURATION_IN_MINUTES = 30
 
@@ -14,22 +12,18 @@ abstract class JobConfig {
     final String guid
     final int retryIntervalInSeconds
     final double maxRetryDurationInMinutes
-    final int delayInSeconds
 
     JobConfig(Class<? extends AbstractJob> jobClass, String guid,
               int retryIntervalInSeconds = RETRY_INTERVAL_IN_SECONDS,
-              double maxRetryDurationInMinutes = MAX_RETRY_DURATION_IN_MINUTES,
-              int delayInSeconds = NO_DELAY) {
+              double maxRetryDurationInMinutes = MAX_RETRY_DURATION_IN_MINUTES) {
         Preconditions.checkNotNull(guid)
         Preconditions.checkArgument(retryIntervalInSeconds > 0, "retryIntervalInSeconds should be >0")
         Preconditions.checkArgument(maxRetryDurationInMinutes > 0, "maxRetryDurationInMinutes should be >0")
-        Preconditions.checkArgument(delayInSeconds > 0, "delayInSeconds should be >0")
 
         this.jobClass = jobClass
         this.guid = guid
         this.retryIntervalInSeconds = retryIntervalInSeconds
         this.maxRetryDurationInMinutes = maxRetryDurationInMinutes
-        this.delayInSeconds = delayInSeconds
     }
 
     @Override
@@ -39,7 +33,6 @@ abstract class JobConfig {
                 ", guid='" + guid + '\'' +
                 ", retryIntervalInSeconds=" + retryIntervalInSeconds +
                 ", maxRetryDurationInMinutes=" + maxRetryDurationInMinutes +
-                ", delayInSeconds=" + delayInSeconds +
                 "}"
     }
 }

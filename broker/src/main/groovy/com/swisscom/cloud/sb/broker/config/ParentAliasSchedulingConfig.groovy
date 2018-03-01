@@ -10,14 +10,12 @@ import org.springframework.context.annotation.Configuration
 class ParentAliasSchedulingConfig {
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes
-    int delayInSeconds
 
     @Override
     String toString() {
         return "ParentAliasSchedulingConfig{" +
                 "retryIntervalInSeconds=" + retryIntervalInSeconds +
                 ", maxRetryDurationInMinutes=" + maxRetryDurationInMinutes +
-                ", delayInSeconds=" + delayInSeconds +
                 "}"
     }
 }

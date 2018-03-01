@@ -2,12 +2,7 @@ package com.swisscom.cloud.sb.broker.async.job
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.joda.time.DateTime
-import org.quartz.JobBuilder
-import org.quartz.JobDetail
-import org.quartz.SimpleScheduleBuilder
-import org.quartz.Trigger
-import org.quartz.TriggerBuilder
+import org.quartz.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
@@ -42,8 +37,6 @@ class JobManager {
                 .requestRecovery()
                 .build()
 
-        Date triggerDate = new DateTime().plusSeconds(jobConfig.delayInSeconds).toDate()
-
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(jobConfig.guid)
                 .forJob(jobId)
@@ -51,7 +44,7 @@ class JobManager {
                 .withIntervalInSeconds(jobConfig.retryIntervalInSeconds)
                 .withRepeatCount(calculateMaxRepeatCount(jobConfig.maxRetryDurationInMinutes, jobConfig.retryIntervalInSeconds))
                 .withMisfireHandlingInstructionNextWithExistingCount())
-                .startAt(triggerDate)
+                .startNow()
                 .build()
 
         log.debug("Inserting job detail and trigger with id: ${jobConfig.guid}")

@@ -31,7 +31,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     def setup() {
         parentAliasSchedulingConfig.retryIntervalInSeconds = 5
         parentAliasSchedulingConfig.maxRetryDurationInMinutes = 1
-        parentAliasSchedulingConfig.delayInSeconds = 10
         serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
     }
 

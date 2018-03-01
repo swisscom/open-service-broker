@@ -71,8 +71,7 @@ class ProvisioningController extends BaseController {
         if (StringUtils.contains(request.parameters, "parentAlias") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
             provisionResponse = scheduleProvision(request, parentAliasSchedulingConfig.retryIntervalInSeconds,
-                    parentAliasSchedulingConfig.maxRetryDurationInMinutes,
-                    parentAliasSchedulingConfig.delayInSeconds)
+                    parentAliasSchedulingConfig.maxRetryDurationInMinutes)
         } else {
             provisionResponse = provisioningService.provision(request)
         }
@@ -81,12 +80,11 @@ class ProvisioningController extends BaseController {
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
     }
 
-    private ProvisionResponse scheduleProvision(ProvisionRequest request, int retryIntervalInSeconds, int maxRetryDurationInMinutes, int delayInSeconds) {
+    private ProvisionResponse scheduleProvision(ProvisionRequest request, int retryIntervalInSeconds, int maxRetryDurationInMinutes) {
         asyncProvisioningService.scheduleProvision(
                 new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
                         retryIntervalInSeconds,
-                        maxRetryDurationInMinutes,
-                        delayInSeconds))
+                        maxRetryDurationInMinutes))
         return new ProvisionResponse(isAsync: true)
     }
 
