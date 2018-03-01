@@ -65,7 +65,10 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     ProvisionResponse provision(ProvisionRequest request) {
         def serviceDetails = new ArrayList<ServiceDetail>()
         if (!StringUtils.isEmpty(request.parameters)) {
-            serviceDetails.add(ServiceDetail.from("mode", DeserializeParameters(request.parameters).mode))
+            serviceDetails.add(new ServiceDetail(
+                    key: "mode",
+                    uniqueKey: true,
+                    value: DeserializeParameters(updateRequest.parameters).mode))
         }
 
         if (request.acceptsIncomplete) {
@@ -128,7 +131,10 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     UpdateResponse updateParameters(UpdateRequest updateRequest) {
         def serviceDetails = new ArrayList<ServiceDetail>()
         if (!StringUtils.isEmpty(updateRequest.parameters)) {
-            serviceDetails.add(ServiceDetail.from("mode", DeserializeParameters(updateRequest.parameters).mode))
+            serviceDetails.add(new ServiceDetail(
+                        key: "mode",
+                        uniqueKey: true,
+                        value: DeserializeParameters(updateRequest.parameters).mode))
         }
 
         if (updateRequest.acceptsIncomplete) {
