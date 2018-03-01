@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -34,7 +35,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider {
+class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 

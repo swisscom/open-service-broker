@@ -39,9 +39,9 @@ class ServiceBrokerClient implements IServiceBrokerClient {
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation"),
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?service_id={serviceId}&plan_id={planId}"),
                 HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), LastOperationResponse.class,
-                serviceInstanceId)
+                serviceInstanceId, "serviceId", "planId")
     }
 
     @Override
