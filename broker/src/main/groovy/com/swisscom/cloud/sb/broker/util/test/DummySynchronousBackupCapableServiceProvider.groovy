@@ -109,7 +109,7 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
     }
 
     @Override
-    Extension buildExtension(){
-        return new Extension(discovery_url: "URL")
+    Collection<Extension> buildExtensions(){
+        return [new Extension(discovery_url: "URL")]
     }
 }

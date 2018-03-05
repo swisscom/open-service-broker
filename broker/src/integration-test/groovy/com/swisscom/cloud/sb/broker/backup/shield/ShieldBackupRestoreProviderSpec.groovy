@@ -33,8 +33,8 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         }
 
         @Override
-        Extension buildExtension(){
-            return new Extension(discovery_url: "something")
+        Collection<Extension> buildExtensions(){
+            return [new Extension(discovery_url: "something")]
         }
     }
 

@@ -38,7 +38,7 @@ class ProvisioningService {
 
         ProvisionResponse provisionResponse = serviceProvider.provision(provisionRequest)
         if (serviceProvider instanceof ExtensionProvider){
-            provisionResponse.extensions = [serviceProvider.buildExtension()]
+            provisionResponse.extensions = serviceProvider.buildExtension()
         }
         instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)
         provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)

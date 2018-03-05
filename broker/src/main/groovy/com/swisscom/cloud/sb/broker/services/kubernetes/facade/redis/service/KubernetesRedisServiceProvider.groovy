@@ -141,7 +141,7 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     }
 
     @Override
-    Extension buildExtension(){
-        return new Extension(discovery_url: serviceConfig.discoveryURL)
+    Collection<Extension> buildExtensions(){
+        return [new Extension(discovery_url: serviceConfig.discoveryURL)]
     }
 }
