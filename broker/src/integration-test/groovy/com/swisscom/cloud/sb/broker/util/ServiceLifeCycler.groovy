@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import com.swisscom.cloud.sb.broker.model.Tag
 import com.swisscom.cloud.sb.broker.model.repository.*
@@ -18,7 +19,12 @@ import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.*
+import org.springframework.cloud.servicebroker.model.BindResource
+import org.springframework.cloud.servicebroker.model.Context
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,9 +41,9 @@ import javax.annotation.PostConstruct
 @CompileStatic
 class ServiceLifeCycler {
     private CFService cfService
-    private com.swisscom.cloud.sb.broker.model.Plan plan
+    private Plan plan
     private PlanMetadata planMetaData
-    private com.swisscom.cloud.sb.broker.model.Parameter parameter
+    private Parameter parameter
     private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
     private String backupId
 
@@ -100,14 +106,14 @@ class ServiceLifeCycler {
                                      String planName = null, int maxBackups = 0) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
-            def tag = tagRepository.saveAndFlush(new com.swisscom.cloud.sb.broker.model.Tag(tag: 'tag1'))
+            def tag = tagRepository.saveAndFlush(new Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
                     description: "functional test", bindable: true, tags: Sets.newHashSet(tag)))
             serviceCreated = true
         }
         if (cfService.plans.empty) {
-            plan = planRepository.saveAndFlush(new com.swisscom.cloud.sb.broker.model.Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
+            plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
@@ -253,7 +259,7 @@ class ServiceLifeCycler {
         return createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).body
     }
 
-    Parameter createParameter(String name, String value, com.swisscom.cloud.sb.broker.model.Plan plan) {
+    Parameter createParameter(String name, String value, Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
         parameters.add(parameter)
         return parameterRepository.saveAndFlush(parameter)
@@ -263,7 +269,7 @@ class ServiceLifeCycler {
         return cfService
     }
 
-    com.swisscom.cloud.sb.broker.model.Plan getPlan() {
+    Plan getPlan() {
         return plan
     }
 
