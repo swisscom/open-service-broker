@@ -198,7 +198,8 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     UpdateResponse update(UpdateRequest request) {
-        throw new NotImplementedException()
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     @VisibleForTesting

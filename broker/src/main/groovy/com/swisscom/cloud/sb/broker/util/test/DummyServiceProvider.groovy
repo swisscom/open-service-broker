@@ -16,7 +16,7 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -72,7 +72,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         }
 
         if (request.acceptsIncomplete) {
-            asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
+            asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
             return new ProvisionResponse(details: serviceDetails, isAsync: true)
         } else {
             return new ProvisionResponse(details: serviceDetails, isAsync: false)

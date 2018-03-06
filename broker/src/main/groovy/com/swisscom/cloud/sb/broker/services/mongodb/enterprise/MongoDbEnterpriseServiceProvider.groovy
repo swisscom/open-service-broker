@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -203,7 +204,8 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     }
 
     UpdateResponse update(UpdateRequest request) {
-        throw new NotImplementedException()
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     public static String getMongoDbGroupId(LastOperationJobContext context) {

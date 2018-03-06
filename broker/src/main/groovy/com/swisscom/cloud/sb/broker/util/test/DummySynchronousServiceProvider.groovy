@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -44,7 +45,8 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
 
     @Override
     UpdateResponse update(UpdateRequest request) {
-        throw new NotImplementedException()
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null;
     }
 
     @Override

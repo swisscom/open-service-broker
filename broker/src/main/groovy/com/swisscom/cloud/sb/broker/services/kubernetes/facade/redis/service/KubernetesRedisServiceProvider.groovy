@@ -8,6 +8,7 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -125,7 +126,8 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     }
 
     UpdateResponse update(UpdateRequest request) {
-        throw new NotImplementedException()
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     @Override
