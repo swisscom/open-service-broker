@@ -70,7 +70,7 @@ class BoshRestClient {
     }
 
     String deleteDeployment(String id) {
-        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id),HttpMethod.DELETE,new HttpEntity<Object>(createAuthHeaders()),String.class)
+        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id)+'?force=true',HttpMethod.DELETE,new HttpEntity<Object>(createAuthHeaders()),String.class)
         return handleRedirectonAndExtractTaskId(response)
     }
 
