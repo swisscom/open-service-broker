@@ -15,10 +15,12 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
 import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cloud.sb.broker.provisioning.job.UpdateJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdatableProvisioner
@@ -36,7 +38,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
-class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, EndpointProvider, UpdatableProvisioner {
+class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider, UpdatableProvisioner {
     public static final int RETRY_INTERVAL_IN_SECONDS = 10
     public static final int DEFAULT_PROCESSING_DELAY_IN_SECONDS = RETRY_INTERVAL_IN_SECONDS * 2
 
@@ -100,8 +102,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
             Map<String, Object> params = new ObjectMapper().readValue(context.provisionRequest.parameters, new TypeReference<Map<String, Object>>() {
             })
             if (params.containsKey('success') && !params.get('success')) {
-                return new AsyncOperationResult(status: LastOperation.Status.FAILED,
-                        details: serviceDetails)
+                return new AsyncOperationResult(status: LastOperation.Status.FAILED, details: serviceDetails)
             }
         }
 
@@ -141,6 +142,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         }
 
         if (updateRequest.acceptsIncomplete) {
+            asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceDeprovisioningJob.class, updateRequest, RETRY_INTERVAL_IN_SECONDS, 5))
             return new UpdateResponse(isAsync: true, details: serviceDetails)
         } else {
             return new UpdateResponse(isAsync: false, details: serviceDetails)
@@ -150,6 +152,11 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     @Override
     UpdateResponse updatePlanAndParameters(UpdateRequest updateRequest) {
         return updateParameters(updateRequest)
+    }
+
+    @Override
+    Optional<AsyncOperationResult> requestUpdate(LastOperationJobContext context) {
+        return processOperationResultBasedOnIfEnoughTimeHasElapsed(context, DEFAULT_PROCESSING_DELAY_IN_SECONDS)
     }
 
     enum DummyServiceProviderServiceDetailKey implements AbstractServiceDetailKey {

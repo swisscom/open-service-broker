@@ -27,7 +27,7 @@ class LastOperationPersistenceService {
         } else {
             lastOperation = new LastOperation(guid: id, operation: operation, dateCreation: new Date(), status: LastOperation.Status.IN_PROGRESS)
         }
-        lastOperationRepository.save(lastOperation)
+        lastOperationRepository.saveAndFlush(lastOperation)
         return lastOperation
     }
 
