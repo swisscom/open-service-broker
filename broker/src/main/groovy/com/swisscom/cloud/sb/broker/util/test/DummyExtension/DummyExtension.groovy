@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 
 class DummyExtension implements ExtensionProvider{
 
-    @Autowired
-    protected JobManager jobManager
-
     @Override
     TaskDto getTask(String taskUuid){
         return new TaskDto()
@@ -21,7 +18,7 @@ class DummyExtension implements ExtensionProvider{
         return [new Extension(discovery_url: "DummyExtensionURL")]
     }
 
-    String lockUser(){
-        return "User locked"
+    String lockUser(String id){
+        return "User locked with id = ${id}"
     }
 }

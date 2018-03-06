@@ -8,12 +8,8 @@ import org.springframework.http.ResponseEntity
 
 class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
 
-    DummyExtensionsServiceProvider dummyExtensionsServiceProvider
-
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('extensionServiceProvider', ServiceProviderLookup.findInternalName(DummyExtensionsServiceProvider.class), null, null,"dummyExtensions")
-//        serviceLifeCycler.createServiceIfDoesNotExist('dummyExtensionsServiceProvider', ServiceProviderLookup.findInternalName(DummyExtensionsServiceProvider.class))
-//        dummyExtensionsServiceProvider = new DummyExtensionsServiceProvider()
     }
 
     def cleanupSpec() {
@@ -23,9 +19,19 @@ class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
     def "Create service and verify extension"(){
         when:
         ResponseEntity<ProvisionResponseDto> res = serviceLifeCycler.provision(false, null, null)
-        println("res = " + res.body.extension_apis[0].discovery_url)
-//        dummyExtensionsServiceProvider.lockUser()
         then:
         "DummyExtensionURL" == res.body.extension_apis[0].discovery_url
+    }
+
+//    def "Execute async extension"(){
+//
+//    }
+
+    def "Execute sync extension"(){
+        when:
+        def res = serviceBrokerClient.lockUser(serviceLifeCycler.serviceInstanceId)
+        println("res = " + res)
+        then:
+        noExceptionThrown()
     }
 }

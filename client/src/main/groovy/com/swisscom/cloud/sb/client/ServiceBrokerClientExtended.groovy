@@ -84,4 +84,10 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}"),
                 HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), RestoreDto.class, serviceInstanceId, backupId, restoreId)
     }
+
+    @Override
+    ResponseEntity<String> lockUser(String serviceInstanceId){
+        return restTemplate.exchange(appendPath("/custom/service_instances/{instanceId}/lock"),
+                HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
+    }
 }
