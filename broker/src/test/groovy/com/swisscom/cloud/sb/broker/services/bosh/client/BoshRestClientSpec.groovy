@@ -96,7 +96,7 @@ class BoshRestClientSpec extends Specification {
         and:
         def headers = new HttpHeaders()
         headers.setLocation(new URI(redirectLocation))
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS) + "/${id}"))
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS) + "/${id}" + "?force=true"))
                 .andExpect(method(HttpMethod.DELETE))
                 .andExpect(autHeader())
                 .andRespond(withStatus(HttpStatus.FOUND).headers(headers))
