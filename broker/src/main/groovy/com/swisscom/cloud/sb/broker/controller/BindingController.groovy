@@ -1,9 +1,7 @@
 package com.swisscom.cloud.sb.broker.controller
 
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.binding.*
+import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
@@ -21,11 +19,7 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 import javax.validation.Valid
 
@@ -42,6 +36,8 @@ class BindingController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
+    @Autowired
+    private ServiceInstanceBindingDtoConverter bindingDtoConverter
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
@@ -118,6 +114,19 @@ class BindingController extends BaseController {
         serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
         log.info("Servicebinding ${serviceBinding.guid} deleted")
         return new ResponseEntity<String>('{}', HttpStatus.OK)
+    }
+
+    @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)
+    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{binding_id}", method = RequestMethod.GET)
+    ServiceInstanceBindingResponseDto getServiceInstanceBinding(
+            @PathVariable("instanceId") String serviceInstanceGuid,
+            @PathVariable("bindingId") String bindingGuid) {
+        checkServiceBinding(bindingGuid)
+        def serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
+        if (serviceBinding.serviceInstance.guid != serviceInstanceGuid || !serviceBinding.serviceInstance.plan.service.bindingsRetrievable) {
+            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
+        }
+        return bindingDtoConverter.convert(serviceBinding)
     }
 
     private ServiceBinding checkServiceBinding(String bindingGuid) {
