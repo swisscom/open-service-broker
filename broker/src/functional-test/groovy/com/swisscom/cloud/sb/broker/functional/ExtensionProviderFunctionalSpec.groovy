@@ -1,22 +1,31 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
-import com.swisscom.cloud.sb.broker.util.test.DummyServiceProviderExtensions
+import com.swisscom.cloud.sb.broker.util.test.DummyExtension.DummyExtensionsServiceProvider
+
+import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
+import org.springframework.http.ResponseEntity
 
 class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
 
+    DummyExtensionsServiceProvider dummyExtensionsServiceProvider
+
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('extensionServiceProvider', ServiceProviderLookup.findInternalName(DummyServiceProviderExtensions.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('extensionServiceProvider', ServiceProviderLookup.findInternalName(DummyExtensionsServiceProvider.class), null, null,"dummyExtensions")
+//        serviceLifeCycler.createServiceIfDoesNotExist('dummyExtensionsServiceProvider', ServiceProviderLookup.findInternalName(DummyExtensionsServiceProvider.class))
+//        dummyExtensionsServiceProvider = new DummyExtensionsServiceProvider()
     }
 
     def cleanupSpec() {
         serviceLifeCycler.cleanup()
     }
 
-    def "create service and stuff"(){
+    def "Create service and verify extension"(){
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
+        ResponseEntity<ProvisionResponseDto> res = serviceLifeCycler.provision(false, null, null)
+        println("res = " + res.body.extension_apis[0].discovery_url)
+//        dummyExtensionsServiceProvider.lockUser()
         then:
-        noExceptionThrown()
+        "DummyExtensionURL" == res.body.extension_apis[0].discovery_url
     }
 }
