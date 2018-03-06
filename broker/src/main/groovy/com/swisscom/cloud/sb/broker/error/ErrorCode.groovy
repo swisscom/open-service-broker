@@ -52,7 +52,8 @@ enum ErrorCode {
     OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
     CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
     PLAN_UPDATE_NOT_ALLOWED("69045", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
-    UPDATE_INCORRECT_PLAN_ID("69046", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST)
+    UPDATE_INCORRECT_PLAN_ID("69046", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST),
+    OPERATION_IN_PRORGESS("69047", "Previous operation for this service instance is still in progress.", "SC-SB-SERVICE_OPERATION_IN_PROGRESS", UNPROCESSABLE_ENTITY)
 
     final String code
     final String errorCode
