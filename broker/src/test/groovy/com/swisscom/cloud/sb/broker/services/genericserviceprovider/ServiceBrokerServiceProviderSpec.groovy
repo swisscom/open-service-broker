@@ -68,7 +68,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         def serviceId = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: syncPlan)
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: serviceId, serviceInstance: serviceInstance)
-        def url = "http://dummy/v2/service_instances/${deprovisionRequest.serviceInstanceGuid}?service_id=dummy&plan_id=dummy&accepts_incomplete=${syncPlan.asyncRequired}"
+        def url = "http://dummy/v2/service_instances/${deprovisionRequest.serviceInstanceGuid}?service_id=dummy&plan_id=dummy&accepts_incomplete=${deprovisionRequest.acceptsIncomplete}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -89,7 +89,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: asyncPlan)
 
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://dummy/v2/service_instances/${provisionRequest.serviceInstanceGuid}?accepts_incomplete=${provisionRequest.plan.asyncRequired}"))
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://dummy/v2/service_instances/${provisionRequest.serviceInstanceGuid}?accepts_incomplete=${provisionRequest.acceptsIncomplete}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                 .andRespond(MockRestResponseCreators.withSuccess())
 
@@ -110,7 +110,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: asyncPlan)
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: serviceId, serviceInstance: serviceInstance)
 
-        def url = "http://dummy/v2/service_instances/${deprovisionRequest.serviceInstanceGuid}?service_id=dummy&plan_id=dummy&accepts_incomplete=${asyncPlan.asyncRequired}"
+        def url = "http://dummy/v2/service_instances/${deprovisionRequest.serviceInstanceGuid}?service_id=dummy&plan_id=dummy&accepts_incomplete=${deprovisionRequest.acceptsIncomplete}"
 
         mockServer.expect(MockRestRequestMatchers.requestTo(url))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
@@ -131,7 +131,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: syncPlan)
 
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://dummy/v2/service_instances/${provisionRequest.serviceInstanceGuid}?accepts_incomplete=${provisionRequest.plan.asyncRequired}"))
+        mockServer.expect(MockRestRequestMatchers.requestTo("http://dummy/v2/service_instances/${provisionRequest.serviceInstanceGuid}?accepts_incomplete=${provisionRequest.acceptsIncomplete}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
                 .andRespond(MockRestResponseCreators.withSuccess())
 
@@ -162,7 +162,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         def deprovisionResponse = serviceBrokerServiceProvider.deprovision(deprovisionRequest)
 
         then:
-        deprovisionResponse.isAsync == true
+        deprovisionResponse.isAsync == false
         noExceptionThrown()
 
         and:
