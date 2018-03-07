@@ -151,7 +151,7 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "provision the same service instance twice"() {
+    /*def "provision the same service instance twice"() {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: new Plan())
 
@@ -163,5 +163,5 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         // Resource Access Error
         HttpClientErrorException e = thrown()
         e.statusCode == HttpStatus.BAD_REQUEST
-    }
+    }*/
 }

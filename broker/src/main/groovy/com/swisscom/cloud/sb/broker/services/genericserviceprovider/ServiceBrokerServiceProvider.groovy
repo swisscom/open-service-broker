@@ -56,6 +56,15 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
     }
 
+    private ServiceBrokerClient serviceBrokerClient
+
+    ServiceBrokerServiceProvider() {}
+
+    //@Autowired
+    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient) {
+        this.serviceBrokerClient = serviceBrokerClient
+    }
+
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         if (request.plan.asyncRequired) {
