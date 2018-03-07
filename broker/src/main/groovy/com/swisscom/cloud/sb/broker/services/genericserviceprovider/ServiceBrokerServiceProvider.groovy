@@ -1,29 +1,47 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
-import com.sun.tools.javah.Gen
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.ClientHttpResponse
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.RestTemplate
+
+import static com.swisscom.cloud.sb.broker.services.common.Utils.verifyAsychronousCapableClient
 
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
-class ServiceBrokerServiceProvider implements ServiceProvider {
+class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvisioner {
+
+    @Autowired
+    AsyncProvisioningService asyncProvisioningService
+
+    @Autowired
+    ServiceBrokerServiceProviderConfig serviceBrokerServiceProviderConfig
 
     private final String BASE_URL = "baseUrl"
     private final String USERNAME = "username"
@@ -31,24 +49,34 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
     private final String SERVICE_INSTANCE_ID = "service-guid"
     private final String PLAN_ID = "plan-guid"
 
-    //So far only sync
+    private ServiceBrokerClient serviceBrokerClient
+
+    ServiceBrokerServiceProvider() {}
+
+    //@Autowired
+    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient) {
+        this.serviceBrokerClient = serviceBrokerClient
+    }
+
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
+        // else exception is thrown
+        if(request.plan.asyncRequired) {
+            verifyAsychronousCapableClient(request)
+        }
         def params = request.plan.parameters
-
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        ServiceBrokerClient sbc = createServiceBrokerClient(req)
+
+        // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
+        // initialized using the GenericProvisionrequestPlanParameter object.
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
 
         def createServiceInstanceRequest = new CreateServiceInstanceRequest()
         //Check out ResponseEntity
-        ResponseEntity<CreateServiceInstanceResponse> re = sbc.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(false))
-
-        // || re.statusCode == 202 for async
-        if (re.statusCode == 201) {
-            return new ProvisionResponse(isAsync: false)
-        } else {
-
-        }
+        ResponseEntity<CreateServiceInstanceResponse> re = serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
+        return new ProvisionResponse(isAsync: request.acceptsIncomplete)
     }
 
     //So far only sync
@@ -58,11 +86,13 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
         def params = request.serviceInstance.plan.parameters
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        ServiceBrokerClient sbc = createServiceBrokerClient(req)
-        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, false )
-        sbc.deleteServiceInstance(deleteServiceInstanceRequest)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
+        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, request.acceptsIncomplete )
+        serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
 
-        return new DeprovisionResponse(isAsync: false)
+        return new DeprovisionResponse(isAsync: request.acceptsIncomplete)
     }
 
     @Override
@@ -74,10 +104,12 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
         def bindingId = request.binding_guid
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        ServiceBrokerClient sbc = createServiceBrokerClient(req)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
         CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequest(serviceId, planId, null, null)
         createServiceInstanceBindingRequest.withBindingId(bindingId).withServiceInstanceId(serviceInstanceId)
-        sbc.createServiceInstanceBinding(createServiceInstanceBindingRequest)
+        serviceBrokerClient.createServiceInstanceBinding(createServiceInstanceBindingRequest)
 
         return new BindResponse()
     }
@@ -91,9 +123,11 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
         def params = request.serviceInstance.plan.parameters
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        ServiceBrokerClient sbc = createServiceBrokerClient(req)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
         DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest = new DeleteServiceInstanceBindingRequest(serviceInstanceId, bindingId, serviceId, planId)
-        sbc.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
+        serviceBrokerClient.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
     }
 
     GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
@@ -122,6 +156,37 @@ class ServiceBrokerServiceProvider implements ServiceProvider {
     }
 
     ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req) {
-        return new ServiceBrokerClient(req.getBaseUrl(), req.getUsername(), req.getPassword())
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
+        restTemplate.setErrorHandler(new CustomErrorHandler())
+        return new ServiceBrokerClient(restTemplate, req.getBaseUrl(), req.getUsername(), req.getPassword())
+    }
+
+    @Override
+    AsyncOperationResult requestProvision(LastOperationJobContext context) {
+        return null
+    }
+
+    private class CustomErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            // your error handling here
+            if(response.statusCode == HttpStatus.NOT_FOUND){
+                log.info("ServiceBrokerServiceProviderError: 404")
+                throw new ServiceBrokerServiceProviderServiceNotFoundException("Service not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
+            } else if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                log.info("ServiceBrokerServiceProviderError: 400")
+                throw new ServiceBrokerServiceProviderBadRequestException("Bad request, response body:${response.body?.toString()}", null, null, HttpStatus.BAD_REQUEST)
+            } else if (response.statusCode == HttpStatus.CONFLICT) {
+                log.info("ServiceBrokerServiceProviderError: 409")
+                throw new ServiceBrokerException("Conflict, response body:${response.body?.toString()}", null, null, HttpStatus.CONFLICT)
+            } else if (response.statusCode == HttpStatus.GONE) {
+                log.info("ServiceBrokerServiceProviderError: 410")
+                throw new ServiceBrokerException("Resource gone, response body:${response.body?.toString()}")
+            } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
+                log.info("ServiceBrokerServiceProviderError: 422")
+                throw new ServiceBrokerException("Unprocessable entity, response body:${response.body?.toString()}")
+            }
+            super.handleError(response)
+        }
     }
 }

@@ -139,6 +139,10 @@ com.swisscom.cloud.sb.broker.service.lapi:
   lapiUsername:
   lapiPassword:
 
+com.swisscom.cloud.sb.broker.service.servicebrokerserviceprovider:
+  retryIntervalInSeconds: 5
+  maxRetryDurationInMinutes: 600
+
 com.swisscom.cloud.sb.broker.serviceDefinitions: []
 
 com.swisscom.cloud.sb.broker.serviceTemplates:

@@ -6,7 +6,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 
 class BindRequest {
     ServiceInstance serviceInstance
-    // Question: should binding_guid rather be of type ServiceBinding?
     String binding_guid
     String app_guid
     Plan plan
