@@ -1,10 +1,8 @@
 package com.swisscom.cloud.sb.broker.util.test.DummyExtension
 
-import com.swisscom.cloud.sb.broker.async.job.JobManager
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
-import org.springframework.beans.factory.annotation.Autowired
 
 class DummyExtension implements ExtensionProvider{
 
@@ -20,5 +18,9 @@ class DummyExtension implements ExtensionProvider{
 
     String lockUser(String id){
         return "User locked with id = ${id}"
+    }
+
+    String unlockUser(String id){
+        queueExtension(new DummyJobConfig(DummyJob.class, id, 10, 300))
     }
 }

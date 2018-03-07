@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.cfextensions.extensions
 
+import com.swisscom.cloud.sb.broker.async.job.JobConfig
 import com.swisscom.cloud.sb.broker.async.job.JobManager
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
@@ -8,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired
 
 @Slf4j
 trait ExtensionProvider{
-//
-//    @Autowired
-//    protected JobManager jobManager
+
+    @Autowired
+    protected JobManager jobManager
 
     abstract Collection<Extension> buildExtensions()
 
@@ -28,5 +29,9 @@ trait ExtensionProvider{
             return JobStatus.SUCCESSFUL
         }
         throw new RuntimeException("Invalid task status ${task.status} for task ${task.job_uuid}")
+    }
+
+    def queueExtension(JobConfig jobConfig){
+        jobManager.queue(jobConfig)
     }
 }
