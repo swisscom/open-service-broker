@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -9,10 +10,14 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
@@ -247,6 +252,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         return serviceBrokerServiceProviderUsage.findUsage(serviceInstance, enddate)
+    }
+
+    @Override
+    Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
+        return null
     }
 
     @Override
