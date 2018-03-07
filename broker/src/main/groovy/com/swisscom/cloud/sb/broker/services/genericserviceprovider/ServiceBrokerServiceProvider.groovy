@@ -10,6 +10,7 @@ import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointLookup
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -54,6 +55,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
+import static com.swisscom.cloud.sb.broker.services.common.Utils.verifyAsychronousCapableClient
+
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
 class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
@@ -93,12 +96,18 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        if (request.plan.asyncRequired) {
-            super.provision(request)
-        } else {
+        // else exception is thrown
+        if(request.plan.asyncRequired) {
+            verifyAsychronousCapableClient(request)
+        }
+        def params = request.plan.parameters
+        GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
 
-            def params = request.plan.parameters
-            GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
+        // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
+        // initialized using the GenericProvisionrequestPlanParameter object.
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
 
             // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
             // initialized using the GenericProvisionRequestPlanParameter object.
@@ -106,10 +115,10 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
                 serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
             }
 
-            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, null)
-            //Check out ResponseEntity
-            ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(createServiceInstanceRequest, request)
-            return new ProvisionResponse(isAsync: request.plan.asyncRequired)
+        def createServiceInstanceRequest = new CreateServiceInstanceRequest()
+        //Check out ResponseEntity
+        ResponseEntity<CreateServiceInstanceResponse> re = serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
+        return new ProvisionResponse(isAsync: request.acceptsIncomplete)
         }
     }
 
@@ -127,10 +136,12 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         } else {
             def params = request.serviceInstance.plan.parameters
 
-            GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-            if (serviceBrokerClient == null) {
-                serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderDeprovisioningErrorHandler.class)
-            }
+        GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
+        }
+        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, request.acceptsIncomplete )
+        serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
 
             ResponseEntity<DeleteServiceInstanceResponse> re = makeDeleteServiceInstanceCall(serviceBrokerClient, request, req)
             return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
@@ -151,8 +162,8 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         def bindingId = request.binding_guid
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        if (serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderBindingErrorHandler)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
         }
         CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequest(serviceId, planId, null, null)
         createServiceInstanceBindingRequest.withBindingId(bindingId).withServiceInstanceId(serviceInstanceId)
@@ -170,8 +181,8 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         def params = request.serviceInstance.plan.parameters
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        if (serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderUnbindingErrorHandler.class)
+        if(serviceBrokerClient == null) {
+            serviceBrokerClient = createServiceBrokerClient(req)
         }
         DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest = new DeleteServiceInstanceBindingRequest(serviceInstanceId, bindingId, serviceId, planId)
         serviceBrokerClient.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
@@ -182,7 +193,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         return null
     }
 
-    public static GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
+    public GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
         GenericProvisionRequestPlanParameter req = new GenericProvisionRequestPlanParameter();
         Iterator<Parameter> it = params.iterator()
         while (it.hasNext()) {
@@ -207,136 +218,38 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         return req
     }
 
-    public static ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req, Class errorHandler) {
+    ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req) {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
-        restTemplate.setErrorHandler(errorHandler.newInstance())
+        restTemplate.setErrorHandler(new CustomErrorHandler())
         return new ServiceBrokerClient(restTemplate, req.getBaseUrl(), req.getUsername(), req.getPassword())
     }
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
-        StateMachine stateMachine = createProvisionStateMachine()
-        ServiceStateWithAction currentState = getProvisionState(context)
-        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState)
+        return null
     }
 
-    @VisibleForTesting
-    private StateMachine createProvisionStateMachine() {
-        new StateMachine([ServiceBrokerServiceProviderProvisionState.PROVISION_IN_PROGRESS,
-                          ServiceBrokerServiceProviderProvisionState.PROVISION_SUCCESS,
-                          ServiceBrokerServiceProviderProvisionState.PROVISION_FAILED])
-    }
-
-    @VisibleForTesting
-    private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
-        ServiceStateWithAction provisionState = null
-        if (!context.lastOperation.internalState) {
-            provisionState = ServiceBrokerServiceProviderProvisionState.PROVISION_IN_PROGRESS
-        } else {
-            provisionState = ServiceBrokerServiceProviderProvisionState.of(context.lastOperation.internalState)
-        }
-        return provisionState
-    }
-
-    @VisibleForTesting
-    private ServiceBrokerServiceProviderStateMachineContext createStateMachineContext(LastOperationJobContext context) {
-        return new ServiceBrokerServiceProviderStateMachineContext(lastOperationJobContext: context, sbspFacade: sbspFacade, sbspRestClient: sbspRestClient)
-    }
-
-    @Override
-    Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        StateMachine stateMachine = createDeprovisionStateMachine()
-        ServiceStateWithAction currentState = getDeprovisionState(context)
-        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState))
-    }
-
-    @VisibleForTesting
-    private StateMachine createDeprovisionStateMachine() {
-        new StateMachine([ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS,
-                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_SUCCESS,
-                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_FAILED])
-    }
-
-    @VisibleForTesting
-    private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
-        ServiceStateWithAction deprovisionState = null
-        if (!context.lastOperation.internalState) {
-            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS
-        } else {
-            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
-        }
-        return deprovisionState
-    }
-
-    @Override
-    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance, enddate)
-    }
-
-    @Override
-    Collection<Extension> buildExtensions() {
-        return [new Extension("discovery_url": "discoveryURL")]
-    }
-
-    public class CustomServiceBrokerServiceProviderProvisioningErrorHandler extends DefaultResponseErrorHandler {
+    private class CustomErrorHandler extends DefaultResponseErrorHandler {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
-            if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_BAD_REQUEST.throwNew()
+            // your error handling here
+            if(response.statusCode == HttpStatus.NOT_FOUND){
+                log.info("ServiceBrokerServiceProviderError: 404")
+                throw new ServiceBrokerServiceProviderServiceNotFoundException("Service not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
+            } else if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                log.info("ServiceBrokerServiceProviderError: 400")
+                throw new ServiceBrokerServiceProviderBadRequestException("Bad request, response body:${response.body?.toString()}", null, null, HttpStatus.BAD_REQUEST)
             } else if (response.statusCode == HttpStatus.CONFLICT) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_CONFLICT.throwNew()
+                log.info("ServiceBrokerServiceProviderError: 409")
+                throw new ServiceBrokerException("Conflict, response body:${response.body?.toString()}", null, null, HttpStatus.CONFLICT)
+            } else if (response.statusCode == HttpStatus.GONE) {
+                log.info("ServiceBrokerServiceProviderError: 410")
+                throw new ServiceBrokerException("Resource gone, response body:${response.body?.toString()}")
             } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_UNPROCESSABLE_ENTITY.throwNew()
-            } else {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
+                log.info("ServiceBrokerServiceProviderError: 422")
+                throw new ServiceBrokerException("Unprocessable entity, response body:${response.body?.toString()}")
             }
             super.handleError(response)
-        }
-    }
-
-    private class CustomServiceBrokerServiceProviderBindingErrorHandler extends DefaultResponseErrorHandler {
-        @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
-            if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_BAD_REQUEST.throwNew()
-            } else if (response.statusCode == HttpStatus.CONFLICT) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_CONFLICT.throwNew()
-            } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_UNPROCESSABLE_ENTITY.throwNew()
-            } else {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
-            }
-            super.handleError(response)
-        }
-    }
-
-    private class CustomServiceBrokerServiceProviderUnbindingErrorHandler extends DefaultResponseErrorHandler {
-        @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
-            if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_UNBINDING_BAD_REQUEST.throwNew()
-            } else if (response.statusCode == HttpStatus.GONE) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_UNBINDING_GONE.throwNew()
-            } else {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
-            }
-        }
-    }
-
-    private class CustomServiceBrokerServiceProviderDeprovisioningErrorHandler extends DefaultResponseErrorHandler {
-        @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
-            if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_BAD_REQUEST.throwNew()
-            } else if (response.statusCode == HttpStatus.GONE) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_GONE.throwNew()
-            } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_UNPROCESSABLE_ENTITY.throwNew()
-            } else {
-                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
-            }
         }
     }
 }
