@@ -104,7 +104,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
 
         // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
-        // initialized using the GenericProvisionrequestPlanParameter object.
+        // initialized using the GenericProvisionRequestPlanParameter object.
         if(serviceBrokerClient == null) {
             serviceBrokerClient = createServiceBrokerClient(req)
         }
@@ -226,6 +226,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
+        return null
+    }
+
+    @Override
+    Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
         return null
     }
 
