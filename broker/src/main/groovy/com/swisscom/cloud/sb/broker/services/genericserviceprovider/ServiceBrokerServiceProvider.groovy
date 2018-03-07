@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
+import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
@@ -12,6 +13,7 @@ import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlan
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -35,7 +37,7 @@ import static com.swisscom.cloud.sb.broker.services.common.Utils.verifyAsychrono
 
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
-class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvisioner {
+class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner {
 
     @Autowired
     AsyncProvisioningService asyncProvisioningService
@@ -68,7 +70,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
 
         // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
-        // initialized using the GenericProvisionrequestPlanParameter object.
+        // initialized using the GenericProvisionRequestPlanParameter object.
         if(serviceBrokerClient == null) {
             serviceBrokerClient = createServiceBrokerClient(req)
         }
@@ -76,7 +78,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         def createServiceInstanceRequest = new CreateServiceInstanceRequest()
         //Check out ResponseEntity
         ResponseEntity<CreateServiceInstanceResponse> re = serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
-        return new ProvisionResponse(isAsync: request.acceptsIncomplete)
+        return new ProvisionResponse(isAsync: request.plan.asyncRequired)
     }
 
     //So far only sync
@@ -92,7 +94,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, request.acceptsIncomplete )
         serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
 
-        return new DeprovisionResponse(isAsync: request.acceptsIncomplete)
+        return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
     }
 
     @Override
@@ -163,6 +165,11 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
+        return null
+    }
+
+    @Override
+    Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
         return null
     }
 
