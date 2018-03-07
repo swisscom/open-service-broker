@@ -37,6 +37,6 @@ class LastOperationPersistenceService {
 
     private void failIfPreviousOperationIsNotComplete(LastOperation lastOperationOnServiceInstance) {
         if (lastOperationOnServiceInstance && lastOperationOnServiceInstance.status == LastOperation.Status.IN_PROGRESS)
-            ErrorCode.OPERATION_IN_PRORGESS.throwNew()
+            ErrorCode.OPERATION_IN_PROGRESS.throwNew()
     }
 }

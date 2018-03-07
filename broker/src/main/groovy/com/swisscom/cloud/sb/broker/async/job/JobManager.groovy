@@ -32,10 +32,11 @@ class JobManager {
 
         String jobId = jobConfig.guid
 
-        JobDetail jobDetail = JobBuilder.newJob(jobConfig.jobClass)
+        def jobDetail = JobBuilder.newJob(jobConfig.jobClass)
                 .withIdentity(jobId)
                 .requestRecovery()
                 .build()
+        log.info("jobDetail built: ${jobConfig.guid}")
 
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(jobConfig.guid)
@@ -46,7 +47,7 @@ class JobManager {
                 .withMisfireHandlingInstructionNextWithExistingCount())
                 .startNow()
                 .build()
-        log.debug("Inserting job detail and trigger with id: ${jobConfig.guid}")
+        log.info("Inserting job detail and trigger with id: ${jobConfig.guid}")
 
         quartzSchedulerWithPersistence.getScheduler().scheduleJob(jobDetail, new HashSet<Trigger>([trigger]), true)
     }

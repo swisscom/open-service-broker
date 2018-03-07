@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cloud.sb.broker.provisioning.job.ServiceUpdateJob
 import com.swisscom.cloud.sb.broker.provisioning.job.UpdateJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -142,7 +143,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         }
 
         if (updateRequest.acceptsIncomplete) {
-            asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceDeprovisioningJob.class, updateRequest, RETRY_INTERVAL_IN_SECONDS, 5))
+            asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceUpdateJob.class, updateRequest, updateRequest.serviceInstanceGuid, RETRY_INTERVAL_IN_SECONDS, 5))
             return new UpdateResponse(isAsync: true, details: serviceDetails)
         } else {
             return new UpdateResponse(isAsync: false, details: serviceDetails)
@@ -155,7 +156,7 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     }
 
     @Override
-    Optional<AsyncOperationResult> requestUpdate(LastOperationJobContext context) {
+    AsyncOperationResult requestUpdate(LastOperationJobContext context) {
         return processOperationResultBasedOnIfEnoughTimeHasElapsed(context, DEFAULT_PROCESSING_DELAY_IN_SECONDS)
     }
 

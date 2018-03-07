@@ -5,7 +5,10 @@ import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
+import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.transform.CompileStatic
+import org.joda.time.LocalTime
+import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -61,5 +64,26 @@ abstract class BaseFunctionalSpec extends Specification {
      */
     protected UserConfig getUserByRole(String role) {
         return userConfig.platformUsers.find { it.role == role }
+    }
+
+    void waitUntilMaxTimeOrTargetState(String serviceInstanceGuid, int seconds) {
+        int sleepTime = 1000
+        def start = LocalTime.now();
+
+        if (seconds > 0) {
+            while (start.plusSeconds(seconds).isAfter(LocalTime.now()))
+            {
+                def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
+                if (timeUntilForcedExecution % 4 == 0) {
+                    def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody();
+                    def operationState = lastOperationResponse.state;
+                    if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED)
+                        return
+                }
+
+                println("Execution continues in ${timeUntilForcedExecution} second(s)")
+                Thread.sleep(sleepTime)
+            }
+        }
     }
 }
