@@ -76,15 +76,6 @@ CREATE PROCEDURE migrate_cf_context()
 
     OPEN cur1;
 
-    CREATE INDEX idx_service_context_platform
-      ON service_context (platform);
-    CREATE INDEX idx_service_context_detail_key
-      ON service_context_detail (`_key`);
-    CREATE INDEX idx_service_context_detail_value
-      ON service_context_detail (`_value`);
-    CREATE INDEX idx_service_context_detail_key_value
-      ON service_context_detail (`_key`, `_value`);
-
     read_loop: LOOP
 
       BEGIN
