@@ -1,14 +1,18 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -141,6 +145,12 @@ kind: Namespace""")
         1 * kubernetesClient.exchange('/api/v1/namespaces/GUID', HttpMethod.DELETE, "", Object.class)
     }
 
+    def "assert that KubernetesRedisServiceProvider is of CloudFoundryContextRestrictedOnly"() {
+        expect:
+        def serviceProvider = new KubernetesRedisServiceProvider()
+        serviceProvider instanceof CloudFoundryContextRestrictedOnly
+    }
+
     private ServiceResponse mockServiceResponse() {
         ServiceResponse serviceResponse = Stub()
         Spec spec = Stub()
@@ -168,11 +178,15 @@ kind: Namespace""")
     }
 
     private void mockProvisionRequest() {
+        def serviceContext = new ServiceContext()
+        serviceContext.platform = CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
+        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_ORGANIZATION_GUID, value: "ORG")
+        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_SPACE_GUID, value: "SPACE")
+
         provisionRequest = Mock(ProvisionRequest)
         provisionRequest.getServiceInstanceGuid() >> "ID"
-        provisionRequest.getSpaceGuid() >> "SPACE"
-        provisionRequest.getOrganizationGuid() >> "ORG"
         provisionRequest.plan >> Mock(Plan)
+        provisionRequest.serviceContext >> serviceContext
         provisionRequest.plan.parameters >> new HashSet<Parameter>() {
             {
                 add(new Parameter(name: "name", value: "value"))

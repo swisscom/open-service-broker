@@ -80,26 +80,29 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     }
 
     protected AsyncOperationResult processOperationResultBasedOnIfEnoughTimeHasElapsed(LastOperationJobContext context, int delay) {
+        def serviceDetails = [ServiceDetail.from(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))]
         if (context.provisionRequest?.parameters) {
             Map<String, Object> params = new ObjectMapper().readValue(context.provisionRequest.parameters, new TypeReference<Map<String, Object>>() {
             })
             if (params.containsKey('success') && !params.get('success')) {
                 return new AsyncOperationResult(status: LastOperation.Status.FAILED,
-                        details: [ServiceDetail.from(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
+                        details: serviceDetails)
             }
         }
 
         if (isServiceReady(context.lastOperation.dateCreation, delay)) {
-            return new AsyncOperationResult(status: LastOperation.Status.SUCCESS,
-                    details: [ServiceDetail.from(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS, String.valueOf(delay))])
+            return new AsyncOperationResult(status: LastOperation.Status.SUCCESS, details: serviceDetails)
         } else {
-            return new AsyncOperationResult(status: LastOperation.Status.IN_PROGRESS)
+            return new AsyncOperationResult(status: LastOperation.Status.IN_PROGRESS, details: serviceDetails)
         }
     }
 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        int delay = ServiceDetailsHelper.from(context.serviceInstance.details).getValue(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS) as int
+        def serviceDetails = ServiceDetailsHelper.from(context.serviceInstance.details)
+        int delay = serviceDetails.details.size() != 0 ?
+                serviceDetails.getValue(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS) as int :
+                DEFAULT_PROCESSING_DELAY_IN_SECONDS
         return Optional.of(processOperationResultBasedOnIfEnoughTimeHasElapsed(context, delay))
     }
 

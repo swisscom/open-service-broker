@@ -2,9 +2,13 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -13,11 +17,13 @@ import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RedisBindResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesFacadeRedis
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisServiceDetailKey
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisShieldTarget
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
+import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +32,7 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> {
+class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 
@@ -114,5 +120,15 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     void unbind(UnbindRequest request) {
 
+    }
+
+    @Override
+    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
+        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT) as Integer)
+    }
+
+    @Override
+    String shieldAgentUrl(ServiceInstance serviceInstance) {
+        "${serviceConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT)}"
     }
 }

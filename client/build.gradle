@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
 	compile('org.codehaus.groovy:groovy:2.4.7')
-	compile('org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:1.0.0.RELEASE')
+	compile('org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:1.0.2.RELEASE')
 	compile('commons-codec:commons-codec:1.10')
 	compile('org.apache.httpcomponents:httpclient:4.5.2')
 	compile project(':model')
