@@ -6,7 +6,6 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -73,7 +72,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
         // initialized using the GenericProvisionRequestPlanParameter object.
         if(serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req)
+            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
         }
 
         def createServiceInstanceRequest = new CreateServiceInstanceRequest()
@@ -82,7 +81,6 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         return new ProvisionResponse(isAsync: request.plan.asyncRequired)
     }
 
-    //So far only sync
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
         if(request.serviceInstance.plan.asyncRequired && !request.acceptsIncomplete) {
@@ -93,7 +91,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
         if(serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req)
+            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderDeprovisioningErrorHandler.class)
         }
         DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, request.acceptsIncomplete )
         serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
@@ -111,7 +109,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
         if(serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req)
+            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderBindingErrorHandler)
         }
         CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequest(serviceId, planId, null, null)
         createServiceInstanceBindingRequest.withBindingId(bindingId).withServiceInstanceId(serviceInstanceId)
@@ -130,7 +128,7 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
 
         GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
         if(serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req)
+            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderUnbindingErrorHandler.class)
         }
         DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest = new DeleteServiceInstanceBindingRequest(serviceInstanceId, bindingId, serviceId, planId)
         serviceBrokerClient.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
@@ -161,9 +159,9 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         return req
     }
 
-    ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req) {
+    ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req, Class errorHandler) {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
-        restTemplate.setErrorHandler(new CustomErrorHandler())
+        restTemplate.setErrorHandler(errorHandler.newInstance())
         return new ServiceBrokerClient(restTemplate, req.getBaseUrl(), req.getUsername(), req.getPassword())
     }
 
@@ -177,27 +175,63 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
         return null
     }
 
-    private class CustomErrorHandler extends DefaultResponseErrorHandler {
+    private class CustomServiceBrokerServiceProviderProvisioningErrorHandler extends DefaultResponseErrorHandler {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
-            // your error handling here
-            if(response.statusCode == HttpStatus.NOT_FOUND){
-                log.info("ServiceBrokerServiceProviderError: 404")
-                throw new ServiceBrokerServiceProviderServiceNotFoundException("Service not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
-            } else if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                log.info("ServiceBrokerServiceProviderError: 400")
-                throw new ServiceBrokerServiceProviderBadRequestException("Bad request, response body:${response.body?.toString()}", null, null, HttpStatus.BAD_REQUEST)
+            if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_BAD_REQUEST.throwNew()
             } else if (response.statusCode == HttpStatus.CONFLICT) {
-                log.info("ServiceBrokerServiceProviderError: 409")
-                throw new ServiceBrokerException("Conflict, response body:${response.body?.toString()}", null, null, HttpStatus.CONFLICT)
-            } else if (response.statusCode == HttpStatus.GONE) {
-                log.info("ServiceBrokerServiceProviderError: 410")
-                throw new ServiceBrokerException("Resource gone, response body:${response.body?.toString()}")
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_CONFLICT.throwNew()
             } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
-                log.info("ServiceBrokerServiceProviderError: 422")
-                throw new ServiceBrokerException("Unprocessable entity, response body:${response.body?.toString()}")
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_PROVISIONING_UNPROCESSABLE_ENTITY.throwNew()
+            } else {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
             }
             super.handleError(response)
+        }
+    }
+
+    private class CustomServiceBrokerServiceProviderBindingErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_BAD_REQUEST.throwNew()
+            } else if (response.statusCode == HttpStatus.CONFLICT) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_CONFLICT.throwNew()
+            } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_UNPROCESSABLE_ENTITY.throwNew()
+            } else {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
+            }
+            super.handleError(response)
+        }
+    }
+
+    private class CustomServiceBrokerServiceProviderUnbindingErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_UNBINDING_BAD_REQUEST.throwNew()
+            } else if (response.statusCode == HttpStatus.GONE) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_UNBINDING_GONE.throwNew()
+            } else {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
+            }
+        }
+    }
+
+    private class CustomServiceBrokerServiceProviderDeprovisioningErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_BAD_REQUEST.throwNew()
+            } else if (response.statusCode == HttpStatus.GONE) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_GONE.throwNew()
+            } else if (response.statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_UNPROCESSABLE_ENTITY.throwNew()
+            } else {
+                ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
+            }
         }
     }
 }
