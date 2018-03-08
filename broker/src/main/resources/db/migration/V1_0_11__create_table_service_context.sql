@@ -20,6 +20,15 @@ CREATE PROCEDURE create_table_service_context()
       FOREIGN KEY (service_context_id) REFERENCES service_context (id)
     );
 
+    CREATE INDEX idx_service_context_platform
+      ON service_context (platform);
+    CREATE INDEX idx_service_context_detail_key
+      ON service_context_detail (`_key`);
+    CREATE INDEX idx_service_context_detail_value
+      ON service_context_detail (`_value`);
+    CREATE INDEX idx_service_context_detail_key_value
+      ON service_context_detail (`_key`, `_value`);
+
     ALTER TABLE service_instance
       ADD COLUMN service_context_id BIGINT;
     ALTER TABLE service_instance
@@ -31,7 +40,7 @@ CREATE PROCEDURE create_table_service_context()
     ALTER TABLE service_binding
       ADD CONSTRAINT FK_service_binding2service_context
     FOREIGN KEY (service_context_id) REFERENCES service_context (id);
-    
+
     ALTER TABLE provision_request
       DROP COLUMN organization_guid,
       DROP COLUMN space_guid,
@@ -52,9 +61,10 @@ DELIMITER //
 CREATE PROCEDURE migrate_cf_context()
   BEGIN
     DECLARE done INT DEFAULT FALSE;
-    DECLARE service_context_id INT;
-    DECLARE service_instance_id INT;
-    DECLARE org_id, space_id VARCHAR(255);
+    DECLARE sc_id INT; -- service_context_id
+    DECLARE si_id INT; -- service_instance_id
+    DECLARE orgid, spaceid VARCHAR(255);
+    DECLARE scd_not_found INT DEFAULT FALSE;
     DECLARE cur1 CURSOR FOR SELECT
                               si.id,
                               si.org,
@@ -66,28 +76,67 @@ CREATE PROCEDURE migrate_cf_context()
 
     OPEN cur1;
 
+    CREATE INDEX idx_service_context_platform
+      ON service_context (platform);
+    CREATE INDEX idx_service_context_detail_key
+      ON service_context_detail (`_key`);
+    CREATE INDEX idx_service_context_detail_value
+      ON service_context_detail (`_value`);
+    CREATE INDEX idx_service_context_detail_key_value
+      ON service_context_detail (`_key`, `_value`);
+
     read_loop: LOOP
-      FETCH cur1
-      INTO service_instance_id, org_id, space_id;
 
-      IF done
-      THEN
-        LEAVE read_loop;
-      END IF;
+      BEGIN
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+        FETCH cur1
+        INTO si_id, orgid, spaceid;
 
-      INSERT INTO service_context (platform)
-      VALUES ('cloudfoundry');
-      SELECT LAST_INSERT_ID()
-      INTO service_context_id;
+        IF done
+        THEN
+          LEAVE read_loop;
+        END IF;
+      END;
 
-      INSERT INTO service_context_detail (`_key`, `_value`, service_context_id)
-      VALUES ('organization_guid', org_id, service_context_id);
-      INSERT INTO service_context_detail (`_key`, `_value`, service_context_id)
-      VALUES ('space_guid', space_id, service_context_id);
+        scd_search_block: BEGIN
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET scd_not_found = TRUE;
+
+        SET scd_not_found = FALSE;
+
+        SELECT scd1.service_context_id
+        INTO sc_id
+        FROM service_context sc
+          JOIN service_context_detail scd1 ON sc.id = scd1.service_context_id
+          JOIN service_context_detail scd2 ON sc.id = scd2.service_context_id
+        WHERE sc.platform = 'cloudfoundry '
+              AND scd1.`_key` = 'organization_guid' AND scd1.`_value` = orgid
+              AND scd2.`_key` = 'space_guid' AND scd2.`_value` = spaceid;
+
+        IF scd_not_found
+        THEN
+          INSERT INTO service_context (platform)
+          VALUES ('cloudfoundry');
+          SELECT LAST_INSERT_ID()
+          INTO sc_id;
+
+          INSERT INTO service_context_detail (`_key`, `_value`, service_context_id)
+          VALUES ('organization_guid', orgid, sc_id);
+          INSERT INTO service_context_detail (`_key`, `_value`, service_context_id)
+          VALUES ('space_guid', spaceid, sc_id);
+
+          COMMIT;
+
+        END IF;
+
+        LEAVE scd_search_block;
+      END;
+
 
       UPDATE service_instance si
-      SET service_context_id = service_context_id
-      WHERE si.id = service_instance_id;
+      SET service_context_id = sc_id
+      WHERE si.id = si_id;
+
+      COMMIT;
 
     END LOOP;
 
