@@ -1,24 +1,16 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
-import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceContext
-import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Port
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Selector
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.Spec
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.data.util.Pair
@@ -151,6 +143,12 @@ kind: Namespace""")
         kubernetesRedisClientRedisDecorated.deprovision(deprovisionRequest)
         then:
         1 * kubernetesClient.exchange('/api/v1/namespaces/GUID', HttpMethod.DELETE, "", Object.class)
+    }
+
+    def "assert that KubernetesRedisServiceProvider is of CloudFoundryContextRestrictedOnly"() {
+        expect:
+        def serviceProvider = new KubernetesRedisServiceProvider()
+        serviceProvider instanceof CloudFoundryContextRestrictedOnly
     }
 
     private ServiceResponse mockServiceResponse() {
