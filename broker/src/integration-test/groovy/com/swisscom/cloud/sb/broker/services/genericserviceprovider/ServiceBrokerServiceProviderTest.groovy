@@ -43,36 +43,12 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "deprovision a sync service instance with sync client"() {
-        given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
-
-        when:
-        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
-
-        then:
-        noExceptionThrown()
-    }
-
     def "provision a async service instance with async client"() {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: asyncPlan)
 
         when:
         serviceBrokerServiceProvider.provision(provisionRequest)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deprovision a async service instance with async client"() {
-        given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: asyncPlan)
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
-
-        when:
-        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
 
         then:
         noExceptionThrown()
@@ -103,24 +79,38 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         ErrorCodeHelper.assertServiceBrokerException(ErrorCode.ASYNC_REQUIRED, e)
     }
 
+    def "deprovision a sync service instance with sync client"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "deprovision a async service instance with async client"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: asyncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+
+
     def "provision a sync service instance with async client"() {
         given:
         ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: syncPlan)
 
         when:
         serviceBrokerServiceProvider.provision(provisionRequest)
-
-        then:
-        noExceptionThrown()
-    }
-
-    def "deprovision a sync service instance"() {
-        given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
-
-        when:
-        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
 
         then:
         noExceptionThrown()
