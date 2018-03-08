@@ -114,6 +114,18 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
+    def "deprovision a sync service instance"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
     def "bind the provisioned service instance"() {
         given:
         ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
