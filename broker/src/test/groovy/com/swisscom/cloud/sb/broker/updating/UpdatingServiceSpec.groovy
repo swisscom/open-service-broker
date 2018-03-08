@@ -45,7 +45,7 @@ class UpdatingServiceSpec extends Specification {
         def asynchronous = false
 
         when:
-        sut.Update(serviceInstance, updateRequest, asynchronous)
+        sut.update(serviceInstance, updateRequest, asynchronous)
 
         then:
         def exception = thrown(Exception)
@@ -61,7 +61,7 @@ class UpdatingServiceSpec extends Specification {
         def asynchronous = false
 
         when:
-        sut.Update(serviceInstance, updateRequest, asynchronous)
+        sut.update(serviceInstance, updateRequest, asynchronous)
 
         then:
         noExceptionThrown()
@@ -76,7 +76,7 @@ class UpdatingServiceSpec extends Specification {
         def asynchronous = false
 
         when:
-        sut.Update(serviceInstance, updateRequest, asynchronous)
+        sut.update(serviceInstance, updateRequest, asynchronous)
 
         then:
         noExceptionThrown()

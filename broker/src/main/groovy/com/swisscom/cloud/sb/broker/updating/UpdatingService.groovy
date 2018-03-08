@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class UpdatingService {
     protected ServiceProviderLookup serviceProviderLookup
-    protected UpdatingPersistenceService updatingPersistenceService;
+    protected UpdatingPersistenceService updatingPersistenceService
 
     @Autowired
     public UpdatingService(ServiceProviderLookup serviceProviderLookup, UpdatingPersistenceService updatingPersistenceService) {
@@ -21,12 +21,12 @@ class UpdatingService {
         this.updatingPersistenceService = updatingPersistenceService
     }
 
-    UpdateResponse Update(ServiceInstance serviceInstance, UpdateRequest updateRequest, boolean acceptsIncomplete) {
+    UpdateResponse update(ServiceInstance serviceInstance, UpdateRequest updateRequest, boolean acceptsIncomplete) {
         if (isPlanChanging(updateRequest))
             handleAsyncClientRequirement(updateRequest.plan, acceptsIncomplete)
         updatingPersistenceService.saveUpdateRequest(updateRequest)
         def response = serviceProviderLookup.findServiceProvider(updateRequest.previousPlan).update(updateRequest)
-        updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, response.details, updateRequest.plan)
+        updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan)
         return response
     }
 

@@ -14,15 +14,13 @@ class UpdatingControllerSpec extends Specification {
     private PlanRepository planRepository
     private UpdatingService updatingService
 
-    def setup()
-    {
+    def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         planRepository = Mock(PlanRepository)
         updatingService = Mock(UpdatingService)
     }
 
-    def "Throws Exception when ServiceInstance does not exist"()
-    {
+    def "Throws Exception when ServiceInstance does not exist"() {
         def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
         def notExisitingGuid = "DoesNotExist";
         def updateRequestDto = new UpdateDto()
@@ -37,15 +35,14 @@ class UpdatingControllerSpec extends Specification {
 
     }
 
-    def "Doesn't throw Exception when ServiceInstance exists"()
-    {
+    def "Doesn't throw Exception when ServiceInstance exists"() {
         def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
         def existingGuid = "DoesExist";
         def updateRequestDto = new UpdateDto()
         def acceptIncomplete = true;
 
         serviceInstanceRepository.findByGuid(existingGuid) >> new ServiceInstance()
-        updatingService.Update(*_) >> new UpdateResponse()
+        updatingService.update(*_) >> new UpdateResponse()
 
         when:
             sut.update(existingGuid, acceptIncomplete, updateRequestDto)

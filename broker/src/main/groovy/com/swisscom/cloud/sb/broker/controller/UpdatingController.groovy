@@ -44,7 +44,7 @@ class UpdatingController extends BaseController {
         log.info("Update request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto.parameters}")
         ServiceInstance serviceInstance = getServiceInstanceOrFail(serviceInstanceGuid)
 
-        def updatingResponse = updatingService.Update(
+        def updatingResponse = updatingService.update(
                 serviceInstance,
                 createUpdateRequest(serviceInstance, updateDto, acceptsIncomplete),
                 acceptsIncomplete)
