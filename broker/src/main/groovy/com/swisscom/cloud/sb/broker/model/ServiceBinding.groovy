@@ -20,7 +20,7 @@ class ServiceBinding extends BaseModel {
     String guid
     @Column(columnDefinition = 'text')
     String credentials //Credential in JSON format
-
+    String parameters
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "service_binding_service_detail",
             joinColumns = @JoinColumn(name = "service_binding_details_id"),
@@ -34,4 +34,16 @@ class ServiceBinding extends BaseModel {
     @JoinColumn(name = 'service_instance_id')
     @JsonIgnore
     ServiceInstance serviceInstance
+
+    @Override
+    String toString() {
+        return "ServiceBinding{" +
+                "id=" + id +
+                ", guid='" + guid + '\'' +
+                ", credentials=" + credentials +
+                ", parameters=" + parameters +
+                ", details=" + details +
+                ", serviceContext=" + serviceContext +
+                "}"
+    }
 }
