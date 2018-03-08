@@ -312,7 +312,6 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
             } else {
                 ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
             }
-            super.handleError(response)
         }
     }
 
