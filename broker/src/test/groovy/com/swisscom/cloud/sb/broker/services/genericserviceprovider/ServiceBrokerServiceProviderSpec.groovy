@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.binding.BindRequest
+import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -20,6 +20,7 @@ import spock.lang.Specification
 class ServiceBrokerServiceProviderSpec extends Specification{
 
     private ServiceBrokerServiceProvider serviceBrokerServiceProvider
+    private CFService service
     private Plan syncPlan
     private Plan asyncPlan
 
@@ -39,8 +40,11 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         serviceBrokerClient = new ServiceBrokerClient(restTemplate, "http://dummy", "dummy", "dummy");
 
         and:
-        syncPlan = new Plan(asyncRequired: false, parameters: [new Parameter(name: "baseUrl", value: "http://dummy"), new Parameter(name: "username", value: "dummy"), new Parameter(name: "password", value: "dummy"), new Parameter(name: "service-guid", value: "dummy"), new Parameter(name: "plan-guid", value: "dummy")])
-        asyncPlan = new Plan(asyncRequired: true, parameters: [new Parameter(name: "baseUrl", value: "http://dummy"), new Parameter(name: "username", value: "dummy"), new Parameter(name: "password", value: "dummy"), new Parameter(name: "service-guid", value: "dummy"), new Parameter(name: "plan-guid", value: "dummy")])
+        service = new CFService(guid: "dummyService")
+
+        and:
+        syncPlan = new Plan(guid: "dummyPlan", asyncRequired: false, service: service, parameters: [new Parameter(name: "baseUrl", value: "http://dummy"), new Parameter(name: "username", value: "dummy"), new Parameter(name: "password", value: "dummy"), new Parameter(name: "service-guid", value: "dummy"), new Parameter(name: "plan-guid", value: "dummy")])
+        asyncPlan = new Plan(guid: "dummyPlan", asyncRequired: true, service: service, parameters: [new Parameter(name: "baseUrl", value: "http://dummy"), new Parameter(name: "username", value: "dummy"), new Parameter(name: "password", value: "dummy"), new Parameter(name: "service-guid", value: "dummy"), new Parameter(name: "plan-guid", value: "dummy")])
         serviceBrokerServiceProvider = new ServiceBrokerServiceProvider(serviceBrokerClient)
     }
 
@@ -163,6 +167,129 @@ class ServiceBrokerServiceProviderSpec extends Specification{
 
         then:
         deprovisionResponse.isAsync == false
+        noExceptionThrown()
+
+        and:
+        mockServer.verify()
+    }
+
+    def "provision async service instance with sync client"() {
+        given:
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: false, serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: asyncPlan)
+
+        when:
+        serviceBrokerServiceProvider.provision(provisionRequest)
+
+        then:
+        ServiceBrokerException e = thrown()
+        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
+        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+        e.code == ErrorCode.ASYNC_REQUIRED.code
+        e.description == ErrorCode.ASYNC_REQUIRED.description
+    }
+
+    def "deprovision async service instance with sync client"() {
+        given:
+        def serviceId = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: asyncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: serviceId, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        ServiceBrokerException e = thrown()
+        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
+        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+        e.code == ErrorCode.ASYNC_REQUIRED.code
+        e.description == ErrorCode.ASYNC_REQUIRED.description
+
+        and:
+        mockServer.verify()
+    }
+
+    def "bind to sync service instance"() {
+        given:
+        String serviceBindingId = "serviceBindingId"
+        def serviceId = "serviceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: syncPlan)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, binding_guid: serviceBindingId, plan: syncPlan, service: service)
+
+        String url = "http://dummy/v2/service_instances/${serviceId}/service_bindings/${serviceBindingId}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        when:
+        serviceBrokerServiceProvider.bind(bindRequest)
+
+        then:
+        mockServer.verify()
+    }
+
+    def "bind to async service instance"() {
+        given:
+        String serviceBindingId = "serviceBindingId"
+        def serviceId = "serviceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: asyncPlan)
+        BindRequest bindRequest = new BindRequest(serviceInstance: serviceInstance, binding_guid: serviceBindingId, plan: asyncPlan, service: service)
+
+        String url = "http://dummy/v2/service_instances/${serviceId}/service_bindings/${serviceBindingId}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        when:
+        serviceBrokerServiceProvider.bind(bindRequest)
+
+        then:
+        mockServer.verify()
+    }
+
+    def "unbind from sync service instance"() {
+        given:
+        def serviceInstanceId = "serviceInstanceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceId, plan: syncPlan)
+        String serviceBindingId = "serviceBindingId"
+        ServiceBinding serviceBinding = new ServiceBinding(guid: serviceBindingId)
+        UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance, service: service)
+
+        String url = "http://dummy/v2/service_instances/${unbindRequest.serviceInstance.guid}/service_bindings/${unbindRequest.binding.guid}?service_id=dummyService&plan_id=${serviceInstance.plan.guid}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        when:
+        serviceBrokerServiceProvider.unbind(unbindRequest)
+
+        then:
+        noExceptionThrown()
+
+        and:
+        mockServer.verify()
+    }
+
+    def "unbind from async service instance"() {
+        given:
+        def serviceInstanceId = "serviceInstanceId"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceId, plan: asyncPlan)
+        String serviceBindingId = "serviceBindingId"
+        ServiceBinding serviceBinding = new ServiceBinding(guid: serviceBindingId)
+        UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance, service: service)
+
+        String url = "http://dummy/v2/service_instances/${unbindRequest.serviceInstance.guid}/service_bindings/${unbindRequest.binding.guid}?service_id=dummyService&plan_id=${serviceInstance.plan.guid}"
+
+        mockServer.expect(MockRestRequestMatchers.requestTo(url))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.DELETE))
+                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.TEXT_PLAIN))
+
+        when:
+        serviceBrokerServiceProvider.unbind(unbindRequest)
+
+        then:
         noExceptionThrown()
 
         and:
