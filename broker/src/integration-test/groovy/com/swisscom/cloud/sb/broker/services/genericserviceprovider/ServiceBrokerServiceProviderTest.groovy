@@ -23,7 +23,8 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
     private String PLAN_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a7083"
     private String BASE_URL = "http://localhost:4567"
 
-    private Plan plan
+    private Plan syncPlan
+    private Plan asyncPlan
     private CFService service
 
     @Autowired
@@ -31,16 +32,29 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
 
     def setup() {
         serviceBrokerServiceProvider = new ServiceBrokerServiceProvider()
-        plan = new Plan(parameters: [new Parameter(name: "baseUrl", value: BASE_URL), new Parameter(name: "username", value: lapiConfig.lapiUsername), new Parameter(name: "password", value: lapiConfig.lapiPassword), new Parameter(name: "service-guid", value: SERVICE_DEFINITION_GUID), new Parameter(name: "plan-guid", value: PLAN_GUID)])
+        syncPlan = new Plan(guid: "65d546f1-2c74-4871-9d5f-b5b0df1a8920", asyncRequired: false, parameters: [new Parameter(name: "baseUrl", value: BASE_URL), new Parameter(name: "username", value: lapiConfig.lapiUsername), new Parameter(name: "password", value: lapiConfig.lapiPassword), new Parameter(name: "service-guid", value: SERVICE_DEFINITION_GUID), new Parameter(name: "plan-guid", value: PLAN_GUID)])
+        asyncPlan = new Plan(guid: "65d546f1-2c74-4871-9d5f-b5b0df1a8920", asyncRequired: true, parameters: [new Parameter(name: "baseUrl", value: BASE_URL), new Parameter(name: "username", value: lapiConfig.lapiUsername), new Parameter(name: "password", value: lapiConfig.lapiPassword), new Parameter(name: "service-guid", value: SERVICE_DEFINITION_GUID), new Parameter(name: "plan-guid", value: PLAN_GUID)])
         service = new CFService(guid: "65d546f1-2c74-4871-9d5f-b5b0df1a8914")
     }
 
-    def "provision a service instance"() {
+    def "provision a sync service instance"() {
         given:
-        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: plan)
+        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: syncPlan)
 
         when:
         serviceBrokerServiceProvider.provision(provisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "deprovision a sync service instance"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
 
         then:
         noExceptionThrown()
