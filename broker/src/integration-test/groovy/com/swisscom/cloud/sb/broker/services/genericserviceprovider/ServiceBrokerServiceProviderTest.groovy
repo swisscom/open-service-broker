@@ -3,17 +3,11 @@ package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
 
 class ServiceBrokerServiceProviderTest extends BaseSpecification {
     private ServiceBrokerServiceProvider serviceBrokerServiceProvider
@@ -37,9 +31,9 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         service = new CFService(guid: "65d546f1-2c74-4871-9d5f-b5b0df1a8914")
     }
 
-    def "provision a sync service instance"() {
+    def "provision a sync service instance with sync client"() {
         given:
-        ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: syncPlan)
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: syncPlan)
 
         when:
         serviceBrokerServiceProvider.provision(provisionRequest)
@@ -48,10 +42,10 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "deprovision a sync service instance"() {
+    def "deprovision a sync service instance with sync client"() {
         given:
         ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
 
         when:
         serviceBrokerServiceProvider.deprovision(deprovisionRequest)
@@ -60,10 +54,75 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
+    def "provision a async service instance with async client"() {
+        given:
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: asyncPlan)
+
+        when:
+        serviceBrokerServiceProvider.provision(provisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "deprovision a async service instance with async client"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: asyncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "provision a async service instance with sync client"() {
+        given:
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: asyncPlan)
+
+        when:
+        serviceBrokerServiceProvider.provision(provisionRequest)
+
+        then:
+        ServiceBrokerException e = thrown()
+        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
+        e.description == ErrorCode.ASYNC_REQUIRED.description
+        e.code == ErrorCode.ASYNC_REQUIRED.code
+        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+    }
+
+    def "deprovision a async service instance with sync client"() {
+        given:
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: asyncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: false, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+
+        when:
+        serviceBrokerServiceProvider.deprovision(deprovisionRequest)
+
+        then:
+        ServiceBrokerException e = thrown()
+        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
+        e.description == ErrorCode.ASYNC_REQUIRED.description
+        e.code == ErrorCode.ASYNC_REQUIRED.code
+        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+    }
+
+    def "provision a sync service instance with async client"() {
+        given:
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID , plan: syncPlan)
+
+        when:
+        serviceBrokerServiceProvider.provision(provisionRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
     def "bind the provisioned service instance"() {
         given:
-        ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: plan)
-        BindRequest bindRequest = new BindRequest(binding_guid: SERVICE_BINDING_GUID, serviceInstance: serviceInstance, service: service, plan: plan)
+        ServiceInstance serviceInstance = new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
+        BindRequest bindRequest = new BindRequest(binding_guid: SERVICE_BINDING_GUID, serviceInstance: serviceInstance, service: service, plan: syncPlan)
 
         when:
         serviceBrokerServiceProvider.bind(bindRequest)
@@ -74,7 +133,7 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
 
     def "unbind the provisioned and bound service instance"() {
         given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: plan)
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
         ServiceBinding serviceBinding= new ServiceBinding(guid: SERVICE_BINDING_GUID)
         UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, serviceInstance: serviceInstance, service:  service)
 
@@ -85,10 +144,10 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "deprovision service instance"() {
+    def "deprovision a sync service instance with async client"() {
         given:
-        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: plan)
-        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
+        ServiceInstance serviceInstance= new ServiceInstance(guid: SERVICE_INSTANCE_GUID, plan: syncPlan)
+        DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: SERVICE_INSTANCE_GUID, serviceInstance: serviceInstance)
 
         when:
         serviceBrokerServiceProvider.deprovision(deprovisionRequest)
