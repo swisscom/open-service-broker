@@ -6,6 +6,10 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
@@ -232,10 +236,8 @@ class ServiceBrokerServiceProviderSpec extends Specification{
 
         then:
         ServiceBrokerException e = thrown()
-        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
-        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
-        e.code == ErrorCode.ASYNC_REQUIRED.code
-        e.description == ErrorCode.ASYNC_REQUIRED.description
+        ErrorCodeHelper.assertServiceBrokerException(ErrorCode.ASYNC_REQUIRED, e)
+
     }
 
     def "deprovision async service instance with sync client"() {
@@ -249,10 +251,7 @@ class ServiceBrokerServiceProviderSpec extends Specification{
 
         then:
         ServiceBrokerException e = thrown()
-        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
-        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
-        e.code == ErrorCode.ASYNC_REQUIRED.code
-        e.description == ErrorCode.ASYNC_REQUIRED.description
+        ErrorCodeHelper.assertServiceBrokerException(ErrorCode.ASYNC_REQUIRED, e)
 
         and:
         mockServer.verify()
