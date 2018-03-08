@@ -47,6 +47,7 @@ class ProvisioningPersistenceService {
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
         instance.plan = provisionRequest.plan
+        instance.parameters = provisionRequest.parameters
         instance.serviceContext = provisionRequest.serviceContext
         return serviceInstanceRepository.save(instance)
     }

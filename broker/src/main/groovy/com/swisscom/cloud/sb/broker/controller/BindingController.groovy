@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
@@ -57,13 +58,18 @@ class BindingController extends BaseController {
 
         BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
 
-        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), bindingId, bindResponse.details, bindingDto.context)
+        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context)
 
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }
 
     private static String getCredentialsAsJson(BindResponse bindResponse) {
         return bindResponse.credentials ? bindResponse.credentials.toJson() : ""
+    }
+
+    private static String serializeJson(Object object) {
+        if (!object) return null
+        return new ObjectMapper().writeValueAsString(object)
     }
 
     private void failIfServiceBindingAlreadyExists(String bindingId) {

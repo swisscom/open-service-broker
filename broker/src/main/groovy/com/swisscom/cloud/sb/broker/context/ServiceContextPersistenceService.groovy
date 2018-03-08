@@ -27,9 +27,6 @@ class ServiceContextPersistenceService {
     @Autowired
     private ServiceContextRepository serviceContextRepository
 
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository
-
     ServiceContext findOrCreate(Context context) {
         if (!context) {
             return
