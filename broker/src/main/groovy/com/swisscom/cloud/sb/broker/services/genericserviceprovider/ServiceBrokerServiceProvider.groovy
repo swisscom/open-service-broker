@@ -5,6 +5,7 @@ import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
@@ -84,6 +85,9 @@ class ServiceBrokerServiceProvider implements ServiceProvider, AsyncServiceProvi
     //So far only sync
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
+        if(request.serviceInstance.plan.asyncRequired && !request.acceptsIncomplete) {
+            ErrorCode.ASYNC_REQUIRED.throwNew()
+        }
         def serviceInstanceId = request.serviceInstanceGuid
         def params = request.serviceInstance.plan.parameters
 
