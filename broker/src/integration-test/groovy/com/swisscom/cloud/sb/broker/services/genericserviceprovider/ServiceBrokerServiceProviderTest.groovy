@@ -158,10 +158,7 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
 
         then:
         ServiceBrokerException e = thrown()
-        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
-        e.description == ErrorCode.ASYNC_REQUIRED.description
-        e.code == ErrorCode.ASYNC_REQUIRED.code
-        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+        ErrorCodeHelper.assertServiceBrokerException(ErrorCode.ASYNC_REQUIRED, e)
     }
 
     def "deprovision a async service instance with sync client"() {
@@ -174,10 +171,7 @@ class ServiceBrokerServiceProviderTest extends BaseSpecification {
 
         then:
         ServiceBrokerException e = thrown()
-        e.httpStatus == ErrorCode.ASYNC_REQUIRED.httpStatus
-        e.description == ErrorCode.ASYNC_REQUIRED.description
-        e.code == ErrorCode.ASYNC_REQUIRED.code
-        e.error_code == ErrorCode.ASYNC_REQUIRED.errorCode
+        ErrorCodeHelper.assertServiceBrokerException(ErrorCode.ASYNC_REQUIRED, e)
     }
 
     def "provision a sync service instance with async client"() {
