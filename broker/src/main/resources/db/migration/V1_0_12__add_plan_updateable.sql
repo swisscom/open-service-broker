@@ -51,3 +51,26 @@ CREATE PROCEDURE add_updaterequest_table()
 
 DELIMITER ;
 CALL add_updaterequest_table();
+
+
+DROP PROCEDURE IF EXISTS update_parameters_on_tables;
+DELIMITER //
+
+CREATE PROCEDURE update_parameters_on_tables()
+  BEGIN
+
+  ALTER TABLE service_instance
+        ADD COLUMN parameters TEXT;
+  ALTER TABLE service_binding
+        ADD COLUMN parameters TEXT;
+  ALTER TABLE provision_request
+        MODIFY COLUMN parameters TEXT;
+  ALTER TABLE provision_request
+        MODIFY COLUMN parameters TEXT;
+
+
+  END//
+
+DELIMITER ;
+CALL update_parameters_on_tables();
+
