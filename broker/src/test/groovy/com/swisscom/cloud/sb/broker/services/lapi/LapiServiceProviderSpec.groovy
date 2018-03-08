@@ -88,7 +88,6 @@ class LapiServiceProviderSpec extends Specification {
         mockServer.verify()
     }
 
-    //bindingId in bindRequest params?
     def "bind to service instance"() {
         given:
         String serviceBindingId = "serviceBindingId"
