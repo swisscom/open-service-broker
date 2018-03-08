@@ -1,4 +1,4 @@
-DROP PROCEDURE IF EXISTS create_table_service_context_detail;
+DROP PROCEDURE IF EXISTS create_table_service_context;
 DELIMITER //
 
 CREATE PROCEDURE create_table_service_context()
