@@ -71,12 +71,11 @@ abstract class BaseFunctionalSpec extends Specification {
         def start = LocalTime.now();
 
         if (seconds > 0) {
-            while (start.plusSeconds(seconds).isAfter(LocalTime.now()))
-            {
+            while (start.plusSeconds(seconds).isAfter(LocalTime.now())) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 4 == 0) {
                     def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody();
-                    def operationState = lastOperationResponse.state;
+                    def operationState = lastOperationResponse.state
                     if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED)
                         return
                 }

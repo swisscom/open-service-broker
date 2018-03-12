@@ -29,8 +29,7 @@ class UpdatingPersistenceService {
     UpdatingPersistenceService(
             UpdateRequestRepository updateRequestRepository,
             ServiceInstanceRepository serviceInstanceRepository,
-            ProvisioningPersistenceService provisioningPersistenceService)
-    {
+            ProvisioningPersistenceService provisioningPersistenceService) {
         this.updateRequestRepository = updateRequestRepository
         this.serviceInstanceRepository = serviceInstanceRepository
         this.provisioningPersistenceService = provisioningPersistenceService
@@ -51,24 +50,21 @@ class UpdatingPersistenceService {
         provisioningPersistenceService.updateServiceDetails(serviceDetails, serviceInstance)
     }
 
-    String mergeServiceInstanceParameter(String oldParameters, String updateParamters)
-    {
+    String mergeServiceInstanceParameter(String oldParameters, String updateParamters) {
         def startMap = toMap(oldParameters)
         def updateMap = toMap(updateParamters)
 
         updateMap.each({ key, value -> startMap.put(key, value) })
 
-        return serialize(startMap);
+        return serialize(startMap)
     }
 
-    String serialize(Object object)
-    {
+    String serialize(Object object) {
         if (!object) return null
         return new ObjectMapper().writeValueAsString(object)
     }
 
-    Map toMap(String jsonMap)
-    {
+    Map toMap(String jsonMap) {
         if (StringUtils.isEmpty(jsonMap))
             return new HashMap()
         def result = new JsonSlurper().parseText(jsonMap)

@@ -18,7 +18,7 @@ class UpdateDto implements Serializable {
                 ", plan_id='" + plan_id + '\'' +
                 ", context='" + context + '\'' +
                 ", parameters=" + parameters +
-                ", PreviousValuesDto=" + previous_values +
+                ", previous_values=" + previous_values +
                 '}'
     }
 }

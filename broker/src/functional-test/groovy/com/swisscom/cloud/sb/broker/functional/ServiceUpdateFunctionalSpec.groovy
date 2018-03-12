@@ -102,9 +102,46 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
+    def "parameters can be updated with same planId"() {
+        given:
+        def parameters = new HashMap<String, Object>()
+
+        def parameterKey = "mode"
+        def oldValue = "blocking"
+        def newValue = "open"
+
+        parameters.put(parameterKey, oldValue)
+
+        def context = new CloudFoundryContext("org_id", "space_id")
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        def serviceGuid = "updateTest_Updateable"
+        def planGuid = "updateTest_Updateable_plan_a"
+        serviceLifeCycler.requestServiceProvisioning(
+                serviceInstanceGuid,
+                serviceGuid,
+                planGuid,
+                false,
+                context,
+                parameters
+        )
+
+        when:
+        parameters.put(parameterKey, newValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, planGuid, parameters)
+
+        then:
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance
+        def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
+        assert modeDetail
+        modeDetail.value == newValue
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
 
     def "parameters update changes parameters on serviceDefinition"() {
-        given:
+        setup:
         def parameters = new HashMap<String, Object>()
 
         def parameterKey = "mode"
@@ -141,7 +178,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     }
     
     def "plan and parameters can be updated"() {
-        given:
+        setup:
         def parameters = new HashMap<String, Object>()
 
         def parameterKey = "mode"
@@ -218,7 +255,6 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             def serviceInstanceGuid = UUID.randomUUID().toString()
             def serviceGuid = "updateTest_Updateable"
             def planGuid = "updateTest_Updateable_plan_a"
-            def newPlanGuid = "updateTest_Updateable_plan_a"
             serviceLifeCycler.requestServiceProvisioning(
                     serviceInstanceGuid,
                     serviceGuid,
@@ -230,12 +266,12 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
 
         when:
             parameters.put(parameterKey, newValue)
-            serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters, true)
+            serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, null, parameters, true)
             waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
 
         then:
-            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody();
-            def operationState = lastOperationResponse.state;
+            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
+            def operationState = lastOperationResponse.state
             operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
             assert serviceInstance
@@ -314,8 +350,8 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         then:
             response.statusCode == HttpStatus.ACCEPTED
             response2.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
-            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody();
-            def operationState = lastOperationResponse.state;
+            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
+            def operationState = lastOperationResponse.state
             operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
             assert serviceInstance

@@ -9,18 +9,19 @@ class UpdatingPersistenceServiceSpec extends Specification {
     private UpdateRequestRepository updateRequestRepository
     private ServiceInstanceRepository serviceInstanceRepository
     private ProvisioningPersistenceService provisioningPersistenceService
+    private String oldParameters
+    UpdatingPersistenceService sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
 
     def setup() {
         updateRequestRepository = Mock(UpdateRequestRepository)
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
+        sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
     }
 
     def "Merge with empty Parameters does not change values"() {
         setup:
-        def sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
-
-        def oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
         def updateParameters = ''
 
         when:
@@ -32,9 +33,6 @@ class UpdatingPersistenceServiceSpec extends Specification {
 
     def "Merge with empty object Parameters does not change values"() {
         setup:
-        def sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
-
-        def oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
         def updateParameters = '{}'
 
         when:
@@ -46,9 +44,6 @@ class UpdatingPersistenceServiceSpec extends Specification {
 
     def "Merge adds value"() {
         setup:
-        def sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
-
-        def oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
         def updateParameters = '{"keyA":"Value-A","keyB":"Value-B","keyC":"Value-C"}'
 
         when:
@@ -61,9 +56,6 @@ class UpdatingPersistenceServiceSpec extends Specification {
 
     def "Merge does not remove value"() {
         setup:
-        def sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
-
-        def oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
         def updateParameters = '{"keyB":"Value-B"}'
 
         when:
@@ -76,9 +68,6 @@ class UpdatingPersistenceServiceSpec extends Specification {
 
     def "Merge updates value"() {
         setup:
-        def sut = new UpdatingPersistenceService(updateRequestRepository, serviceInstanceRepository, provisioningPersistenceService)
-
-        def oldParameters = '{"keyA":"Value-A","keyB":"Value-B"}'
         def updateParameters = '{"keyA":"Value-NEWA","keyB":"Value-NEWB"}'
 
         when:
