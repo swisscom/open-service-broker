@@ -51,7 +51,6 @@ CREATE PROCEDURE fix_cf_context_migration()
       UPDATE service_instance si
       SET service_context_id = sc_id
       WHERE si.id = si_id;
-
     END LOOP;
 
     CLOSE cur1;
@@ -69,6 +68,5 @@ CREATE PROCEDURE fix_cf_context_migration()
     COMMIT;
 
   END//
-
 DELIMITER ;
 CALL fix_cf_context_migration();

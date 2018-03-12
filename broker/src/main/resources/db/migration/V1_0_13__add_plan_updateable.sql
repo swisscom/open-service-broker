@@ -59,15 +59,36 @@ DELIMITER //
 CREATE PROCEDURE update_parameters_on_tables()
   BEGIN
 
-  ALTER TABLE service_instance
-        ADD COLUMN parameters TEXT;
-  ALTER TABLE service_binding
-        ADD COLUMN parameters TEXT;
-  ALTER TABLE provision_request
-        MODIFY COLUMN parameters TEXT;
-  ALTER TABLE provision_request
-        MODIFY COLUMN parameters TEXT;
+  SET @col_exists = 1;
+  SELECT 0
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_NAME = 'service_instance'
+        AND column_name = 'parameters'
+        AND table_schema = database()
+  INTO @col_exists;
 
+  IF @col_exists = 1 THEN
+    ALTER TABLE service_instance
+      ADD COLUMN parameters TEXT;
+  END IF;
+
+  SET @col_exists = 1;
+  SELECT 0
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_NAME = 'service_binding'
+        AND column_name = 'parameters'
+        AND table_schema = database()
+  INTO @col_exists;
+
+  IF @col_exists = 1 THEN
+    ALTER TABLE service_binding
+      ADD COLUMN parameters TEXT;
+  END IF;
+
+  ALTER TABLE provision_request
+        MODIFY COLUMN parameters TEXT;
+  ALTER TABLE provision_request
+        MODIFY COLUMN parameters TEXT;
 
   END//
 

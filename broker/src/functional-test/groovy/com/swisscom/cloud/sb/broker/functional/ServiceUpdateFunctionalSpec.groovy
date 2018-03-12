@@ -102,6 +102,44 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
+
+    def "parameters update changes parameters on serviceDefinition"() {
+        given:
+        def parameters = new HashMap<String, Object>()
+
+        def parameterKey = "mode"
+        def oldValue = "blocking"
+        def newValue = "open"
+
+        parameters.put(parameterKey, oldValue)
+
+        def context = new CloudFoundryContext("org_id", "space_id")
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        def serviceGuid = "updateTest_Updateable"
+        def planGuid = "updateTest_Updateable_plan_a"
+        def newPlanGuid = "updateTest_Updateable_plan_a"
+        serviceLifeCycler.requestServiceProvisioning(
+                serviceInstanceGuid,
+                serviceGuid,
+                planGuid,
+                false,
+                context,
+                parameters
+        )
+
+        when:
+        parameters.put(parameterKey, newValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters)
+
+        then:
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance
+        serviceInstance.parameters == '{"mode":"open"}'
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
+    
     def "plan and parameters can be updated"() {
         given:
         def parameters = new HashMap<String, Object>()
