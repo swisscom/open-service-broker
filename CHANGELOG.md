@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.9.2] - 2018-03-12
+- Fix SQL Migration for Service Context
+
 ## [2.9.1] - 2018-03-08
 - Fix SQL Migration for Service Context
 
