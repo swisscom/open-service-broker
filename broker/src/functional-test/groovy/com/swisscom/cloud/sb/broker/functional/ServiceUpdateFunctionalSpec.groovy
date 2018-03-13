@@ -23,36 +23,58 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     @Shared
     boolean serviceDefinitionsSetUp = false
 
+    static String notUpdatableServiceGuid = "updateTest_notUpdateable"
+    static String notUpdatablePlanGuid = "updateTest_notUpdateable_plan_a"
+    static String defaultServiceGuid = "updateTest_Updateable"
+    static String defaultPlanGuid = "updateTest_Updateable_plan_a"
+    static String defaultOrgGuid = "org_id"
+    static String defaultSpaceGuid = "space_id"
+
+    static String parameterKey = "mode"
+    static String parameterOldValue = "blocking"
+    static String parameterNewValue = "open"
+    Map<String, Object> parameters;
+
+    private String requestServiceProvisioning(
+            Map<String, Object> parameters = new HashMap<String, Object>(),
+            String planGuid = defaultPlanGuid,
+            boolean async = false,
+            String serviceGuid = defaultServiceGuid) {
+
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        def context = new CloudFoundryContext(defaultOrgGuid, defaultSpaceGuid)
+
+        serviceLifeCycler.requestServiceProvisioning(
+                serviceInstanceGuid,
+                serviceGuid,
+                planGuid,
+                async,
+                context,
+                parameters)
+
+        return serviceInstanceGuid
+    }
+
     def setup() {
         if (!serviceDefinitionsSetUp) {
             serviceBrokerClient.createOrUpdateServiceDefinition(
                     Resource.readTestFileContent("/service-data/serviceDefinition_updateTest_updateable.json"))
             serviceBrokerClient.createOrUpdateServiceDefinition(
                     Resource.readTestFileContent("/service-data/serviceDefinition_updateTest_notUpdateable.json"))
-
             serviceDefinitionsSetUp = true
         }
+
+        parameters = new HashMap<String, Object>()
+        parameters.put(parameterKey, parameterOldValue)
     }
 
     def "plan can be updated"() {
-        given:
-        def parameters = new HashMap<String, Object>()
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_Updateable"
-        def planGuid = "updateTest_Updateable_plan_a"
+        setup:
         def newPlanGuid = "updateTest_Updateable_plan_b"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
+        def serviceInstanceGuid = requestServiceProvisioning()
 
         when:
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
@@ -60,113 +82,54 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         serviceInstance.plan.guid == newPlanGuid
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "parameters can be updated"() {
         given:
-        def parameters = new HashMap<String, Object>()
-
-        def parameterKey = "mode"
-        def oldValue = "blocking"
-        def newValue = "open"
-
-        parameters.put(parameterKey, oldValue)
-
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_Updateable"
-        def planGuid = "updateTest_Updateable_plan_a"
-        def newPlanGuid = "updateTest_Updateable_plan_a"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-        parameters.put(parameterKey, newValue)
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters)
+        parameters.put(parameterKey, parameterNewValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance
         def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
         assert modeDetail
-        modeDetail.value == newValue
+        modeDetail.value == parameterNewValue
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "parameters can be updated with same planId"() {
         given:
-        def parameters = new HashMap<String, Object>()
-
-        def parameterKey = "mode"
-        def oldValue = "blocking"
-        def newValue = "open"
-
-        parameters.put(parameterKey, oldValue)
-
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_Updateable"
-        def planGuid = "updateTest_Updateable_plan_a"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-        parameters.put(parameterKey, newValue)
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, planGuid, parameters)
+        parameters.put(parameterKey, parameterNewValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, parameters)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance
         def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
         assert modeDetail
-        modeDetail.value == newValue
+        modeDetail.value == parameterNewValue
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "parameters update changes parameters on serviceDefinition"() {
         setup:
-        def parameters = new HashMap<String, Object>()
-
-        def parameterKey = "mode"
-        def oldValue = "blocking"
-        def newValue = "open"
-
-        parameters.put(parameterKey, oldValue)
-
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_Updateable"
-        def planGuid = "updateTest_Updateable_plan_a"
-        def newPlanGuid = "updateTest_Updateable_plan_a"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-        parameters.put(parameterKey, newValue)
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters)
+        parameters.put(parameterKey, parameterNewValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
@@ -174,36 +137,22 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         serviceInstance.parameters == '{"mode":"open"}'
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
     
     def "plan and parameters can be updated"() {
         setup:
         def parameters = new HashMap<String, Object>()
-
         def parameterKey = "mode"
         def oldValue = "blocking"
         def newValue = "open"
-
         parameters.put(parameterKey, oldValue)
-
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_Updateable"
-        def planGuid = "updateTest_Updateable_plan_a"
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
         def newPlanGuid = "updateTest_Updateable_plan_b"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
 
         when:
         parameters.put(parameterKey, newValue)
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultSpaceGuid, newPlanGuid, parameters)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
@@ -213,60 +162,32 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         modeDetail[0].value == newValue
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultSpaceGuid, newPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "plan update blocks if plan_updatable is false"() {
         given:
-        def parameters = new HashMap<String, Object>()
-        def context = new CloudFoundryContext("org_id", "space_id")
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        def serviceGuid = "updateTest_notUpdateable"
-        def planGuid = "updateTest_notUpdateable_plan_a"
         def newPlanGuid = "updateTest_notUpdateable_plan_b"
-        serviceLifeCycler.requestServiceProvisioning(
-                serviceInstanceGuid,
-                serviceGuid,
-                planGuid,
-                false,
-                context,
-                parameters
-        )
+        def serviceInstanceGuid = requestServiceProvisioning(null, notUpdatablePlanGuid, false, notUpdatableServiceGuid)
 
         when:
-        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid)
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, notUpdatableServiceGuid, newPlanGuid)
 
         then:
         response.statusCode == ErrorCode.PLAN_UPDATE_NOT_ALLOWED.httpStatus
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, notUpdatableServiceGuid, notUpdatablePlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
 
     }
 
     def "async parameter update is supported"() {
         setup:
-            def parameters = new HashMap<String, Object>()
-            def parameterKey = "mode"
-            def oldValue = "blocking"
-            def newValue = "open"
-            parameters.put(parameterKey, oldValue)
-            def context = new CloudFoundryContext("org_id", "space_id")
-            def serviceInstanceGuid = UUID.randomUUID().toString()
-            def serviceGuid = "updateTest_Updateable"
-            def planGuid = "updateTest_Updateable_plan_a"
-            serviceLifeCycler.requestServiceProvisioning(
-                    serviceInstanceGuid,
-                    serviceGuid,
-                    planGuid,
-                    false,
-                    context,
-                    parameters
-            )
+            def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-            parameters.put(parameterKey, newValue)
-            serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, null, parameters, true)
+            parameters.put(parameterKey, parameterNewValue)
+            serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
             waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
 
         then:
@@ -277,74 +198,39 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             assert serviceInstance
             def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
             assert modeDetail
-            modeDetail.value == newValue
+            modeDetail.value == parameterNewValue
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "async update is failing if provision is still in progress"() {
         setup:
-            def parameters = new HashMap<String, Object>()
-
-            def parameterKey = "mode"
-            def oldValue = "blocking"
-            def newValue = "open"
-
-            parameters.put(parameterKey, oldValue)
-
-            def context = new CloudFoundryContext("org_id", "space_id")
-            def serviceInstanceGuid = UUID.randomUUID().toString()
-            def serviceGuid = "updateTest_Updateable"
-            def planGuid = "updateTest_Updateable_plan_a"
-            def newPlanGuid = "updateTest_Updateable_plan_a"
-            serviceLifeCycler.requestServiceProvisioning(
-                    serviceInstanceGuid,
-                    serviceGuid,
-                    planGuid,
-                    true,
-                    context,
-                    parameters
-            )
+            def newPlanGuid = "updateTest_notUpdateable_plan_b"
+            def serviceInstanceGuid = requestServiceProvisioning(parameters, defaultPlanGuid, true)
 
         when:
-            parameters.put(parameterKey, newValue)
-            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters, true)
+            parameters.put(parameterKey, parameterNewValue)
+            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, parameters, true)
 
         then:
             response.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "second async parameter update is denied"() {
         setup:
-            def parameters = new HashMap<String, Object>()
-            def parameterKey = "mode"
-            def oldValue = "blocking"
-            def newValue = "open"
+
             def secondNewValue = "unidirectional"
-            parameters.put(parameterKey, oldValue)
-            def context = new CloudFoundryContext("org_id", "space_id")
-            def serviceInstanceGuid = UUID.randomUUID().toString()
-            def serviceGuid = "updateTest_Updateable"
-            def planGuid = "updateTest_Updateable_plan_a"
-            def newPlanGuid = "updateTest_Updateable_plan_a"
-            serviceLifeCycler.requestServiceProvisioning(
-                    serviceInstanceGuid,
-                    serviceGuid,
-                    planGuid,
-                    false,
-                    context,
-                    parameters
-            )
+            def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-            parameters.put(parameterKey, newValue)
-            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters, true)
+            parameters.put(parameterKey, parameterNewValue)
+            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
             parameters.put(parameterKey, secondNewValue)
-            def response2 = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, serviceGuid, newPlanGuid, parameters, true)
+            def response2 = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultSpaceGuid, null, parameters, true)
             waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
 
         then:
@@ -357,9 +243,9 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             assert serviceInstance
             def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
             assert modeDetail
-            modeDetail.value == newValue
+            modeDetail.value == parameterNewValue
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, serviceGuid, planGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 }

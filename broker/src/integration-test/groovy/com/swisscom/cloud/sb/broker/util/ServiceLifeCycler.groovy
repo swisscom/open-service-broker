@@ -342,7 +342,8 @@ class ServiceLifeCycler {
     def requestUpdateServiceInstance(
             final String serviceInstanceId,
             final String serviceGuid,
-            final String planGuid, Map<String, Object> parameters = null,
+            final String planGuid,
+            Map<String, Object> parameters = null,
             final Boolean async = false) {
 
         createServiceBrokerClientWithCustomErrorHandler()
