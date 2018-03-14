@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachin
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceState
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.action.NoOp
@@ -10,12 +11,13 @@ enum ServiceBrokerServiceProviderProvisionState implements ServiceStateWithActio
     PROVISION_IN_PROGRESS(LastOperation.Status.IN_PROGRESS, new OnStateChange<ServiceBrokerServiceProviderStateMachineContext>(){
         @Override
         StateChangeActionResult triggerAction(ServiceBrokerServiceProviderStateMachineContext context) {
-            new StateChangeActionResult(go2NextState: true)
+            new StateChangeActionResult(go2NextState: context.sbspFacade.checkServiceProvisioningDone(context.lastOperationJobContext.serviceInstance.guid))
         }
     }),
 
     PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp()),
 
+    // how to get into PROVISION_FAILED state? Automatically, when LastOperation.Status == FAILED?
     PROVISION_FAILED(LastOperation.Status.FAILED, new NoOp())
 
     private final LastOperation.Status status
@@ -24,6 +26,18 @@ enum ServiceBrokerServiceProviderProvisionState implements ServiceStateWithActio
     ServiceBrokerServiceProviderProvisionState(LastOperation.Status status, OnStateChange<ServiceBrokerServiceProviderStateMachineContext> onStateChange) {
         this.status = status
         this.onStateChange = onStateChange
+    }
+
+    public static final Map<String, ServiceState> map = new TreeMap<String, ServiceState>()
+
+    static {
+        for (ServiceState serviceState : values() + ServiceBrokerServiceProviderProvisionState.values()) {
+            map.put(serviceState.getServiceInternalState(), serviceState)
+        }
+    }
+
+    static ServiceStateWithAction of(String state) {
+        map.get(state)
     }
 
     @Override
