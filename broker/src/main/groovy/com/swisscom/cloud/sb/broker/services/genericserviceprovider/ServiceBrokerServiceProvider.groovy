@@ -1,5 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
+import com.google.common.annotations.VisibleForTesting
+import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -15,9 +17,12 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
+import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderDeprovisionState
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.util.logging.Slf4j
@@ -28,7 +33,7 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRespon
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
-@Component("ServiceBrokerServiceProvider")
+@Component("serviceBrokerServiceProvider")
 @Slf4j
 class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
 
@@ -260,8 +265,24 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        return null
+        StateMachine stateMachine = createDeprovisionStateMachine()
+        ServiceStateWithAction currentState = getDeprovisionState(context)
+        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
+        Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState))
     }
+
+    @VisibleForTesting
+    private StateMachine createDeprovisionStateMachine() {
+        new StateMachine([ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS,
+                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_SUCCESS,
+                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_FAILED])
+    }
+
+    @VisibleForTesting
+    private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
+        ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
+    }
+
 
     @Override
     Collection<Extension> buildExtensions() {
