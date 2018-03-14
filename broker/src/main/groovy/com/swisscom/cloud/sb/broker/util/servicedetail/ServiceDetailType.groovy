@@ -9,8 +9,7 @@ enum ServiceDetailType {
     PORT("port"),
     USERNAME("username"),
     PASSWORD("password"),
-    OTHER("other"),
-    ALIAS("alias")
+    OTHER("other")
 
     private final String type
 

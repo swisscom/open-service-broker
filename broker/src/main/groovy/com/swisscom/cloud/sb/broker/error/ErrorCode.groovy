@@ -51,7 +51,7 @@ enum ErrorCode {
     OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
     OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
     CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
-    SERVICE_INSTANCE_PARENT_CONTEXT_MISMATCH("69045", "Service instance has different context than its parent", "SC-SB-SI", HttpStatus.CONFLICT)
+    PARENT_SERVICE_INSTANCE_NOT_FOUND("69045", "Parent service instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND)
 
     final String code
     final String errorCode

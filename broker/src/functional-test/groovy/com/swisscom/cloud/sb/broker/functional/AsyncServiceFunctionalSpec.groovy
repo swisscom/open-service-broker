@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.sb.broker.config.ParentAliasSchedulingConfig
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
@@ -15,22 +14,20 @@ import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
+import spock.lang.Shared
 
 class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
     @Autowired
     private ServiceContextDetailRepository contextRepository
-    @Autowired
-    private ParentAliasSchedulingConfig parentAliasSchedulingConfig
 
     private int processDelayInSeconds = DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2
 
-    private static final String serviceInstanceAlias = "service-instance-a"
+    @Shared
+    private String parentServiceInstanceGuid
 
     def setup() {
-        parentAliasSchedulingConfig.retryIntervalInSeconds = 5
-        parentAliasSchedulingConfig.maxRetryDurationInMinutes = 1
         serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
     }
 
@@ -61,29 +58,29 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     }
 
 
-    def "provision async service instance with alias"() {
-        when:
+    def "provision async service instance"() {
+        given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
 
+        when:
+        this.parentServiceInstanceGuid = serviceLifeCycler.serviceInstanceId
+
         serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'alias': serviceInstanceAlias])
+                ['delay': String.valueOf(processDelayInSeconds)])
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
-
-        def si = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
-        assert si != null
-        assert si.details.find { it.key == 'alias' && it.value == serviceInstanceAlias } != null
     }
 
 
-    def "provision async service instance with parent alias"() {
-        when:
+    def "provision async service instance with parent reference"() {
+        given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
 
+        when:
         serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parentAlias': serviceInstanceAlias])
+                ['delay': String.valueOf(processDelayInSeconds), 'parentReference': this.parentServiceInstanceGuid])
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
 
@@ -93,16 +90,21 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     }
 
 
-    def "provision async service instance with non-existing parent"() {
-        when:
+    def "provision async service instance with non-existing parent reference"() {
+        given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
 
+        when:
         serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parentAlias': 'service-instance-xxx'])
+                ['delay': String.valueOf(processDelayInSeconds), 'parentReference': 'service-instance-xxx'])
+
         then:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(60)
-        serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.FAILED
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.NOT_FOUND
+        ex.responseBodyAsString != null
+        def serviceBrokerException = new ObjectMapper().readValue(ex.responseBodyAsString, ServiceBrokerException)
+        serviceBrokerException.code == ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.code
     }
 
 
@@ -140,38 +142,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
-
-    def "provision async service instance with CloudFoundryContext and alias"() {
-        given:
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new CloudFoundryContext("org_id", "space_id")
-
-        when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, ['alias': "service-instance-b"], context)
-
-        then:
-        assertCloudFoundryContext(serviceInstanceGuid)
-        noExceptionThrown()
-    }
-
-    def "provision async service instance with different context and parent alias"() {
-        given:
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new CloudFoundryContext("org_id1", "space_id1")
-
-        when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, ['parentAlias': "service-instance-b"], context)
-
-        then:
-        def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.CONFLICT
-
-        def serviceBrokerException = new ObjectMapper().readValue(ex.responseBodyAsString, ServiceBrokerException)
-        serviceBrokerException.code == ErrorCode.SERVICE_INSTANCE_PARENT_CONTEXT_MISMATCH.code
-    }
-
 
     void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)

@@ -3,14 +3,21 @@ package com.swisscom.cloud.sb.broker.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
-import com.swisscom.cloud.sb.broker.config.ParentAliasSchedulingConfig
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.provisioning.*
+import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponseDto
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
 import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
@@ -24,7 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 import javax.validation.Valid
 
@@ -51,8 +63,6 @@ class ProvisioningController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
-    @Autowired
-    private ParentAliasSchedulingConfig parentAliasSchedulingConfig
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -67,11 +77,10 @@ class ProvisioningController extends BaseController {
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
         ProvisionResponse provisionResponse
-        // check if parent alias is specified and if doesn't exist, then queue async provisioning
-        if (StringUtils.contains(request.parameters, "parentAlias") &&
+        // check if parent reference is specified and parent service instance exists
+        if (StringUtils.contains(request.parameters, "parentReference") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
-            provisionResponse = scheduleProvision(request, parentAliasSchedulingConfig.retryIntervalInSeconds,
-                    parentAliasSchedulingConfig.maxRetryDurationInMinutes)
+            ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
         } else {
             provisionResponse = provisioningService.provision(request)
         }

@@ -10,7 +10,6 @@ import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepositor
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -56,35 +55,14 @@ class ProvisioningPersistenceService {
         // set parent service instance if specified
         setParentServiceInstance(provisionRequest, instance)
 
-        createServiceDetailsFromParameters(provisionRequest, instance)
-
-        return instance
-    }
-
-    private ServiceInstance createServiceDetailsFromParameters(ProvisionRequest provisionRequest, ServiceInstance instance) {
-        if (!provisionRequest.parameters) {
-            return instance
-        }
-        def jsonSlurper = new JsonSlurper()
-        def parameters = jsonSlurper.parseText(provisionRequest.parameters) as Map
-        def alias = parameters?.alias as String
-        if (alias) {
-            def aliasServiceDetail = new ServiceDetail(key: ServiceDetailType.ALIAS.type, type: ServiceDetailType.ALIAS.type, value: alias, uniqueKey: true)
-            serviceDetailRepository.save(aliasServiceDetail)
-            instance.details.add(aliasServiceDetail)
-        }
         return instance
     }
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
         ServiceInstance parentInstance = null
-        if (provisionRequest.parameters && provisionRequest.parameters.contains("parentAlias")) {
+        if (provisionRequest.parameters && provisionRequest.parameters.contains("parentReference")) {
             parentInstance = findParentServiceInstance(provisionRequest.parameters)
             if (parentInstance != null) {
-                // check for the same context
-                if (parentInstance?.serviceContext?.id != provisionRequest?.serviceContext?.id) {
-                    ErrorCode.SERVICE_INSTANCE_PARENT_CONTEXT_MISMATCH.throwNew()
-                }
                 instance.parentServiceInstance = parentInstance
                 serviceInstanceRepository.merge(instance)
                 parentInstance.childs << instance
@@ -97,7 +75,7 @@ class ProvisioningPersistenceService {
     }
 
     /**
-     * Search for a parent ServiceInstance by 'alias' key field in ServiceDetails
+     * Search for a parent ServiceInstance by 'service_instance_guid'.
      * @param parameters as a JSON string
      * @return Parent ServiceInstance if found, otherwise null
      */
@@ -105,12 +83,9 @@ class ProvisioningPersistenceService {
         ServiceInstance parentInstance = null
         def jsonSlurper = new JsonSlurper()
         def parametersMap = jsonSlurper.parseText(parameters) as Map
-        def parentAlias = parametersMap?.parentAlias as String
-        if (parentAlias) {
-            def parentInstances = serviceInstanceRepository.findByDetailsAlias(parentAlias)
-            if (parentInstances && parentInstances.size() > 0) {
-                parentInstance = parentInstances[0]
-            }
+        def parentReference = parametersMap?.parentReference as String
+        if (parentReference) {
+            parentInstance = serviceInstanceRepository.findByGuid(parentReference)
         }
         parentInstance
     }

@@ -10,7 +10,6 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,46 +40,13 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
     protected AsyncOperationResult handleJob(LastOperationJobContext jobContext) {
         log.info("About to request service provision, ${jobContext.lastOperation.toString()}")
         AsyncOperationResult provisionResult = findServiceProvisioner(jobContext).requestProvision(jobContext)
-        boolean parentInstanceExists = checkServiceInstanceByParentAlias(getParameterParentAlias(jobContext.provisionRequest))
-        if (parentInstanceExists) {
-            jobContext.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(jobContext.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))
-            if (provisionResult.status == LastOperation.Status.SUCCESS) {
-                provisioningPersistenceService.updateServiceInstanceCompletion(jobContext.serviceInstance, true)
-            }
-        } else {
-            log.debug("ServiceInstance ParentAlias doesn't exist yet.")
-            provisionResult.status = jobContext.lastOperation.status
+        jobContext.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(jobContext.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))
+        if (provisionResult.status == LastOperation.Status.SUCCESS) {
+            provisioningPersistenceService.updateServiceInstanceCompletion(jobContext.serviceInstance, true)
         }
         return provisionResult
     }
 
-    /**
-     * Return value of "parentAlias" from ProvisionRequest parameters, or a null value if not specified.
-     * @param provisionRequest
-     * @return parentAlias value or null if not specified
-     */
-    private String getParameterParentAlias(ProvisionRequest provisionRequest) {
-        if (!provisionRequest.parameters) {
-            return null
-        }
-        def jsonSlurper = new JsonSlurper()
-        def parametersMap = jsonSlurper.parseText(provisionRequest.parameters) as Map
-        return parametersMap?.parentAlias as String
-    }
-
-    /**
-     * Checks if a valid ServiceInstance exists searched by "details.alias" key
-     * @param parentAlias
-     * @return true if exists or parentAlias value is null, otherwise false
-     */
-    private boolean checkServiceInstanceByParentAlias(String parentAlias) {
-        if (!parentAlias) {
-            return true
-        }
-        def details = serviceInstanceRepository.findByDetailsAlias(parentAlias)
-        return details != null && details.size() > 0
-    }
-    
     private AsyncServiceProvisioner findServiceProvisioner(LastOperationJobContext context) {
         AsyncServiceProvisioner serviceProvisioner = ((AsyncServiceProvisioner) serviceProviderLookup.findServiceProvider(context.plan))
         return serviceProvisioner
