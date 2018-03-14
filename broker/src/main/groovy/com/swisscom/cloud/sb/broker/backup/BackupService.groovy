@@ -57,7 +57,7 @@ class BackupService {
 
 
     private void checkBackupLimit(ServiceInstance serviceInstance) {
-        if (getNumberOfBackups(serviceInstance) > serviceInstance.plan.maxBackups) {
+        if (getNumberOfBackups(serviceInstance) >= serviceInstance.plan.maxBackups) {
             ErrorCode.BACKUP_LIMIT_EXCEEDED.throwNew()
         }
     }

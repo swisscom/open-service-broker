@@ -37,6 +37,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.retry:spring-retry')
+    compile('org.springframework.cloud:spring-cloud-cloudfoundry-connector')
     compile('org.codehaus.groovy:groovy-all:2.4.7')
     compile('com.google.guava:guava:20.0')
     compile('org.quartz-scheduler:quartz:2.2.2')
@@ -116,6 +117,13 @@ task integrationTest(type: Test) {
 task functionalTest(type: Test) {
     testClassesDir = sourceSets.functionalTest.output.classesDir
     classpath = sourceSets.functionalTest.runtimeClasspath
+}
+
+task buildCloudFoundryManifest() {
+    String fileContent = new File("$projectDir/../manifest-template.yml").text
+    fileContent = fileContent.replaceAll("%releasePackage%", "broker-$version")
+    project.file("$projectDir/build/libs").mkdirs()
+    new File("$projectDir/build/libs/manifest.yml").text = fileContent
 }
 
 configurations {

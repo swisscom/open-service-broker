@@ -2,16 +2,20 @@ package com.swisscom.cloud.sb.broker.model
 
 import org.hibernate.validator.constraints.NotBlank
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
+import javax.persistence.OneToOne
 
 @Entity
 class ServiceInstance extends BaseModel{
     @NotBlank
     @Column(unique = true)
     String guid
-    String org
-    String space
-
     Date dateCreated = new Date()
     @Column(columnDefinition='tinyint(1) default 1')
     boolean completed
@@ -28,17 +32,17 @@ class ServiceInstance extends BaseModel{
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan
+    @OneToOne
+    ServiceContext serviceContext
 
     @Override
-    public String toString() {
+    String toString() {
         return "ServiceInstance{" +
                 "id=" + id +
                 ", guid='" + guid + '\'' +
-                ", org='" + org + '\'' +
-                ", space='" + space + '\'' +
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
-                '}';
+                "}"
     }
 }

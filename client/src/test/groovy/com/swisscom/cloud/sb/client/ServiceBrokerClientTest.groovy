@@ -49,7 +49,7 @@ class ServiceBrokerClientTest {
 
     @Test
     void createServiceInstance(){
-        def request = new CreateServiceInstanceRequest( serviceDefinition.id,plan.id,'orgId','spaceGuid' )
+        def request = new CreateServiceInstanceRequest(serviceDefinition.id, plan.id, 'orgId', 'spaceGuid', null, null)
         request.serviceInstanceId = serviceInstanceId
         CreateServiceInstanceResponse result = serviceBrokerClient.createServiceInstance(request).body
         Assert.notNull(result)

@@ -22,11 +22,15 @@ info:
 
 server.tomcat.accesslog.enabled: true
 
-com.swisscom.cloud.sb.broker.security:
-  cfUsername: 'cc_admin'
-  cfPassword: 'change_me'
-  cfExtUsername: 'cf_ext'
-  cfExtPassword: 'change_me'
+com.swisscom.cloud.sb.broker.security.platformUsers:
+   - username: cc_admin
+     password: change_me
+     role: CF_ADMIN
+     platformId: 00000000-0000-0000-0000-000000000000
+   - username: cc_ext
+     password: change_me
+     role: CF_EXT_ADMIN
+     platformId: 00000000-0000-0000-0000-000000000000
 
 com.swisscom.cloud.sb.broker.backup:
   retryIntervalInSeconds: 10
@@ -55,7 +59,7 @@ com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskDbHostname:
 
 com.swisscom.cloud.sb.broker.service.mongodbent:
-  opsManagerUrl: 'http://opsmanager.service.consul:55000'
+  opsManagerUrl: 'http://opsmanager.service.consul:8080'
   opsManagerUrlForAutomationAgent: '' #This parameter is optional
   opsManagerUser:
   opsManagerApiKey:
