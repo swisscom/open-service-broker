@@ -112,7 +112,7 @@ class ServiceLifeCycler {
 
     void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
                                      String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
-                                     String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null
+                                     String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null, Plan servicePlan = null
     ) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
@@ -122,7 +122,7 @@ class ServiceLifeCycler {
                     description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable))
             serviceCreated = true
         }
-        if (cfService.plans.empty) {
+        if (cfService.plans.empty && servicePlan == null) {
             plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
@@ -135,6 +135,11 @@ class ServiceLifeCycler {
             plan = planRepository.saveAndFlush(plan)
             cfService.plans.add(plan)
             cfServiceRepository.saveAndFlush(cfService)
+            planCreated = true
+        } else if (cfService.plans.empty && servicePlan != null) {
+            cfService.plans.add(servicePlan)
+            plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
+            cfService = cfServiceRepository.saveAndFlush(new CFService(guid: cfService.guid, name: cfService.name, internalName: cfService.internalName, description: cfService.description, bindable: cfService.bindable))
             planCreated = true
         } else {
             if (planName) {
@@ -149,6 +154,7 @@ class ServiceLifeCycler {
             plan.maxBackups = maxBackups
             planRepository.saveAndFlush(plan)
         }
+        return cfService
     }
 
     void cleanup() {
@@ -178,14 +184,15 @@ class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, CFService service = cfService, Plan servicePlan = plan, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, service, servicePlan, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
+
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, CFService service = cfService, Plan servicePlan = plan, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, service, servicePlan, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -199,8 +206,9 @@ class ServiceLifeCycler {
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        return requestServiceProvisioning(serviceInstanceId, cfService.guid, plan.guid, async, context, parameters, throwExceptionWhenNon2xxHttpStatusCode)
+    ResponseEntity requestServiceProvisioning(boolean async, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        def request = new CreateServiceInstanceRequest(differentCFService.guid, differentPlan.guid, 'org_id', 'space_id', context, parameters)
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(UUID.randomUUID().toString()).withAsyncAccepted(async))
     }
 
     ResponseEntity requestServiceProvisioning(
@@ -282,6 +290,15 @@ class ServiceLifeCycler {
         parameter = new Parameter(name: name, value: value, plan: plan)
         parameters.add(parameter)
         return parameterRepository.saveAndFlush(parameter)
+    }
+
+    void setParameters() {
+        if(parameters.size()) {
+            for(def p in parameters) {
+                plan.parameters.add(p)
+            }
+        }
+        plan = planRepository.saveAndFlush(plan)
     }
 
     CFService getCfService() {
