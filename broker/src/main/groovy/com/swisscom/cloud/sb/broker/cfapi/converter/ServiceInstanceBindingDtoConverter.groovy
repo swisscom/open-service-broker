@@ -13,9 +13,10 @@ class ServiceInstanceBindingDtoConverter extends AbstractGenericConverter<Servic
     @Override
     void convert(ServiceBinding source, ServiceInstanceBindingResponseDto prototype) {
         prototype.credentials = source.credentials
-        source.details.each { it ->
-            prototype.parameters[it.key] = it.value
-        }
+        prototype.parameters = null // TODO
+        prototype.routeServiceUrl = null
+        prototype.syslogDrainUrl = null
+        prototype.volumeMounts = null
     }
 
 }

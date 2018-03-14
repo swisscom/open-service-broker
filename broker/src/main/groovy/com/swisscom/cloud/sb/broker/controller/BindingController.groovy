@@ -1,6 +1,10 @@
 package com.swisscom.cloud.sb.broker.controller
 
-import com.swisscom.cloud.sb.broker.binding.*
+import com.swisscom.cloud.sb.broker.binding.BindRequest
+import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
+import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
+import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
@@ -19,7 +23,11 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 
 import javax.validation.Valid
 
@@ -117,7 +125,7 @@ class BindingController extends BaseController {
     }
 
     @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)
-    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{binding_id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.GET)
     ServiceInstanceBindingResponseDto getServiceInstanceBinding(
             @PathVariable("instanceId") String serviceInstanceGuid,
             @PathVariable("bindingId") String bindingGuid) {
