@@ -1,8 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.TestableServiceBrokerServiceProvider
@@ -11,8 +9,6 @@ import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 

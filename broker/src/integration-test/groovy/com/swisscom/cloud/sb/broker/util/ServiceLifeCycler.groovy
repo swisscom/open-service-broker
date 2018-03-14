@@ -21,7 +21,6 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
-
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
@@ -111,7 +110,7 @@ class ServiceLifeCycler {
 
     private Map<String, Object> credentials
 
-    void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
+    CFService createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
                                      String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
                                      String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null, Plan servicePlan = null
     ) {
@@ -139,6 +138,11 @@ class ServiceLifeCycler {
             cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
         } else if (cfService.plans.empty && servicePlan != null) {
+            cfService.plans.add(servicePlan)
+            plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
+            cfService = cfServiceRepository.saveAndFlush(new CFService(guid: cfService.guid, name: cfService.name, internalName: cfService.internalName, description: cfService.description, bindable: cfService.bindable))
+            planCreated = true
+        } else if (cfService.plans.empty && servicePlan != null) {
             plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
             cfService.plans.add(plan)
             setPlan(plan)
@@ -161,8 +165,7 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-
-        (serviceInstanceIds as String[]).reverseEach { it ->
+        serviceInstanceIds.each { it ->
             serviceInstanceRepository.deleteByGuid(it)
         }
 
@@ -195,8 +198,8 @@ class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false,  String newServiceInstanceId = serviceInstanceId, CFService service = cfService, Plan servicePlan = plan, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, service, servicePlan, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${newServiceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
@@ -207,8 +210,9 @@ class ServiceLifeCycler {
     }
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
+
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, CFService service = cfService, Plan servicePlan = plan, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, service, servicePlan, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -217,7 +221,7 @@ class ServiceLifeCycler {
         }
     }
 
-    ResponseEntity<ProvisionResponseDto> provision(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
+    ResponseEntity<ProvisionResponseDto> provision(boolean async, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
         def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
@@ -238,7 +242,6 @@ class ServiceLifeCycler {
         def request = new CreateServiceInstanceRequest(serviceGuid, planGuid, 'org_id', 'space_id', context, parameters)
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
-    }
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
         def bindResponse = requestBindService(bindingId, bindingParameters, context)
@@ -300,6 +303,15 @@ class ServiceLifeCycler {
 
     void setAsyncRequestInPlan(boolean asyncRequired) {
         plan.asyncRequired = asyncRequired
+        plan = planRepository.saveAndFlush(plan)
+    }
+
+    void setParameters() {
+        if(parameters.size()) {
+            for(def p in parameters) {
+                plan.parameters.add(p)
+            }
+        }
         plan = planRepository.saveAndFlush(plan)
     }
 
