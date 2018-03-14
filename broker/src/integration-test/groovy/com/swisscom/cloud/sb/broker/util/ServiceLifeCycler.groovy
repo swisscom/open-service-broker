@@ -144,6 +144,11 @@ class ServiceLifeCycler {
             setPlan(plan)
             cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
+        } else if (cfService.plans.empty && servicePlan != null) {
+            cfService.plans.add(servicePlan)
+            plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
+            cfService = cfServiceRepository.saveAndFlush(new CFService(guid: cfService.guid, name: cfService.name, internalName: cfService.internalName, description: cfService.description, bindable: cfService.bindable))
+            planCreated = true
         } else {
             if (planName) {
                 plan = cfService.plans.find { it.name == planName }
@@ -194,8 +199,8 @@ class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, CFService service = cfService, Plan servicePlan = plan, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, service, servicePlan, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${newServiceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
@@ -206,8 +211,9 @@ class ServiceLifeCycler {
     }
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
+
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, CFService service = cfService, Plan servicePlan = plan, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, service, servicePlan, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -221,8 +227,9 @@ class ServiceLifeCycler {
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async,  String newServiceInstanceId, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        return requestServiceProvisioning(newServiceInstanceId, differentCFService.guid, differentPlan.guid, async, context, parameters, throwExceptionWhenNon2xxHttpStatusCode)
+    ResponseEntity requestServiceProvisioning(boolean async, String newServiceInstanceId, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        def request = new CreateServiceInstanceRequest(differentCFService.guid, differentPlan.guid, 'org_id', 'space_id', context, parameters)
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(UUID.randomUUID().toString()).withAsyncAccepted(async))
     }
 
     ResponseEntity requestServiceProvisioning(
