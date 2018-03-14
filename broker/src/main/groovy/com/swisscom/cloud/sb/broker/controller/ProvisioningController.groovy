@@ -18,8 +18,6 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
 import groovy.transform.CompileStatic
@@ -87,14 +85,6 @@ class ProvisioningController extends BaseController {
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
-    }
-
-    private ProvisionResponse scheduleProvision(ProvisionRequest request, int retryIntervalInSeconds, int maxRetryDurationInMinutes) {
-        asyncProvisioningService.scheduleProvision(
-                new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
-                        retryIntervalInSeconds,
-                        maxRetryDurationInMinutes))
-        return new ProvisionResponse(isAsync: true)
     }
 
     private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {
