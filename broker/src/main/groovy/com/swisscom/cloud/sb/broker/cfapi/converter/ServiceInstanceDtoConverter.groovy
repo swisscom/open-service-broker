@@ -14,7 +14,7 @@ class ServiceInstanceDtoConverter extends AbstractGenericConverter<ServiceInstan
     void convert(ServiceInstance source, ServiceInstanceResponseDto prototype) {
         prototype.serviceId = source.plan.service.guid
         prototype.planId = source.plan.guid
-        prototype.dashboardUrl = '' // TODO
+        prototype.dashboardUrl = null
         prototype.parameters = null // TODO
     }
 
