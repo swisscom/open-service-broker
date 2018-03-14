@@ -10,8 +10,10 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
+import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
+import groovy.util.logging.Slf4j
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
@@ -19,6 +21,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
+@Slf4j
 class KubernetesFacadeRedisSpec extends Specification {
 
     private final static String TEMPLATE_EXAMPLE = """apiVersion: v1
@@ -49,6 +52,7 @@ metadata:
         deprovisionRequest = Stub()
         kubernetesRedisConfig = Stub()
         kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
+        kubernetesRedisConfig.redisConfigurationDefaults >> ["testing":"test"]
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
@@ -149,6 +153,40 @@ kind: Namespace""")
         expect:
         def serviceProvider = new KubernetesRedisServiceProvider()
         serviceProvider instanceof CloudFoundryContextRestrictedOnly
+    }
+
+    def "assert getBindingMap is thread safe"() {
+        given:
+        boolean raceConditionHit = false
+        Plan plan = new Plan()
+        plan.setGuid("test")
+        ServiceContext ctx = new ServiceContext()
+        ctx.setPlatform("cloudfoundry")
+        ctx.setDetails([ServiceContextDetail.from("space_guid","test"),ServiceContextDetail.from("organization_guid","test")].toSet())
+
+        when:
+        List threads = new ArrayList()
+        for (int i = 0; i < 10; i++) {
+            def t = new Thread({
+                def pr = new ProvisionRequest()
+                pr.setServiceInstanceGuid(UUID.randomUUID().toString())
+                pr.setPlan(plan)
+                pr.setServiceContext(ctx)
+                Map<String, String> bindingMap = kubernetesRedisClientRedisDecorated.getBindingMap(pr)
+                if (pr.getServiceInstanceGuid() != bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue())) {
+                    raceConditionHit = true
+                    log.info("Race Condition: " + pr.getServiceInstanceGuid() + " != " + bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue()))
+                }
+            })
+            t.start()
+            threads.add(t)
+        }
+        for (int i = 0; i < threads.size(); i++) {
+            ((Thread) threads.get(i)).join()
+        }
+        then:
+        !raceConditionHit
+        noExceptionThrown()
     }
 
     private ServiceResponse mockServiceResponse() {
