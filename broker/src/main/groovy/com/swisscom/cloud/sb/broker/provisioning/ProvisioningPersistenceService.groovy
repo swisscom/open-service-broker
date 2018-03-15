@@ -60,17 +60,18 @@ class ProvisioningPersistenceService {
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
         ServiceInstance parentInstance = null
-        if (provisionRequest.parameters && provisionRequest.parameters.contains("parentReference")) {
-            parentInstance = findParentServiceInstance(provisionRequest.parameters)
-            if (parentInstance != null) {
-                instance.parentServiceInstance = parentInstance
-                serviceInstanceRepository.merge(instance)
-                parentInstance.childs << instance
-                serviceInstanceRepository.merge(parentInstance)
-            } else {
-                ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
-            }
-        }
+        if (!provisionRequest.parameters || !provisionRequest.parameters.contains("parentReference"))
+            return parentInstance;
+
+        parentInstance = findParentServiceInstance(provisionRequest.parameters)
+        if (parentInstance == null)
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
+
+        instance.parentServiceInstance = parentInstance
+        serviceInstanceRepository.merge(instance)
+        parentInstance.childs << instance
+        serviceInstanceRepository.merge(parentInstance)
+
         parentInstance
     }
 

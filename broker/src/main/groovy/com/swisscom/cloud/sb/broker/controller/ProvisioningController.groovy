@@ -74,14 +74,12 @@ class ProvisioningController extends BaseController {
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
-        ProvisionResponse provisionResponse
-        // check if parent reference is specified and parent service instance exists
         if (StringUtils.contains(request.parameters, "parentReference") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
             ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
-        } else {
-            provisionResponse = provisioningService.provision(request)
         }
+
+        ProvisionResponse provisionResponse = provisioningService.provision(request)
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
