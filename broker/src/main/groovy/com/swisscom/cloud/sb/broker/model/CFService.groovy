@@ -35,4 +35,10 @@ class CFService extends BaseModel{
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name="cf_service_id")
     Set<CFServicePermission> permissions = []
+
+    @Column(columnDefinition = 'tinyint(1) default 0')
+    Boolean instancesRetrievable
+    @Column(columnDefinition = 'tinyint(1) default 0')
+    Boolean bindingsRetrievable
+
 }

@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
@@ -42,7 +43,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, true, true, ['delay': String.valueOf(processDelayInSeconds)])
 
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
@@ -52,7 +53,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
     def "deprovision async service instance"() {
         when:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
@@ -121,7 +122,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
     }
 
 
@@ -139,7 +140,38 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
+    }
+
+    def "provision async service instance and get instance is not retrievable"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+
+        when:
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceBrokerClient.getServiceInstance(serviceInstanceGuid)
+
+        then:
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.NOT_FOUND
+    }
+
+    def "provision and get service instance is retrievable"() {
+        given:
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummyServiceProvider.class), null, null, null, 0, true, true)
+
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+
+        when:
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        def serviceInstance = serviceBrokerClient.getServiceInstance(serviceInstanceGuid)
+
+        then:
+        serviceInstance != null
+        def instanceResponse = serviceInstance.getBody()
+        instanceResponse.serviceId == serviceLifeCycler.cfService.guid
     }
 
     void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {

@@ -91,6 +91,8 @@ class ServiceDefinitionProcessor {
         service.serviceProviderClass = serviceJson.serviceProviderClass
         service.displayIndex = serviceJson.displayIndex
         service.asyncRequired = serviceJson.asyncRequired
+        service.instancesRetrievable = serviceJson.instancesRetrievable
+        service.bindingsRetrievable = serviceJson.bindingsRetrievable
         // dashboard items
         if (serviceJson.dashboard_client) {
             service.dashboardClientId = serviceJson.dashboard_client.id
