@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Slf4j
 class KubernetesFacadeRedisSpec extends Specification {
@@ -157,7 +158,7 @@ kind: Namespace""")
 
     def "assert getBindingMap is thread safe"() {
         given:
-        boolean raceConditionHit = false
+        AtomicBoolean raceConditionHit = new AtomicBoolean(false)
         Plan plan = new Plan()
         plan.setGuid("test")
         ServiceContext ctx = new ServiceContext()
@@ -174,7 +175,7 @@ kind: Namespace""")
                 pr.setServiceContext(ctx)
                 Map<String, String> bindingMap = kubernetesRedisClientRedisDecorated.getBindingMap(pr)
                 if (pr.getServiceInstanceGuid() != bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue())) {
-                    raceConditionHit = true
+                    raceConditionHit.set(true)
                     log.info("Race Condition: " + pr.getServiceInstanceGuid() + " != " + bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue()))
                 }
             })
@@ -185,7 +186,7 @@ kind: Namespace""")
             ((Thread) threads.get(i)).join()
         }
         then:
-        !raceConditionHit
+        !raceConditionHit.get()
         noExceptionThrown()
     }
 
