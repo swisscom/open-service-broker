@@ -75,6 +75,7 @@ dependencies {
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4')
     testCompile('cglib:cglib-nodep:3.2.4')
     testCompile('org.spockframework:spock-spring:1.0-groovy-2.4')
+    testCompile('uk.org.lidalia.slf4j-test:1.2.0')
 }
 
 // Add integration/functional test source sets
