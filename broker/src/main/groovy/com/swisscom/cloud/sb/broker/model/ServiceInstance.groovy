@@ -32,6 +32,11 @@ class ServiceInstance extends BaseModel{
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan
+    @ManyToOne
+    @JoinColumn(name = "parent_service_instance_id")
+    ServiceInstance parentServiceInstance
+    @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
+    Set<ServiceInstance> childs = []
     @OneToOne
     ServiceContext serviceContext
 

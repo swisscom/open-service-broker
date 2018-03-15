@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
@@ -17,6 +18,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
@@ -34,6 +36,8 @@ class ProvisioningController extends BaseController {
 
     @Autowired
     private ProvisioningService provisioningService
+    @Autowired
+    private AsyncProvisioningService asyncProvisioningService
     @Autowired
     private ProvisioningPersistenceService provisioningPersistenceService
     @Autowired
@@ -60,7 +64,13 @@ class ProvisioningController extends BaseController {
         failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
-        ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
+        def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
+        if (StringUtils.contains(request.parameters, "parentReference") &&
+                !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
+            ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        }
+
+        ProvisionResponse provisionResponse = provisioningService.provision(request)
 
         return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                 provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
