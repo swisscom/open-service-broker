@@ -3,13 +3,14 @@ DELIMITER //
 
 CREATE PROCEDURE create_table_service_context()
   BEGIN
-    CREATE TABLE IF NOT EXISTS service_context
+
+    CREATE TABLE service_context
     (
       id       BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
       platform VARCHAR(255) NOT NULL
     );
 
-    CREATE TABLE IF NOT EXISTS service_context_detail
+    CREATE TABLE service_context_detail
     (
       id                 BIGINT                      NOT NULL AUTO_INCREMENT PRIMARY KEY,
       `_key`             VARCHAR(255)                NOT NULL,
@@ -19,106 +20,38 @@ CREATE PROCEDURE create_table_service_context()
       FOREIGN KEY (service_context_id) REFERENCES service_context (id)
     );
 
-    SET @index_exists = 1;
-    SELECT 0 FROM INFORMATION_SCHEMA.STATISTICS
-    WHERE table_schema = database()
-          AND table_name = 'service_context'
-          AND index_name = 'idx_service_context_platform'
-    INTO @index_exists;
+    CREATE INDEX idx_service_context_platform
+      ON service_context (platform);
+    CREATE INDEX idx_service_context_detail_key
+      ON service_context_detail (`_key`);
+    CREATE INDEX idx_service_context_detail_value
+      ON service_context_detail (`_value`);
+    CREATE INDEX idx_service_context_detail_key_value
+      ON service_context_detail (`_key`, `_value`);
 
-    IF @index_exists = 1 THEN
-      CREATE INDEX idx_service_context_platform
-        ON service_context (`platform`);
-    END IF;
+    ALTER TABLE service_instance
+      ADD COLUMN service_context_id BIGINT;
+    ALTER TABLE service_instance
+      ADD CONSTRAINT FK_service_instance2service_context
+    FOREIGN KEY (service_context_id) REFERENCES service_context (id);
 
-    SET @index_exists = 1;
-    SELECT 0 FROM INFORMATION_SCHEMA.STATISTICS
-    WHERE table_schema = database()
-          AND table_name = 'service_context_detail'
-          AND index_name = 'idx_service_context_detail_value'
-    INTO @index_exists;
+    ALTER TABLE service_binding
+      ADD COLUMN service_context_id BIGINT;
+    ALTER TABLE service_binding
+      ADD CONSTRAINT FK_service_binding2service_context
+    FOREIGN KEY (service_context_id) REFERENCES service_context (id);
 
-    IF @index_exists = 1 THEN
-      CREATE INDEX idx_service_context_detail_value
-        ON service_context_detail (`_value`);
-    END IF;
+    ALTER TABLE provision_request
+      ADD COLUMN service_context_id BIGINT;
 
+    ALTER TABLE provision_request
+      ADD CONSTRAINT FK_provision_request2service_context
+    FOREIGN KEY (service_context_id) REFERENCES service_context (id);
 
-    SET @index_exists = 1;
-    SELECT 0 FROM INFORMATION_SCHEMA.STATISTICS
-    WHERE table_schema = database()
-          AND table_name = 'service_context_detail'
-          AND index_name = 'idx_service_context_detail_key'
-    INTO @index_exists;
-
-    IF @index_exists = 1 THEN
-      CREATE INDEX idx_service_context_detail_key
-        ON service_context_detail (`_key`);
-    END IF;
-
-
-    SET @index_exists = 1;
-    SELECT DISTINCT 0 FROM INFORMATION_SCHEMA.STATISTICS
-    WHERE table_schema = database()
-          AND table_name = 'service_context_detail'
-          AND index_name = 'idx_service_context_detail_key_value'
-    INTO @index_exists;
-
-    IF @index_exists = 1 THEN
-      CREATE INDEX idx_service_context_detail_key_value
-        ON service_context_detail (`_key`, `_value`);
-    END IF;
-
-    SET @col_exists = 1;
-    SELECT 0
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'service_instance'
-          AND column_name = 'service_context_id'
-          AND table_schema = database()
-    INTO @col_exists;
-
-    IF @col_exists = 1 THEN
-      ALTER TABLE service_instance
-        ADD COLUMN service_context_id BIGINT;
-      ALTER TABLE service_instance
-        ADD CONSTRAINT FK_service_instance2service_context
-      FOREIGN KEY (service_context_id) REFERENCES service_context (id);
-    END IF;
-
-    SET @col_exists = 1;
-    SELECT 0
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'service_binding'
-          AND column_name = 'service_context_id'
-          AND table_schema = database()
-    INTO @col_exists;
-
-    IF @col_exists = 1 THEN
-      ALTER TABLE service_binding
-        ADD COLUMN service_context_id BIGINT;
-      ALTER TABLE service_binding
-        ADD CONSTRAINT FK_service_binding2service_context
-      FOREIGN KEY (service_context_id) REFERENCES service_context (id);
-    END IF;
-
-    SET @col_exists = 1;
-    SELECT 0
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'provision_request'
-          AND column_name = 'service_context_id'
-          AND table_schema = database()
-    INTO @col_exists;
-
-    IF @col_exists = 1 THEN
-      ALTER TABLE provision_request
-        ADD COLUMN service_context_id BIGINT;
-      ALTER TABLE provision_request
-        ADD CONSTRAINT FK_provision_request2service_context
-      FOREIGN KEY (service_context_id) REFERENCES service_context (id);
-    END IF;
   END//
 
 DELIMITER ;
+CALL create_table_service_context();
 
 DROP PROCEDURE IF EXISTS migrate_cf_context;
 DELIMITER //
@@ -153,7 +86,7 @@ CREATE PROCEDURE migrate_cf_context()
         END IF;
       END;
 
-      scd_search_block: BEGIN
+        scd_search_block: BEGIN
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET scd_not_found = TRUE;
 
         SET scd_not_found = FALSE;
@@ -197,9 +130,11 @@ CREATE PROCEDURE migrate_cf_context()
 
     COMMIT;
     CLOSE cur1;
+
   END//
 
 DELIMITER ;
+CALL migrate_cf_context();
 
 DROP PROCEDURE IF EXISTS migrate_provision_request_cf_context;
 DELIMITER //
@@ -216,6 +151,7 @@ CREATE PROCEDURE migrate_provision_request_cf_context()
                               pr.space_guid
                             FROM provision_request pr
                             WHERE pr.organization_guid IS NOT NULL AND pr.service_context_id IS NULL;
+
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
     OPEN cur1;
@@ -233,7 +169,7 @@ CREATE PROCEDURE migrate_provision_request_cf_context()
         END IF;
       END;
 
-      scd_search_block: BEGIN
+        scd_search_block: BEGIN
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET scd_not_found = TRUE;
 
         SET scd_not_found = FALSE;
@@ -277,9 +213,11 @@ CREATE PROCEDURE migrate_provision_request_cf_context()
 
     COMMIT;
     CLOSE cur1;
+
   END//
 
 DELIMITER ;
+CALL migrate_provision_request_cf_context();
 
 /* VERIFY MIGRATION AND DROP COLUMNS 'ORG' AND 'SPACE' FROM SERVICE_INSTANCE */
 DROP PROCEDURE IF EXISTS remove_org_space_fields_from_service_instance;
@@ -321,9 +259,11 @@ CREATE PROCEDURE remove_org_space_fields_from_service_instance()
       DROP COLUMN space;
 
     CLOSE cur1;
+
   END//
 
 DELIMITER ;
+CALL remove_org_space_fields_from_service_instance();
 
 DROP PROCEDURE IF EXISTS remove_org_space_fields_from_provision_request;
 DELIMITER //
@@ -363,30 +303,8 @@ CREATE PROCEDURE remove_org_space_fields_from_provision_request()
       DROP COLUMN space_guid;
 
     CLOSE cur1;
+
   END//
+
 DELIMITER ;
-
-DROP PROCEDURE IF EXISTS orchestrate_migration_11;
-DELIMITER //
-CREATE PROCEDURE orchestrate_migration_11()
-  BEGIN
-    CALL create_table_service_context();
-
-    SET @col_exists = 0;
-    SELECT 1
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'service_instance'
-          AND column_name = 'org'
-          AND table_schema = database()
-    INTO @col_exists;
-
-    IF @col_exists = 1 THEN
-      CALL migrate_cf_context();
-      CALL migrate_provision_request_cf_context();
-      CALL remove_org_space_fields_from_service_instance();
-      CALL remove_org_space_fields_from_provision_request();
-    END IF;
-  END//
-DELIMITER ;
-
-CALL orchestrate_migration_11();
+CALL remove_org_space_fields_from_provision_request();
