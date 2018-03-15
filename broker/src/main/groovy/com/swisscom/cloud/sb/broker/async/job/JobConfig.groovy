@@ -27,12 +27,12 @@ abstract class JobConfig {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return "JobConfig{" +
                 "jobClass=" + jobClass +
                 ", guid='" + guid + '\'' +
                 ", retryIntervalInSeconds=" + retryIntervalInSeconds +
                 ", maxRetryDurationInMinutes=" + maxRetryDurationInMinutes +
-                '}'
+                "}"
     }
 }
