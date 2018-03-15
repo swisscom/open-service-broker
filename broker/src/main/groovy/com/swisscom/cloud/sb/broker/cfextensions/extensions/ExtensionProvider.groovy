@@ -50,7 +50,6 @@ trait ExtensionProvider{
 
         String swaggerJson = restTemplate.getForEntity("http://localhost:8080/v2/api-docs", String.class).body
 
-        log.info("swaggerJson = " + swaggerJson)
         HttpHeaders headers = new HttpHeaders()
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED)
 
@@ -58,10 +57,8 @@ trait ExtensionProvider{
         map.add("source", swaggerJson)
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers)
-
         ResponseEntity<String> response = restTemplate.postForEntity( "https://mermade.org.uk/openapi-converter/api/v1/convert", request , String.class )
 
-        log.info("response = " + response)
         return response.body
     }
 }

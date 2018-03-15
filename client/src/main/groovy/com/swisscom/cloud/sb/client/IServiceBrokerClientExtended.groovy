@@ -19,6 +19,7 @@ interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<List<BackupDto>> listBackups(String serviceInstanceId)
     ResponseEntity<RestoreDto> restoreBackup(String serviceInstanceId, String backupId)
     ResponseEntity<RestoreDto> getRestoreStatus(String serviceInstanceId, String backupId, String restore_id)
+    ResponseEntity<String> getApi(String serviceInstanceId)
     ResponseEntity<String> lockUser(String serviceInstanceId)
     ResponseEntity<String> unlockUser(String serviceInstanceId)
 }

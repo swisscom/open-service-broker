@@ -12,5 +12,6 @@ class DummyJob extends AbstractJob {
 
     void execute(JobExecutionContext context){
         log.info("unlocking user")
+        dequeue(getJobId(context))
     }
 }

@@ -77,21 +77,19 @@ class CFExtensionsController extends BaseController {
     @RequestMapping(value = ['/custom/service_instances/{service_instance}/api-docs'],
             method = RequestMethod.GET)
     def getApi(@PathVariable('service_instance') String serviceInstanceId) {
-//        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
-//        if (serviceInstance) {
-//            ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
-//            if (!(serviceProvider instanceof ExtensionProvider)) {
-//                throw new RuntimeException("Service provider: ${serviceProvider.class.name} does not provide extension information")
-//            }
-//            ExtensionProvider exProvider = serviceProvider as ExtensionProvider
-//
-//            return exProvider.getApi()
-//        } else {
-//            return extensionProvider.getApi()
-//        }
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
+        if (serviceInstance) {
+            ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
+            if (!(serviceProvider instanceof ExtensionProvider)) {
+                throw new RuntimeException("Service provider: ${serviceProvider.class.name} does not provide extension information")
+            }
+            ExtensionProvider exProvider = serviceProvider as ExtensionProvider
 
-        ExtensionProvider serviceProvider = serviceProviderLookup.findServiceProvider(new Plan(serviceProviderClass: "dummyExtensionsServiceProvider")) as ExtensionProvider
-        return serviceProvider.getApi()
+            return exProvider.getApi()
+        } else {
+            ExtensionProvider serviceProvider = serviceProviderLookup.findServiceProvider(new Plan(serviceProviderClass: "dummyExtensionsServiceProvider")) as ExtensionProvider
+            return serviceProvider.getApi()
+        }
     }
 
 }
