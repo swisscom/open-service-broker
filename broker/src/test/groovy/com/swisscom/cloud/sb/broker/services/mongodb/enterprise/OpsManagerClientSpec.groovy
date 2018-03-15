@@ -237,11 +237,11 @@ class OpsManagerClientSpec extends Specification {
                           "lastName": "Doe",
                           "roles": [
                               {
-                                "GROUP_ID": "8491812938cbda83918c",
+                                "groupId": "8491812938cbda83918c",
                                 "roleName": "GROUP_OWNER"
                               },
                               {
-                                "GROUP_ID": "4829cbda839cbdac3819",
+                                "groupId": "4829cbda839cbdac3819",
                                 "roleName": "GROUP_READ_ONLY"
                               }
                           ]}

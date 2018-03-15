@@ -68,7 +68,6 @@ dependencies {
     } else {
         System.out.println('standalone')
         runtime('org.springframework.boot:spring-boot-starter-tomcat')
-
     }
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -129,6 +128,7 @@ task buildCloudFoundryManifest() {
 
 configurations {
     testArtifacts.extendsFrom testRuntime
+    testCompile.exclude group: "ch.qos.logback"
 }
 
 task testJar(type: Jar) {
