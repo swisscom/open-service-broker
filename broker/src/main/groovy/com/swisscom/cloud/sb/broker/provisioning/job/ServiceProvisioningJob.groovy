@@ -41,6 +41,7 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
         log.info("About to request service provision, ${jobContext.lastOperation.toString()}")
         AsyncOperationResult provisionResult = findServiceProvisioner(jobContext).requestProvision(jobContext)
         jobContext.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(jobContext.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))
+
         if (provisionResult.status == LastOperation.Status.SUCCESS) {
             provisioningPersistenceService.updateServiceInstanceCompletion(jobContext.serviceInstance, true)
         }

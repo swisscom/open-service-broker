@@ -146,12 +146,6 @@ class ProvisioningController extends BaseController {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
     }
 
-    @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH)
-    ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
-        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
-        return new ResponseEntity<Object>(HttpStatus.UNPROCESSABLE_ENTITY)
-    }
-
     @ApiOperation(value = "Fetch service instance", response = ServiceInstanceResponseDto.class)
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.GET)
     ServiceInstanceResponseDto getServiceInstance(@PathVariable("instanceId") String serviceInstanceGuid) {

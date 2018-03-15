@@ -32,7 +32,7 @@ class JobManager {
 
         String jobId = jobConfig.guid
 
-        JobDetail jobDetail = JobBuilder.newJob(jobConfig.jobClass)
+        def jobDetail = JobBuilder.newJob(jobConfig.jobClass)
                 .withIdentity(jobId)
                 .requestRecovery()
                 .build()

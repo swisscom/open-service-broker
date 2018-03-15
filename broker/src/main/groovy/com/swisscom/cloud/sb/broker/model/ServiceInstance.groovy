@@ -21,6 +21,8 @@ class ServiceInstance extends BaseModel{
     boolean completed
     @Column(columnDefinition='tinyint(1) default 0')
     boolean deleted
+    @Column
+    String parameters
     @OneToMany
     @JoinColumn(name="service_instance_id")
     List<ServiceBinding> bindings = []
@@ -48,6 +50,7 @@ class ServiceInstance extends BaseModel{
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
+                ", parameters=" + parameters +
                 "}"
     }
 }

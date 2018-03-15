@@ -43,7 +43,11 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                true,
+                true,
+                ['delay': String.valueOf(processDelayInSeconds)])
 
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
