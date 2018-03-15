@@ -103,13 +103,13 @@ class ServiceLifeCycler {
     private Map<String, Object> credentials
 
     void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
-                                     String planName = null, int maxBackups = 0) {
+                                     String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
             def tag = tagRepository.saveAndFlush(new Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
-                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag)))
+                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable))
             serviceCreated = true
         }
         if (cfService.plans.empty) {

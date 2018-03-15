@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
+import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
@@ -43,6 +45,8 @@ class BindingController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
+    @Autowired
+    private ServiceInstanceBindingDtoConverter bindingDtoConverter
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
@@ -124,6 +128,19 @@ class BindingController extends BaseController {
         serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
         log.info("Servicebinding ${serviceBinding.guid} deleted")
         return new ResponseEntity<String>('{}', HttpStatus.OK)
+    }
+
+    @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)
+    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.GET)
+    ServiceInstanceBindingResponseDto getServiceInstanceBinding(
+            @PathVariable("instanceId") String serviceInstanceGuid,
+            @PathVariable("bindingId") String bindingGuid) {
+        checkServiceBinding(bindingGuid)
+        def serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
+        if (serviceBinding.serviceInstance.guid != serviceInstanceGuid || !serviceBinding.serviceInstance.plan.service.bindingsRetrievable) {
+            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
+        }
+        return bindingDtoConverter.convert(serviceBinding)
     }
 
     private ServiceBinding checkServiceBinding(String bindingGuid) {

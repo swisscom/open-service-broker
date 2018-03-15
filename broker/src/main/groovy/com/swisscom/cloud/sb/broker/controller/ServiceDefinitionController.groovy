@@ -19,7 +19,7 @@ class ServiceDefinitionController extends BaseController {
     @Autowired
     private ServiceDefinitionProcessor serviceDefinitionProcessor
 
-    @ApiOperation(value = "Add/Updateaaaa service definition", response = ServiceDto)
+    @ApiOperation(value = "Add/Update service definition", response = ServiceDto)
     @RequestMapping(value = ['/service-definition', //deprecated, prefer the path below
             '/custom/admin/service-definition'],
             method = [RequestMethod.POST,RequestMethod.PUT])
