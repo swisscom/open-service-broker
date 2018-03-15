@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
+import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
@@ -94,7 +95,8 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> JobStatus.SUCCESSFUL
+        TaskDto task = new TaskDto(uuid: taskId, statusParsed: TaskDto.Status.DONE, typeParsed: TaskDto.Type.RESTORE)
+        shieldClient.getTaskDto(_) >> task
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -105,7 +107,8 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
+        TaskDto task = new TaskDto(uuid: taskId, statusParsed: TaskDto.Status.FAILED, typeParsed: TaskDto.Type.RESTORE)
+        shieldClient.getTaskDto(_) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -140,7 +143,8 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Restore restore = new Restore(externalId: taskId)
-        shieldClient.getJobStatus(restore.externalId) >> JobStatus.SUCCESSFUL
+        TaskDto task = new TaskDto(uuid: taskId, statusParsed: TaskDto.Status.DONE, typeParsed: TaskDto.Type.RESTORE)
+        shieldClient.getTaskDto(_) >> task
         when:
         Backup.Status status = shieldBackupRestoreProvider.getRestoreStatus(restore)
         then:

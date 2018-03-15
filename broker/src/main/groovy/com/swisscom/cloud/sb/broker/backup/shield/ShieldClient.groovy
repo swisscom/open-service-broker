@@ -50,27 +50,6 @@ class ShieldClient {
         return buildClient().getTaskByUuid(taskUuid)
     }
 
-    JobStatus getJobStatus(String taskUuid) {
-        TaskDto task = buildClient().getTaskByUuid(taskUuid)
-        if (task.statusParsed.isRunning()) {
-            return JobStatus.RUNNING
-        }
-        if (task.statusParsed.isFailed()) {
-            log.warn("Shield task failed: ${task}")
-            return JobStatus.FAILED
-        }
-        if (task.statusParsed.isDone()) {
-            if (task.typeParsed.isBackup()) {
-                // if backup tasks are done, they should have an associated archive now
-                return statusOfArchive(task)
-            } else {
-                // if it's a restore task, it's finished when done.
-                return JobStatus.SUCCESSFUL
-            }
-        }
-        throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
-    }
-
     String getJobName(String jobUuid) {
         buildClient().getJobByUuid(jobUuid).name
     }
