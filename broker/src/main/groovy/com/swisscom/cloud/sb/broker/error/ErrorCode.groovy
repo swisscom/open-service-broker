@@ -10,9 +10,9 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
 enum ErrorCode {
 
     //TODO get rid of errorCodes
-    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.GONE),
+    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),
-    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
+    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.NOT_FOUND),
     SERVICE_BINDING_ALREADY_EXISTS("69006", "Service Binding already exists", "SC-SB-SERVICE-BINDING-ALREADY-EXISTS", HttpStatus.CONFLICT),
     SERVICE_NOT_FOUND("69007", "Service not found", "SC-SB-SERVICE-NOT-FOUND", HttpStatus.BAD_REQUEST),
     PLAN_NOT_FOUND("69008", "Plan not found", "SC-SB-PLAN-NOT-FOUND", HttpStatus.BAD_REQUEST),
@@ -50,7 +50,11 @@ enum ErrorCode {
     OPENWHISK_NAMESPACE_ALREADY_EXISTS("69041", "OpenWhisk namespace already exists", "SC-SB-OPENWHISK-NAMESPACE-ALREADY-EXISTS", HttpStatus.CONFLICT),
     OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
     OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
-    CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT)
+    CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
+    PARENT_SERVICE_INSTANCE_NOT_FOUND("69045", "Parent service instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
+    UPDATE_INCORRECT_PLAN_ID("69046", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST),
+    OPERATION_IN_PROGRESS("69047", "Previous operation for this service instance is still in progress.", "SC-SB-SERVICE_OPERATION_IN_PROGRESS", UNPROCESSABLE_ENTITY),
+    PLAN_UPDATE_NOT_ALLOWED("69048", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
 
     final String code
     final String errorCode

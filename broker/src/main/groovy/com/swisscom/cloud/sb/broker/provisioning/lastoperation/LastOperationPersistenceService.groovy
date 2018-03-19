@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic
@@ -18,7 +19,7 @@ class LastOperationPersistenceService {
         LastOperation lastOperation = lastOperationRepository.findByGuid(id)
         if (lastOperation) {
             log.info("For LastOperation Id:${id}, there is an existing entry: ${lastOperation.toString()}")
-            assertPreviousOperationCompletion(lastOperation, id, operation)
+            failIfPreviousOperationIsNotComplete(lastOperation)
             lastOperation.operation = operation
             lastOperation.dateCreation = new Date()
             lastOperation.status = LastOperation.Status.IN_PROGRESS
@@ -26,7 +27,7 @@ class LastOperationPersistenceService {
         } else {
             lastOperation = new LastOperation(guid: id, operation: operation, dateCreation: new Date(), status: LastOperation.Status.IN_PROGRESS)
         }
-        lastOperationRepository.save(lastOperation)
+        lastOperationRepository.saveAndFlush(lastOperation)
         return lastOperation
     }
 
@@ -34,9 +35,8 @@ class LastOperationPersistenceService {
         lastOperationRepository.deleteByGuid(guid)
     }
 
-    private void assertPreviousOperationCompletion(LastOperation lastOperation, String id, LastOperation.Operation operation) {
-        if (lastOperation.status == LastOperation.Status.IN_PROGRESS && lastOperation.operation != operation) {
-            throw new IllegalStateException("The previous operation(${lastOperation.operation}) for ${id} has not been finished yet!")
-        }
+    private void failIfPreviousOperationIsNotComplete(LastOperation lastOperationOnServiceInstance) {
+        if (lastOperationOnServiceInstance && lastOperationOnServiceInstance.status == LastOperation.Status.IN_PROGRESS)
+            ErrorCode.OPERATION_IN_PROGRESS.throwNew()
     }
 }

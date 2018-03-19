@@ -21,6 +21,7 @@ class LastOperationJobContext {
     Plan plan
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
+    UpdateRequest updateRequest
 
     void notifySuccess(String message = null) {
         notifyResult(true, message)
@@ -43,7 +44,7 @@ class LastOperationJobContext {
         lastOperation.status = status
         lastOperation.description = message
         lastOperation.internalState = internalState
-        lastOperationRepository.save(lastOperation)
+        lastOperationRepository.saveAndFlush(lastOperation)
     }
 }
 

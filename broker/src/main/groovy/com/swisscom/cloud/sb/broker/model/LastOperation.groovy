@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.model
 
+import com.sun.org.glassfish.gmbal.Description
 import org.hibernate.validator.constraints.NotBlank
 
 import javax.persistence.Column
@@ -9,9 +10,9 @@ import javax.persistence.Enumerated
 
 @Entity
 class LastOperation extends BaseModel{
-
     @NotBlank
     @Column(unique = true)
+    @Description("ServiceInstanceGuid")
     String guid
 
     @Enumerated(EnumType.STRING)

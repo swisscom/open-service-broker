@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
+import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
@@ -20,8 +22,8 @@ class LastOperationServiceSpec extends BaseTransactionalSpecification {
         when:
         lastOperationPersistenceService.createOrUpdateLastOperation(id, LastOperation.Operation.DEPROVISION)
         then:
-        IllegalStateException ex = thrown()
-        ex
+        def ex = thrown(ServiceBrokerException)
+        ex.message == ErrorCode.OPERATION_IN_PROGRESS.description
     }
 
     def "updating an existing and completed LastOperation functions correctly"() {
