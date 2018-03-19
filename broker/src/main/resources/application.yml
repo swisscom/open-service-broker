@@ -45,6 +45,7 @@ com.swisscom.cloud.sb.broker.shield:
   storeName: 'local'
   retentionName: 'default'
   scheduleName: 'schedu'
+  maxRetryBackup: 5
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:
