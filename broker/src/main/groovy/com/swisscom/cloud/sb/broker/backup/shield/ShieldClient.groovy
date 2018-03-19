@@ -16,6 +16,7 @@ class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
     protected RestTemplateBuilder restTemplateBuilder
+    protected int retryBackupCount = 0
 
     @Autowired
     ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder) {
@@ -53,7 +54,17 @@ class ShieldClient {
         }
         if (task.statusParsed.isFailed()) {
             log.warn("Shield task failed: ${task}")
-            return JobStatus.FAILED
+            if (task.typeParsed.isBackup()){
+                if (retryBackupCount < shieldConfig.maxRetryBackup){
+                    log.info("Retrying backup count: ${retryBackupCount + 1}")
+                    retryBackupCount++
+                    buildClient().runJob(task.job_uuid)
+//                    registerAndRunJob()
+                    return JobStatus.RUNNING
+                }
+            } else {
+                return JobStatus.FAILED
+            }
         }
         if (task.statusParsed.isDone()) {
             if (task.typeParsed.isBackup()) {
