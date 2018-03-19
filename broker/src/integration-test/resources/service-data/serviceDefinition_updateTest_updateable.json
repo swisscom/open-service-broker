@@ -1,0 +1,42 @@
+{
+  "guid": "updateTest_Updateable",
+  "name": "updateTest_Updateable",
+  "description": "",
+  "bindable": true,
+  "internalName": "dummy",
+  "displayIndex": 1,
+  "asyncRequired": false,
+  "plan_updateable": true,
+  "dashboard_client": {
+    "id": "dashboardId",
+    "secret": "secret",
+    "redirect_uri": "https://dashboard.service.com"
+  },
+  "tags": [],
+  "metadata": {},
+  "requires": [],
+  "plans": [
+    {
+      "guid": "updateTest_Updateable_plan_a",
+      "name": "updateTest_Updateable_plan_a",
+      "description": "",
+      "templateId": "templateV1",
+      "free": false,
+      "displayIndex": 1,
+      "asyncRequired": false,
+      "parameters": [],
+      "metadata": {}
+    },
+    {
+      "guid": "updateTest_Updateable_plan_b",
+      "name": "updateTest_Updateable_plan_b",
+      "description": "",
+      "templateId": "templateV1",
+      "free": false,
+      "displayIndex": 1,
+      "asyncRequired": false,
+      "parameters": [],
+      "metadata": {}
+    }
+  ]
+}

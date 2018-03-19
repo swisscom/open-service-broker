@@ -15,5 +15,7 @@ class CFServiceDto implements Serializable {
     List<String> requires
     Map<String, Object> metadata = new HashMap<String, Object>()
     DashboardClientDto dashboard_client
-
+    boolean plan_updateable
+    Boolean instancesRetrievable
+    Boolean bindingsRetrievable
 }

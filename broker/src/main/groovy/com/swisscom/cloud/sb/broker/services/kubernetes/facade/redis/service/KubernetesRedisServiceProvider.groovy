@@ -8,7 +8,9 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -22,12 +24,14 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 @Component
 @Log4j
@@ -35,7 +39,6 @@ import org.springframework.stereotype.Component
 class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
-
 
     @Autowired
     KubernetesRedisServiceProvider(KubernetesFacadeRedis kubernetesClientRedisDecorated) {
@@ -120,6 +123,11 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     void unbind(UnbindRequest request) {
 
+    }
+
+    UpdateResponse update(UpdateRequest request) {
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     @Override

@@ -7,13 +7,16 @@ import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import spock.lang.Specification
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class ServiceUsageLookupSpec extends Specification {
     ServiceProviderLookup serviceProviderLookup
@@ -78,6 +81,12 @@ class ServiceUsageLookupSpec extends Specification {
         @Override
         void unbind(UnbindRequest request) {
 
+        }
+
+        @Override
+        UpdateResponse update(UpdateRequest request) {
+            ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+            return null
         }
 
         @Override

@@ -13,11 +13,13 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
@@ -27,6 +29,7 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceDetailKey.*
@@ -192,6 +195,11 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @VisibleForTesting
     private String getSubject(String bindId) {
         return ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(bindId).details).getValue(OPENWHISK_SUBJECT)
+    }
+
+    UpdateResponse update(UpdateRequest request) {
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     @VisibleForTesting
