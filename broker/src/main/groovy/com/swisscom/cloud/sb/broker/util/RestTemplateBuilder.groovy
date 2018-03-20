@@ -60,6 +60,7 @@ class RestTemplateBuilder {
             httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
         }
         def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
+        restTemplate.setInterceptors(new ArrayList<>([new LoggingRequestInterceptor()]))
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
     }
