@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -46,8 +47,25 @@ class ShieldClient {
         deleteTargetIfExisting(targetName)
     }
 
-    TaskDto getTaskDto(String taskUuid){
-        return buildClient().getTaskByUuid(taskUuid)
+    JobStatus getJobStatus(String taskUuid) {
+        TaskDto task = buildClient().getTaskByUuid(taskUuid)
+        if (task.statusParsed.isRunning()) {
+            return JobStatus.RUNNING
+        }
+        if (task.statusParsed.isFailed()) {
+            log.warn("Shield task failed: ${task}")
+            return JobStatus.FAILED
+        }
+        if (task.statusParsed.isDone()) {
+            if (task.typeParsed.isBackup()) {
+                // if backup tasks are done, they should have an associated archive now
+                return statusOfArchive(task)
+            } else {
+                // if it's a restore task, it's finished when done.
+                return JobStatus.SUCCESSFUL
+            }
+        }
+        throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
     }
 
     String getJobName(String jobUuid) {
@@ -91,7 +109,7 @@ class ShieldClient {
         }
     }
 
-    JobStatus statusOfArchive(TaskDto task) {
+    private JobStatus statusOfArchive(TaskDto task) {
         ArchiveDto archive = buildClient().getArchiveByUuid(task.archive_uuid)
         if (archive != null && archive.statusParsed.isValid()) {
             return JobStatus.SUCCESSFUL

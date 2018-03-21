@@ -67,11 +67,8 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
         return new ServiceUsage(type: ServiceUsageType.TRANSACTIONS, value: "${date.time}", enddate: date)
     }
 
+    @Override
     Collection<Extension> buildExtensions(){
         return [new Extension("discovery_url": "discoveryURL")]
-    }
-
-    TaskDto getTask(String taskUuid){
-        new TaskDto()
     }
 }

@@ -4,7 +4,6 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -13,7 +12,7 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 
 @CompileStatic
-trait BackupOnShield extends ExtensionProvider{
+trait BackupOnShield extends ExtensionProvider {
     private final String PLAN_PARAMETER_BACKUP_PREFIX = "BACKUP_"
 
     @Autowired
@@ -56,8 +55,4 @@ trait BackupOnShield extends ExtensionProvider{
         }?.getValue()
         new BackupParameter(scheduleName: scheduleName, retentionName: policyName, storeName: storageName)
     }
-
-    @Override
-    TaskDto getTask(String taskUuid){
-        return shieldClient.getTaskDto(taskUuid)
-    }}
+}

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -216,11 +215,8 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
         openWhiskDbClient.deleteSubjectFromDb(entity, mapper.readTree(doc).path("_rev").asText())
     }
 
+    @Override
     Collection<Extension> buildExtensions(){
         return [new Extension("discovery_url": openWhiskConfig.discoveryURL)]
-    }
-
-    TaskDto getTask(String taskUuid){
-        new TaskDto()
     }
 }

@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.backup.shield.dto
+package com.swisscom.cloud.sb.broker.async.job
 
 enum JobStatus {
     FAILED("failed"), SUCCESSFUL("successful"), RUNNING("running")

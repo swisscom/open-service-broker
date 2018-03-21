@@ -12,6 +12,10 @@ class DummyJob extends AbstractJob {
 
     void execute(JobExecutionContext context){
         log.info("unlocking user")
-        dequeue(getJobId(context))
+        String jobId = getJobId(context)
+        DummyStatus dummyStatus = DummyStatus.SUCCESS
+        if (DummyStatus.SUCCESS == dummyStatus){
+            dequeue(jobId)
+        }
     }
 }
