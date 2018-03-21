@@ -5,9 +5,11 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.springframework.stereotype.Component
@@ -33,6 +35,11 @@ class DummyExtensionsServiceProvider extends DummyExtension implements ServicePr
 
     @Override
     void unbind(UnbindRequest request) {
+        throw new NotImplementedException()
+    }
+
+    @Override
+    UpdateResponse update(UpdateRequest request){
         throw new NotImplementedException()
     }
 }
