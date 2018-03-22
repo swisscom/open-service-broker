@@ -24,5 +24,5 @@ class ServiceInstanceResponseDto {
     def parameters = [:]
     @JsonSerialize
     @JsonProperty("details")
-    String details
+    def details = [:]
 }

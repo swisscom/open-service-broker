@@ -160,7 +160,7 @@ class ProvisioningController extends BaseController {
             return serviceInstanceDtoConverter.convert(serviceInstance)
         } else {
             FetchServiceInstanceProvider provider = serviceProvider as FetchServiceInstanceProvider
-            provider.getServiceInstanceDetails(serviceInstanceGuid)
+            return provider.getServiceInstanceDetails(serviceInstance)
         }
     }
 
