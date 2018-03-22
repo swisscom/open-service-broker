@@ -11,7 +11,7 @@ enum ServiceBrokerServiceProviderDeprovisionState implements ServiceStateWithAct
     DEPROVISION_IN_PROGRESS(LastOperation.Status.IN_PROGRESS, new OnStateChange<ServiceBrokerServiceProviderStateMachineContext>(){
         @Override
         StateChangeActionResult triggerAction(ServiceBrokerServiceProviderStateMachineContext context) {
-            new StateChangeActionResult(go2NextState: true)
+            new StateChangeActionResult(go2NextState: context.sbspFacade.checkServiceDeprovisioningDone(context.lastOperationJobContext.serviceInstance.guid))
         }
     }),
 
