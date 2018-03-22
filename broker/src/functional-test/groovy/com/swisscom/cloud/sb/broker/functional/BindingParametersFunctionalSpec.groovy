@@ -81,7 +81,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "deprovision async service instance"() {
         when:
-        serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
+        serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
 
         then:
         noExceptionThrown()
