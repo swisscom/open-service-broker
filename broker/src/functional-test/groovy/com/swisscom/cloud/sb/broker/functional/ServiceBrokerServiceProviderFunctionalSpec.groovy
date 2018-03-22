@@ -49,7 +49,7 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def cleanupSpec() {
-        serviceLifeCycler.cleanup()
+        //serviceLifeCycler.cleanup()
     }
 
     def "provision and bind sync service instance"() {
@@ -114,7 +114,8 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
-    def "provision async service instance"() {
+
+    /*def "provision async service instance"() {
         given:
         serviceLifeCycler.setAsyncRequestInPlan(true)
         serviceLifeCycler.createParameter(SERVICE_ID, dummyAsyncService.guid, serviceLifeCycler.plan)
