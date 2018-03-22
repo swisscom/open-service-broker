@@ -13,7 +13,9 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
+import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceInstanceProvider
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstanceResponseDto
+import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
@@ -153,7 +155,13 @@ class ProvisioningController extends BaseController {
         if (serviceInstance == null || !serviceInstance.completed || !serviceInstance.plan.service.instancesRetrievable) {
             ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
         }
-        return serviceInstanceDtoConverter.convert(serviceInstance)
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
+        if (!(serviceProvider instanceof FetchServiceInstanceProvider)) {
+            return serviceInstanceDtoConverter.convert(serviceInstance)
+        } else {
+            FetchServiceInstanceProvider provider = serviceProvider as FetchServiceInstanceProvider
+            provider.getServiceInstanceDetails(serviceInstanceGuid)
+        }
     }
 
 }
