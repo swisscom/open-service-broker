@@ -464,7 +464,7 @@ class OpsManagerFacade {
     private BackupConfigDto updateBackupConfig(String groupId, String replicaSetName, BackupConfigDto backupConfigDto) {
         def clusterId = opsManagerClient.getClusterId(groupId, replicaSetName)
         def result = opsManagerClient.updateBackupConfig(groupId, clusterId, backupConfigDto)
-        log.trace("Backup updated for GroupId:${groupId}, ReplicaSet:${replicaSetName}, result${result.toString()}")
+        log.trace("Backup updated for GroupId:${groupId}, ReplicaSet:${replicaSetName}")
         return result
     }
 
