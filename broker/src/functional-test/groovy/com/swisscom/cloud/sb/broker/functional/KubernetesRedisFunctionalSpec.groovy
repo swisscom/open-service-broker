@@ -31,7 +31,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
                 'redis', null, null, 1)
 
         serviceLifeCycler.createParameter('PLAN_ID', 'redis.small', serviceLifeCycler.plan)
-        serviceLifeCycler.createParameter('REDIS_DISK_QUOTA', '128Mi', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('DISK_QUOTA', '128Mi', serviceLifeCycler.plan)
 
         serviceLifeCycler.createParameter('REDIS_INIT_CPU_REQUEST', '8m', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('REDIS_INIT_MEM_REQUEST', '82Mi', serviceLifeCycler.plan)
@@ -80,7 +80,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def "Create redis instance and create backup"() {
         when:
-            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(300, true, true)
+            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1000, true, true)
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
             def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
             def jobName = shieldClient.getJobName(jobUuid)
