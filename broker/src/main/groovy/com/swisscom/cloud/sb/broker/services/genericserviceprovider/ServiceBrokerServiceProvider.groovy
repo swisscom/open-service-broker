@@ -5,7 +5,6 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
@@ -19,9 +18,10 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
-import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderClient
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderFacade
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderRestClient
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderDeprovisionState
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
@@ -42,6 +44,12 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Autowired
     ServiceBrokerServiceProviderRestClient sbspRestClient
+
+    @Autowired
+    ServiceBrokerServiceProviderFacade sbspFacade
+
+    @Autowired
+    ServiceBrokerServiceProviderClient sbspClient
 
     @Autowired
     ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage
@@ -70,7 +78,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
     }
 
-    private ServiceBrokerClient serviceBrokerClient
+    protected ServiceBrokerClient serviceBrokerClient
 
     ServiceBrokerServiceProvider() {}
 
@@ -123,6 +131,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
             ResponseEntity<DeleteServiceInstanceResponse> re = makeDeleteServiceInstanceCall(serviceBrokerClient, request, req)
             return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
         }
+    }
+
+    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
+        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
+        return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
     }
 
     ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
