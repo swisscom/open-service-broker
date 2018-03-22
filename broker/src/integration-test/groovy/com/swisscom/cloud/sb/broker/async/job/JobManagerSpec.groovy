@@ -9,7 +9,7 @@ import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.StringGenerator
@@ -91,7 +91,7 @@ class JobManagerSpec extends BaseSpecification {
         int executionIntervalInSeconds = 10
 
         when:
-        asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(FailingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 0.5))
+        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(FailingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 0.5))
         Thread.sleep((executionIntervalInSeconds * 2) * 1000)
 
         then:
@@ -114,7 +114,7 @@ class JobManagerSpec extends BaseSpecification {
         double durationInMinutes = 0.3
         double totalDurationInSeconds = ((durationInMinutes * 60) * 1000)
         when:
-        asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(InProgressJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, durationInMinutes))
+        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(InProgressJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, durationInMinutes))
         Thread.sleep((totalDurationInSeconds as int) + executionIntervalInSeconds)
 
         then:
@@ -130,7 +130,7 @@ class JobManagerSpec extends BaseSpecification {
         int executionIntervalInSeconds = 5
         SuccessfulJob.ExecutionCount.set(0)
         when:
-        asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(SuccessfulJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
+        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(SuccessfulJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
         Thread.sleep((executionIntervalInSeconds * 2) * 1000)
 
         then:
@@ -145,7 +145,7 @@ class JobManagerSpec extends BaseSpecification {
         given:
         int executionIntervalInSeconds = 5
         when:
-        asyncProvisioningService.scheduleProvision(new ProvisioningjobConfig(ExceptionThrowingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
+        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(ExceptionThrowingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
         lastOperationRepository.findByGuid(id).status == LastOperation.Status.IN_PROGRESS
         then:
         Thread.sleep((executionIntervalInSeconds * 2) * 1000)

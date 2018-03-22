@@ -37,12 +37,13 @@ class ServiceProvisioningJob extends AbstractLastOperationJob {
     }
 
     @Override
-    protected AsyncOperationResult handleJob(LastOperationJobContext context) {
-        log.info("About to request service provision, ${context.lastOperation.toString()}")
-        AsyncOperationResult provisionResult = findServiceProvisioner(context).requestProvision(context)
-        context.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(context.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))
+    protected AsyncOperationResult handleJob(LastOperationJobContext jobContext) {
+        log.info("About to request service provision, ${jobContext.lastOperation.toString()}")
+        AsyncOperationResult provisionResult = findServiceProvisioner(jobContext).requestProvision(jobContext)
+        jobContext.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(jobContext.provisionRequest, new ProvisionResponse(details: provisionResult.details, isAsync: true))
+
         if (provisionResult.status == LastOperation.Status.SUCCESS) {
-            provisioningPersistenceService.updateServiceInstanceCompletion(context.serviceInstance, true)
+            provisioningPersistenceService.updateServiceInstanceCompletion(jobContext.serviceInstance, true)
         }
         return provisionResult
     }

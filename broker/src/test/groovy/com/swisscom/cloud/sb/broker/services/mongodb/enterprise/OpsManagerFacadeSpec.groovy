@@ -13,7 +13,11 @@ class OpsManagerFacadeSpec extends Specification {
     OpsManagerClient opsManagerClient
     MongoDbEnterpriseConfig mongoDbEnterpriseConfig
 
-    def groupId = "groupId"
+    final String GROUP_ID = "groupId"
+    final String REPLICA_SET = "replicaSet"
+    final String CLUSTER_ID = "clusterId"
+    final String USER_ID = "userId"
+
     def database = "database"
     def serviceInstanceId = "serviceInstanceId"
 
@@ -34,26 +38,26 @@ class OpsManagerFacadeSpec extends Specification {
         when:
         def result = opsManagerFacade.createGroup(serviceInstanceId)
         then:
-        1 * opsManagerClient.createGroup({ GroupDto dto -> dto.name == serviceInstanceId && dto.publicApiEnabled }) >> new GroupDto(id: 'groupId', name: serviceInstanceId, agentApiKey: 'apiKey')
-        result.groupId == 'groupId'
+        1 * opsManagerClient.createGroup({ GroupDto dto -> dto.name == serviceInstanceId && dto.publicApiEnabled }) >> new GroupDto(id: GROUP_ID, name: serviceInstanceId, agentApiKey: 'apiKey')
+        result.groupId == GROUP_ID
         result.groupName == serviceInstanceId
         result.agentApiKey == 'apiKey'
     }
 
     def "group deletion functions correctly"() {
         when:
-        opsManagerFacade.deleteGroup('groupId')
+        opsManagerFacade.deleteGroup(GROUP_ID)
         then:
-        1 * opsManagerClient.deleteGroup('groupId')
+        1 * opsManagerClient.deleteGroup(GROUP_ID)
     }
 
     def "creation of user functions correctly"() {
         when:
-        def result = opsManagerFacade.createOpsManagerUser('groupId', serviceInstanceId)
+        def result = opsManagerFacade.createOpsManagerUser(GROUP_ID, serviceInstanceId)
 
         then:
-        1 * opsManagerClient.createUser({ OpsManagerUserDto dto -> dto.firstName == serviceInstanceId && dto.lastName == serviceInstanceId }) >> new OpsManagerUserDto(id: 'userId')
-        result.userId == 'userId'
+        1 * opsManagerClient.createUser({ OpsManagerUserDto dto -> dto.firstName == serviceInstanceId && dto.lastName == serviceInstanceId }) >> new OpsManagerUserDto(id: USER_ID)
+        result.userId == USER_ID
         result.user
         result.password
     }
@@ -62,12 +66,12 @@ class OpsManagerFacadeSpec extends Specification {
         given:
         mongoDbEnterpriseConfig.opsManagerUserRoles = role
         when:
-        opsManagerFacade.createOpsManagerUser('groupId', serviceInstanceId)
+        opsManagerFacade.createOpsManagerUser(GROUP_ID, serviceInstanceId)
 
         then:
         1 * opsManagerClient.createUser({ OpsManagerUserDto dto ->
-            dto.roles.size() == 1 & dto.roles.first().groupId == 'groupId' && dto.roles.first().roleName == OpsManagerFacade.DEFAULT_OPS_MANAGER_ROLES.first().toString()
-        }) >> new OpsManagerUserDto(id: 'userId')
+            dto.roles.size() == 1 & dto.roles.first().groupId == GROUP_ID && dto.roles.first().roleName == OpsManagerFacade.DEFAULT_OPS_MANAGER_ROLES.first().toString()
+        }) >> new OpsManagerUserDto(id: USER_ID)
 
         where:
         role << ['', null, 'ThereIsNoSuchOrgManagerRole',
@@ -79,13 +83,13 @@ class OpsManagerFacadeSpec extends Specification {
         mongoDbEnterpriseConfig.opsManagerUserRoles = roleAsString
 
         when:
-        opsManagerFacade.createOpsManagerUser('groupId', serviceInstanceId)
+        opsManagerFacade.createOpsManagerUser(GROUP_ID, serviceInstanceId)
 
         then:
         1 * opsManagerClient.createUser({ OpsManagerUserDto dto ->
             dto.roles.size() == givenRoles.size() &&
                     dto.roles.every { givenRoles.collect { it.toString() }.contains(it.roleName) }
-        }) >> new OpsManagerUserDto(id: 'userId')
+        }) >> new OpsManagerUserDto(id: USER_ID)
 
         where:
         roleAsString                                                                                                    | givenRoles
@@ -95,77 +99,73 @@ class OpsManagerFacadeSpec extends Specification {
 
     def "user deletion functions correctly"() {
         when:
-        opsManagerFacade.deleteOpsManagerUser('userId')
+        opsManagerFacade.deleteOpsManagerUser(USER_ID)
         then:
-        1 * opsManagerClient.deleteUser('userId')
+        1 * opsManagerClient.deleteUser(USER_ID)
     }
 
     def "agent check functions correctly"() {
         when:
-        opsManagerFacade.areAgentsReady(groupId, 3)
+        opsManagerFacade.areAgentsReady(GROUP_ID, 3)
 
         then:
-        1 * opsManagerClient.listAutomationAgents(groupId) >> {
+        1 * opsManagerClient.listAutomationAgents(GROUP_ID) >> {
             (1..3).collect { new AutomationAgentDto(hostname: 'host' + it) }
         }
     }
 
     def "checking initial automation version works correctly"() {
         given:
-        opsManagerClient.getAutomationStatus(groupId) >> new AutomationStatusDto(goalVersion: 2, processes: [new AutomationStatusDto.Process(lastGoalVersionAchieved: 2)])
+        opsManagerClient.getAutomationStatus(GROUP_ID) >> new AutomationStatusDto(goalVersion: 2, processes: [new AutomationStatusDto.Process(lastGoalVersionAchieved: 2)])
         when:
-        def result = opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId)
+        def result = opsManagerFacade.getAndCheckInitialAutomationGoalVersion(GROUP_ID)
         then:
         result == 2
     }
 
     def "automation update checking functions correctly"() {
         given:
-        opsManagerClient.getAutomationStatus(groupId) >> new AutomationStatusDto(goalVersion: 2, processes: [new AutomationStatusDto.Process(lastGoalVersionAchieved: 2)])
+        opsManagerClient.getAutomationStatus(GROUP_ID) >> new AutomationStatusDto(goalVersion: 2, processes: [new AutomationStatusDto.Process(lastGoalVersionAchieved: 2)])
         expect:
-        opsManagerFacade.isAutomationUpdateComplete(groupId, 2)
+        opsManagerFacade.isAutomationUpdateComplete(GROUP_ID, 2)
     }
 
     def "deployment works correctly"() {
         given:
         def config = new AutomationConfigDto()
-        opsManagerClient.getAutomationConfig(groupId) >> config
+        opsManagerClient.getAutomationConfig(GROUP_ID) >> config
         and:
-        opsManagerClient.getAutomationStatus(groupId) >> new AutomationStatusDto(processes: [])
+        opsManagerClient.getAutomationStatus(GROUP_ID) >> new AutomationStatusDto(processes: [])
         and:
-        opsManagerClient.listAutomationAgents(groupId) >> [new AutomationAgentDto(hostname: 'host')]
+        opsManagerClient.listAutomationAgents(GROUP_ID) >> [new AutomationAgentDto(hostname: 'host')]
 
         when:
-        def result = opsManagerFacade.deployReplicaSet(groupId, database, 27000, 'healthuser', 'healthpassword', 'version')
+        def result = opsManagerFacade.deployReplicaSet(GROUP_ID, database, 27000, 'healthuser', 'healthpassword', 'version')
 
         then:
-        1 * opsManagerClient.updateAutomationConfig(groupId, config)
+        1 * opsManagerClient.updateAutomationConfig(GROUP_ID, config)
         result.database
     }
 
     def "host deletion functions correctly"() {
         given:
         def Ids = ["id1", "id2", "id3"]
-        1 * opsManagerClient.getHostIds(groupId) >> Ids
+        1 * opsManagerClient.getHostIds(GROUP_ID) >> Ids
         when:
-        opsManagerFacade.deleteAllHosts(groupId)
+        opsManagerFacade.deleteAllHosts(GROUP_ID)
         then:
         Ids.each {
-            1 * opsManagerClient.deleteHost(groupId, it)
+            1 * opsManagerClient.deleteHost(GROUP_ID, it)
         }
     }
 
     def "enableBackupAndSetStorageEngine functions correctly"() {
         given:
-        def groupId = 'groupId'
-        def replicaSet = 'replicaSet'
-        def clusterId = 'clusterId'
-        and:
-        opsManagerClient.getClusterId(groupId, replicaSet) >> clusterId
+        opsManagerClient.getClusterId(GROUP_ID, REPLICA_SET) >> CLUSTER_ID
         when:
-        opsManagerFacade.enableBackupAndSetStorageEngine(groupId, replicaSet)
+        opsManagerFacade.enableBackupAndSetStorageEngine(GROUP_ID, REPLICA_SET)
         then:
-        1 * opsManagerClient.updateBackupConfig(groupId, clusterId, { BackupConfigDto d ->
+        1 * opsManagerClient.updateBackupConfig(GROUP_ID, CLUSTER_ID, { BackupConfigDto d ->
             d.statusName == BackupConfigDto.Status.STARTED.toString() &&
                     d.storageEngineName == OpsManagerFacade.STORAGE_ENGINE_WIRED_TIGER &&
                     d.syncSource == OpsManagerFacade.SYNC_SOURCE_SECONDARY
@@ -174,56 +174,43 @@ class OpsManagerFacadeSpec extends Specification {
 
     def "terminate backup functions correctly"() {
         given:
-        def groupId = 'groupId'
-        def replicaSet = 'replicaSet'
-        def clusterId = 'clusterId'
-        and:
-        opsManagerClient.getClusterId(groupId, replicaSet) >> clusterId
+        opsManagerClient.getClusterId(GROUP_ID, REPLICA_SET) >> CLUSTER_ID
         when:
-        opsManagerFacade.terminateBackup(groupId, replicaSet)
+        opsManagerFacade.terminateBackup(GROUP_ID, REPLICA_SET)
         then:
-        1 * opsManagerClient.updateBackupConfig(groupId, clusterId, { BackupConfigDto d -> d.statusName == BackupConfigDto.Status.TERMINATING.toString() })
+        1 * opsManagerClient.updateBackupConfig(GROUP_ID, CLUSTER_ID, { BackupConfigDto d -> d.statusName == BackupConfigDto.Status.TERMINATING.toString() })
     }
 
     def "disable backup functions correctly"() {
         given:
-        def groupId = 'groupId'
-        def replicaSet = 'replicaSet'
-        def clusterId = 'clusterId'
-        and:
-        opsManagerClient.getClusterId(groupId, replicaSet) >> clusterId
+        opsManagerClient.getClusterId(GROUP_ID, REPLICA_SET) >> CLUSTER_ID
 
         when:
-        opsManagerFacade.disableBackup(groupId, replicaSet)
+        opsManagerFacade.disableBackup(GROUP_ID, REPLICA_SET)
 
         then:
-        1 * opsManagerClient.updateBackupConfig(groupId, clusterId, { BackupConfigDto d -> d.statusName == BackupConfigDto.Status.STOPPED.toString() })
+        1 * opsManagerClient.updateBackupConfig(GROUP_ID, CLUSTER_ID, { BackupConfigDto d -> d.statusName == BackupConfigDto.Status.STOPPED.toString() })
     }
 
 
     def "disableAndTerminateBackup functions correctly when no clusterIsFound"() {
-        given:
-        def groupId = 'groupId'
-        def replicaSet = 'replicaSet'
-
         when:
-        opsManagerFacade.disableAndTerminateBackup(groupId, replicaSet)
+        opsManagerFacade.disableAndTerminateBackup(GROUP_ID, REPLICA_SET)
 
         then:
-        1 * opsManagerClient.findClusterId(groupId, replicaSet) >> Optional.absent()
+        1 * opsManagerClient.findClusterId(GROUP_ID, REPLICA_SET) >> Optional.absent()
         0 * _
     }
 
     def "snapshot schedule update functions correctly"() {
         given:
-        def groupId = 'groupId'
-        1 * opsManagerFacade.opsManagerClient.getClusterId(groupId, 'replicaSet') >> 'clusterId'
+        1 * opsManagerFacade.opsManagerClient.getClusterId(GROUP_ID, REPLICA_SET) >> CLUSTER_ID
 
         when:
-        opsManagerFacade.updateSnapshotSchedule(groupId, 'replicaSet')
+        opsManagerFacade.updateSnapshotSchedule(GROUP_ID, REPLICA_SET)
 
         then:
-        1 * opsManagerFacade.opsManagerClient.updateSnapshotSchedule(groupId, 'clusterId', {
+        1 * opsManagerFacade.opsManagerClient.updateSnapshotSchedule(GROUP_ID, CLUSTER_ID, {
             SnapshotScheduleDto dto ->
                 dto.snapshotIntervalHours == opsManagerFacade.mongoDbEnterpriseConfig.snapshotIntervalHours &&
                         dto.snapshotRetentionDays == opsManagerFacade.mongoDbEnterpriseConfig.snapshotRetentionDays &&
@@ -239,21 +226,21 @@ class OpsManagerFacadeSpec extends Specification {
         opsManagerFacade.mongoDbEnterpriseConfig.opsManagerUser = 'userName'
 
         and:
-        1 * opsManagerClient.getUserByName(opsManagerFacade.mongoDbEnterpriseConfig.opsManagerUser) >> new OpsManagerUserDto(id: 'userId')
+        1 * opsManagerClient.getUserByName(opsManagerFacade.mongoDbEnterpriseConfig.opsManagerUser) >> new OpsManagerUserDto(id: USER_ID)
 
         when:
         opsManagerFacade.whiteListIpsForUser(opsManagerFacade.mongoDbEnterpriseConfig.opsManagerUser, ['ip1'])
 
         then:
-        1 * opsManagerClient.addUserWhiteList('userId', { List<WhiteListDto> it -> it.size() == 1 && it.first().ipAddress == 'ip1' })
+        1 * opsManagerClient.addUserWhiteList(USER_ID, { List<WhiteListDto> it -> it.size() == 1 && it.first().ipAddress == 'ip1' })
     }
 
     def "automation update functions correctly when current and to-be-updated configurations are same "() {
         given:
-        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
+        opsManagerClient.getAutomationConfig(GROUP_ID) >> new AutomationConfigDto(processes: [], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
 
         when:
-        opsManagerFacade.undeploy(groupId)
+        opsManagerFacade.undeploy(GROUP_ID)
 
         then:
         0 * opsManagerClient.updateAutomationConfig(_, _)
@@ -261,13 +248,13 @@ class OpsManagerFacadeSpec extends Specification {
 
     def "automation update functions correctly when current and to-be-updated configurations are different"() {
         given:
-        opsManagerClient.getAutomationConfig(groupId) >> new AutomationConfigDto(processes: [new ProcessDto()], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
+        opsManagerClient.getAutomationConfig(GROUP_ID) >> new AutomationConfigDto(processes: [new ProcessDto()], replicaSets: [], auth: new AuthenticationDto(autoAuthMechanism: "MONGODB-CR"))
 
         when:
-        opsManagerFacade.undeploy(groupId)
+        opsManagerFacade.undeploy(GROUP_ID)
 
         then:
-        1 * opsManagerClient.updateAutomationConfig(groupId, _)
+        1 * opsManagerClient.updateAutomationConfig(GROUP_ID, _)
     }
 }
 

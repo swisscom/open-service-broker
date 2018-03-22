@@ -29,10 +29,11 @@ class ServiceBindingPersistenceService {
     @Autowired
     private ServiceContextPersistenceService contextPersistenceService
 
-    ServiceBinding create(ServiceInstance serviceInstance, String credentials, String guid, Collection<ServiceDetail> details, Context context) {
+    ServiceBinding create(ServiceInstance serviceInstance, String credentials, String parameters, String guid, Collection<ServiceDetail> details, Context context) {
         ServiceBinding serviceBinding = new ServiceBinding()
         serviceBinding.guid = guid
         serviceBinding.credentials = credentials
+        serviceBinding.parameters = parameters
         serviceBindingRepository.save(serviceBinding)
         details?.each {
             ServiceDetail detail ->

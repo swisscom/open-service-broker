@@ -12,7 +12,7 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningjobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
 import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -40,7 +40,7 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig> implements Ser
         Utils.verifyAsychronousCapableClient(request)
 
         asyncProvisioningService.scheduleProvision(
-                new ProvisioningjobConfig(ServiceProvisioningJob.class, request,
+                new ProvisioningJobConfig(ServiceProvisioningJob.class, request,
                         serviceConfig.retryIntervalInSeconds,
                         serviceConfig.maxRetryDurationInMinutes))
         return new ProvisionResponse(isAsync: true)

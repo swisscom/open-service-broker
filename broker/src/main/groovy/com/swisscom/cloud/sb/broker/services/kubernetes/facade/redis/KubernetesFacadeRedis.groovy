@@ -44,7 +44,8 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
                 (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
                 (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
-        kubernetesServiceConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
+        // Make copy of redisConfigurationDefaults Map for thread safety
+        (new HashMap<String,String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
     }
 
     @Override
