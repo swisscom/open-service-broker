@@ -35,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
@@ -81,7 +83,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
     }
 
-    private ServiceBrokerClient serviceBrokerClient
+    protected ServiceBrokerClient serviceBrokerClient
 
     ServiceBrokerServiceProvider() {}
 
@@ -147,6 +149,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
             ResponseEntity<DeleteServiceInstanceResponse> re = makeDeleteServiceInstanceCall(serviceBrokerClient, request, req)
             return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
         }
+    }
+
+    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
+        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
+        return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
     }
 
     ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
