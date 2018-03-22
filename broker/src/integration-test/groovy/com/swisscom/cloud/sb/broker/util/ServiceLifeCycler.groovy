@@ -145,9 +145,9 @@ class ServiceLifeCycler {
             cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
         } else if (cfService.plans.empty && servicePlan != null) {
-            cfService.plans.add(servicePlan)
             plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
-            cfService = cfServiceRepository.saveAndFlush(new CFService(guid: cfService.guid, name: cfService.name, internalName: cfService.internalName, description: cfService.description, bindable: cfService.bindable))
+            cfService.plans.add(plan)
+            cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
         } else {
             if (planName) {
@@ -212,8 +212,8 @@ class ServiceLifeCycler {
 
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, CFService service = cfService, Plan servicePlan = plan, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, service, servicePlan, context, provisionParameters)
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, newServiceInstanceId, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -229,7 +229,7 @@ class ServiceLifeCycler {
 
     ResponseEntity requestServiceProvisioning(boolean async, String newServiceInstanceId, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
         def request = new CreateServiceInstanceRequest(differentCFService.guid, differentPlan.guid, 'org_id', 'space_id', context, parameters)
-        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(UUID.randomUUID().toString()).withAsyncAccepted(async))
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(newServiceInstanceId).withAsyncAccepted(async))
     }
 
     ResponseEntity requestServiceProvisioning(
@@ -245,21 +245,21 @@ class ServiceLifeCycler {
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, context)
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId = serviceInstanceId, boolean uniqueCredentials = true, Context context = null) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceToBeBoundId, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
     }
 
-    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, Context context = null) {
+    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId, Context context = null) {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
         def bindResource = new BindResource('app-id', 'app-id.example.com', null)
         def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, bindResource, context, bindingParameters)
 
-        return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
+        return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceToBeBoundId)
                 .withBindingId(bindingId))
     }
 
