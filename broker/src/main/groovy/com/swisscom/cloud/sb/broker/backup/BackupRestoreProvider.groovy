@@ -34,7 +34,7 @@ trait BackupRestoreProvider extends BackupOnShield {
         if (Backup.Operation.DELETE == backup.operation) {
             return Backup.Status.SUCCESS
         }
-        JobStatus status = shieldClient.getJobStatus(backup.externalId)
+        JobStatus status = shieldClient.getJobStatus(backup.externalId, backup)
         return convertBackupStatus(status)
     }
 

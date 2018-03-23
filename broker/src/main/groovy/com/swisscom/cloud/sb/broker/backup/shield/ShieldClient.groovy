@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
+import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
@@ -17,12 +19,14 @@ class ShieldClient {
     protected ShieldRestClientFactory shieldRestClientFactory
     protected RestTemplateBuilder restTemplateBuilder
     protected int retryBackupCount = 0
+    protected BackupPersistenceService backupPersistenceService
 
     @Autowired
-    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder) {
+    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder, BackupPersistenceService backupPersistenceService) {
         this.shieldConfig = shieldConfig
         this.shieldRestClientFactory = shieldRestClientFactory
         this.restTemplateBuilder = restTemplateBuilder
+        this.backupPersistenceService = backupPersistenceService
     }
 
     String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
@@ -47,7 +51,11 @@ class ShieldClient {
         deleteTargetIfExisting(targetName)
     }
 
-    JobStatus getJobStatus(String taskUuid) {
+    def deleteTask(String taskUuid) {
+        buildClient().deleteTaskByUuid(taskUuid)
+    }
+
+    JobStatus getJobStatus(String taskUuid, Backup backup = null) {
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         if (task.statusParsed.isRunning()) {
             return JobStatus.RUNNING
@@ -58,9 +66,12 @@ class ShieldClient {
                 if (retryBackupCount < shieldConfig.maxRetryBackup){
                     log.info("Retrying backup count: ${retryBackupCount + 1}")
                     retryBackupCount++
-                    buildClient().runJob(task.job_uuid)
-//                    registerAndRunJob()
+                    String externalId = buildClient().runJob(task.job_uuid)
+                    backup.externalId = externalId
+                    backupPersistenceService.saveBackup(backup)
                     return JobStatus.RUNNING
+                } else {
+                    return JobStatus.FAILED
                 }
             } else {
                 return JobStatus.FAILED
