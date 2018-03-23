@@ -55,20 +55,6 @@
             "parameters": {
               "$schema": "http://json-schema.org/draft-04/schema#",
               "type": "object",
-              "dependencies": {
-                "exclusiveMinimum": [
-                  "minimum"
-                ]
-              },
-              "definitions": {
-                "schemaArray": {
-                  "type": "array",
-                  "minItems": 2,
-                  "items": {
-                    "$ref": "#"
-                  }
-                }
-              },
               "properties": {
                 "billing-account": {
                   "description": "Service instance create",

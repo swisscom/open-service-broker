@@ -490,7 +490,7 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
 
     def "service with correct specified json schema"() {
         given:
-        def serviceInstanceCreateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","definitions":{"schemaArray":{"items":{"$ref":"#"},"minItems":2,"type":"array"}},"dependencies":{"exclusiveMinimum":["minimum"]},"properties":{"billing-account":{"description":"Service instance create","type":"string"}},"type":"object"}'
+        def serviceInstanceCreateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service instance create","type":"string"}},"type":"object"}'
         def serviceInstanceUpdateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service instance update","type":"string"}},"type":"object"}'
         def serviceBindingCreateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service binding create","type":"string"}},"type":"object"}'
         def service = createService() as CFService
