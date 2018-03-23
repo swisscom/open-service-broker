@@ -9,7 +9,13 @@ import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -103,7 +109,9 @@ class ServiceLifeCycler {
     private Map<String, Object> credentials
 
     void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
-                                     String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false) {
+                                     String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
+                                     String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null
+    ) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
             def tag = tagRepository.saveAndFlush(new Tag(tag: 'tag1'))
@@ -115,7 +123,11 @@ class ServiceLifeCycler {
         if (cfService.plans.empty) {
             plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
-                    templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups))
+                    templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
+                    serviceInstanceCreateSchema: serviceInstanceCreateSchema,
+                    serviceInstanceUpdateSchema: serviceInstanceUpdateSchema,
+                    serviceBindingCreateSchema: serviceBindingCreateSchema
+            ))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
             plan.metadata.add(planMetaData)
             plan = planRepository.saveAndFlush(plan)
