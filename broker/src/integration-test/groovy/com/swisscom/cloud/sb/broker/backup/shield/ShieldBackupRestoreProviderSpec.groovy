@@ -88,7 +88,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> JobStatus.FINISHED
+        shieldClient.getJobStatus(backup.externalId, backup) >> JobStatus.FINISHED
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -99,7 +99,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
+        shieldClient.getJobStatus(backup.externalId, backup) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
