@@ -4,4 +4,5 @@ class DummyServiceProviderParameters {
     String mode
     Integer delay
     String success
+    String parentReference
 }

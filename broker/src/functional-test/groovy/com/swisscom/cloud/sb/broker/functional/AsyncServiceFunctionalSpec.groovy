@@ -81,9 +81,13 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true,
+                ['delay': String.valueOf(processDelayInSeconds)])
+        this.parentServiceInstanceGuid = serviceLifeCycler.serviceInstanceId
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
+        serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true,
                 ['delay': String.valueOf(processDelayInSeconds), 'parentReference': this.parentServiceInstanceGuid])
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
