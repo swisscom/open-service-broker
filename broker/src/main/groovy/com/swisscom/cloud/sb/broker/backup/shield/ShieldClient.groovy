@@ -18,7 +18,6 @@ class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
     protected RestTemplateBuilder restTemplateBuilder
-    protected int retryBackupCount = 0
     protected BackupPersistenceService backupPersistenceService
 
     @Autowired
@@ -63,11 +62,10 @@ class ShieldClient {
         if (task.statusParsed.isFailed()) {
             log.warn("Shield task failed: ${task}")
             if (task.typeParsed.isBackup()){
-                if (retryBackupCount < shieldConfig.maxRetryBackup){
-                    log.info("Retrying backup count: ${retryBackupCount + 1}")
-                    retryBackupCount++
-                    String externalId = buildClient().runJob(task.job_uuid)
-                    backup.externalId = externalId
+                if (backup.retryBackupCount < shieldConfig.maxRetryBackup){
+                    log.info("Retrying backup count: ${backup.retryBackupCount + 1}")
+                    backup.retryBackupCount++
+                    backup.externalId = buildClient().runJob(task.job_uuid)
                     backupPersistenceService.saveBackup(backup)
                     return JobStatus.RUNNING
                 } else {
