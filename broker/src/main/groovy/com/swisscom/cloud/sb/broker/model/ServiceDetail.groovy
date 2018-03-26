@@ -33,7 +33,7 @@ class ServiceDetail extends BaseModel{
     }
 
     private boolean isSameServiceDetail(ServiceDetail serviceDetail) {
-        return serviceDetail.id == this.id ||
-                (this.uniqueKey && serviceDetail.key ==  this.key)
+        return (serviceDetail.id > 0 && serviceDetail.id == this.id) ||
+                (this.uniqueKey && serviceDetail.key == this.key)
     }
 }
