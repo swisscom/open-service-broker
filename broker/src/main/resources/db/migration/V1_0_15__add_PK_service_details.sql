@@ -13,11 +13,11 @@ CREATE PROCEDURE create_IDX_PK_service_details()
       SELECT DISTINCT service_instance_details_id, service_detail_id
       FROM service_instance_service_detail;
 
+  TRUNCATE TABLE service_instance_service_detail;
+
   ALTER TABLE service_instance_service_detail
       ADD PRIMARY KEY (service_instance_details_id, service_detail_id),
       ADD INDEX service_detail_service_instance_index (service_detail_id, service_instance_details_id);
-
-  TRUNCATE TABLE service_instance_service_detail;
 
   INSERT INTO service_instance_service_detail(service_instance_details_id, service_detail_id)
       SELECT DISTINCT service_instance_details_id, service_detail_id
