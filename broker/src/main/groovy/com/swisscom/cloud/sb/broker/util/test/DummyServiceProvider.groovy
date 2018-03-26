@@ -3,9 +3,11 @@ package com.swisscom.cloud.sb.broker.util.test
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Optional
+import com.google.gson.Gson
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointProvider
 import com.swisscom.cloud.sb.broker.model.*
@@ -52,12 +54,18 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
 
     @Override
     BindResponse bind(BindRequest request) {
-        throw new NotImplementedException()
+        log.info("Bind parameters: ${request.parameters?.toString()}")
+        return new BindResponse(credentials: new BindResponseDto() {
+            @Override
+            String toJson() {
+                request.parameters ? new Gson().toJson(request.parameters) : '{}'
+            }
+        })
     }
 
     @Override
     void unbind(UnbindRequest request) {
-        throw new NotImplementedException()
+
     }
 
     private static DummyServiceProviderParameters DeserializeParameters(String jsonParameters) {
