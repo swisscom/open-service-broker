@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.10.1] - 2018-03-22
+- Refactor getServiceInstanceDetails to fetchServiceInstance
+- Add RestTemplate LoggingInterceptor
+
+## [2.10.0] - 2018-03-19
+- Add Service Instance Relationship
+- Refactor OSB Context Support
+- Support plan_updateable field for povision
+- Support parameters field for provision and bind
+- Support get Service Instance [spec](https://github.com/openservicebrokerapi/servicebroker/pull/333)
+- Add support for service parameter update
+- Fix race condition for Kubernetes Redis provision
+
 ## [2.9.2] - 2018-03-12
 - Fix SQL Migration for Service Context
 

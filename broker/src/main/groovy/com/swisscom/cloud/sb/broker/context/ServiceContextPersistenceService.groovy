@@ -27,9 +27,6 @@ class ServiceContextPersistenceService {
     @Autowired
     private ServiceContextRepository serviceContextRepository
 
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository
-
     ServiceContext findOrCreate(Context context) {
         if (!context) {
             return
@@ -52,7 +49,7 @@ class ServiceContextPersistenceService {
 
     private ServiceContext createCloudFoundryContext(CloudFoundryContext context) {
         def serviceContext = new ServiceContext(platform: CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM)
-        serviceContextRepository.save(serviceContext)
+        serviceContextRepository.saveAndFlush(serviceContext)
 
         def contextDetails = [] as Set<ServiceContextDetail>
         contextDetails << createServiceContextDetailRecord(ServiceContextHelper.CF_ORGANIZATION_GUID, context.organizationGuid, serviceContext)
@@ -76,7 +73,7 @@ class ServiceContextPersistenceService {
 
     private ServiceContext createKubernetesContext(KubernetesContext context) {
         def serviceContext = new ServiceContext(platform: KubernetesContext.KUBERNETES_PLATFORM)
-        serviceContextRepository.save(serviceContext)
+        serviceContextRepository.saveAndFlush(serviceContext)
 
         def contextDetails = [] as Set<ServiceContextDetail>
         contextDetails << createServiceContextDetailRecord(ServiceContextHelper.KUBERNETES_NAMESPACE, context.namespace, serviceContext)
@@ -88,7 +85,6 @@ class ServiceContextPersistenceService {
     }
 
     private ServiceContextDetail createServiceContextDetailRecord(String key, String value, ServiceContext serviceContext) {
-        return serviceContextDetailRepository.save(new ServiceContextDetail(key: key, value: value, serviceContext: serviceContext))
+        return serviceContextDetailRepository.saveAndFlush(new ServiceContextDetail(key: key, value: value, serviceContext: serviceContext))
     }
-
 }
