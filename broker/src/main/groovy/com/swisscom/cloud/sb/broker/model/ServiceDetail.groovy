@@ -22,4 +22,18 @@ class ServiceDetail extends BaseModel{
     static ServiceDetail from(AbstractServiceDetailKey detailKey, String value) {
         return new ServiceDetail(key: detailKey.key, value: value, type: detailKey.detailType().type)
     }
+
+    @Override
+    boolean equals(Object obj) {
+        ServiceDetail otherServiceDetail = obj as ServiceDetail
+        if (otherServiceDetail == null)
+            return false
+
+        return isSameServiceDetail(otherServiceDetail)
+    }
+
+    private boolean isSameServiceDetail(ServiceDetail serviceDetail) {
+        return serviceDetail.id == this.id ||
+                (this.uniqueKey && serviceDetail.key ==  this.key)
+    }
 }
