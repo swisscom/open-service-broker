@@ -7,8 +7,7 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.ValidationMessage
 
 abstract class JsonSchemaHelper {
-    static
-    final String JSON_SCHEMA_V4_FILENAME = 'json_schema_v4.json'
+    static final String JSON_SCHEMA_V4_FILENAME = 'json_schema_v4.json'
 
     static JsonSchema getJsonSchema(String filename) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance()
