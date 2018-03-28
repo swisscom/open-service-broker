@@ -23,7 +23,7 @@ info:
 server.tomcat.accesslog.enabled: true
 
 mock:
-  mockDyndb: true
+  dyndb: "[extensionFlag: true]"
 
 com.swisscom.cloud.sb.broker.security.platformUsers:
    - username: cc_admin
