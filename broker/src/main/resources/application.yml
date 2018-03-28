@@ -22,6 +22,9 @@ info:
 
 server.tomcat.accesslog.enabled: true
 
+mock:
+  mockDyndb: true
+
 com.swisscom.cloud.sb.broker.security.platformUsers:
    - username: cc_admin
      password: change_me

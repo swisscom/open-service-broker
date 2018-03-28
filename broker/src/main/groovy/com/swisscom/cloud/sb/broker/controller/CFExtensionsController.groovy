@@ -5,7 +5,6 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointService
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageLookup
-import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance

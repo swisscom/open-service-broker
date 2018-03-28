@@ -36,7 +36,7 @@ trait ExtensionProvider{
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers)
         ResponseEntity<String> response = restTemplate.postForEntity( "https://mermade.org.uk/openapi-converter/api/v1/convert", request , String.class )
 
-        return response.body
+        return response.body - "<html><body><pre>"
     }
 
     //The following methods are required for asynchronous extensions.
