@@ -9,7 +9,7 @@ class MockFlag {
     static Map<String, Boolean> dyndb
 
     @Value('${mock.dyndb}')
-    void setFlags(String flag){
-        dyndb = Eval.me(flag) as Map<String, Boolean>
+    void setDyndb(String flags){
+        dyndb = Eval.me(flags) as Map<String, Boolean>
     }
 }
