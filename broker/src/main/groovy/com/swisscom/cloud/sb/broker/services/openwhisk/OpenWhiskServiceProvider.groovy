@@ -8,6 +8,7 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
@@ -212,5 +213,10 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
         ObjectMapper mapper = new ObjectMapper()
 
         openWhiskDbClient.deleteSubjectFromDb(entity, mapper.readTree(doc).path("_rev").asText())
+    }
+
+    @Override
+    Collection<Extension> buildExtensions(){
+        return [new Extension("discovery_url": openWhiskConfig.discoveryURL)]
     }
 }

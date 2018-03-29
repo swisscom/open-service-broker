@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -61,7 +62,7 @@ class ShieldClient {
                 return statusOfArchive(task)
             } else {
                 // if it's a restore task, it's finished when done.
-                return JobStatus.FINISHED
+                return JobStatus.SUCCESSFUL
             }
         }
         throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
@@ -111,7 +112,7 @@ class ShieldClient {
     private JobStatus statusOfArchive(TaskDto task) {
         ArchiveDto archive = buildClient().getArchiveByUuid(task.archive_uuid)
         if (archive != null && archive.statusParsed.isValid()) {
-            return JobStatus.FINISHED
+            return JobStatus.SUCCESSFUL
         } else {
             return JobStatus.FAILED
         }
