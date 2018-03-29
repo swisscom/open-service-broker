@@ -4,8 +4,22 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
+import com.swisscom.cloud.sb.broker.model.CFServicePermission
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
+import com.swisscom.cloud.sb.broker.model.repository.CFServicePermissionRepository
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
@@ -13,6 +27,7 @@ import groovy.json.JsonSlurper
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -472,4 +487,36 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         then:
         JSONAssert.assertEquals(Resource.readTestFileContent(FILE_SERVICE1), new ObjectMapper().writeValueAsString(dto), JSONCompareMode.LENIENT)
     }
+
+    def "service with correct specified json schema"() {
+        given:
+        def serviceInstanceCreateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service instance create","type":"string"}},"type":"object"}'
+        def serviceInstanceUpdateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service instance update","type":"string"}},"type":"object"}'
+        def serviceBindingCreateSchema = '{"$schema":"http://json-schema.org/draft-04/schema#","properties":{"billing-account":{"description":"Service binding create","type":"string"}},"type":"object"}'
+        def service = createService() as CFService
+
+        when:
+        processServiceDefinition('/service-data/service1_plan_valid_json_schema.json')
+
+        then:
+        assertServiceBasicDetails(false, false)
+        def plan = service.plans[0]
+        plan.serviceInstanceCreateSchema == serviceInstanceCreateSchema
+        plan.serviceInstanceUpdateSchema == serviceInstanceUpdateSchema
+        plan.serviceBindingCreateSchema == serviceBindingCreateSchema
+    }
+
+    def "service plan with invalid json schema should be rejected"() {
+        given:
+        createService() as CFService
+
+        when:
+        processServiceDefinition('/service-data/service1_plan_invalid_json_schema.json')
+
+        then:
+        def ex = thrown(ServiceBrokerException)
+        ex.httpStatus == HttpStatus.BAD_REQUEST
+        ex.code == ErrorCode.INVALID_PLAN_SCHEMAS.code
+    }
+
 }
