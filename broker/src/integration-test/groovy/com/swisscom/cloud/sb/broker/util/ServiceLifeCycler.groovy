@@ -158,8 +158,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        (serviceInstanceIds as String[]).reverseEach { it ->
-            serviceInstanceRepository.deleteByGuid(it)
+        def serviceInstances = serviceInstanceRepository.findAll()
+        serviceInstances.each { it ->
+            serviceInstanceRepository.deleteByGuid(it.guid)
         }
 
         if (parameters.size() > 0) {
@@ -168,36 +169,42 @@ class ServiceLifeCycler {
             }
         }
 
-        if (serviceCreated) {
-            deletePlan()
-            cfServiceRepository.delete(cfService)
-        } else if (planCreated) {
-            deletePlan()
+        def cfServices = cfServiceRepository.findAll()
+        cfServices.each { it ->
+            def plans = it.plans.findAll()
+            plans.each { planIt ->
+                it.plans.remove(planIt)
+                it = cfServiceRepository.saveAndFlush(it)
+            }
         }
-    }
 
-    private void deletePlan() {
-        plan.metadata.remove(planMetaData)
-        cfService.plans.remove(plan)
-        cfService = cfServiceRepository.saveAndFlush(cfService)
-        planRepository.delete(plan)
+        def plans = planRepository.findAll()
+        plans.each { it ->
+            it.metadata.remove(planMetaData)
+            planRepository.delete(it)
+        }
+
+        def cfServicesList = cfServiceRepository.findAll()
+        cfServicesList.each { service ->
+            cfServiceRepository.delete(service)
+        }
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, newServiceInstanceId, null, context)
-        bindServiceInstanceAndAssert(null, null, newServiceInstanceId, true, context)
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
+        bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${newServiceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
-    void createServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0, boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Context context = null) {
-        bindServiceInstanceAndAssert(null, null, newServiceInstanceId, true, context)
-        println("Bound serviceInstanceId: ${newServiceInstanceId} , serviceBindingId ${serviceBindingId}")
+    void createServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0, boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
+        bindServiceInstanceAndAssert(null, null, true, context)
+        println("Bound serviceInstanceId: ${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, newServiceInstanceId, context, provisionParameters)
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -229,8 +236,8 @@ class ServiceLifeCycler {
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId = serviceInstanceId, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceToBeBoundId, context)
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceId, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
@@ -253,16 +260,6 @@ class ServiceLifeCycler {
     }
 
     void deleteServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
-        deleteServiceInstanceAndAssert(serviceInstanceId, cfService.guid, plan.guid, serviceBindingId, isAsync, maxSecondsToAwaitDelete)
-    }
-
-    void deleteServiceInstanceAndAssert(
-            final String serviceInstanceId,
-            final String serviceGuid,
-            final String planGuid,
-            final String serviceBindingId = null,
-            boolean isAsync = false,
-            int maxSecondsToAwaitDelete = 0) {
         def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId,
                 serviceGuid, planGuid, isAsync))
 
@@ -287,8 +284,8 @@ class ServiceLifeCycler {
         assert unbindResponse.statusCode == HttpStatus.OK
     }
 
-    LastOperationResponse getServiceInstanceStatus() {
-        return createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).body
+    LastOperationResponse getServiceInstanceStatus(String newServiceInstanceId = serviceInstanceId) {
+        return createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).body
     }
 
     Parameter createParameter(String name, String value, Plan plan) {
@@ -354,14 +351,14 @@ class ServiceLifeCycler {
         }
     }
 
-    void waitUntilMaxTimeOrTargetState(int seconds) {
+    void waitUntilMaxTimeOrTargetState(int seconds, String newServiceInstanceId = serviceInstanceId) {
         int sleepTime = 1000
         if (seconds > 0) {
             for (
                     def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
-                    LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).getBody().state
+                    LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).getBody().state
                     if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
                         return
                     }
