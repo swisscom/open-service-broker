@@ -166,8 +166,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        (serviceInstanceIds as String[]).reverseEach { it ->
-            serviceInstanceRepository.deleteByGuid(it)
+        def serviceInstances = serviceInstanceRepository.findAll()
+        serviceInstances.each { it ->
+            serviceInstanceRepository.deleteByGuid(it.guid)
         }
 
         if (parameters.size() > 0) {
@@ -212,8 +213,8 @@ class ServiceLifeCycler {
 
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, newServiceInstanceId, context, provisionParameters)
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -245,8 +246,8 @@ class ServiceLifeCycler {
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId = serviceInstanceId, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceToBeBoundId, context)
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceId, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
@@ -269,16 +270,6 @@ class ServiceLifeCycler {
     }
 
     void deleteServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
-        deleteServiceInstanceAndAssert(serviceInstanceId, cfService.guid, plan.guid, serviceBindingId, isAsync, maxSecondsToAwaitDelete)
-    }
-
-    void deleteServiceInstanceAndAssert(
-            final String serviceInstanceId,
-            final String serviceGuid,
-            final String planGuid,
-            final String serviceBindingId = null,
-            boolean isAsync = false,
-            int maxSecondsToAwaitDelete = 0) {
         def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId,
                 serviceGuid, planGuid, isAsync))
 
