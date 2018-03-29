@@ -7,12 +7,14 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -86,5 +88,10 @@ class LapiServiceProvider implements ServiceProvider {
         String url = "http://0.0.0.0:4567/v2/service_instances/${request.serviceInstance.guid}/service_bindings/serviceBindingId"
         RestTemplate restTemplate = restTemplateBuilder.build()
         restTemplate.delete(url)
+    }
+
+    @Override
+    UpdateResponse update(UpdateRequest request) {
+        return null
     }
 }
