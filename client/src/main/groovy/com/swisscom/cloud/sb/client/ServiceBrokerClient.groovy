@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.client
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceBindingResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
+import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.Catalog
@@ -56,6 +57,13 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
                 HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
                 CreateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
+    }
+
+    @Override
+    ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request) {
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+                HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
+                ProvisionResponseDto.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override

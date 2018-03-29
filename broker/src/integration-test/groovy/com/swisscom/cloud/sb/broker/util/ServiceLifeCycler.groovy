@@ -15,6 +15,8 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
+
+import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
@@ -178,6 +180,11 @@ class ServiceLifeCycler {
         } else {
             assert provisionResponse.statusCode == HttpStatus.CREATED
         }
+    }
+
+    ResponseEntity<ProvisionResponseDto> provision(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
+        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
     ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {

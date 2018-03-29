@@ -1,6 +1,5 @@
-package com.swisscom.cloud.sb.broker.provisioning
+package com.swisscom.cloud.sb.client.model
 
-import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import groovy.transform.CompileStatic
 
 @CompileStatic
