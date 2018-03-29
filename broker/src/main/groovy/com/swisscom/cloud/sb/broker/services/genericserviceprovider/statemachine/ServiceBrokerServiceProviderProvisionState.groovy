@@ -11,13 +11,14 @@ enum ServiceBrokerServiceProviderProvisionState implements ServiceStateWithActio
     PROVISION_IN_PROGRESS(LastOperation.Status.IN_PROGRESS, new OnStateChange<ServiceBrokerServiceProviderStateMachineContext>(){
         @Override
         StateChangeActionResult triggerAction(ServiceBrokerServiceProviderStateMachineContext context) {
-            new StateChangeActionResult(go2NextState: context.sbspFacade.checkServiceProvisioningDone(context.lastOperationJobContext.serviceInstance.guid))
+            new StateChangeActionResult(go2NextState: context.sbspFacade.provisionServiceInstance(context.lastOperationJobContext.serviceInstance))
         }
     }),
 
     PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp()),
 
-    // how to get into PROVISION_FAILED state? Automatically, when LastOperation.Status == FAILED?
+    // PROVISION_FAILED is actually never reached, LastOperation.Status is set to FAILED whenever there is an exception
+    // while executing the async job
     PROVISION_FAILED(LastOperation.Status.FAILED, new NoOp())
 
     private final LastOperation.Status status
