@@ -21,7 +21,7 @@ import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAc
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderClient
+
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderFacade
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderRestClient
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
@@ -45,8 +45,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
-import static com.swisscom.cloud.sb.broker.services.common.Utils.verifyAsychronousCapableClient
-
 @Component("serviceBrokerServiceProvider")
 @Slf4j
 class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner {
@@ -58,16 +56,16 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     ServiceBrokerServiceProviderFacade sbspFacade
 
     @Autowired
-    ServiceBrokerServiceProviderClient sbspClient
+    ServiceBrokerServiceProviderRestClient sbspRestClient
 
     @Autowired
     ServiceBrokerServiceProviderConfig serviceBrokerServiceProviderConfig
 
-    private final String BASE_URL = "baseUrl"
-    private final String USERNAME = "username"
-    private final String PASSWORD = "password"
-    private final String SERVICE_INSTANCE_ID = "service-guid"
-    private final String PLAN_ID = "plan-guid"
+    private final static String BASE_URL = "baseUrl"
+    private final static String USERNAME = "username"
+    private final static String PASSWORD = "password"
+    private final static String SERVICE_INSTANCE_ID = "service-guid"
+    private final static String PLAN_ID = "plan-guid"
 
     protected ServiceBrokerClient serviceBrokerClient
 
@@ -110,18 +108,19 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
-        if (request.serviceInstance.plan.asyncRequired && !request.acceptsIncomplete) {
-            ErrorCode.ASYNC_REQUIRED.throwNew()
-        }
-        def params = request.serviceInstance.plan.parameters
+        if (request.serviceInstance.plan.asyncRequired) {
+            super.deprovision(request)
+        } else {
+            def params = request.serviceInstance.plan.parameters
 
-        GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
-        if (serviceBrokerClient == null) {
-            serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderDeprovisioningErrorHandler.class)
-        }
+            GenericProvisionRequestPlanParameter req = populateGenericProvisionRequestPlanParameter(params)
+            if (serviceBrokerClient == null) {
+                serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderDeprovisioningErrorHandler.class)
+            }
 
-        ResponseEntity<DeleteServiceInstanceResponse> re = makeDeleteServiceInstanceCall(serviceBrokerClient, request, req)
-        return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
+            ResponseEntity<DeleteServiceInstanceResponse> re = makeDeleteServiceInstanceCall(serviceBrokerClient, request, req)
+            return new DeprovisionResponse(isAsync: request.serviceInstance.plan.asyncRequired)
+        }
     }
 
     ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
@@ -164,7 +163,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         serviceBrokerClient.deleteServiceInstanceBinding(deleteServiceInstanceBindingRequest)
     }
 
-    GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
+    public static GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
         GenericProvisionRequestPlanParameter req = new GenericProvisionRequestPlanParameter();
         Iterator<Parameter> it = params.iterator()
         while (it.hasNext()) {
@@ -189,7 +188,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         return req
     }
 
-    ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req, Class errorHandler) {
+    public static ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req, Class errorHandler) {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
         restTemplate.setErrorHandler(errorHandler.newInstance())
         return new ServiceBrokerClient(restTemplate, req.getBaseUrl(), req.getUsername(), req.getPassword())
@@ -223,7 +222,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @VisibleForTesting
     private ServiceBrokerServiceProviderStateMachineContext createStateMachineContext(LastOperationJobContext context) {
-        return new ServiceBrokerServiceProviderStateMachineContext(lastOperationJobContext: context, sbspFacade: sbspFacade, sbspClient: sbspClient)
+        return new ServiceBrokerServiceProviderStateMachineContext(lastOperationJobContext: context, sbspFacade: sbspFacade, sbspRestClient: sbspRestClient)
     }
 
     @Override
@@ -243,11 +242,17 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @VisibleForTesting
     private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
-        ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
+        ServiceStateWithAction deprovisionState = null
+        if (!context.lastOperation.internalState) {
+            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS
+        } else {
+            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
+        }
+        return deprovisionState
     }
 
 
-    private class CustomServiceBrokerServiceProviderProvisioningErrorHandler extends DefaultResponseErrorHandler {
+    public class CustomServiceBrokerServiceProviderProvisioningErrorHandler extends DefaultResponseErrorHandler {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
             if (response.statusCode == HttpStatus.BAD_REQUEST) {
