@@ -8,7 +8,10 @@ import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -22,6 +25,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceDeprovisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceProvisionState
 import com.swisscom.cloud.sb.broker.services.kubernetes.service.state.KubernetesServiceStateMachineContext
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
@@ -35,7 +39,6 @@ import org.springframework.stereotype.Component
 class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
-
 
     @Autowired
     KubernetesRedisServiceProvider(KubernetesFacadeRedis kubernetesClientRedisDecorated) {
@@ -122,6 +125,11 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
 
     }
 
+    UpdateResponse update(UpdateRequest request) {
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
+    }
+
     @Override
     ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
         new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT) as Integer)
@@ -130,5 +138,10 @@ class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedi
     @Override
     String shieldAgentUrl(ServiceInstance serviceInstance) {
         "${serviceConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT)}"
+    }
+
+    @Override
+    Collection<Extension> buildExtensions(){
+        return [new Extension(discovery_url: serviceConfig.discoveryURL)]
     }
 }

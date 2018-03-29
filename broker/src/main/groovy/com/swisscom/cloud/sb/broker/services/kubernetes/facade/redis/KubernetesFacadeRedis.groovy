@@ -2,6 +2,8 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
+import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -44,7 +46,8 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
                 (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
                 (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
-        kubernetesServiceConfig.redisConfigurationDefaults << planBindings << serviceDetailBindings << otherBindings
+        // Make copy of redisConfigurationDefaults Map for thread safety
+        (new HashMap<String,String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
     }
 
     @Override
@@ -89,5 +92,10 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
     @Override
     String shieldAgentUrl(ServiceInstance serviceInstance) {
         "${kubernetesServiceConfig.getKubernetesRedisHost()}:${ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT)}"
+    }
+
+    @Override
+    Collection<Extension> buildExtensions(){
+        return [new Extension(discovery_url: kubernetesServiceConfig.discoveryURL)]
     }
 }

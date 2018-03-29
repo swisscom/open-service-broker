@@ -1,10 +1,18 @@
 package com.swisscom.cloud.sb.client
 
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
-import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.client.model.ServiceInstanceBindingResponse
+import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
+import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
-import org.springframework.cloud.servicebroker.model.*
+import org.springframework.cloud.servicebroker.model.Catalog
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceResponse
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -52,6 +60,13 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     @Override
+    ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request) {
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+                HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
+                ProvisionResponseDto.class, request.serviceInstanceId, request.asyncAccepted)
+    }
+
+    @Override
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
                 HttpMethod.PATCH, new HttpEntity<UpdateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
@@ -77,6 +92,18 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
                 HttpMethod.DELETE, new HttpEntity<com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
+    }
+
+    @Override
+    ResponseEntity<ServiceInstanceResponse> getServiceInstance(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}"),
+                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceInstanceResponse.class, serviceInstanceId)
+    }
+
+    @Override
+    ResponseEntity<ServiceInstanceBindingResponse> getServiceInstanceBinding(String serviceInstanceId, String bindingId) {
+        return restTemplate.exchange(appendPath("/v2/service_instances/{instanceId}/service_bindings/{bindingId}"),
+                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceInstanceBindingResponse.class, serviceInstanceId, bindingId)
     }
 
     static HttpHeaders createSimpleAuthHeaders(String username, String password) {

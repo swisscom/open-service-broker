@@ -60,8 +60,20 @@ class RestTemplateBuilder {
             httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
         }
         def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
+        addLoggingRequestInterceptor()
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
+    }
+
+    private void addLoggingRequestInterceptor() {
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
+        if (interceptors == null) {
+            interceptors = Collections.emptyList()
+        } else {
+            interceptors.removeAll { it instanceof LoggingRequestInterceptor }
+        }
+        interceptors.add(new LoggingRequestInterceptor())
+        restTemplate.setInterceptors(interceptors)
     }
 
     private SSLContext createSSLContext() {

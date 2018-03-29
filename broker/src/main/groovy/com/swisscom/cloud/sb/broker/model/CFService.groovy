@@ -17,6 +17,8 @@ class CFService extends BaseModel{
     @Column(columnDefinition = 'int default 0')
     int displayIndex
     @Column(columnDefinition='tinyint(1) default 0')
+    Boolean plan_updateable
+    @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
 
     String dashboardClientId
@@ -35,4 +37,10 @@ class CFService extends BaseModel{
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name="cf_service_id")
     Set<CFServicePermission> permissions = []
+
+    @Column(columnDefinition = 'tinyint(1) default 0')
+    Boolean instancesRetrievable
+    @Column(columnDefinition = 'tinyint(1) default 0')
+    Boolean bindingsRetrievable
+
 }

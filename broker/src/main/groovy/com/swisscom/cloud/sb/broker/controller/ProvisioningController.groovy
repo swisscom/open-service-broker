@@ -1,38 +1,31 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
+import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
-import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
-import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponseDto
-import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
-import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
+import com.swisscom.cloud.sb.broker.provisioning.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
+import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceInstanceProvider
+import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstanceResponseDto
+import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 import javax.validation.Valid
 
@@ -46,6 +39,8 @@ class ProvisioningController extends BaseController {
     @Autowired
     private ProvisioningService provisioningService
     @Autowired
+    private AsyncProvisioningService asyncProvisioningService
+    @Autowired
     private ProvisioningPersistenceService provisioningPersistenceService
     @Autowired
     private LastOperationStatusService lastOperationStatusService
@@ -57,6 +52,8 @@ class ProvisioningController extends BaseController {
     private CFServiceRepository cfServiceRepository
     @Autowired
     private PlanRepository planRepository
+    @Autowired
+    private ServiceInstanceDtoConverter serviceInstanceDtoConverter
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -69,10 +66,21 @@ class ProvisioningController extends BaseController {
         failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
-        ProvisionResponse provisionResponse = provisioningService.provision(createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete))
+        def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
+        if (StringUtils.contains(request.parameters, "parentReference") &&
+                !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
+            ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        }
 
-        return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
-                provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        ProvisionResponse provisionResponse = provisioningService.provision(request)
+
+        if(provisionResponse.extensions){
+            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),
+                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        }else{
+            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
+                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+        }
     }
 
     private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {
@@ -145,9 +153,20 @@ class ProvisioningController extends BaseController {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
     }
 
-    @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH)
-    ResponseEntity<?> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId) {
-        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
-        return new ResponseEntity<Object>(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ApiOperation(value = "Fetch service instance", response = ServiceInstanceResponseDto.class)
+    @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.GET)
+    ServiceInstanceResponseDto getServiceInstance(@PathVariable("instanceId") String serviceInstanceGuid) {
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        if (serviceInstance == null || !serviceInstance.completed || !serviceInstance.plan.service.instancesRetrievable) {
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        }
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
+        if (!(serviceProvider instanceof FetchServiceInstanceProvider)) {
+            return serviceInstanceDtoConverter.convert(serviceInstance)
+        } else {
+            FetchServiceInstanceProvider provider = serviceProvider as FetchServiceInstanceProvider
+            return provider.fetchServiceInstance(serviceInstance)
+        }
     }
+
 }

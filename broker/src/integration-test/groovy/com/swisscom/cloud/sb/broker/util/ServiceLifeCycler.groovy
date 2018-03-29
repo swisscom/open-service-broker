@@ -21,6 +21,8 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
+
+import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
@@ -56,7 +58,7 @@ class ServiceLifeCycler {
     private boolean serviceCreated
     private boolean planCreated
 
-    private List<String> serviceInstanceIds = []
+    private Set<String> serviceInstanceIds = []
     private String serviceInstanceId
     private String serviceBindingId
 
@@ -109,19 +111,24 @@ class ServiceLifeCycler {
     private Map<String, Object> credentials
 
     CFService createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
-                                     String planName = null, int maxBackups = 0, Plan servicePlan = null) {
+                                     String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
+                                          String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null, Plan servicePlan = null) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
-            def tag = tagRepository.save(new Tag(tag: 'tag1'))
+            def tag = tagRepository.saveAndFlush(new Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
-                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag)))
+                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable))
             serviceCreated = true
         }
         if (cfService.plans.empty && servicePlan == null) {
             plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
-                    templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups))
+                    templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
+                    serviceInstanceCreateSchema: serviceInstanceCreateSchema,
+                    serviceInstanceUpdateSchema: serviceInstanceUpdateSchema,
+                    serviceBindingCreateSchema: serviceBindingCreateSchema
+            ))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
             plan.metadata.add(planMetaData)
             plan = planRepository.saveAndFlush(plan)
@@ -205,9 +212,26 @@ class ServiceLifeCycler {
         }
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+    ResponseEntity<ProvisionResponseDto> provision(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
         def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
-        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
+    }
+
+    ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        return requestServiceProvisioning(serviceInstanceId, cfService.guid, plan.guid, async, context, parameters, throwExceptionWhenNon2xxHttpStatusCode)
+    }
+
+    ResponseEntity requestServiceProvisioning(
+            final String serviceInstanceId,
+            final String serviceGuid,
+            final String planGuid,
+            boolean async,
+            Context context,
+            Map<String, Object> parameters,
+            boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        def request = new CreateServiceInstanceRequest(serviceGuid, planGuid, 'org_id', 'space_id', context, parameters)
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
+                .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
@@ -234,15 +258,26 @@ class ServiceLifeCycler {
     }
 
     void deleteServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
+        deleteServiceInstanceAndAssert(serviceInstanceId, cfService.guid, plan.guid, serviceBindingId, isAsync, maxSecondsToAwaitDelete)
+    }
+
+    void deleteServiceInstanceAndAssert(
+            final String serviceInstanceId,
+            final String serviceGuid,
+            final String planGuid,
+            final String serviceBindingId = null,
+            boolean isAsync = false,
+            int maxSecondsToAwaitDelete = 0) {
         def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId,
-                cfService.guid, plan.guid, isAsync))
+                serviceGuid, planGuid, isAsync))
 
         if (isAsync) {
             assert deprovisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitDelete)
         } else {
             assert deprovisionResponse.statusCode == HttpStatus.OK
-            assert !serviceBindingRepository.findByGuid(serviceBindingId)
+            if (serviceInstanceId != null)
+                assert !serviceBindingRepository.findByGuid(serviceBindingId)
             assert serviceInstanceRepository.findByGuid(serviceInstanceId).deleted
         }
     }
@@ -264,7 +299,7 @@ class ServiceLifeCycler {
     Parameter createParameter(String name, String value, Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
         parameters.add(parameter)
-        return parameterRepository.save(parameter)
+        return parameterRepository.saveAndFlush(parameter)
     }
 
     void setAsyncRequestInPlan(boolean asyncRequired) {
@@ -315,7 +350,7 @@ class ServiceLifeCycler {
         return new ServiceBrokerClient(template, 'http://localhost:8080', cfAdminUser.username, cfAdminUser.password)
     }
 
-    public static def pauseExecution(int seconds) {
+    static def pauseExecution(int seconds) {
         if (seconds > 0) {
 
             for (def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(1000)) {
@@ -346,14 +381,23 @@ class ServiceLifeCycler {
         return credentials
     }
 
-    def requestUpdateServiceInstance(boolean isAsync) {
-        createServiceBrokerClientWithCustomErrorHandler().updateServiceInstance(new UpdateServiceInstanceRequest('ServiceGuid', 'PlanGuid').withServiceInstanceId(serviceInstanceId))
+    def requestUpdateServiceInstance(
+            final String serviceInstanceId,
+            final String serviceGuid,
+            final String planGuid,
+            Map<String, Object> parameters = null,
+            final Boolean async = false) {
+
+        createServiceBrokerClientWithCustomErrorHandler()
+                .updateServiceInstance(new UpdateServiceInstanceRequest(serviceGuid, planGuid, parameters)
+                .withAsyncAccepted(async)
+                .withServiceInstanceId(serviceInstanceId))
     }
 
     private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
 
         @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
+        void handleError(ClientHttpResponse response) throws IOException {
         }
 
     }

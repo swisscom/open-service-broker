@@ -1,0 +1,96 @@
+{
+  "guid": "service1GuidIntegrationTest",
+  "name": "service1Name",
+  "description": "description",
+  "bindable": true,
+  "internalName": "dummySynchronousBackupCapable",
+  "displayIndex": 1,
+  "asyncRequired": true,
+  "dashboard_client": {
+    "id": "dashboardId",
+    "secret": "secret",
+    "redirect_uri": "https://dashboard.service.com"
+  },
+  "tags": [
+    "tag1",
+    "tag2"
+  ],
+  "metadata": {
+    "key1": "value1",
+    "key2": true
+  },
+  "requires": [
+    "syslog_drain"
+  ],
+  "plans": [
+    {
+      "guid": "plan2GuidIntegrationTest",
+      "name": "small",
+      "description": "planDescription",
+      "templateId": "templateV1",
+      "free": false,
+      "displayIndex": 1,
+      "internalName": "dummySynchronousBackupCapable",
+      "asyncRequired": true,
+      "maxBackups": 5,
+      "parameters": [
+        {
+          "template": "template1",
+          "name": "memory",
+          "value": "2g"
+        },
+        {
+          "template": "template2",
+          "name": "cpu",
+          "value": "1"
+        }
+      ],
+      "metadata": {
+        "key1": "value1",
+        "key2": true
+      },
+      "schemas": {
+        "service_instance": {
+          "create": {
+            "parameters": {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "billing-account": {
+                  "description": "Service instance create",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "update": {
+            "parameters": {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "billing-account": {
+                  "description": "Service instance update",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "service_binding": {
+          "create": {
+            "parameters": {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "billing-account": {
+                  "description": "Service binding create",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

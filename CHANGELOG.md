@@ -6,6 +6,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+
+## [2.11.0] - 2018-03-29
+- Support Extensions [spec](https://github.com/openservicebrokerapi/servicebroker/pull/431)
+- Support mock flags
+
+## [2.10.2] - 2018-03-26
+- Bugfix for authenticated REST calls
+- Support binding in DummyServiceProvider
+
+## [2.10.1] - 2018-03-22
+- Refactor getServiceInstanceDetails to fetchServiceInstance
+- Add RestTemplate LoggingInterceptor
+
+## [2.10.0] - 2018-03-19
+- Add Service Instance Relationship
+- Refactor OSB Context Support
+- Support plan_updateable field for povision
+- Support parameters field for provision and bind
+- Support get Service Instance [spec](https://github.com/openservicebrokerapi/servicebroker/pull/333)
+- Add support for service parameter update
+- Fix race condition for Kubernetes Redis provision
+
+## [2.9.2] - 2018-03-12
+- Fix SQL Migration for Service Context
+
+## [2.9.1] - 2018-03-08
+- Fix SQL Migration for Service Context
+
 ## [2.9.0] - 2018-02-28
 - Add Context to provision and bind while deprecating org and space ID for provisioning.
 - Add manifest for Cloud Foundry deployment

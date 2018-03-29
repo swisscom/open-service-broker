@@ -4,6 +4,8 @@ applications:
   memory: 1G
   instances: 2
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
-  path: .\%releasePackage%.jar
+  path: ./%releasePackage%.jar
   services:
     - cfbrokerdb
+  env:
+    SPRING_APPLICATION_JSON: '{}'
