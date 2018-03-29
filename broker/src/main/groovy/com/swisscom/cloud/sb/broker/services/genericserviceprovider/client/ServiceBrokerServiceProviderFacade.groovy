@@ -20,8 +20,8 @@ class ServiceBrokerServiceProviderFacade {
     private ServiceBrokerServiceProviderRestClient sbspRestClient
 
     @Autowired
-    ServiceBrokerServiceProviderFacade(ServiceBrokerServiceProviderClient sbspClient) {
-        this.sbspClient = sbspClient
+    ServiceBrokerServiceProviderFacade(ServiceBrokerServiceProviderRestClient sbspRestClient) {
+        this.sbspRestClient = sbspRestClient
     }
 
     boolean provisionServiceInstance(ServiceInstance serviceInstance) {
