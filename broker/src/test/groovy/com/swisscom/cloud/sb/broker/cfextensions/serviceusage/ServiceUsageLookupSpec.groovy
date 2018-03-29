@@ -1,9 +1,11 @@
 package com.swisscom.cloud.sb.broker.cfextensions.serviceusage
 
 import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -97,6 +99,14 @@ class ServiceUsageLookupSpec extends Specification {
         @Override
         DeprovisionResponse deprovision(DeprovisionRequest request) {
             return null
+        }
+
+        Collection<Extension> buildExtensions(){
+            return [new Extension("discovery_url": "discoveryURL")]
+        }
+
+        TaskDto getTask(String taskUuid){
+            new TaskDto()
         }
     }
 }

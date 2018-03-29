@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.openwhisk
 
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionConfig
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -7,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.openwhisk")
-class OpenWhiskConfig {
+class OpenWhiskConfig implements ExtensionConfig{
     String openWhiskUrl
     String openWhiskProtocol
     String openWhiskHost

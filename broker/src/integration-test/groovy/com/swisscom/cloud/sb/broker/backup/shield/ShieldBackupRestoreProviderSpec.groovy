@@ -1,7 +1,8 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 
@@ -29,6 +30,11 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         @Override
         String shieldAgentUrl(ServiceInstance serviceInstance) {
             ""
+        }
+
+        @Override
+        Collection<Extension> buildExtensions(){
+            return [new Extension(discovery_url: "something")]
         }
     }
 
@@ -88,7 +94,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> JobStatus.FINISHED
+        shieldClient.getJobStatus(backup.externalId) >> JobStatus.SUCCESSFUL
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -134,7 +140,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Restore restore = new Restore(externalId: taskId)
-        shieldClient.getJobStatus(restore.externalId) >> JobStatus.FINISHED
+        shieldClient.getJobStatus(restore.externalId) >> JobStatus.SUCCESSFUL
         when:
         Backup.Status status = shieldBackupRestoreProvider.getRestoreStatus(restore)
         then:
@@ -158,6 +164,6 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         jobStatus          | backupStatus
         JobStatus.RUNNING  | Backup.Status.IN_PROGRESS
         JobStatus.FAILED   | Backup.Status.FAILED
-        JobStatus.FINISHED | Backup.Status.SUCCESS
+        JobStatus.SUCCESSFUL | Backup.Status.SUCCESS
     }
 }

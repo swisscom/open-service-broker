@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+
+
+## [2.11.0] - 2018-03-29
+- Support Extensions [spec](https://github.com/openservicebrokerapi/servicebroker/pull/431)
+- Support mock flags
+
+## [2.10.2] - 2018-03-26
+- Bugfix for authenticated REST calls
+- Support binding in DummyServiceProvider
+
+## [2.10.1] - 2018-03-22
+- Refactor getServiceInstanceDetails to fetchServiceInstance
+- Add RestTemplate LoggingInterceptor
+
 ## [2.10.0] - 2018-03-19
 - Add Service Instance Relationship
 - Refactor OSB Context Support
