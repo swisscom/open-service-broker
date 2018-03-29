@@ -2,6 +2,11 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.TestableServiceBrokerServiceProvider
+import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
+import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.http.HttpStatus
 
 class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
@@ -38,7 +43,7 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def cleanupSpec() {
-        //serviceLifeCycler.cleanup()
+        serviceLifeCycler.cleanup()
     }
 
     def "provision and bind sync service instance"() {
