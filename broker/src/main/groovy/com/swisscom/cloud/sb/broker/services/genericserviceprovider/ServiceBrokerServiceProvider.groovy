@@ -39,6 +39,9 @@ import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceRespon
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.RestTemplate
+
 
 @Component("serviceBrokerServiceProvider")
 @Slf4j
@@ -316,7 +319,13 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @VisibleForTesting
     private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
-        ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
+        ServiceStateWithAction deprovisionState = null
+        if (!context.lastOperation.internalState) {
+            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS
+        } else {
+            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
+        }
+        return deprovisionState
     }
 
 
