@@ -164,8 +164,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        serviceInstanceIds.each { it ->
-            serviceInstanceRepository.deleteByGuid(it)
+        def serviceInstances = serviceInstanceRepository.findAll()
+        serviceInstances.each { it ->
+            serviceInstanceRepository.deleteByGuid(it.guid)
         }
 
         if (parameters.size() > 0) {
@@ -180,25 +181,28 @@ class ServiceLifeCycler {
 
         def cfServices = cfServiceRepository.findAll()
         cfServices.each { it ->
-            (plans as Plan[]).reverseEach { planIt ->
+            def plans = it.plans.findAll()
+            plans.each { planIt ->
                 it.plans.remove(planIt)
                 it = cfServiceRepository.saveAndFlush(it)
             }
         }
 
-        (plans as Plan[]).reverseEach { it ->
-            deletePlan(it)
+        def plans = planRepository.findAll()
+        plans.each { it ->
+            it.metadata.remove(planMetaData)
+            planRepository.delete(it)
+        }
+
+        def cfServicesList = cfServiceRepository.findAll()
+        cfServicesList.each { service ->
+            cfServiceRepository.delete(service)
         }
     }
 
-    private void deletePlan(Plan plan) {
-        plan.metadata.remove(planMetaData)
-        planRepository.delete(plan)
-    }
-
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false,  String newServiceInstanceId = serviceInstanceId, CFService service = cfService, Plan servicePlan = plan, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, service, servicePlan, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${newServiceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
@@ -210,8 +214,8 @@ class ServiceLifeCycler {
 
 
 
-    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, Map<String, Object> provisionParameters = null, Context context = null) {
-        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, newServiceInstanceId, context, provisionParameters)
+    void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0, boolean asyncRequest = false, boolean asyncResponse = false, Map<String, Object> provisionParameters = null, Context context = null) {
+        ResponseEntity provisionResponse = requestServiceProvisioning(asyncRequest, context, provisionParameters)
         if (asyncResponse) {
             assert provisionResponse.statusCode == HttpStatus.ACCEPTED
             waitUntilMaxTimeOrTargetState(maxSecondsToAwaitInstance)
@@ -225,9 +229,9 @@ class ServiceLifeCycler {
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
-    ResponseEntity requestServiceProvisioning(boolean async, String newServiceInstanceId, CFService differentCFService, Plan differentPlan, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        def request = new CreateServiceInstanceRequest(differentCFService.guid, differentPlan.guid, 'org_id', 'space_id', context, parameters)
-        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(newServiceInstanceId).withAsyncAccepted(async))
+    ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
+        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
     ResponseEntity requestServiceProvisioning(
@@ -242,8 +246,8 @@ class ServiceLifeCycler {
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
 
-    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId = serviceInstanceId, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceToBeBoundId, context)
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceId, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
