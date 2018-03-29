@@ -9,6 +9,7 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
@@ -23,6 +24,9 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderFacade
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderRestClient
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderDeprovisionState
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderProvisionState
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderStateMachineContext
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.util.logging.Slf4j
