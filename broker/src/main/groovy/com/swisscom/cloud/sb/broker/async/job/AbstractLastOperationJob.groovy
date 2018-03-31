@@ -1,5 +1,8 @@
 package com.swisscom.cloud.sb.broker.async.job
 
+import com.swisscom.cloud.sb.broker.cfapi.converter.ErrorDtoConverter
+import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -21,6 +24,9 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
 
     @Autowired
     protected ProvisioningPersistenceService provisioningPersistenceService
+
+    @Autowired
+    protected ErrorDtoConverter errorDtoConverter
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -45,6 +51,9 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
                     lastOperationContext.notifyProgress(jobStatus.description, ((AsyncOperationResult) jobStatus).internalStatus)
                 }
             }
+        } catch (ServiceBrokerException sbe) {
+            log.warn("Job execution with id:${id} failed", sbe)
+            dequeueFailed(lastOperationContext, id, errorDtoConverter.convert(sbe))
         } catch (Exception e) {
             log.warn("Job execution with id:${id} failed", e)
             dequeueFailed(lastOperationContext, id)
@@ -54,6 +63,11 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
     protected LastOperationJobContext enrichContext(LastOperationJobContext context) { return context }
 
     protected abstract AsyncOperationResult handleJob(LastOperationJobContext context)
+
+
+    private void dequeueFailed(LastOperationJobContext lastOperationContext, String id, ErrorDto errorDto) {
+        dequeueFailed(lastOperationContext, id, errorDto.description)
+    }
 
     private void dequeueFailed(LastOperationJobContext lastOperationContext, String id, String description = null) {
         lastOperationContext.notifyFailure(description)
