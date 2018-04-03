@@ -34,7 +34,7 @@ trait ExtensionProvider{
     abstract Collection<Extension> buildExtensions()
 
     String getApi(){
-        getApi(["service-definition-controller"])
+        getApi(null)
     }
 
     String getApi(List<String> tags, String url = "http://localhost:${env.getProperty("server.port")}${env.getProperty("server.contextPath")}/v2/api-docs") {
