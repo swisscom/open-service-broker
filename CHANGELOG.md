@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+- Refactor openAPI 3.0 method
+- Fix enforce service details uniqueness in DB
+- Support lastOperation error description
 
 
 ## [2.11.0] - 2018-03-29
