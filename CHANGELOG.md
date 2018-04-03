@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.11.2] - 2018-04-03
+
+
+
 ## [2.11.1] - 2018-04-03
 - Refactor openAPI 3.0 method
 - Fix enforce service details uniqueness in DB
