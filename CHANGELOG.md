@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.11.1] - 2018-04-03
+- Refactor openAPI 3.0 method
+- Fix enforce service details uniqueness in DB
+- Support lastOperation error description
+
+
 ## [2.11.0] - 2018-03-29
 - Support Extensions [spec](https://github.com/openservicebrokerapi/servicebroker/pull/431)
 - Support mock flags

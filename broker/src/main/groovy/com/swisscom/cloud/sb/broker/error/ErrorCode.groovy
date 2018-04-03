@@ -55,6 +55,7 @@ enum ErrorCode {
     UPDATE_INCORRECT_PLAN_ID("69046", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST),
     OPERATION_IN_PROGRESS("69047", "Previous operation for this service instance is still in progress.", "SC-SB-SERVICE_OPERATION_IN_PROGRESS", UNPROCESSABLE_ENTITY),
     PLAN_UPDATE_NOT_ALLOWED("69048", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
+    INVALID_PLAN_SCHEMAS("69049", "Plan schemas invalid", "SC-SB-PLAN-SCHEMA-INVALID", HttpStatus.BAD_REQUEST),
 
     final String code
     final String errorCode

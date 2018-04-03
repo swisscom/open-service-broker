@@ -150,6 +150,7 @@ class JobManagerSpec extends BaseSpecification {
         then:
         Thread.sleep((executionIntervalInSeconds * 2) * 1000)
         lastOperationRepository.findByGuid(id).status == LastOperation.Status.FAILED
+        lastOperationRepository.findByGuid(id).description == "Something terrible happened"
         and:
         !jobManager.quartzSchedulerWithPersistence.getScheduler().checkExists(TriggerKey.triggerKey(id))
         and:

@@ -13,4 +13,6 @@ class PlanDto {
     boolean free
     Map<String, Object> metadata
     List<ParameterDto> containerParams
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    SchemasDto schemas
 }
