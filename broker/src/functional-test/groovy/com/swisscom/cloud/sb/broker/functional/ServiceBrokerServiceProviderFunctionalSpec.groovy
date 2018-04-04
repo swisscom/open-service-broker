@@ -34,11 +34,11 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         dummySyncPlan = new Plan(guid: dummySyncPlanId, name: "dummySyncServiceBrokerPlan", description: "Plan for SyncDummyServiceBroker", asyncRequired: false )
-        dummySyncService = serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, dummySyncPlan)
+        dummySyncService = serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, false, false, null, null, null, dummySyncPlan)
         serviceLifeCycler.createServiceIfDoesNotExist('dummySyncServiceProvider', ServiceProviderLookup.findInternalName(TestableServiceBrokerServiceProvider.class))
 
         dummyAsyncPlan = new Plan(guid: dummyAsyncPlanId, name: "dummyAsyncServiceBrokerPlan", description: "Plan for AsyncDummyServiceBroker", asyncRequired: true )
-        dummyAsyncService = serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class), null, null, null, 0, dummyAsyncPlan)
+        dummyAsyncService = serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class), null, null, null, 0, false, false, null, null, null, dummyAsyncPlan)
         serviceLifeCycler.createServiceIfDoesNotExist('dummyAsyncServiceProvider', ServiceProviderLookup.findInternalName(TestableServiceBrokerServiceProvider.class))
 
         serviceLifeCycler.createParameter(BASE_URL,"http://localhost:8080", serviceLifeCycler.plan)
@@ -88,13 +88,14 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.setServiceInstanceId(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS + 40, true, true, ['delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS + 30)])
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(30, DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS + 30)])
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         and:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(30, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
-        assert serviceLifeCycler.serviceInstanceRepository.findByGuid(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).completed
+        serviceLifeCycler.setServiceInstanceId(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
+        serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).state == LastOperationState.SUCCEEDED
 
         then:
         noExceptionThrown()
@@ -115,7 +116,8 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.getServiceInstanceStatus(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         and:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(30, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
+        serviceLifeCycler.setServiceInstanceId(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).state == LastOperationState.SUCCEEDED
     }
 }
