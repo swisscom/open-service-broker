@@ -35,6 +35,10 @@ class ServiceBinding extends BaseModel {
     @JsonIgnore
     ServiceInstance serviceInstance
 
+    @ManyToOne
+    @JoinColumn(name = "application_user_id")
+    ApplicationUser applicationUser
+
     @Override
     String toString() {
         return "ServiceBinding{" +

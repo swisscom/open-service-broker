@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 import javax.validation.Valid
+import java.security.Principal
 
 @Api(value = "binding", description = "Endpoint for service bindings")
 @RestController
@@ -52,7 +53,8 @@ class BindingController extends BaseController {
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
     ResponseEntity<String> bind(@PathVariable('id') String bindingId,
                                 @PathVariable('service_instance') String serviceInstanceId,
-                                @Valid @RequestBody BindRequestDto bindingDto) {
+                                @Valid @RequestBody BindRequestDto bindingDto,
+                                Principal principal) {
         log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceId}")
 
         ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
@@ -62,7 +64,7 @@ class BindingController extends BaseController {
 
         BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingDto, service, serviceInstance))
 
-        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context)
+        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
 
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }

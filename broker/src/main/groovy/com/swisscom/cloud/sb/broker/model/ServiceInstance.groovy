@@ -41,6 +41,9 @@ class ServiceInstance extends BaseModel{
     Set<ServiceInstance> childs = []
     @OneToOne
     ServiceContext serviceContext
+    @ManyToOne
+    @JoinColumn(name = "application_user_id")
+    ApplicationUser applicationUser
 
     @Override
     String toString() {
