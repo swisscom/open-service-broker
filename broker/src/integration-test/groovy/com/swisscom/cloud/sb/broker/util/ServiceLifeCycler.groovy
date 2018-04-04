@@ -155,8 +155,10 @@ class ServiceLifeCycler {
         } else {
             if (planName) {
                 plan = cfService.plans.find { it.name == planName }
+                //setPlan(plan)
             } else {
                 plan = cfService.plans.first()
+                //setPlan(plan)
             }
         }
 
@@ -169,9 +171,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
-        def serviceInstances = serviceInstanceRepository.findAll()
-        serviceInstances.each { it ->
-            serviceInstanceRepository.deleteByGuid(it.guid)
+
+        (serviceInstanceIds as String[]).reverseEach { it ->
+            serviceInstanceRepository.deleteByGuid(it)
         }
 
         if (parameters.size() > 0) {
@@ -186,23 +188,29 @@ class ServiceLifeCycler {
 
         def cfServices = cfServiceRepository.findAll()
         cfServices.each { it ->
-            def plans = it.plans.findAll()
-            plans.each { planIt ->
+            (plans as Plan[]).reverseEach { planIt ->
                 it.plans.remove(planIt)
                 it = cfServiceRepository.saveAndFlush(it)
             }
         }
 
-        def plans = planRepository.findAll()
-        plans.each { it ->
-            it.metadata.remove(planMetaData)
-            planRepository.delete(it)
+        (plans as Plan[]).reverseEach { it ->
+            deletePlan(it)
         }
 
-        def cfServicesList = cfServiceRepository.findAll()
-        cfServicesList.each { service ->
-            cfServiceRepository.delete(service)
-        }
+        /*if (serviceCreated) {
+            deletePlan()
+            cfServiceRepository.delete(cfService)
+        } else if (planCreated) {
+            deletePlan()
+        }*/
+    }
+
+    private void deletePlan(Plan plan) {
+        plan.metadata.remove(planMetaData)
+        //cfService.plans.remove(plan)
+        //cfService = cfServiceRepository.saveAndFlush(cfService)
+        planRepository.delete(plan)
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
@@ -252,20 +260,20 @@ class ServiceLifeCycler {
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, serviceInstanceId, context)
+        def bindResponse = requestBindService(bindingId, bindingParameters, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
     }
 
-    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, String serviceInstanceToBeBoundId, Context context = null) {
+    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, Context context = null) {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
         def bindResource = new BindResource('app-id', 'app-id.example.com', null)
         def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, bindResource, context, bindingParameters)
 
-        return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceToBeBoundId)
+        return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
                 .withBindingId(bindingId))
     }
 
