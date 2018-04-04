@@ -12,8 +12,18 @@ class AsyncOperationResult {
     String internalStatus
     Collection<ServiceDetail> details = []
 
-    static AsyncOperationResult of(ServiceState serviceState,Collection<ServiceDetail> details = []){
-        return new AsyncOperationResult(status: serviceState.lastOperationStatus,
-                                        internalStatus: serviceState.serviceInternalState, details:details)
+    static AsyncOperationResult of(ServiceState serviceState, Collection<ServiceDetail> details = []) {
+        return new AsyncOperationResult(
+                status: serviceState.lastOperationStatus,
+                internalStatus: serviceState.serviceInternalState,
+                details: details)
+    }
+
+    static AsyncOperationResult of(ServiceState serviceState, Collection<ServiceDetail> details = [], String description) {
+        return new AsyncOperationResult(
+                status: serviceState.lastOperationStatus,
+                internalStatus: serviceState.serviceInternalState,
+                details: details,
+                description: description)
     }
 }
