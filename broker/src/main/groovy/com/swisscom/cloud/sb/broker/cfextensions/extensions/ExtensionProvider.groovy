@@ -4,8 +4,16 @@ import com.swisscom.cloud.sb.broker.async.job.JobConfig
 import com.swisscom.cloud.sb.broker.async.job.JobManager
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
+import com.swisscom.cloud.sb.broker.config.ApplicationConfiguration
 import groovy.util.logging.Slf4j
+import io.swagger.v3.core.util.Json
+import io.swagger.v3.core.util.Yaml
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.Paths
+import io.swagger.v3.parser.OpenAPIV3Parser
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -20,23 +28,35 @@ trait ExtensionProvider{
     @Autowired
     protected JobManager jobManager
 
+    @Autowired
+    Environment env
+
     abstract Collection<Extension> buildExtensions()
 
     String getApi(){
-        RestTemplate restTemplate = new RestTemplate()
+        getApi(null)
+    }
 
-        String swaggerJson = restTemplate.getForEntity("http://localhost:8080/v2/api-docs", String.class).body
+    String getApi(List<String> tags, String url = "http://localhost:${env.getProperty("server.port")}${env.getProperty("server.contextPath")}/v2/api-docs") {
+        OpenAPI openAPI = new OpenAPIV3Parser().read(url)
+        if (tags) {
+            openAPI.setPaths(filterPathsByTags(openAPI, tags))
+        }
+        Json.pretty(openAPI)
+    }
 
-        HttpHeaders headers = new HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED)
-
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>()
-        map.add("source", swaggerJson)
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers)
-        ResponseEntity<String> response = restTemplate.postForEntity( "https://mermade.org.uk/openapi-converter/api/v1/convert", request , String.class )
-
-        return response.body - "<html><body><pre>"
+    private Paths filterPathsByTags(OpenAPI openAPI, List<String> tags) {
+        Paths pathsToReturn = new Paths()
+        for (path in openAPI.getPaths()) {
+            for (def operation : path.getValue().readOperations()) {
+                for (String tag : tags) {
+                    if (operation.getTags().contains(tag)) {
+                        pathsToReturn.addPathItem(path.getKey(), path.getValue())
+                    }
+                }
+            }
+        }
+        pathsToReturn
     }
 
     //The following methods are required for asynchronous extensions.

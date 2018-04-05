@@ -99,15 +99,16 @@ class ProvisioningPersistenceService {
         return updateServiceDetails(provisionResponse.details, instance)
     }
 
-    ServiceInstance updateServiceDetails(
-            final Collection<ServiceDetail> details, final ServiceInstance instance) {
+    ServiceInstance updateServiceDetails(final Collection<ServiceDetail> details, final ServiceInstance instance) {
         details?.each {
             ServiceDetail detail ->
                 if (detail.isUniqueKey()) {
                     removeExistingServiceDetailsForKey(detail, instance)
                 }
                 serviceDetailRepository.save(detail)
-                instance.details.add(detail)
+
+                if (!instance.details.any { d -> d == detail })
+                    instance.details.add(detail)
         }
         serviceInstanceRepository.save(instance)
     }

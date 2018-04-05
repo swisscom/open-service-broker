@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.async.job
 
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 
@@ -11,6 +12,6 @@ public class ExceptionThrowingJob extends AbstractLastOperationJob {
     @Override
     public AsyncOperationResult handleJob(LastOperationJobContext context) {
         ExecutionCount.incrementAndGet()
-        throw new RuntimeException('Something terrible happened')
+        throw new ServiceBrokerException('Something terrible happened')
     }
 }
