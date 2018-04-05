@@ -155,10 +155,8 @@ class ServiceLifeCycler {
         } else {
             if (planName) {
                 plan = cfService.plans.find { it.name == planName }
-                //setPlan(plan)
             } else {
                 plan = cfService.plans.first()
-                //setPlan(plan)
             }
         }
 
