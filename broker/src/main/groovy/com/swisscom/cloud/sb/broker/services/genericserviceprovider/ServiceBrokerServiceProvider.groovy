@@ -6,14 +6,19 @@ import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointLookup
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
@@ -33,8 +38,10 @@ import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
@@ -47,12 +54,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
-@Component("serviceBrokerServiceProvider")
+@Component("ServiceBrokerServiceProvider")
 @Slf4j
-class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner {
-
-    @Autowired
-    AsyncProvisioningService asyncProvisioningService
+class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
 
     @Autowired
     ServiceBrokerServiceProviderFacade sbspFacade
@@ -61,7 +65,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     ServiceBrokerServiceProviderRestClient sbspRestClient
 
     @Autowired
-    ServiceBrokerServiceProviderConfig serviceBrokerServiceProviderConfig
+    ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage
 
     private final static String BASE_URL = "baseUrl"
     private final static String USERNAME = "username"
@@ -73,14 +77,13 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     ServiceBrokerServiceProvider() {}
 
-    //@Autowired
+
     ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient) {
         this.serviceBrokerClient = serviceBrokerClient
     }
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        // else exception is thrown
         if (request.plan.asyncRequired) {
             super.provision(request)
         } else {
@@ -258,6 +261,16 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         return deprovisionState
     }
 
+    @Override
+    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
+        // TODO Do we need to add enddate to the IServiceBrokerExtended findUsage method? Or is it superfluous in the ServiceUsageProvider?
+        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance)
+    }
+
+    @Override
+    Collection<Extension> buildExtensions() {
+        return [new Extension("discovery_url": "discoveryURL")]
+    }
 
     public class CustomServiceBrokerServiceProviderProvisioningErrorHandler extends DefaultResponseErrorHandler {
         @Override
