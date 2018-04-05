@@ -5,12 +5,10 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.UpdateRequest
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
@@ -31,6 +29,7 @@ import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
@@ -43,8 +42,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
-
-@Component("serviceBrokerServiceProvider")
+@Component("ServiceBrokerServiceProvider")
 @Slf4j
 class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
 
