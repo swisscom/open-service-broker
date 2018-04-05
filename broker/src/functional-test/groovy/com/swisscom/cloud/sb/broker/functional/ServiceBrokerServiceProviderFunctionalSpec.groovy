@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -9,6 +10,7 @@ import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
@@ -67,6 +69,25 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
+    def "provision same sync service instance as above for conflict"() {
+        given:
+        serviceLifeCycler.setAsyncRequestInPlan(false)
+        serviceLifeCycler.createParameter(SERVICE_ID, dummySyncService.guid, serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter(PLAN_ID, dummySyncPlan.guid, serviceLifeCycler.plan)
+
+        when:
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
+
+        then:
+        HttpClientErrorException e = thrown()
+        e.statusCode == HttpStatus.CONFLICT
+
+        cleanup:
+        //for cleanup the id of the service instance provisioned via the sbsp needs to be added to the set of serviceInstanceIds
+        serviceLifeCycler.setServiceInstanceId(DUMMY_SYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+
+    }
+
     def "unbind and deprovision sync service instance"() {
         given:
         serviceLifeCycler.setAsyncRequestInPlan(false)
@@ -88,7 +109,7 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.setServiceInstanceId(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS + 30)])
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS)])
         serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
@@ -119,5 +140,21 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
         serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).state == LastOperationState.SUCCEEDED
+    }
+
+    def "failing provision of async service instance"() {
+        given:
+        serviceLifeCycler.setAsyncRequestInPlan(true)
+        serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
+        serviceLifeCycler.createParameter(SERVICE_ID, dummyAsyncService.guid, serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter(PLAN_ID, dummyAsyncPlan.guid, serviceLifeCycler.plan)
+
+        when:
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['success': false])
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50)
+        assert serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.FAILED
+
+        then:
+        noExceptionThrown()
     }
 }
