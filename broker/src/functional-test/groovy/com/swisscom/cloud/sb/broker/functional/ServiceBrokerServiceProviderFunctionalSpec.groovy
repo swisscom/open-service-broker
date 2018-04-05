@@ -6,7 +6,6 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.TestableServiceBrokerServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
-import org.springframework.http.HttpStatus
 
 class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
