@@ -147,10 +147,8 @@ class ServiceLifeCycler {
         } else {
             if (planName) {
                 plan = cfService.plans.find { it.name == planName }
-                //setPlan(plan)
             } else {
                 plan = cfService.plans.first()
-                //setPlan(plan)
             }
         }
 
@@ -372,7 +370,7 @@ class ServiceLifeCycler {
             for (
                     def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
-                if (timeUntilForcedExecution % 10 == 0) {
+                if (timeUntilForcedExecution % 15 == 0) {
                     LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).getBody().state
                     if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
                         return
