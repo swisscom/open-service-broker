@@ -1,4 +1,7 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 
-class ServiceBrokerServiceProviderUsageSpec {
+import spock.lang.Specification
+
+class ServiceBrokerServiceProviderUsageSpec extends Specification {
+
 }
