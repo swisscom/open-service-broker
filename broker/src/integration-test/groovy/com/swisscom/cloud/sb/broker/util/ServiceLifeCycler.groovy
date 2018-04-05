@@ -190,19 +190,10 @@ class ServiceLifeCycler {
         (plans as Plan[]).reverseEach { it ->
             deletePlan(it)
         }
-
-        /*if (serviceCreated) {
-            deletePlan()
-            cfServiceRepository.delete(cfService)
-        } else if (planCreated) {
-            deletePlan()
-        }*/
     }
 
     private void deletePlan(Plan plan) {
         plan.metadata.remove(planMetaData)
-        //cfService.plans.remove(plan)
-        //cfService = cfServiceRepository.saveAndFlush(cfService)
         planRepository.delete(plan)
     }
 
