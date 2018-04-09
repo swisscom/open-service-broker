@@ -56,6 +56,8 @@ enum ErrorCode {
     OPERATION_IN_PROGRESS("69047", "Previous operation for this service instance is still in progress.", "SC-SB-SERVICE_OPERATION_IN_PROGRESS", UNPROCESSABLE_ENTITY),
     PLAN_UPDATE_NOT_ALLOWED("69048", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
     INVALID_PLAN_SCHEMAS("69049", "Plan schemas invalid", "SC-SB-PLAN-SCHEMA-INVALID", HttpStatus.BAD_REQUEST),
+    SERVICEPROVIDER_INCORRECT_PARAMETERS("69050", "ServiceProvider detected wrong Parameters", "SC-SB-SERVICEPROVIDER-PARAMETERS", HttpStatus.BAD_REQUEST),
+    SERVICEPROVIDER_INTERNAL_ERROR("69051", "Serviceprovider for the selected Plan encountered an Error", "SC-SB-SERVICEPROVIDER-INTERNAL", HttpStatus.INTERNAL_SERVER_ERROR)
 
     final String code
     final String errorCode
