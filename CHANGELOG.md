@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.11.4] - 2018-04-09
+- Rename parameter parentReference to parent_reference
+
 ## [2.11.3] - 2018-04-09
 - Support Service update
 - Add child and parent references for service instance
