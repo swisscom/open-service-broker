@@ -26,10 +26,11 @@ class LastOperation extends BaseModel{
     Status status
 
     String description
+    @Description("Statemachine State")
     String internalState
 
     @Override
-    public String toString() {
+    String toString() {
         return "LastOperation{" +
                 "id=" + id +
                 ", guid='" + guid + '\'' +
@@ -38,7 +39,7 @@ class LastOperation extends BaseModel{
                 ", status=" + status +
                 ", description='" + description + '\'' +
                 ", internalState='" + internalState + '\'' +
-                '}';
+                '}'
     }
 
     static enum Status {
@@ -51,8 +52,8 @@ class LastOperation extends BaseModel{
         Status(String status) { this.status = status }
 
         @Override
-        public String toString() {
-            return status;
+        String toString() {
+            return status
         }
     }
 
@@ -68,8 +69,8 @@ class LastOperation extends BaseModel{
         }
 
         @Override
-        public String toString() {
-            return action;
+        String toString() {
+            return action
         }
     }
 }
