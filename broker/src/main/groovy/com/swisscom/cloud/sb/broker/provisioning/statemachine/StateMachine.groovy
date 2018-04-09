@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class StateMachine {
-    private final List stateList = new ArrayList<ServiceStateWithAction>()
+    private final List<ServiceStateWithAction> stateList = new ArrayList<ServiceStateWithAction>()
     private ServiceStateWithAction currentState
 
     StateMachine(List<? extends ServiceStateWithAction> states) {
@@ -18,7 +18,7 @@ class StateMachine {
         return this
     }
 
-    synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState,StateMachineContext context){
+    synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState, StateMachineContext context) {
         Preconditions.checkNotNull(serviceState,'ServiceState can not be null')
         Preconditions.checkArgument(states.contains(serviceState),"Invalid state:${serviceState.toString()}")
         currentState = serviceState
@@ -26,15 +26,18 @@ class StateMachine {
         return currentState.triggerAction(context)
     }
 
-    synchronized ServiceState nextState(ServiceStateWithAction state) {
-        Iterator<ServiceState> it = stateList.iterator()
+    synchronized ServiceStateWithAction nextState(ServiceStateWithAction state) {
+        Iterator<ServiceStateWithAction> it = stateList.iterator()
         while (it.hasNext()) {
             ServiceState current = it.next()
             if (current == state) {
-                if(!it.hasNext()){throw new RuntimeException("Current state:${current.toString()} is the final state!")}
+                if (!it.hasNext())
+                    throw new RuntimeException("Current state:${current.toString()} is the final state!")
                 return it.next()
             }
         }
+
+        throw new RuntimeException("StateMachine is in invalid State.")
     }
 
     StateMachine addAllFromStateMachine(StateMachine stateMachine) {
@@ -51,7 +54,7 @@ class StateMachine {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return "StateMachine{" + "stateList=" + stateList.join(',') + '}'
     }
 }

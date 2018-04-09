@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @CompileStatic
 @Transactional
 @Slf4j
-public abstract class AbstractLastOperationJob extends AbstractJob {
+abstract class AbstractLastOperationJob extends AbstractJob {
     @Autowired
     protected LastOperationJobContextService lastOperationContextService
 
@@ -29,13 +29,13 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
     protected ErrorDtoConverter errorDtoConverter
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
         log.info("Executing job with id:${id}")
         LastOperationJobContext lastOperationContext = null
         try {
             lastOperationContext = enrichContext(lastOperationContextService.loadContext(id))
-            def jobStatus = handleJob(lastOperationContext)
+            AsyncOperationResult jobStatus = handleJob(lastOperationContext)
             if (jobStatus.status == LastOperation.Status.SUCCESS) {
                 log.warn("Successfully finished job with id:${id}")
                 lastOperationContext.notifySuccess(jobStatus.description)
@@ -48,7 +48,7 @@ public abstract class AbstractLastOperationJob extends AbstractJob {
                     log.warn("Giving up on job with id:${id}")
                     dequeueFailed(lastOperationContext, id)
                 } else {
-                    lastOperationContext.notifyProgress(jobStatus.description, ((AsyncOperationResult) jobStatus).internalStatus)
+                    lastOperationContext.notifyProgress(jobStatus.description, jobStatus.internalStatus)
                 }
             }
         } catch (ServiceBrokerException sbe) {

@@ -3,20 +3,23 @@ package com.swisscom.cloud.sb.broker.services
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointLookup
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointProvider
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
-import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
+import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
+import com.swisscom.cloud.sb.broker.provisioning.job.*
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.Utils
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -24,7 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired
 
 @CompileStatic
 @Slf4j
-abstract class AsyncServiceProvider<T extends AsyncServiceConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, EndpointProvider {
+abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
+        implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider {
 
     @Autowired
     protected AsyncProvisioningService asyncProvisioningService
@@ -51,6 +55,19 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig> implements Ser
         asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
                 serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
         return new DeprovisionResponse(isAsync: true)
+    }
+
+    @Override
+    UpdateResponse update(UpdateRequest request) {
+        asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceUpdateJob.class, request, request.serviceInstanceGuid,
+                serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
+        return new UpdateResponse(isAsync: true)
+    }
+
+    @Override
+    AsyncOperationResult requestUpdate(LastOperationJobContext context) {
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+        return null
     }
 
     @Override
