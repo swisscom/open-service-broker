@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.backup
 
-import com.swisscom.cloud.sb.broker.backup.shield.dto.JobStatus
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -51,9 +51,9 @@ trait BackupRestoreProvider extends BackupOnShield {
         shieldClient.deleteJobsAndBackups(serviceInstance.guid)
     }
 
-    public static Backup.Status convertBackupStatus(JobStatus status) {
+    static Backup.Status convertBackupStatus(JobStatus status) {
         switch (status) {
-            case JobStatus.FINISHED:
+            case JobStatus.SUCCESSFUL:
                 return Backup.Status.SUCCESS
             case JobStatus.FAILED:
                 return Backup.Status.FAILED

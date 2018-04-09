@@ -1,10 +1,14 @@
 package com.swisscom.cloud.sb.broker.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.swisscom.cloud.sb.broker.model.Parameter
 import org.hibernate.validator.constraints.NotBlank
 
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 
 @Entity
 class Plan extends BaseModel{
@@ -36,4 +40,8 @@ class Plan extends BaseModel{
     @JoinColumn(name="service_id")
     @JsonIgnore
     CFService service
+
+    String serviceInstanceCreateSchema
+    String serviceInstanceUpdateSchema
+    String serviceBindingCreateSchema
 }

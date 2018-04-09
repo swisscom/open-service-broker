@@ -2,10 +2,12 @@ package com.swisscom.cloud.sb.broker.util.test
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
+import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
@@ -63,5 +65,10 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         Date date = enddate.present ? enddate.get() : new Date()
         return new ServiceUsage(type: ServiceUsageType.TRANSACTIONS, value: "${date.time}", enddate: date)
+    }
+
+    @Override
+    Collection<Extension> buildExtensions(){
+        return [new Extension("discovery_url": "discoveryURL")]
     }
 }

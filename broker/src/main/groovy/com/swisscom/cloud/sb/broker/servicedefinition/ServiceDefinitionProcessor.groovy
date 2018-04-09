@@ -4,11 +4,26 @@ import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
+import com.swisscom.cloud.sb.broker.model.CFServicePermission
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
+import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
+import com.swisscom.cloud.sb.broker.model.repository.CFServicePermissionRepository
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.ServiceDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.JsonHelper
+import com.swisscom.cloud.sb.broker.util.JsonSchemaHelper
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -247,8 +262,28 @@ class ServiceDefinitionProcessor {
         plan.serviceProviderClass = planJson.serviceProviderClass
         plan.asyncRequired = planJson.asyncRequired
         plan.maxBackups = planJson.maxBackups
+
+        validateJsonSchema(planJson.schemas?.service_instance?.create?.parameters, 'ServiceInstanceCreate')
+        validateJsonSchema(planJson.schemas?.service_instance?.update?.parameters, 'ServiceInstanceUpdate')
+        validateJsonSchema(planJson.schemas?.service_binding?.create?.parameters, 'ServiceBindingCreate')
+
+        plan.serviceInstanceCreateSchema = JsonHelper.toJsonString(planJson.schemas?.service_instance?.create?.parameters)
+        plan.serviceInstanceUpdateSchema = JsonHelper.toJsonString(planJson.schemas?.service_instance?.update?.parameters)
+        plan.serviceBindingCreateSchema = JsonHelper.toJsonString(planJson.schemas?.service_binding?.create?.parameters)
+
         checkBackupSanity(service, plan)
         return planRepository.save(plan)
+    }
+
+    private def validateJsonSchema(Object o, String schemaName) {
+        def json = JsonHelper.toJsonString(o)
+        if (json) {
+            def validationMessages = JsonSchemaHelper.validateJson(json)
+            if (!validationMessages.isEmpty()) {
+                log.error("Invalid schema for ${schemaName}: " + JsonHelper.toJsonString(validationMessages))
+                ErrorCode.INVALID_PLAN_SCHEMAS.throwNew()
+            }
+        }
     }
 
     private def checkBackupSanity(CFService cfService, Plan plan) {

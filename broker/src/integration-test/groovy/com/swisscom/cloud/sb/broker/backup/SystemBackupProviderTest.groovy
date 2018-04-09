@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.backup
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisShieldTarget
 import spock.lang.IgnoreIf
@@ -47,5 +48,9 @@ class SystemBackupProviderTest extends BaseSpecification implements SystemBackup
     @Override
     String shieldAgentUrl(ServiceInstance serviceInstance) {
         "localhost:1234"
+    }
+
+    Collection<Extension> buildExtensions(){
+
     }
 }

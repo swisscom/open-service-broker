@@ -22,7 +22,9 @@ ext['flyway.version'] = '4.0.3'
 apply plugin: 'org.springframework.boot'
 
 processResources {
-    expand(project.properties)
+    filesMatching("*.properties") {
+        expand(project.properties)
+    }
 }
 
 
@@ -36,6 +38,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-jdbc')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-devtools')
     compile('org.springframework.cloud:spring-cloud-cloudfoundry-connector')
     compile('org.codehaus.groovy:groovy-all:2.4.7')
     compile('com.google.guava:guava:20.0')
@@ -52,6 +55,8 @@ dependencies {
     compile('org.pacesys:openstack4j-core:2.20')
     compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
     compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: '1.46'
+    compile 'com.networknt:json-schema-validator:0.1.17'
+    compile('io.swagger.parser.v3:swagger-parser:2.0.0-rc3')
     compile project(':model')
     compile project(':client')
     // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.

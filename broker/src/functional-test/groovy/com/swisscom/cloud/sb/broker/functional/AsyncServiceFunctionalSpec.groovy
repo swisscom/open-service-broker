@@ -76,7 +76,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
 
-
     def "provision async service instance with parent reference"() {
         given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
@@ -173,13 +172,14 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(processDelayInSeconds)])
         def serviceInstance = serviceBrokerClient.getServiceInstance(serviceInstanceGuid)
 
         then:
         serviceInstance != null
         def instanceResponse = serviceInstance.getBody()
         instanceResponse.serviceId == serviceLifeCycler.cfService.guid
+        instanceResponse.parameters == "{\"delay\":\"${String.valueOf(processDelayInSeconds)}\"}"
     }
 
     void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
