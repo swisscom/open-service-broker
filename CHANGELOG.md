@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.11.5] - 2018-04-10
+- Fix childs reference
+
 ## [2.11.4] - 2018-04-09
 - Rename parameter parentReference to parent_reference
 
