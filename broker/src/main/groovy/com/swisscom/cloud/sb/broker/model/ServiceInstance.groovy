@@ -37,7 +37,7 @@ class ServiceInstance extends BaseModel{
     @ManyToOne
     @JoinColumn(name = "parent_service_instance_id")
     ServiceInstance parentServiceInstance
-    @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parentServiceInstance", fetch = FetchType.EAGER)
     Set<ServiceInstance> childs = []
     @OneToOne
     ServiceContext serviceContext
