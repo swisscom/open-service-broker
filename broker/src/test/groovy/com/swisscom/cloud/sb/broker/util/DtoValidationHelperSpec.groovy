@@ -33,7 +33,6 @@ enum NotNullClassEnum {
     }
 }
 
-@CompileStatic
 class ValidationTest {
     @Size(min = 2, max = 5)
     Integer[] arrayTest = [1, 2, 3]
@@ -101,8 +100,7 @@ class DtoValidationHelperSpec extends Specification {
         noExceptionThrown()
     }
 
-    void "Validation for Range is okay"()
-    {
+    void "Validation for Range is okay"() {
         given:
         def json = '{"arrayTest":[1,2,3,4],"rangeTest":50}'
 
@@ -113,8 +111,7 @@ class DtoValidationHelperSpec extends Specification {
         noExceptionThrown()
     }
 
-    void "Validation for Range is throws if the few elements are present"()
-    {
+    void "Validation for Range is throws if the few elements are present"() {
         given:
         def json = '{"arrayTest":[1],"rangeTest":50}'
 
@@ -125,8 +122,7 @@ class DtoValidationHelperSpec extends Specification {
         thrown(ServiceBrokerException)
     }
 
-    void "Validation for Range is doesn't throw if is null"()
-    {
+    void "Validation for Range is doesn't throw if is null"() {
         given:
         def json = '{"arrayTest":null,"rangeTest":50}'
 
