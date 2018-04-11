@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Added dto validation helper class for serviceproviders
+- Fixed issue that not all flags were correctly returned in the catalog (*bindable)
 
 ## [2.11.5] - 2018-04-10
 - Fix childs reference
