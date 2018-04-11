@@ -66,7 +66,7 @@ class ProvisioningPersistenceService {
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
         ServiceInstance parentInstance = null
-        if (!provisionRequest.parameters || !provisionRequest.parameters.contains("parentReference"))
+        if (!provisionRequest.parameters || !provisionRequest.parameters.contains("parent_reference"))
             return parentInstance;
 
         parentInstance = findParentServiceInstance(provisionRequest.parameters)
@@ -90,7 +90,7 @@ class ProvisioningPersistenceService {
         ServiceInstance parentInstance = null
         def jsonSlurper = new JsonSlurper()
         def parametersMap = jsonSlurper.parseText(parameters) as Map
-        def parentReference = parametersMap?.parentReference as String
+        def parentReference = parametersMap?.parent_reference as String
         if (parentReference) {
             parentInstance = serviceInstanceRepository.findByGuid(parentReference)
         }
@@ -104,15 +104,16 @@ class ProvisioningPersistenceService {
         return updateServiceDetails(provisionResponse.details, instance)
     }
 
-    ServiceInstance updateServiceDetails(
-            final Collection<ServiceDetail> details, final ServiceInstance instance) {
+    ServiceInstance updateServiceDetails(final Collection<ServiceDetail> details, final ServiceInstance instance) {
         details?.each {
             ServiceDetail detail ->
                 if (detail.isUniqueKey()) {
                     removeExistingServiceDetailsForKey(detail, instance)
                 }
                 serviceDetailRepository.save(detail)
-                instance.details.add(detail)
+
+                if (!instance.details.any { d -> d == detail })
+                    instance.details.add(detail)
         }
         serviceInstanceRepository.save(instance)
     }

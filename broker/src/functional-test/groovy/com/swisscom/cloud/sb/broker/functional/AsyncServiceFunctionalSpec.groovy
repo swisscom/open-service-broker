@@ -89,7 +89,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         when:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parentReference': this.parentServiceInstanceGuid])
+                ['delay': String.valueOf(processDelayInSeconds), 'parent_reference': this.parentServiceInstanceGuid])
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
 
@@ -106,7 +106,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parentReference': 'service-instance-xxx'])
+                ['delay': String.valueOf(processDelayInSeconds), 'parent_reference': 'service-instance-xxx'])
 
         then:
         def ex = thrown(HttpClientErrorException)

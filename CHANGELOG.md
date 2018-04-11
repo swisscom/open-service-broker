@@ -5,8 +5,27 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Added dto validation helper class for serviceproviders
 
+## [2.11.5] - 2018-04-10
+- Fix childs reference
 
+## [2.11.4] - 2018-04-09
+- Rename parameter parentReference to parent_reference
+
+## [2.11.3] - 2018-04-09
+- Support Service update
+- Add child and parent references for service instance
+- Support updating service bindings
+- Support generic Service Provider error codes
+- Increase size of last_operation description field
+
+## [2.11.2] - 2018-04-03
+
+## [2.11.1] - 2018-04-03
+- Refactor openAPI 3.0 method
+- Fix enforce service details uniqueness in DB
+- Support lastOperation error description
 
 ## [2.11.0] - 2018-03-29
 - Support Extensions [spec](https://github.com/openservicebrokerapi/servicebroker/pull/431)

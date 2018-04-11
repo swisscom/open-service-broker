@@ -82,7 +82,7 @@ class ProvisioningController extends BaseController {
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
-        if (StringUtils.contains(request.parameters, "parentReference") &&
+        if (StringUtils.contains(request.parameters, "parent_reference") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
             ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
         }

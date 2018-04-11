@@ -55,7 +55,18 @@ class ServiceBindingPersistenceService {
         return serviceBinding
     }
 
-    public void delete(ServiceBinding serviceBinding, ServiceInstance serviceInstance) {
+    ServiceBinding update(ServiceBinding serviceBinding) {
+        serviceBindingRepository.save(serviceBinding)
+        serviceBinding.details?.each {
+            ServiceDetail detail ->
+                serviceDetailRepository.save(detail)
+        }
+        serviceBindingRepository.save(serviceBinding)
+        return serviceBinding
+    }
+
+
+    void delete(ServiceBinding serviceBinding, ServiceInstance serviceInstance) {
         ServiceInstance serviceInstance_new = serviceInstanceRepository.merge(serviceInstance)
         serviceInstance_new.bindings.remove(serviceBinding)
         serviceInstanceRepository.save(serviceInstance_new)
@@ -68,4 +79,6 @@ class ServiceBindingPersistenceService {
         }
         serviceBindingRepository.delete(serviceBinding_new)
     }
+
+
 }

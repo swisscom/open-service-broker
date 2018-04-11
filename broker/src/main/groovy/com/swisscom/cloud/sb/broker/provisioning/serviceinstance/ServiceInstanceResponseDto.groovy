@@ -25,4 +25,10 @@ class ServiceInstanceResponseDto {
     @JsonSerialize
     @JsonProperty("details")
     def details = [:]
+    @JsonSerialize
+    @JsonProperty("parent_reference")
+    String parentServiceInstance
+    @JsonSerialize
+    @JsonProperty("child_instances")
+    def childInstances = [:]
 }
