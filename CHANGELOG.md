@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [2.11.6] - 2018-04-11
 - Add dto validation helper class for serviceproviders
 - Support Openshift deployment
 - Improve Service Binding fetch response
