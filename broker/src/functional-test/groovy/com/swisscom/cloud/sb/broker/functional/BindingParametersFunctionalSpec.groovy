@@ -64,6 +64,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
         bindingResponse != null
         bindingResponse.body.credentials != null
+        bindingResponse.body.parameters != null
     }
 
 

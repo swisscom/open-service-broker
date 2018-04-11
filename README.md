@@ -74,6 +74,9 @@ or
 At the time being, Service Broker is recommended to run with only one instance to avoid concurrency issues.
 This issue will be fixed soon.
 
+### Openshift Deployment
+For installing Service Broker on Openshift, use the *openshift-deploy.sh* script. This script creates a new MariaDB instance and provisions a new Service Broker instance & configures SB to use the newly created DB.
+
 ### IDE/IntelliJ
 When importing this project into IntelliJ, select the "create separate module per source set option".
 ![Intelli import](./img/intellij_import.png)

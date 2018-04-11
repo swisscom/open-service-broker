@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.11.6] - 2018-04-11
+- Add dto validation helper class for serviceproviders
+- Support Openshift deployment
+- Improve Service Binding fetch response
+
 ## [2.11.5] - 2018-04-10
 - Fix childs reference
 
