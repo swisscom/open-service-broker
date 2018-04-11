@@ -78,6 +78,17 @@ class DtoValidationHelperSpec extends Specification {
         def ex = thrown(ServiceBrokerException)
     }
 
+    void "Validation is okay if a not mandatory field is omitted"() {
+        given:
+        def json = '{"notEmpty":"NotEmpty"}'
+
+        when:
+        def result = DtoValidationHelper.deserializeAndValidate(json, NotNullClass.class)
+
+        then:
+        noExceptionThrown()
+    }
+
     void "Validation throws a ServiceProvider exception if enum has wrong value"() {
         given:
         def json = '{"notEmpty":"NotEmpty", "specificValue":"invalid"}'
@@ -87,6 +98,7 @@ class DtoValidationHelperSpec extends Specification {
 
         then:
         def ex = thrown(ServiceBrokerException)
+        ex.message.contains("specificValue")
     }
 
     void "Validation is okay if DTO is complex and okay"() {
