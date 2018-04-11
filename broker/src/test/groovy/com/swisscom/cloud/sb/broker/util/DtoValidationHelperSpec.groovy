@@ -1,14 +1,15 @@
 package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import org.hibernate.validator.constraints.Range
+import groovy.transform.CompileStatic
 import spock.lang.Specification
 
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
-
+import javax.validation.constraints.Size
 
 class NotNullClass {
-    NotNullClass() {}
 
     Integer numberRange
     String mayBeEmpty
@@ -32,6 +33,15 @@ enum NotNullClassEnum {
     }
 }
 
+@CompileStatic
+class ValidationTest {
+    @Size(min = 2, max = 5)
+    Integer[] arrayTest = [1, 2, 3]
+
+    // Range not supported because groovy doesn't handle long/int conversion correctly
+    // @Range(min = 10, max = 100)
+    Integer rangeTest = 50
+}
 
 class DtoValidationHelperSpec extends Specification {
 
@@ -89,6 +99,41 @@ class DtoValidationHelperSpec extends Specification {
 
         then:
         noExceptionThrown()
+    }
 
+    void "Validation for Range is okay"()
+    {
+        given:
+        def json = '{"arrayTest":[1,2,3,4],"rangeTest":50}'
+
+        when:
+        def result = DtoValidationHelper.deserializeAndValidate(json, ValidationTest.class)
+
+        then:
+        noExceptionThrown()
+    }
+
+    void "Validation for Range is throws if the few elements are present"()
+    {
+        given:
+        def json = '{"arrayTest":[1],"rangeTest":50}'
+
+        when:
+        def result = DtoValidationHelper.deserializeAndValidate(json, ValidationTest.class)
+
+        then:
+        thrown(ServiceBrokerException)
+    }
+
+    void "Validation for Range is doesn't throw if is null"()
+    {
+        given:
+        def json = '{"arrayTest":null,"rangeTest":50}'
+
+        when:
+        def result = DtoValidationHelper.deserializeAndValidate(json, ValidationTest.class)
+
+        then:
+        noExceptionThrown()
     }
 }
