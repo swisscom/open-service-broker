@@ -23,13 +23,16 @@ class CFServiceDtoConverter extends AbstractGenericConverter<CFService, CFServic
         prototype.id = source.guid
         prototype.name = source.name
         prototype.description = source.description
-        prototype.bindable = source.bindable
         prototype.metadata = convertMetadata(source)
         prototype.plans = planDtoConverter.convertAll(source.plans.sort { it.displayIndex })
         prototype.tags = source.tags.collect { Tag t -> t.tag }
         prototype.requires = source.permissions.collect { CFServicePermission p -> p.permission }
         prototype.dashboard_client = dashboardClientDtoConverter.convert(source)
+
+        prototype.bindable = source.bindable
         prototype.plan_updateable = source.plan_updateable
+        prototype.bindingsRetrievable = source.bindingsRetrievable
+        prototype.instancesRetrievable = source.instancesRetrievable
     }
 
     private Map<String, Object> convertMetadata(CFService service) {
