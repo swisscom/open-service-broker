@@ -1,7 +1,9 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
+import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
@@ -17,12 +19,14 @@ class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
     protected RestTemplateBuilder restTemplateBuilder
+    protected BackupPersistenceService backupPersistenceService
 
     @Autowired
-    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder) {
+    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, RestTemplateBuilder restTemplateBuilder, BackupPersistenceService backupPersistenceService) {
         this.shieldConfig = shieldConfig
         this.shieldRestClientFactory = shieldRestClientFactory
         this.restTemplateBuilder = restTemplateBuilder
+        this.backupPersistenceService = backupPersistenceService
     }
 
     String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
@@ -47,14 +51,30 @@ class ShieldClient {
         deleteTargetIfExisting(targetName)
     }
 
-    JobStatus getJobStatus(String taskUuid) {
+    def deleteTask(String taskUuid) {
+        buildClient().deleteTaskByUuid(taskUuid)
+    }
+
+    JobStatus getJobStatus(String taskUuid, Backup backup = null) {
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         if (task.statusParsed.isRunning()) {
             return JobStatus.RUNNING
         }
         if (task.statusParsed.isFailed()) {
             log.warn("Shield task failed: ${task}")
-            return JobStatus.FAILED
+            if (task.typeParsed.isBackup()){
+                if (backup.retryBackupCount < shieldConfig.maxRetryBackup){
+                    log.info("Retrying backup count: ${backup.retryBackupCount + 1}")
+                    backup.retryBackupCount++
+                    backup.externalId = buildClient().runJob(task.job_uuid)
+                    backupPersistenceService.saveBackup(backup)
+                    return JobStatus.RUNNING
+                } else {
+                    return JobStatus.FAILED
+                }
+            } else {
+                return JobStatus.FAILED
+            }
         }
         if (task.statusParsed.isDone()) {
             if (task.typeParsed.isBackup()) {

@@ -11,4 +11,5 @@ class ShieldConfig implements Config {
     String apiKey
     String jobPrefix
     String targetPrefix
+    int maxRetryBackup
 }

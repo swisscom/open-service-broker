@@ -13,6 +13,9 @@ class Backup extends BaseModel{
 
     String serviceInstanceGuid
 
+    @Column(columnDefinition='tinyint(1) default 0', nullable = false)
+    int retryBackupCount
+
     @Column(unique = true)
     String externalId
     @OneToOne

@@ -1,7 +1,9 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
@@ -26,12 +28,15 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     ServiceInstanceRepository serviceInstanceRepository
 
+    @Autowired
+    BackupPersistenceService backupPersistenceService
+
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('redis-kubernetes-functional-test', findInternalName(KubernetesRedisServiceProvider),
                 'redis', null, null, 1)
 
         serviceLifeCycler.createParameter('PLAN_ID', 'redis.small', serviceLifeCycler.plan)
-        serviceLifeCycler.createParameter('REDIS_DISK_QUOTA', '128Mi', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('DISK_QUOTA', '128Mi', serviceLifeCycler.plan)
 
         serviceLifeCycler.createParameter('REDIS_INIT_CPU_REQUEST', '8m', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('REDIS_INIT_MEM_REQUEST', '82Mi', serviceLifeCycler.plan)
@@ -78,15 +83,27 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
     }
 
-    def "Create redis instance and create backup"() {
+    def "Create redis instance, create backup, cancel backup to try out retry, and restore"() {
         when:
-            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(300, true, true)
+            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1000, true, true)
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
             def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
             def jobName = shieldClient.getJobName(jobUuid)
-
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
             serviceLifeCycler.setBackupId(createBU.id)
+            Backup backup = backupPersistenceService.findBackupByGuid(createBU.id)
+            def backupCount = 0
+            while(backup.externalId == null){
+                println("Retrying to get backup externalId attempt number ${backupCount + 1}")
+                serviceLifeCycler.pauseExecution(5)
+                backup = backupPersistenceService.findBackupByGuid(createBU.id)
+                backupCount++
+                if (backupCount == 15) {
+                    throw new Exception("backup get externalId count exceeded")
+                }
+            }
+
+            shieldClient.deleteTask(backup.externalId)
 
             pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_SUCCEEDED, BackupStatus.CREATE_FAILED)
 
