@@ -17,6 +17,7 @@ class ServiceInstanceBindingDtoConverter extends AbstractGenericConverter<Servic
         Object credentials = new JsonSlurper().parseText(source.credentials).credentials
         prototype.credentials = new JsonBuilder(credentials).toString()
         prototype.parameters = source.parameters
+        prototype.details = source.details
         prototype.routeServiceUrl = null
         prototype.syslogDrainUrl = null
         prototype.volumeMounts = null
