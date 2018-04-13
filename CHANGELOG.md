@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [2.12.0] - 2018-04-13
 - Fixed issue that not all flags were correctly returned in the catalog (*bindable)
 - Support custom service provider service binding fetch
 - Support policy based random string generation
