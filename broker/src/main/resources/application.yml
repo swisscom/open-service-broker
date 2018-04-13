@@ -45,6 +45,7 @@ com.swisscom.cloud.sb.broker.shield:
   storeName: 'local'
   retentionName: 'default'
   scheduleName: 'schedu'
+  maxRetryBackup: 5
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:
@@ -100,7 +101,7 @@ com.swisscom.cloud.sb.broker.service.kubernetes:
 com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
   kubernetesRedisHost: 'kubernetes-service-node.service.consul'
   retryIntervalInSeconds: 10
-  maxRetryDurationInMinutes: 3
+  maxRetryDurationInMinutes: 10
   discoveryURL: "http://localhost:8080/v2/api-docs"
   ipRanges: []
   protocols: [] # 'tcp,udp,icmp'

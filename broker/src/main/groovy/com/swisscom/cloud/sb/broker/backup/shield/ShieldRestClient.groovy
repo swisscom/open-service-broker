@@ -173,6 +173,10 @@ class ShieldRestClient {
         dto
     }
 
+    void deleteTaskByUuid(String uuid) {
+        restTemplate.exchange(taskUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
+    }
+
     ArchiveDto getArchiveByUuid(String uuid) {
         def response = restTemplate.exchange(archiveUrl(uuid), HttpMethod.GET, configureRequestEntity(), String.class)
         def dto = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), ArchiveDto)

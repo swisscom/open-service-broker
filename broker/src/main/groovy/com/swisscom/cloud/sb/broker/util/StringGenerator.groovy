@@ -1,5 +1,10 @@
 package com.swisscom.cloud.sb.broker.util
 
+import org.passay.CharacterData
+import org.passay.CharacterRule
+import org.passay.EnglishCharacterData
+import org.passay.PasswordGenerator
+
 import java.security.SecureRandom
 
 class StringGenerator {
@@ -7,15 +12,15 @@ class StringGenerator {
     public static final char[] hexadecimalCharset = (('a'..'f') + ('0'..'9')).join().toCharArray()
     public static final char[] lowerAlphaCharset = ('a'..'z').join().toCharArray()
 
-    public static String randomAlphaNumericOfLength16() {
+    static String randomAlphaNumericOfLength16() {
         random(16, alphaNumericCharset)
     }
 
-    public static String randomAlphaNumeric(int length) {
+    static String randomAlphaNumeric(int length) {
         random(length, alphaNumericCharset)
     }
 
-    public static String randomLowerAlphaOfLength16() {
+    static String randomLowerAlphaOfLength16() {
         random(16, lowerAlphaCharset)
     }
 
@@ -23,11 +28,34 @@ class StringGenerator {
         org.apache.commons.lang.RandomStringUtils.random(length, 0, chars.length, false, false, chars, new SecureRandom())
     }
 
-    public static String randomUuid() {
+    static String randomUuid() {
         return UUID.randomUUID().toString()
     }
 
     static String randomHexadecimal(int length) {
         random(length, hexadecimalCharset)
+    }
+
+    static String generateRandomStringWithRules(int length = 30, List<CharacterRule> rules = null) {
+        final int occurrences = 2
+        if (!rules) {
+            final CharacterRule atLeastTwoLowerCase = new CharacterRule(EnglishCharacterData.LowerCase, occurrences)
+            final CharacterRule atLeastTwoUpperCase = new CharacterRule(EnglishCharacterData.UpperCase, occurrences)
+            final CharacterRule atLeastTwoNumbers = new CharacterRule(EnglishCharacterData.Digit, occurrences)
+            final CharacterRule atLeastTwoSpecialCharacters = new CharacterRule(new CharacterData() {
+                @Override
+                String getErrorCode() {
+                    return "ERR_SPECIAL"
+                }
+
+                @Override
+                String getCharacters() {
+                    return "‘~!@#\$%^&*()_\\-+={}[\\]\\\\\\/<>,.;?':| "
+                }
+            }, occurrences)
+            rules = [atLeastTwoLowerCase, atLeastTwoUpperCase, atLeastTwoNumbers, atLeastTwoSpecialCharacters]
+        }
+        PasswordGenerator generator = new PasswordGenerator()
+        generator.generatePassword(length, rules)
     }
 }

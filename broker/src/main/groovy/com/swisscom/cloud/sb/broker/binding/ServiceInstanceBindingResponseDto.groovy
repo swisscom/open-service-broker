@@ -13,4 +13,6 @@ class ServiceInstanceBindingResponseDto {
     Object[] volumeMounts
     @JsonProperty("parameters")
     def parameters = [:]
+    @JsonProperty("details")
+    def details = [:]
 }
