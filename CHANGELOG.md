@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Fixed issue that not all flags were correctly returned in the catalog (*bindable)
+- Support custom service provider service binding fetch
+- Support policy based random string generation
+- Support retrying backup in case of failure
 
 ## [2.11.6] - 2018-04-11
 - Add dto validation helper class for serviceproviders
