@@ -112,7 +112,6 @@ class BindingController extends BaseController {
         return bindRequest
     }
 
-
     @ApiOperation(value = "Delete service instance")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
     def unbind(@PathVariable('service_instance') String serviceInstanceId,
@@ -156,12 +155,5 @@ class BindingController extends BaseController {
             ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
         }
         return serviceBinding
-
-
-
-
-
-
-
     }
 }
