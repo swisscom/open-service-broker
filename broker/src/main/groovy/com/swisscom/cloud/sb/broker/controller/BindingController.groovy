@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.broker.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.binding.FetchServiceBindingProvider
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
@@ -17,6 +18,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
@@ -110,7 +112,6 @@ class BindingController extends BaseController {
         return bindRequest
     }
 
-
     @ApiOperation(value = "Delete service instance")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
     def unbind(@PathVariable('service_instance') String serviceInstanceId,
@@ -132,15 +133,20 @@ class BindingController extends BaseController {
 
     @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)
     @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.GET)
-    ServiceInstanceBindingResponseDto getServiceInstanceBinding(
-            @PathVariable("instanceId") String serviceInstanceGuid,
-            @PathVariable("bindingId") String bindingGuid) {
+    ServiceInstanceBindingResponseDto getServiceInstanceBinding(@PathVariable("instanceId") String serviceInstanceGuid,
+                                                                @PathVariable("bindingId") String bindingGuid) {
         checkServiceBinding(bindingGuid)
         def serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
         if (serviceBinding.serviceInstance.guid != serviceInstanceGuid || !serviceBinding.serviceInstance.plan.service.bindingsRetrievable) {
             ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
         }
-        return bindingDtoConverter.convert(serviceBinding)
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceBinding.serviceInstance.plan)
+        if (!(serviceProvider instanceof FetchServiceBindingProvider)) {
+            return bindingDtoConverter.convert(serviceBinding)
+        } else {
+            FetchServiceBindingProvider provider = serviceProvider as FetchServiceBindingProvider
+            return provider.fetchServiceBinding(serviceBinding)
+        }
     }
 
     private ServiceBinding checkServiceBinding(String bindingGuid) {
