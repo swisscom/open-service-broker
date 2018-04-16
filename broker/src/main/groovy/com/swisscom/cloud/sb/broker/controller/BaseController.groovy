@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.validation.Errors
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -34,6 +36,12 @@ abstract class BaseController {
 
     @Autowired
     protected ServiceInstanceRepository serviceInstanceRepository
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    ErrorDto handleException(MethodArgumentNotValidException e) {
+        new ErrorDto(description: createValidationErrorMessage(e.getBindingResult()))
+    }
 
     @ExceptionHandler
     @ResponseStatus(value = INTERNAL_SERVER_ERROR)
@@ -71,4 +79,7 @@ abstract class BaseController {
         return serviceInstance
     }
 
+    private String createValidationErrorMessage(Errors errors) {
+        "Validation failed. " + errors.getErrorCount() + " error(s): " + errors.getAllErrors().collect({it.getDefaultMessage()}).join(", ")
+    }
 }

@@ -4,7 +4,7 @@ import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
 class UpdateDto implements Serializable {
-    @NotBlank
+    @NotBlank(message = "service_id must not be blank")
     String service_id
     String plan_id
     Context context
