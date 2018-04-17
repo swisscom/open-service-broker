@@ -82,6 +82,10 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerClient = serviceBrokerClient
     }
 
+    ServiceBrokerServiceProvider(ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
+        this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
+    }
+
     ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient, ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
         this.serviceBrokerClient = serviceBrokerClient
         this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
