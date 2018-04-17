@@ -94,6 +94,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerClient = serviceBrokerClient
     }
 
+    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient, ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
+        this.serviceBrokerClient = serviceBrokerClient
+        this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
+    }
+
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         if (request.plan.asyncRequired) {
