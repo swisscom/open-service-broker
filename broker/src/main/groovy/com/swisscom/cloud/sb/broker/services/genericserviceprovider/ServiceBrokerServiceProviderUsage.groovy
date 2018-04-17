@@ -3,9 +3,11 @@ package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
+import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
+import jdk.nashorn.internal.ir.annotations.Ignore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.HealthIndicator
@@ -15,15 +17,21 @@ import org.springframework.stereotype.Component
 @CompileStatic
 class ServiceBrokerServiceProviderUsage {
 
+    @Autowired
+    ServiceBrokerServiceProviderUsage(ApplicationUserConfig applicationUserConfig){
+        this.userConfig = applicationUserConfig
+        this.serviceBrokerClientExtended = null
+    }
+
     ServiceBrokerServiceProviderUsage(ApplicationUserConfig userConfig, ServiceBrokerClientExtended serviceBrokerClientExtended) {
         this.userConfig = userConfig
         this.serviceBrokerClientExtended = serviceBrokerClientExtended
     }
 
+    ApplicationUserConfig userConfig
+
     ServiceBrokerClientExtended serviceBrokerClientExtended
 
-    @Autowired
-    ApplicationUserConfig userConfig
 
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         GenericProvisionRequestPlanParameter req = ServiceBrokerServiceProvider.populateGenericProvisionRequestPlanParameter(serviceInstance.plan.parameters)
