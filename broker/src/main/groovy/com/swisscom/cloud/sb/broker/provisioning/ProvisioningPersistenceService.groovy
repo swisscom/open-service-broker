@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
 import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
@@ -37,6 +38,9 @@ class ProvisioningPersistenceService {
     @Autowired
     private ServiceContextPersistenceService contextPersistenceService
 
+    @Autowired
+    protected ApplicationUserRepository applicationUserRepository
+
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
         provisionRequestRepository.save(provisionRequest)
     }
@@ -51,6 +55,7 @@ class ProvisioningPersistenceService {
         instance.plan = provisionRequest.plan
         instance.parameters = provisionRequest.parameters
         instance.serviceContext = provisionRequest.serviceContext
+        instance.applicationUser = applicationUserRepository.findByUsername(provisionRequest.applicationUser)
         serviceInstanceRepository.save(instance)
 
         // set parent service instance if specified

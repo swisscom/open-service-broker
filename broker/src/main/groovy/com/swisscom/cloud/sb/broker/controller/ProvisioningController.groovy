@@ -6,11 +6,19 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.provisioning.*
+import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
+import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponseDto
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationResponseDto
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceInstanceProvider
@@ -25,9 +33,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 import javax.validation.Valid
+import java.security.Principal
 
 @Api(value = "Service provisioning", description = "Endpoint for provisioning/deprovisoning")
 @RestController
@@ -59,14 +73,15 @@ class ProvisioningController extends BaseController {
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
     ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
-                                                   @Valid @RequestBody ProvisioningDto provisioningDto) {
+                                                   @Valid @RequestBody ProvisioningDto provisioningDto,
+                                                   Principal principal) {
 
         log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
 
         failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
         log.trace("ProvisioningDto:${provisioningDto.toString()}")
 
-        def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete)
+        def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
         if (StringUtils.contains(request.parameters, "parent_reference") &&
                 !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
             ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
@@ -83,7 +98,7 @@ class ProvisioningController extends BaseController {
         }
     }
 
-    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete) {
+    private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete, Principal principal) {
         getAndCheckService(provisioning.service_id)
 
         ProvisionRequest provisionRequest = new ProvisionRequest()
@@ -91,6 +106,7 @@ class ProvisioningController extends BaseController {
         provisionRequest.plan = getAndCheckPlan(provisioning.plan_id)
         provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
+        provisionRequest.applicationUser = principal.name
 
         if (!provisioning.context && (provisioning.organization_guid && provisioning.space_guid)) {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)

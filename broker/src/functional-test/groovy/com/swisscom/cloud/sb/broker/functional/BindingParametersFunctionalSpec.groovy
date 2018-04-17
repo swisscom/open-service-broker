@@ -1,11 +1,16 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
+
+    @Autowired
+    private ServiceBindingRepository serviceBindingRepository
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
@@ -17,6 +22,8 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and bind with parameters"() {
         given:
+        def serviceBindingGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
 
         when:
@@ -24,6 +31,10 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         noExceptionThrown()
+
+        def serviceBinding = serviceBindingRepository.findByGuid(serviceBindingGuid)
+        serviceBinding != null
+        serviceBinding.applicationUser.username == cfAdminUser.username
     }
 
     def "provision async service instance and bind with parameters with bindings not retrievable"() {

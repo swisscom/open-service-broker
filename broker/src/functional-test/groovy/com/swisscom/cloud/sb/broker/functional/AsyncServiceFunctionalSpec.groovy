@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
@@ -52,6 +51,9 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
         assertCloudFoundryContext(serviceInstanceGuid)
+
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        serviceInstance.applicationUser.username == cfAdminUser.username
     }
 
 
