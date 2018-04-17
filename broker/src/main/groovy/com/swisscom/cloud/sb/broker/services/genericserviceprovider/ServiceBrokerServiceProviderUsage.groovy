@@ -9,11 +9,20 @@ import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.stereotype.Component
 
 @Component
 @CompileStatic
 class ServiceBrokerServiceProviderUsage {
+
+    ServiceBrokerServiceProviderUsage(ApplicationUserConfig userConfig, ServiceBrokerClientExtended serviceBrokerClientExtended) {
+        this.userConfig = userConfig
+        this.serviceBrokerClientExtended = serviceBrokerClientExtended
+    }
+
+    ServiceBrokerClientExtended serviceBrokerClientExtended
 
     @Autowired
     ServiceBrokerServiceProviderUsage(ApplicationUserConfig applicationUserConfig){
