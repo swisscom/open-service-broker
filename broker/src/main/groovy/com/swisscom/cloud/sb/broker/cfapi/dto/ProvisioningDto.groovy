@@ -5,9 +5,9 @@ import org.springframework.cloud.servicebroker.model.Context
 
 
 class ProvisioningDto implements Serializable {
-    @NotBlank
+    @NotBlank(message = "service_id must not be blank")
     String service_id
-    @NotBlank
+    @NotBlank(message = "plan_id must not be blank")
     String plan_id
     @Deprecated
     String organization_guid
