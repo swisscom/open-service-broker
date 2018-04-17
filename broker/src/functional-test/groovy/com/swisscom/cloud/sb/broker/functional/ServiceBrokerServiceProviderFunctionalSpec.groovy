@@ -69,6 +69,19 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
+    def "get usage of provisioned service"() {
+        given:
+        serviceLifeCycler.setAsyncRequestInPlan(false)
+        serviceLifeCycler.setServiceInstanceId(DUMMY_SYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+
+        when:
+        def response = serviceBrokerClient.getUsage(DUMMY_SYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+
+        then:
+        response.statusCode.'2xxSuccessful'
+        response.body.value.length() > 0
+    }
+
     def "provision same sync service instance as above for conflict"() {
         given:
         serviceLifeCycler.setAsyncRequestInPlan(false)
@@ -109,13 +122,13 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.setServiceInstanceId(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS)])
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS + 30 , true, true)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(60, DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(DUMMY_ASYNC_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         and:
         serviceLifeCycler.setServiceInstanceId(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(50, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(60, ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).state == LastOperationState.SUCCEEDED
 
         then:
