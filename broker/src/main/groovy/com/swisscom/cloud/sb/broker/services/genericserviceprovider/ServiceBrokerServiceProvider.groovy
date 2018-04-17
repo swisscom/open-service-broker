@@ -293,8 +293,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        // TODO Do we need to add enddate to the IServiceBrokerExtended findUsage method? Or is it superfluous in the ServiceUsageProvider?
-        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance)
+        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance, enddate)
     }
 
     @Override
