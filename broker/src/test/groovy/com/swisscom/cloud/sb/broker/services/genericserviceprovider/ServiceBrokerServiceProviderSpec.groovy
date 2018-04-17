@@ -6,9 +6,6 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
