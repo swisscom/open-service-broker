@@ -82,6 +82,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         this.serviceBrokerClient = serviceBrokerClient
     }
 
+    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient, ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
+        this.serviceBrokerClient = serviceBrokerClient
+        this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
+    }
+
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         if (request.plan.asyncRequired) {
@@ -263,8 +268,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
 
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        // TODO Do we need to add enddate to the IServiceBrokerExtended findUsage method? Or is it superfluous in the ServiceUsageProvider?
-        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance)
+        return serviceBrokerServiceProviderUsage.findUsage(serviceInstance, enddate)
     }
 
     @Override
