@@ -35,7 +35,7 @@ class ServiceBrokerServiceProviderUsageClient {
     }
 
     // For testing purposes so that a mock serviceBrokerClient can be provided
-    public ServiceBrokerServiceProviderUsageClient(String baseUrl, String username, String password, ApplicationUserConfig userConfig, ServiceBrokerClientExtended serviceBrokerClientExtended) {
+    ServiceBrokerServiceProviderUsageClient(String baseUrl, String username, String password, ApplicationUserConfig userConfig, ServiceBrokerClientExtended serviceBrokerClientExtended) {
         this.baseUrl = baseUrl
         this.username = username
         this.password = password
