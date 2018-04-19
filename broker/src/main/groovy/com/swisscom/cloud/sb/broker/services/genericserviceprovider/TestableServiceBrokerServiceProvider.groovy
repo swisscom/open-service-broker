@@ -5,6 +5,8 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.actuate.metrics.CounterService
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
