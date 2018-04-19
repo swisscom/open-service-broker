@@ -1,14 +1,9 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider.client
 
-import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
-import com.swisscom.cloud.sb.broker.config.UserConfig
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.ServiceBrokerServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
-import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderProvisionState
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -17,13 +12,9 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
 
 @Component
 @CompileStatic
