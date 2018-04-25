@@ -11,6 +11,7 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cloud.sb.broker.util.Resource
@@ -37,12 +38,14 @@ class BoshFacade {
     private final OpenStackClientFactory openStackClientFactory
     private final BoshBasedServiceConfig serviceConfig
     private final BoshTemplateFactory boshTemplateFactory
+    private final TemplateConfig templateConfig
 
-    BoshFacade(BoshClientFactory boshClientFactory, OpenStackClientFactory openStackClientFactory, BoshBasedServiceConfig serviceConfig, BoshTemplateFactory boshTemplateFactory) {
+    BoshFacade(BoshClientFactory boshClientFactory, OpenStackClientFactory openStackClientFactory, BoshBasedServiceConfig serviceConfig, BoshTemplateFactory boshTemplateFactory, TemplateConfig templateConfig) {
         this.boshClientFactory = boshClientFactory
         this.openStackClientFactory = openStackClientFactory
         this.serviceConfig = serviceConfig
         this.boshTemplateFactory = boshTemplateFactory
+        this.templateConfig = templateConfig
     }
 
     String createOpenStackServerGroup(String name) {
@@ -87,6 +90,7 @@ class BoshFacade {
     }
 
     Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
+
         BoshTemplate template = boshTemplateFactory.build(readTemplateContent(provisionRequest.plan.templateUniqueIdentifier))
 
         if (serviceConfig.shuffleAzs) {
@@ -123,16 +127,21 @@ class BoshFacade {
         }
     }
 
-    private String readTemplateContent(String templateIdentifier) {
-        Preconditions.checkNotNull(templateIdentifier, 'Need a valid template name!')
-        String fileName = templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml')
-        File file = new File(serviceConfig.boshManifestFolder, fileName)
-        if(file.exists()){
-            log.info("Using template file:${file.absolutePath}")
-            return file.text
+    private String readTemplateContent(String templateIdentifier, String version = "1.0.0") {
+        try {
+            String template = templateConfig.getTemplateForServiceKey(templateIdentifier, version)[0]
+            return template
+        } catch (NoSuchElementException e) {
+            Preconditions.checkNotNull(templateIdentifier, 'Need a valid template name!')
+            String fileName = templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml')
+            File file = new File(serviceConfig.boshManifestFolder, fileName)
+            if (file.exists()) {
+                log.info("Using template file:${file.absolutePath}")
+                return file.text
+            }
+            log.info("Will try to read file:${fileName} from embedded resources")
+            return Resource.readTestFileContent(fileName.startsWith('/') ? fileName : ('/' + fileName))
         }
-        log.info("Will try to read file:${fileName} from embedded resources")
-        return Resource.readTestFileContent(fileName.startsWith('/')?fileName:('/'+fileName))
     }
 
     @VisibleForTesting

@@ -8,4 +8,5 @@ trait BoshConfig implements Config {
     String boshDirectorBaseUrl
     String boshDirectorUsername
     String boshDirectorPassword
+    Map<String, String> boshManifestTemplates
 }
