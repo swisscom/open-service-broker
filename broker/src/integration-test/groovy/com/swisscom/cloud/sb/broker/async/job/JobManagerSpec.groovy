@@ -66,8 +66,7 @@ class JobManagerSpec extends BaseSpecification {
             this.dbTestUtil = dbTestUtil
             this.serviceInstanceRepository = serviceInstanceRepository
 
-            serviceLifeCycler.createServiceIfDoesNotExist(serviceName, serviceName)
-            CFService cfService = cfServiceRepository.findByName(serviceName)
+            CFService cfService = serviceLifeCycler.createServiceIfDoesNotExist(serviceName, serviceName)
             dbTestUtil.createServiceInstace(cfService, id)
             initialized = true
         }

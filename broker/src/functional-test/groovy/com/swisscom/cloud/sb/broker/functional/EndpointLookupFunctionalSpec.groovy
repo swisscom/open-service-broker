@@ -42,7 +42,7 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
         cleanup:
         lifeCycler.deleteServiceInstanceAndAssert(false)
-        lifeCycler.cleanup()
+        //lifeCycler.cleanup()
     }
 
 }

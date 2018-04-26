@@ -10,9 +10,9 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
 enum ErrorCode {
 
     //TODO get rid of errorCodes
-    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.GONE),
+    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),
-    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
+    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.NOT_FOUND),
     SERVICE_BINDING_ALREADY_EXISTS("69006", "Service Binding already exists", "SC-SB-SERVICE-BINDING-ALREADY-EXISTS", HttpStatus.CONFLICT),
     SERVICE_NOT_FOUND("69007", "Service not found", "SC-SB-SERVICE-NOT-FOUND", HttpStatus.NOT_FOUND),
     PLAN_NOT_FOUND("69008", "Plan not found", "SC-SB-PLAN-NOT-FOUND", HttpStatus.NOT_FOUND),
@@ -73,7 +73,9 @@ enum ErrorCode {
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_BAD_REQUEST("69065", "Deprovisioning of a service using the ServiceBrokerServiceProvider failed", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-BAD-REQUEST", HttpStatus.BAD_REQUEST),
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_GONE("69066", "Service to be deprovisioned not found while deprovisioning using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-GONE", HttpStatus.GONE),
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_UNPROCESSABLE_ENTITY("69067", "Unprocessable entity encountered while deprovisioning a service using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-UNPROCESSABLE-ENTITY", HttpStatus.UNPROCESSABLE_ENTITY),
-    SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR("69068", "Unexpected error occured during a ServiceBrokerServiceProvider operation", "SC-SB-SERVICEBROKERSERVICEPROVIDER-INTERNAL-SERVER-ERROR", HttpStatus.INTERNAL_SERVER_ERROR)
+    SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR("69068", "Unexpected error occured during a ServiceBrokerServiceProvider operation", "SC-SB-SERVICEBROKERSERVICEPROVIDER-INTERNAL-SERVER-ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
+    OPENWHISK_SUBJECT_NOT_FOUND("69069", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
+
 
 
 
