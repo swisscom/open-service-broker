@@ -376,7 +376,6 @@ class ServiceLifeCycler {
         if (seconds > 0) {
             for (
                     def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
-                println("LastOperation ServiceInstanceId: ${newServiceInstanceId}")
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
                     LastOperationState operationState = null
