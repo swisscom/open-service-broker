@@ -18,10 +18,10 @@ class ServiceBroker extends SpringBootServletInitializer {
                 .initializers(new StandAloneConfigurationInitializer()).run(args)
     }
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        logger.info("Initializing service broker")
-        //Needed for war based deployment
-        application.initializers(new WebContainerConfigurationInitializer()).sources(ServiceBroker)
-    }
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		logger.info("Initializing service broker")
+		//Needed for war based deployment
+		application.initializers(new WebContainerConfigurationInitializer()).sources(ServiceBroker).profiles("influx")
+	}
 }
