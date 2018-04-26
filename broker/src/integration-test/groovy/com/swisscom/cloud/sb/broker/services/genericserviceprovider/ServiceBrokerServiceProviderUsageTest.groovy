@@ -10,7 +10,9 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 
+@Ignore
 class ServiceBrokerServiceProviderUsageTest extends BaseSpecification {
 
     private ApplicationUserConfig applicationUserConfig
