@@ -60,8 +60,15 @@ class ServiceDefinitionProcessor {
 
     def createOrUpdateServiceDefinition(String content) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(content),"Service Definition can't be empty")
+        // Preconditions.checkArgument() // TODO: check content type is application/json
 
-        def serviceJson = new JsonSlurper().parseText(content)
+        def serviceJson;
+        try {
+          serviceJson = new JsonSlurper().parseText(content)
+        } catch(Exception e) {
+          ErrorCode.INVALID_JSON.throwNew()
+        }
+
         CFService service = processServiceBasicDefiniton(serviceJson)
         processServiceTags(service, serviceJson)
         processServiceMetadata(service, serviceJson)
@@ -76,7 +83,7 @@ class ServiceDefinitionProcessor {
         processServicePermissions(service, serviceDto)
         processPlans(service, serviceDto)
     }
-  
+
     def deleteServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
@@ -92,7 +99,11 @@ class ServiceDefinitionProcessor {
     }
 
     ServiceDto getServiceDefinition(String id) {
-        def serviceDto = serviceDtoConverter.convert(cfServiceRepository.findByGuid(id))
+        CFService service = cfServiceRepository.findByGuid(id)
+        if (!service) {
+            ErrorCode.SERVICE_NOT_FOUND.throwNew()
+        }
+        def serviceDto = serviceDtoConverter.convert(service)
         serviceDto.plans = serviceDto.plans.sort { it.displayIndex }
         return serviceDto
     }

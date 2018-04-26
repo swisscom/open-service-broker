@@ -14,8 +14,8 @@ enum ErrorCode {
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),
     SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.NOT_FOUND),
     SERVICE_BINDING_ALREADY_EXISTS("69006", "Service Binding already exists", "SC-SB-SERVICE-BINDING-ALREADY-EXISTS", HttpStatus.CONFLICT),
-    SERVICE_NOT_FOUND("69007", "Service not found", "SC-SB-SERVICE-NOT-FOUND", HttpStatus.BAD_REQUEST),
-    PLAN_NOT_FOUND("69008", "Plan not found", "SC-SB-PLAN-NOT-FOUND", HttpStatus.BAD_REQUEST),
+    SERVICE_NOT_FOUND("69007", "Service not found", "SC-SB-SERVICE-NOT-FOUND", HttpStatus.NOT_FOUND),
+    PLAN_NOT_FOUND("69008", "Plan not found", "SC-SB-PLAN-NOT-FOUND", HttpStatus.NOT_FOUND),
     RELATIONAL_DB_ALREADY_EXISTS("69009", "Database already exists", "SC-SB-DB-ALREADY-EXISTS", HttpStatus.INTERNAL_SERVER_ERROR),
     RELATIONAL_DB_NOT_FOUND("69010", "Database not found", "SC-SB-DB-NOT-FOUND", HttpStatus.INTERNAL_SERVER_ERROR),
     RELATIONAL_DB_USER_ALREADY_EXISTS("69011", "Database user already exists", "SC-SB-DB-USER-ALREADY-EXISTS", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -58,7 +58,8 @@ enum ErrorCode {
     INVALID_PLAN_SCHEMAS("69049", "Plan schemas invalid", "SC-SB-PLAN-SCHEMA-INVALID", HttpStatus.BAD_REQUEST),
     SERVICEPROVIDER_INCORRECT_PARAMETERS("69050", "ServiceProvider detected wrong Parameters", "SC-SB-SERVICEPROVIDER-PARAMETERS", HttpStatus.BAD_REQUEST),
     SERVICEPROVIDER_INTERNAL_ERROR("69051", "Serviceprovider for the selected Plan encountered an Error", "SC-SB-SERVICEPROVIDER-INTERNAL", HttpStatus.INTERNAL_SERVER_ERROR),
-    CLIENT_INVALID_REQUEST("69052","Request Validation failed","SC-SB-SERVICEPROVIDER-CLIENT-INVALID",HttpStatus.BAD_REQUEST)
+    CLIENT_INVALID_REQUEST("69052","Request Validation failed","SC-SB-SERVICEPROVIDER-CLIENT-INVALID",HttpStatus.BAD_REQUEST),
+    INVALID_JSON("69053","Cannot decode JSON","SC-BC-INPUT-JSON-INVALID",HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode
