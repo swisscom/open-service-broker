@@ -136,8 +136,8 @@ com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
     SHIELD_AUTHORIZED_KEYS: # Deployment
 
 com.swisscom.cloud.sb.broker.service.lapi:
-  lapiUsername:
-  lapiPassword:
+  lapiUsername: test
+  lapiPassword: test
 
 com.swisscom.cloud.sb.broker.service.servicebrokerserviceprovider:
   retryIntervalInSeconds: 5
