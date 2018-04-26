@@ -13,15 +13,15 @@ import org.springframework.boot.web.support.SpringBootServletInitializer
         MongoAutoConfiguration.class, MongoDataAutoConfiguration.class])
 @CompileStatic
 class ServiceBroker extends SpringBootServletInitializer {
-	static void main(String[] args) {
-		new SpringApplicationBuilder(ServiceBroker.class)
-				.initializers(new StandAloneConfigurationInitializer()).run(args)
-	}
+  static void main(String[] args) {
+    new SpringApplicationBuilder(ServiceBroker.class)
+        .initializers(new StandAloneConfigurationInitializer()).run(args)
+  }
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		logger.info("Initializing service broker")
-		//Needed for war based deployment
-		application.initializers(new WebContainerConfigurationInitializer()).sources(ServiceBroker)
-	}
+  @Override
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    logger.info("Initializing service broker")
+    //Needed for war based deployment
+    application.initializers(new WebContainerConfigurationInitializer()).sources(ServiceBroker)
+  }
 }
