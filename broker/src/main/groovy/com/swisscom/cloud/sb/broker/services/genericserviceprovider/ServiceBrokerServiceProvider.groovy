@@ -18,14 +18,17 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
+import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderFacade
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.client.ServiceBrokerServiceProviderRestClient
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderDeprovisionState
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderProvisionState
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderStateMachineContext
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.util.logging.Slf4j
@@ -36,6 +39,8 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRespon
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.ClientHttpResponse
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
@@ -43,12 +48,6 @@ import org.springframework.web.client.RestTemplate
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
 class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
-
-    @Autowired
-    ServiceBrokerServiceProviderFacade sbspFacade
-
-    @Autowired
-    ServiceBrokerServiceProviderRestClient sbspRestClient
 
     @Autowired
     ServiceBrokerServiceProviderFacade sbspFacade
@@ -70,24 +69,6 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     ServiceBrokerServiceProvider() {}
 
 
-    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient) {
-        this.serviceBrokerClient = serviceBrokerClient
-    }
-
-    ServiceBrokerServiceProvider(ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
-        this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
-    }
-
-    ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient, ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage) {
-        this.serviceBrokerClient = serviceBrokerClient
-        this.serviceBrokerServiceProviderUsage = serviceBrokerServiceProviderUsage
-    }
-
-    protected ServiceBrokerClient serviceBrokerClient
-
-    ServiceBrokerServiceProvider() {}
-
-    //@Autowired
     ServiceBrokerServiceProvider(ServiceBrokerClient serviceBrokerClient) {
         this.serviceBrokerClient = serviceBrokerClient
     }
@@ -147,12 +128,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         }
     }
 
-    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
-        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
-        return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
-    }
-
-    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
+    ResponseEntity<Void> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
         DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
         return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
     }
@@ -288,32 +264,6 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         return serviceBrokerServiceProviderUsage.findUsage(serviceInstance, enddate)
-    }
-
-    @Override
-    Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
-        StateMachine stateMachine = createDeprovisionStateMachine()
-        ServiceStateWithAction currentState = getDeprovisionState(context)
-        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState))
-    }
-
-    @VisibleForTesting
-    private StateMachine createDeprovisionStateMachine() {
-        new StateMachine([ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS,
-                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_SUCCESS,
-                          ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_FAILED])
-    }
-
-    @VisibleForTesting
-    private ServiceStateWithAction getDeprovisionState(LastOperationJobContext context) {
-        ServiceStateWithAction deprovisionState = null
-        if (!context.lastOperation.internalState) {
-            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.DEPROVISION_IN_PROGRESS
-        } else {
-            deprovisionState = ServiceBrokerServiceProviderDeprovisionState.of(context.lastOperation.internalState)
-        }
-        return deprovisionState
     }
 
 

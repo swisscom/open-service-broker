@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component
 @Component("testableServiceBrokerServiceProvider")
 class TestableServiceBrokerServiceProvider extends ServiceBrokerServiceProvider{
 
-    private final static String DUMMY_SYNC_SERVICE_BROKER_INSTANCE_ID = "dummySyncServiceBrokerInstanceId"
-    private final static String DUMMY_ASYNC_SERVICE_BROKER_INSTANCE_ID = "dummyAsyncServiceBrokerInstanceId"
+    private final String SYNC_SERVICE_BROKER_SERVICE_PROVIDER_SERVICE_INSTANCE_ID = "syncServiceBrokerServiceProviderInstanceId"
+    private final String ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID = "asyncServiceBrokerServiceProviderInstanceId"
 
     // This method differs from its original counterpart in so far that the serviceInstanceId that is passed to the
     // createServiceInstanceRequest is generate randomly rather than taken from the request to avoid duplicate serviceInstanceId
@@ -32,20 +32,20 @@ class TestableServiceBrokerServiceProvider extends ServiceBrokerServiceProvider{
     ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(CreateServiceInstanceRequest createServiceInstanceRequest, ProvisionRequest request) {
         def serviceInstanceId
         if(request.plan.asyncRequired) {
-            serviceInstanceId = DUMMY_ASYNC_SERVICE_BROKER_INSTANCE_ID
+            serviceInstanceId = ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID
         } else {
-            serviceInstanceId = DUMMY_SYNC_SERVICE_BROKER_INSTANCE_ID
+            serviceInstanceId = SYNC_SERVICE_BROKER_SERVICE_PROVIDER_SERVICE_INSTANCE_ID
         }
         return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(request.acceptsIncomplete))
     }
 
     @Override
-    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
+    ResponseEntity<Void> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
         def serviceInstanceId
         if(request.serviceInstance.plan.asyncRequired) {
-            serviceInstanceId = DUMMY_ASYNC_SERVICE_BROKER_INSTANCE_ID
+            serviceInstanceId = ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID
         } else {
-            serviceInstanceId = DUMMY_SYNC_SERVICE_BROKER_INSTANCE_ID
+            serviceInstanceId = SYNC_SERVICE_BROKER_SERVICE_PROVIDER_SERVICE_INSTANCE_ID
         }
         DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(serviceInstanceId, req.serviceId, req.planId, request.acceptsIncomplete)
         return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)

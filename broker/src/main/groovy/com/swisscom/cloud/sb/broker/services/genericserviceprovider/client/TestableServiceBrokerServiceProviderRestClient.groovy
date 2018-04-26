@@ -11,16 +11,16 @@ import org.springframework.http.ResponseEntity
 
 class TestableServiceBrokerServiceProviderRestClient extends ServiceBrokerServiceProviderRestClient {
 
-    private final ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID = "asyncServiceInstanceToBeBoundId"
+    private final String ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID = "asyncDummyServiceBrokerServiceInstanceId"
 
     @Override
     ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, CreateServiceInstanceRequest createServiceInstanceRequest, String serviceInstanceId) {
-        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID).withAsyncAccepted(true))
+        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID).withAsyncAccepted(true))
     }
 
     @Override
     ResponseEntity<Void> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, String serviceInstanceId, GenericProvisionRequestPlanParameter req) {
-        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(ASYNC_SERVICE_INSTANCE_TO_BE_BOUND_ID, req.serviceId, req.planId, true)
+        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID, req.serviceId, req.planId, true)
         return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
     }
 }
