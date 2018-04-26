@@ -9,7 +9,9 @@ import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 
+@Ignore
 class ServiceBrokerServiceProviderTest extends BaseSpecification {
     private ServiceBrokerServiceProvider serviceBrokerServiceProvider
     private String SERVICE_INSTANCE_GUID = "65d546f1-2c74-4871-9d5f-b5b0df1a8912"
