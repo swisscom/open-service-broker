@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.metrics
 
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -36,5 +37,16 @@ class BindingMetricsService extends ServiceBrokerMetrics{
         metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalNrOfBindings))
 
         return metrics
+    }
+
+    @Override
+    boolean considerServiceInstance(ServiceInstance serviceInstance) {
+        // TODO
+        return false
+    }
+
+    @Override
+    String tag() {
+        return BindingMetricsService.class.getSimpleName()
     }
 }
