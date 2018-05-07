@@ -19,6 +19,7 @@ class ProvisionRequest extends BaseModel {
     boolean acceptsIncomplete
     @OneToOne
     ServiceContext serviceContext
+    String applicationUser
 
     @Override
     String toString() {

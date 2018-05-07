@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -29,11 +30,16 @@ class ServiceBindingPersistenceService {
     @Autowired
     private ServiceContextPersistenceService contextPersistenceService
 
-    ServiceBinding create(ServiceInstance serviceInstance, String credentials, String parameters, String guid, Collection<ServiceDetail> details, Context context) {
+    @Autowired
+    protected ApplicationUserRepository applicationUserRepository
+
+    ServiceBinding create(ServiceInstance serviceInstance, String credentials, String parameters, String guid, Collection<ServiceDetail> details, Context context, String applicationUser) {
         ServiceBinding serviceBinding = new ServiceBinding()
         serviceBinding.guid = guid
         serviceBinding.credentials = credentials
         serviceBinding.parameters = parameters
+        serviceBinding.applicationUser = applicationUserRepository.findByUsername(applicationUser)
+
         serviceBindingRepository.save(serviceBinding)
         details?.each {
             ServiceDetail detail ->

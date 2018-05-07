@@ -57,7 +57,11 @@ enum ErrorCode {
     PLAN_UPDATE_NOT_ALLOWED("69048", "Updating of plan is not allowed", "SC-SB-PLAN-UPDATE-NOT-ALLOWED", HttpStatus.BAD_REQUEST),
     INVALID_PLAN_SCHEMAS("69049", "Plan schemas invalid", "SC-SB-PLAN-SCHEMA-INVALID", HttpStatus.BAD_REQUEST),
     SERVICEPROVIDER_INCORRECT_PARAMETERS("69050", "ServiceProvider detected wrong Parameters", "SC-SB-SERVICEPROVIDER-PARAMETERS", HttpStatus.BAD_REQUEST),
-    SERVICEPROVIDER_INTERNAL_ERROR("69051", "Serviceprovider for the selected Plan encountered an Error", "SC-SB-SERVICEPROVIDER-INTERNAL", HttpStatus.INTERNAL_SERVER_ERROR)
+    SERVICEPROVIDER_INTERNAL_ERROR("69051", "Serviceprovider for the selected Plan encountered an Error", "SC-SB-SERVICEPROVIDER-INTERNAL", HttpStatus.INTERNAL_SERVER_ERROR),
+    CLIENT_INVALID_REQUEST("69052","Request Validation failed","SC-SB-SERVICEPROVIDER-CLIENT-INVALID",HttpStatus.BAD_REQUEST),
+    SERVICE_INSTANCE_GONE("69053", "Service Instance gone", "SC-SB-SI", HttpStatus.GONE),
+    SERVICE_BINDING_GONE("69054", "Service Binding gone", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
+    SERVICE_BINDING_NOT_RETRIEVABLE("69055", "Service Binding not retrievable", "SC-SB-SERVICE-BINDING-NOT-RETRIEVABLE", HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode
