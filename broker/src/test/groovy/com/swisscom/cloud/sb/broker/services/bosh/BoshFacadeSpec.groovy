@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import org.openstack4j.model.compute.ServerGroup
@@ -26,6 +27,7 @@ class BoshFacadeSpec extends Specification {
     BoshFacade boshFacade
     BoshTemplateFactory boshTemplateFactory
     BoshTemplate boshTemplate
+    TemplateConfig templateConfig
 
     void setup() {
         openstackClient = Mock(OpenStackClient)
@@ -36,12 +38,14 @@ class BoshFacadeSpec extends Specification {
         boshClientFactory = Mock(BoshClientFactory)
         boshClientFactory.build(*_) >> boshClient
         and:
+        TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
         serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
+        templateConfig = new TemplateConfig(serviceTemplates: [st])
         and:
         boshTemplate = Mock(BoshTemplate)
         boshTemplateFactory = Mock(BoshTemplateFactory) { build(_) >> boshTemplate }
         and:
-        boshFacade = new BoshFacade(boshClientFactory, openStackClientFactory, serviceConfig, boshTemplateFactory)
+        boshFacade = new BoshFacade(boshClientFactory, openStackClientFactory, serviceConfig, boshTemplateFactory, templateConfig)
     }
 
     def "host name creation works correctly"() {
@@ -102,9 +106,33 @@ class BoshFacadeSpec extends Specification {
         !boshFacade.findServerGroupId(context).present
     }
 
-    def "templating is handled correctly"() {
+    def "templating from file is handled correctly"() {
         given:
         def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: '/bosh/template_mongodbent_v5.yml',
+                parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
+        def customizer = Mock(BoshTemplateCustomizer)
+        and:
+        def boshUuid = 'boshUuid'
+        1 * boshClient.fetchBoshInfo() >> new BoshInfoDto(uuid: boshUuid)
+        and:
+        def serviceDetails = [new ServiceDetail()]
+        1 * customizer.customizeBoshTemplate(boshTemplate, request) >> serviceDetails
+        and:
+        1 * boshClient.postDeployment(_) >> 'taskId'
+        and:
+        serviceConfig.shuffleAzs = true
+        when:
+        def result = boshFacade.handleTemplatingAndCreateDeployment(request, customizer)
+        then:
+        1 * boshTemplate.replace('guid', request.serviceInstanceGuid)
+        1 * boshTemplate.replace('name1', 'value1')
+        1 * boshTemplate.shuffleAzs()
+        result.size() == 3
+    }
+
+    def "templating from config is handled correctly"() {
+        given:
+        def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: 'test',
                 parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
         def customizer = Mock(BoshTemplateCustomizer)
         and:
