@@ -128,11 +128,12 @@ class BoshFacade {
     }
 
     private String readTemplateContent(String templateIdentifier, String version = "1.0.0") {
+        Preconditions.checkNotNull(templateIdentifier, 'Need a valid template name!')
         try {
             String template = templateConfig.getTemplateForServiceKey(templateIdentifier, version)[0]
             return template
         } catch (NoSuchElementException e) {
-            Preconditions.checkNotNull(templateIdentifier, 'Need a valid template name!')
+            // Fallback method which was used by BOSH deployments
             String fileName = templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml')
             File file = new File(serviceConfig.boshManifestFolder, fileName)
             if (file.exists()) {
