@@ -114,7 +114,7 @@ class BindingController extends BaseController {
         return bindRequest
     }
 
-    @ApiOperation(value = "Delete service instance")
+    @ApiOperation(value = "Delete service binding")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
     def unbind(@PathVariable('service_instance') String serviceInstanceId,
                @PathVariable('id') String bindingGuid,
@@ -139,8 +139,8 @@ class BindingController extends BaseController {
                                                                 @PathVariable("bindingId") String bindingGuid) {
         checkServiceBinding(bindingGuid)
         def serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
-        if (serviceBinding.serviceInstance.guid != serviceInstanceGuid || !serviceBinding.serviceInstance.plan.service.bindingsRetrievable) {
-            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
+        if (!serviceBinding.serviceInstance.plan.service.bindingsRetrievable) {
+            ErrorCode.SERVICE_BINDING_NOT_RETRIEVABLE.throwNew()
         }
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceBinding.serviceInstance.plan)
         if (!(serviceProvider instanceof FetchServiceBindingProvider)) {
@@ -154,7 +154,7 @@ class BindingController extends BaseController {
     private ServiceBinding checkServiceBinding(String bindingGuid) {
         ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
         if (!serviceBinding) {
-            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
+            ErrorCode.SERVICE_BINDING_GONE.throwNew()
         }
         return serviceBinding
     }
