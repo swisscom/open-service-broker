@@ -62,7 +62,7 @@ class ServiceDefinitionProcessor {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(content),"Service Definition can't be empty")
         // Preconditions.checkArgument() // TODO: check content type is application/json
 
-        def serviceJson;
+        def serviceJson
         try {
           serviceJson = new JsonSlurper().parseText(content)
         } catch(Exception e) {
