@@ -10,9 +10,9 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
 enum ErrorCode {
 
     //TODO get rid of errorCodes
-    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.GONE),
+    SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),
-    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
+    SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.NOT_FOUND),
     SERVICE_BINDING_ALREADY_EXISTS("69006", "Service Binding already exists", "SC-SB-SERVICE-BINDING-ALREADY-EXISTS", HttpStatus.CONFLICT),
     SERVICE_NOT_FOUND("69007", "Service not found", "SC-SB-SERVICE-NOT-FOUND", HttpStatus.BAD_REQUEST),
     PLAN_NOT_FOUND("69008", "Plan not found", "SC-SB-PLAN-NOT-FOUND", HttpStatus.BAD_REQUEST),
@@ -58,7 +58,10 @@ enum ErrorCode {
     INVALID_PLAN_SCHEMAS("69049", "Plan schemas invalid", "SC-SB-PLAN-SCHEMA-INVALID", HttpStatus.BAD_REQUEST),
     SERVICEPROVIDER_INCORRECT_PARAMETERS("69050", "ServiceProvider detected wrong Parameters", "SC-SB-SERVICEPROVIDER-PARAMETERS", HttpStatus.BAD_REQUEST),
     SERVICEPROVIDER_INTERNAL_ERROR("69051", "Serviceprovider for the selected Plan encountered an Error", "SC-SB-SERVICEPROVIDER-INTERNAL", HttpStatus.INTERNAL_SERVER_ERROR),
-    CLIENT_INVALID_REQUEST("69052","Request Validation failed","SC-SB-SERVICEPROVIDER-CLIENT-INVALID",HttpStatus.BAD_REQUEST)
+    CLIENT_INVALID_REQUEST("69052","Request Validation failed","SC-SB-SERVICEPROVIDER-CLIENT-INVALID",HttpStatus.BAD_REQUEST),
+    SERVICE_INSTANCE_GONE("69053", "Service Instance gone", "SC-SB-SI", HttpStatus.GONE),
+    SERVICE_BINDING_GONE("69054", "Service Binding gone", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
+    SERVICE_BINDING_NOT_RETRIEVABLE("69055", "Service Binding not retrievable", "SC-SB-SERVICE-BINDING-NOT-RETRIEVABLE", HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode
