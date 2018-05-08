@@ -11,6 +11,7 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoCon
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
@@ -89,10 +90,9 @@ class BindingController extends BaseController {
 
     private CFService getAndCheckService(BindRequestDto bindingDto) {
         CFService service = cfServiceRepository.findByGuid(bindingDto.service_id)
-        if (!service) {
+        if (!service || !service.bindable) {
             ErrorCode.SERVICE_NOT_FOUND.throwNew("no service with id:${bindingDto.service_id} found")
         }
-        //TODO check if service is bindable
         return service
     }
 
@@ -120,7 +120,13 @@ class BindingController extends BaseController {
                @PathVariable('id') String bindingGuid,
                UnbindingDto unbindingDto) {
         log.info("Unbind request for BindingId: ${bindingGuid} and ServiceInstanceid: ${serviceInstanceId}")
-        ServiceBinding serviceBinding = checkServiceBinding(bindingGuid)
+        ServiceBinding serviceBinding
+        try {
+            serviceBinding = checkServiceBinding(bindingGuid)
+        } catch (ServiceBrokerException e) {
+            if (e.code == ErrorCode.SERVICE_BINDING_NOT_FOUND.code) ErrorCode.SERVICE_BINDING_GONE.throwNew()
+            else throw e
+        }
         ServiceInstance serviceInstance = serviceBinding.serviceInstance
         CFService service = serviceInstance.plan.service
 
@@ -154,7 +160,7 @@ class BindingController extends BaseController {
     private ServiceBinding checkServiceBinding(String bindingGuid) {
         ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
         if (!serviceBinding) {
-            ErrorCode.SERVICE_BINDING_GONE.throwNew()
+            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
         }
         return serviceBinding
     }
