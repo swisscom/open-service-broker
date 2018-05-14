@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.transform.CompileStatic
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +18,8 @@ import org.springframework.web.context.WebApplicationContext
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
+
+import java.security.Security
 
 @CompileStatic
 @Stepwise
@@ -44,6 +47,10 @@ abstract class BaseFunctionalSpec extends Specification {
     protected UserConfig cfAdminUser
     @Shared
     protected UserConfig cfExtUser
+
+    static {
+        Security.addProvider(new BouncyCastleProvider())
+    }
 
     @Autowired
     void init(ServiceLifeCycler serviceLifeCycler) {

@@ -22,6 +22,15 @@ management:
         db: mydb
         steps: 5s
 
+#  credhub:
+#    url: https://credhub.service.consul:8844
+#    oauth2-resourceowner:
+#      username:
+#      password:
+#      client-id: credhub_cli
+#      client-secret:
+#      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
   enabled: false

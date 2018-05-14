@@ -2,8 +2,12 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
+import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
+import org.apache.commons.io.FileUtils
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
@@ -11,7 +15,15 @@ import org.springframework.web.client.HttpClientErrorException
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
-    private ServiceBindingRepository serviceBindingRepository
+    protected ServiceBindingRepository serviceBindingRepository
+
+    def setupSpec() {
+        System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
+        System.setProperty('javax.net.ssl.keyStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
+        System.setProperty('javax.net.ssl.trustStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
+    }
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
@@ -27,15 +39,22 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
 
+        String username = StringGenerator.randomUuid()
+        String password = StringGenerator.randomUuid()
+
         when:
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])
+        serviceLifeCycler.bindServiceInstanceAndAssert(null, [username: username, password: password])
 
         then:
         noExceptionThrown()
 
         def serviceBinding = serviceBindingRepository.findByGuid(serviceBindingGuid)
         serviceBinding != null
+        serviceBinding.credentials != null
         serviceBinding.applicationUser.username == cfAdminUser.username
+        if (getCredHubService()) {
+            serviceBinding.credhubCredentialId != null
+        }
     }
 
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
@@ -121,5 +140,13 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         noExceptionThrown()
+    }
+
+    private CredHubService getCredHubService() {
+        try {
+            return applicationContext.getBean(CredHubService)
+        } catch (NoSuchBeanDefinitionException e) {
+            return null
+        }
     }
 }
