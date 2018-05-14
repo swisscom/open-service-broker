@@ -20,9 +20,7 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link CredHubTemplate} with
- * OAuth2 credentials if spring-security-oauth2 and OAuth2 properties are provided.
- *
- * @author Daniel Lavoie
+ * OAuth2 credentials if 'spring.credhub.oauth2-resourceowner.username' property is provided.
  */
 @Configuration
 @AutoConfigureBefore(CredHubTemplateAutoConfiguration.class)
