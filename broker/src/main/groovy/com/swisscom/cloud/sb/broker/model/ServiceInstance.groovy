@@ -22,6 +22,8 @@ class ServiceInstance extends BaseModel{
     @Column(columnDefinition='tinyint(1) default 0')
     boolean deleted
     @Column
+    Date dateDeleted
+    @Column
     String parameters
     @OneToMany
     @JoinColumn(name="service_instance_id")
@@ -53,6 +55,7 @@ class ServiceInstance extends BaseModel{
                 ", dateCreated=" + dateCreated +
                 ", completed=" + completed +
                 ", deleted=" + deleted +
+                ", dateDeleted=" + dateDeleted +
                 ", parameters=" + parameters +
                 "}"
     }
