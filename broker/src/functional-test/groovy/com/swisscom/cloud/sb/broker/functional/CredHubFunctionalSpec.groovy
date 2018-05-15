@@ -50,11 +50,11 @@ class CredHubFunctionalSpec extends BaseFunctionalSpec {
     def "Write CredHub credential"() {
         given:
         credentialName = StringGenerator.randomUuid()
-        String usename = 'user1'
-        String password = 'password1'
+        String username = StringGenerator.randomUuid()
+        String password = StringGenerator.randomUuid()
 
         when:
-        CredentialDetails<UserCredential> credential = credHubService.writeCredential('/' + credentialName, usename, password)
+        CredentialDetails<UserCredential> credential = credHubService.writeCredential(credentialName, username, password)
         assert credential != null
         credentialId = credential.id
 
@@ -81,7 +81,7 @@ class CredHubFunctionalSpec extends BaseFunctionalSpec {
     def "Delete Credential by name"() {
         given:
         assert credentialId != null
-        String credentialName = '/' + credentialName
+        String credentialName = credentialName
 
         when:
         credHubService.deleteCredential(credentialName)
