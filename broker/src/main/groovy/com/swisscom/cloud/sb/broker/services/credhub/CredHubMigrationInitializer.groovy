@@ -34,8 +34,8 @@ class CredHubMigrationInitializer {
                 def serviceBinding = it
                 serviceBindingPersistenceService.handleBindingCredentials(serviceBinding, serviceBinding.credentials)
                 serviceBindingRepository.merge(serviceBinding)
-                serviceBindingRepository.flush()
         }
+        serviceBindingRepository.flush()
     }
 
 }
