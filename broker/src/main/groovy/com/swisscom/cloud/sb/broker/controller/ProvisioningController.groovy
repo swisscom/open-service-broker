@@ -30,6 +30,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.actuate.metrics.GaugeService
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -68,6 +69,8 @@ class ProvisioningController extends BaseController {
     private PlanRepository planRepository
     @Autowired
     private ServiceInstanceDtoConverter serviceInstanceDtoConverter
+    @Autowired
+    private GaugeService gaugeService
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -155,11 +158,25 @@ class ProvisioningController extends BaseController {
                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete) {
         log.info("Deprovision request for ServiceInstanceGuid: ${serviceInstanceGuid}")
         DeprovisionResponse response = provisioningService.deprovision(createDeprovisionRequest(serviceInstanceGuid, acceptsIncomplete))
+        writeLifecycleTimeToMetrics(serviceInstanceGuid)
         return new ResponseEntity<String>("{}", response.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
     }
 
     private DeprovisionRequest createDeprovisionRequest(String serviceInstanceGuid, boolean acceptsIncomplete) {
         return new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceInstance: super.getAndCheckServiceInstance(serviceInstanceGuid), acceptsIncomplete: acceptsIncomplete)
+    }
+
+    /**
+     * writes the lifecycle time of a service instance, i.e. the time between provisioning and deprovisioning,
+     * to the metrics endpoint in milliseconds
+     * @param serviceInstanceGuid guid of the service instance that is being deprovisioned
+     */
+    private void writeLifecycleTimeToMetrics(String serviceInstanceGuid){
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        def dateCreated = serviceInstance.dateCreated.getTime()
+        def now = System.currentTimeMillis()
+        def lifecycletime = now - dateCreated;
+        gaugeService.submit("lifecycletime", lifecycletime)
     }
 
     @ApiOperation(value = "Get the last operation status", response = LastOperationResponseDto.class,
