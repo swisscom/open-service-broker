@@ -110,14 +110,14 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         def it = getServiceInstanceIterator()
         while (it.hasNext()) {
             def serviceInstance = it.next()
-            def plan = serviceInstance.plan.name
+            def planName = serviceInstance.plan.name
             if (considerServiceInstance(serviceInstance)) {
-                totalHm = addEntryToHm(totalHm, plan)
+                totalHm = addEntryToHm(totalHm, planName)
                 if (serviceInstance.completed) {
-                    successHm = addEntryToHm(successHm, plan)
+                    successHm = addEntryToHm(successHm, planName)
                 } else if (!checkIfNotCompletedProvisionIsInProgress(serviceInstance.guid)) {
                     // only failed provisions are counted, the ones in progress are ignored
-                    failHm = addEntryToHm(failHm, plan)
+                    failHm = addEntryToHm(failHm, planName)
                 }
             }
         }
