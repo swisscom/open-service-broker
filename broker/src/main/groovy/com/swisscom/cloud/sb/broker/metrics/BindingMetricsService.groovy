@@ -24,16 +24,16 @@ class BindingMetricsService extends ServiceBrokerMetrics{
 
     private final String BINDING = "binding"
 
-    private long totalNrOfBindings
-    private HashMap<String, Long> totalBindingsPerService
+    private long totalSuccessfulNrOfBindings
+    private HashMap<String, Long> totalSuccessfulBindingsPerService
 
 
     void retrieveMetricsForTotalNrOfBindings() {
 
         def it = getServiceBindingIterator()
-        totalNrOfBindings = it.size()
+        totalSuccessfulNrOfBindings = it.size()
 
-        log.info("Total nr of provision requests: ${totalNrOfBindings}")
+        log.info("Total nr of provision requests: ${totalSuccessfulNrOfBindings}")
 
     }
 
@@ -51,8 +51,8 @@ class BindingMetricsService extends ServiceBrokerMetrics{
             }
             totalHm = addEntryToHm(totalHm, serviceName)
         }
-        totalBindingsPerService = totalHm
-        log.info("${tag()} total bindings per service: ${totalPerService}")
+        totalSuccessfulBindingsPerService = totalHm
+        log.info("${tag()} total bindings per service: ${totalSuccessfulBindingsPerService}")
     }
 
     ListIterator<ServiceBinding> getServiceBindingIterator() {
@@ -65,10 +65,10 @@ class BindingMetricsService extends ServiceBrokerMetrics{
         List<Metric<?>> metrics = new ArrayList<>()
 
         retrieveMetricsForTotalNrOfBindings()
-        metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalNrOfBindings))
+        metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalSuccessfulNrOfBindings))
 
         retrieveTotalBindingsPerService()
-        metrics = addCountersFromHashMapToMetrics(totalBindingsPerService, totalBindingsPerService, metrics, BINDING, SERVICE, TOTAL)
+        metrics = addCountersFromHashMapToMetrics(totalSuccessfulBindingsPerService, totalSuccessfulBindingsPerService, metrics, BINDING, SERVICE, SUCCESS)
 
         return metrics
     }
