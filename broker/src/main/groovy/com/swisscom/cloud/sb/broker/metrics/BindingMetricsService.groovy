@@ -24,9 +24,17 @@ class BindingMetricsService extends ServiceBrokerMetrics{
     private ServiceInstanceRepository serviceInstanceRepository
 
     private final String BINDING = "binding"
+    private final String BINDING_REQUEST = "bindingRequest"
+
 
     private long totalSuccessfulNrOfBindings
     private HashMap<String, Long> totalSuccessfulBindingsPerService
+    private HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
+    private HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
+    private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
+
+
+
 
 
     void retrieveMetricsForTotalNrOfBindings() {
@@ -38,7 +46,7 @@ class BindingMetricsService extends ServiceBrokerMetrics{
 
     }
 
-    void retrieveTotalBindingsPerService(){
+    void retrieveTotalSuccessfulBindingsPerService(){
         HashMap<String, Long> totalHm = new HashMap<>()
 
         def it = getServiceBindingIterator()
@@ -61,6 +69,38 @@ class BindingMetricsService extends ServiceBrokerMetrics{
         return allServiceBindings.listIterator()
     }
 
+    public void setTotalBindingRequestsPerService(ServiceInstance serviceInstance) {
+        def cfServiceName = getServiceName(serviceInstance)
+        totalBindingRequestsPerService = addEntryToHm(totalBindingRequestsPerService, cfServiceName)
+    }
+
+    public void setSuccessfulBindingRequestsPerService(ServiceInstance serviceInstance) {
+        def cfServiceName = getServiceName(serviceInstance)
+        totalSuccessfulBindingRequestsPerService = addEntryToHm(totalSuccessfulBindingRequestsPerService, cfServiceName)
+        calculateFailedBindingRequestsPerService()
+    }
+
+    void calculateFailedBindingRequestsPerService() {
+        def it = totalBindingRequestsPerService.iterator()
+        while(it.hasNext()) {
+            def next = (Map.Entry<String, Long>) it.next()
+            def key = next.getKey()
+            def totalValue = next.getValue()
+            def successValue = totalSuccessfulBindingRequestsPerService.get(key)
+            def failureValue = totalValue - successValue
+            totalFailedBindingRequestsPerService.put(key, failureValue)
+        }
+    }
+
+    String getServiceName(ServiceInstance serviceInstance) {
+        def cfService = serviceInstance.plan.service
+        def cfServiceName = "someService"
+        if (cfService) {
+            cfServiceName = cfService.name
+        }
+        return cfServiceName
+    }
+
     @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
@@ -68,7 +108,10 @@ class BindingMetricsService extends ServiceBrokerMetrics{
         retrieveMetricsForTotalNrOfBindings()
         metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalSuccessfulNrOfBindings))
 
-        retrieveTotalBindingsPerService()
+        retrieveTotalSuccessfulBindingsPerService()
+        metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, TOTAL)
+        metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalSuccessfulBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, SUCCESS)
+        metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalFailedBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, FAIL)
         metrics = addCountersFromHashMapToMetrics(totalSuccessfulBindingsPerService, totalSuccessfulBindingsPerService, metrics, BINDING, SERVICE, SUCCESS)
 
         return metrics
