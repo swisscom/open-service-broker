@@ -147,6 +147,7 @@ class ProvisioningPersistenceService {
     def markServiceInstanceAsDeleted(ServiceInstance instance) {
         instance = serviceInstanceRepository.merge(instance)
         instance.deleted = true
+        instance.dateDeleted = new Date()
         serviceInstanceRepository.save(instance)
     }
 
