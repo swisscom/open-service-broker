@@ -14,12 +14,14 @@ class MockCredHubService implements CredHubService {
 
     @Override
     CredentialDetails<UserCredential> writeCredential(String credentialName, String username, String password) {
+        log.info("Writing new CredHub Credential for name: ${credentialName}, username: ${username}")
         UserCredential cred = new UserCredential(username, password)
         return new CredentialDetails(StringGenerator.randomUuid(), new SimpleCredentialName(credentialName), CredentialType.USER, cred)
     }
 
     @Override
     CredentialDetails<UserCredential> getCredential(String id) {
+        log.info("Get CredHub credentials for id: ${id}")
         UserCredential cred = new UserCredential(StringGenerator.randomUuid(), StringGenerator.randomUuid())
         return new CredentialDetails(id, new SimpleCredentialName(StringGenerator.randomUuid()), CredentialType.USER, cred)
     }
