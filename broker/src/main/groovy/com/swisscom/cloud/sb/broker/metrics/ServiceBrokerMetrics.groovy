@@ -78,10 +78,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         while (it.hasNext()) {
             def serviceInstance = it.next()
             //for services where no service is set the name cannot be deduced
-            def serviceName = "someService"
-            if(serviceInstance.plan.service) {
-                serviceName = serviceInstance.plan.service.name
-            }
+            def serviceName = getServiceName(serviceInstance)
             if (considerServiceInstance(serviceInstance)) {
                 totalHm = addEntryToHm(totalHm, serviceName)
                 if (serviceInstance.completed) {
@@ -149,6 +146,15 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
             hm.put(key, newCounter)
         }
         return hm
+    }
+
+    String getServiceName(ServiceInstance serviceInstance) {
+        def cfService = serviceInstance.plan.service
+        def cfServiceName = "someService"
+        if (cfService) {
+            cfServiceName = cfService.name
+        }
+        return cfServiceName
     }
 
     /*
