@@ -16,19 +16,17 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
     private HashMap<String, Long> totalLifecycleTimePerService
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService
-    private HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
 
     @Autowired
     LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
         super(serviceInstanceRepository, lastOperationRepository)
     }
 
-    void calculateLifecycleTimePerService() {
+    HashMap<String, Long> calculateLifecycleTimePerService(List<ServiceInstance> serviceInstanceList) {
         HashMap<String, Long> total = new HashMap<>()
         HashMap<String, Long> totalLifecycleTime = new HashMap<>()
 
-        def list = serviceInstanceRepository.findAll()
-        list.findAll { instance -> instance.deleted }.each {
+        serviceInstanceList.findAll { instance -> instance.deleted }.each {
             serviceInstance ->
                 def serviceName = getServiceName(serviceInstance)
                 total = addEntryToHm(total, serviceName)
@@ -36,7 +34,7 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         }
         totalNrOfDeleteInstancesPerService = total
         totalLifecycleTimePerService = totalLifecycleTime
-        calculateMeanLifecycleTime()
+        return calculateMeanLifecycleTime(totalNrOfDeleteInstancesPerService)
     }
 
     HashMap<String, Long> addUpLifecycleTime(HashMap<String, Long> totalLifecycleTimePerServiceName, String serviceName, ServiceInstance serviceInstance) {
@@ -53,22 +51,25 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         return totalLifecycleTimePerServiceName
     }
 
-    void calculateMeanLifecycleTime() {
-        totalNrOfDeleteInstancesPerService.findAll { service ->
+    HashMap<String, Long> calculateMeanLifecycleTime(HashMap<String, Long> totalDeletedServiceInstanceMap) {
+        HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
+        totalDeletedServiceInstanceMap.findAll { service ->
             def serviceName = service.getKey()
             def totalNrOfInstances = service.getValue()
             def totalLifecycleTime = totalLifecycleTimePerService.get(serviceName)
             def meanLifecycleTime = (totalLifecycleTime / totalNrOfInstances).toLong()
             meanLifecycleTimePerService.put(serviceName, meanLifecycleTime)
         }
+        return meanLifecycleTimePerService
     }
 
     @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
+        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
 
-        calculateLifecycleTimePerService()
-        metrics = addCountersFromHashMapToMetrics(meanLifecycleTimePerService, meanLifecycleTimePerService, metrics, LIFECYCLE_TIME, SERVICE, TOTAL)
+        def lifecycleTimePerService = calculateLifecycleTimePerService(serviceInstanceList)
+        metrics = addCountersFromHashMapToMetrics(lifecycleTimePerService, lifecycleTimePerService, metrics, LIFECYCLE_TIME, SERVICE, TOTAL)
         return metrics
     }
 
