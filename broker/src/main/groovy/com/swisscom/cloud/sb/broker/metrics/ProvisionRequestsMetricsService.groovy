@@ -33,23 +33,24 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
     @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
+        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
 
-        retrieveTotalMetrics()
-        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${TOTAL}", total))
-        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${SUCCESS}", totalSuccess))
-        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${FAIL}", totalFailure))
-        metrics.add(new Metric<Double>("${PROVISION_REQUEST}.${SUCCESS}.${RATIO}", calculateRatio(total, totalSuccess)))
-        metrics.add(new Metric<Double>("${PROVISION_REQUEST}.${FAIL}.${RATIO}", calculateRatio(total, totalFailure)))
+        def totalMetrics = retrieveTotalMetrics(serviceInstanceList)
+        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${TOTAL}", totalMetrics.total))
+        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${SUCCESS}", totalMetrics.totalSuccess))
+        metrics.add(new Metric<Long>("${PROVISION_REQUEST}.${TOTAL}.${FAIL}", totalMetrics.totalFailures))
+        metrics.add(new Metric<Double>("${PROVISION_REQUEST}.${SUCCESS}.${RATIO}", calculateRatio(totalMetrics.total, totalMetrics.totalSuccess)))
+        metrics.add(new Metric<Double>("${PROVISION_REQUEST}.${FAIL}.${RATIO}", calculateRatio(totalMetrics.total, totalMetrics.totalFailures)))
 
-        retrieveTotalMetricsPerService()
-        metrics = addCountersFromHashMapToMetrics(totalPerService, totalPerService, metrics, PROVISION_REQUEST, SERVICE, TOTAL)
-        metrics = addCountersFromHashMapToMetrics(totalPerService, totalSuccessPerService, metrics, PROVISION_REQUEST, SERVICE, SUCCESS)
-        metrics = addCountersFromHashMapToMetrics(totalPerService, totalFailurePerService, metrics, PROVISION_REQUEST, SERVICE, FAIL)
+        def totalMetricsPerService = retrieveTotalMetricsPerService(serviceInstanceList)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.total, metrics, PROVISION_REQUEST, SERVICE, TOTAL)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.totalSuccess, metrics, PROVISION_REQUEST, SERVICE, SUCCESS)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.totalFailures, metrics, PROVISION_REQUEST, SERVICE, FAIL)
 
-        retrieveTotalMetricsPerPlan()
-        metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalPerPlan, metrics, PROVISION_REQUEST, PLAN, TOTAL)
-        metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalSuccessPerPlan, metrics, PROVISION_REQUEST, PLAN, SUCCESS)
-        metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalFailurePerPlan, metrics, PROVISION_REQUEST, PLAN, FAIL)
+        def totalMetricsPerPlan = retrieveTotalMetricsPerPlan(serviceInstanceList)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.total, metrics, PROVISION_REQUEST, PLAN, TOTAL)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.totalSuccess, metrics, PROVISION_REQUEST, PLAN, SUCCESS)
+        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.totalFailures, metrics, PROVISION_REQUEST, PLAN, FAIL)
 
         return metrics
     }
