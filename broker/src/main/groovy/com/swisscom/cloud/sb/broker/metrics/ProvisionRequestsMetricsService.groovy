@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service
 @CompileStatic
 class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
 
+    private final String PROVISION_REQUEST = "provisionRequest"
+
     @Autowired
     ProvisionRequestsMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
         super(serviceInstanceRepository, lastOperationRepository)
     }
-
-    private final String PROVISION_REQUEST = "provisionRequest"
 
     @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {

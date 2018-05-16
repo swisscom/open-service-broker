@@ -14,21 +14,15 @@ import org.springframework.boot.actuate.metrics.Metric
 @Slf4j
 abstract class ServiceBrokerMetrics implements PublicMetrics {
 
-    @Autowired
-    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
-        this.serviceInstanceRepository = serviceInstanceRepository
-        this.lastOperationRepository = lastOperationRepository
-    }
-
-    protected ServiceInstanceRepository serviceInstanceRepository
-    protected LastOperationRepository lastOperationRepository
-
     protected final String SUCCESS = "success"
     protected final String FAIL = "fail"
     protected final String TOTAL = "total"
     protected final String SERVICE = "service"
     protected final String PLAN = "plan"
     protected final String RATIO = "ratio"
+
+    protected ServiceInstanceRepository serviceInstanceRepository
+    protected LastOperationRepository lastOperationRepository
 
     protected long total
     protected HashMap<String, Long> totalPerService
@@ -42,6 +36,12 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
     protected HashMap<String, Long> totalFailurePerService
     protected HashMap<String, Long> totalFailurePerPlan
 
+    @Autowired
+    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.lastOperationRepository = lastOperationRepository
+    }
+
     abstract Collection<Metric<?>> metrics()
 
     protected void retrieveTotalMetrics() {
@@ -49,10 +49,9 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         def successCounter = 0
         def failCounter = 0
 
-        def it = getServiceInstanceIterator()
-        while (it.hasNext()) {
-            def serviceInstance = it.next()
-            if(considerServiceInstance(serviceInstance)) {
+        def list = serviceInstanceRepository.findAll()
+        list.each { serviceInstance ->
+            if (considerServiceInstance(serviceInstance)) {
                 totalCounter++
                 if (serviceInstance.completed) {
                     successCounter++
@@ -62,6 +61,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
                 }
             }
         }
+
         total = totalCounter
         log.info("${tag()} total: ${total}")
 
@@ -77,10 +77,8 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         HashMap<String, Long> successHm = new HashMap<>()
         HashMap<String, Long> failHm = new HashMap<>()
 
-        def it = getServiceInstanceIterator()
-        while (it.hasNext()) {
-            def serviceInstance = it.next()
-            //for services where no service is set the name cannot be deduced
+        def list = serviceInstanceRepository.findAll()
+        list.each { serviceInstance ->
             def serviceName = getServiceName(serviceInstance)
             if (considerServiceInstance(serviceInstance)) {
                 totalHm = addEntryToHm(totalHm, serviceName)
@@ -92,6 +90,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
                 }
             }
         }
+
         totalPerService = totalHm
         log.info("${tag()} total service: ${totalPerService}")
 
@@ -107,9 +106,8 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         HashMap<String, Long> successHm = new HashMap<>()
         HashMap<String, Long> failHm = new HashMap<>()
 
-        def it = getServiceInstanceIterator()
-        while (it.hasNext()) {
-            def serviceInstance = it.next()
+        def list = serviceInstanceRepository.findAll()
+        list.each { serviceInstance ->
             def planName = serviceInstance.plan.name
             if (considerServiceInstance(serviceInstance)) {
                 totalHm = addEntryToHm(totalHm, planName)
@@ -121,6 +119,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
                 }
             }
         }
+
         totalPerPlan = totalHm
         log.info("${tag()} total: ${totalPerPlan}")
 
@@ -129,11 +128,6 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
 
         totalFailurePerPlan = failHm
         log.info("${tag()} total failure plan: ${totalFailurePerPlan}")
-    }
-
-    ListIterator<ServiceInstance> getServiceInstanceIterator() {
-        def allServiceInstances = serviceInstanceRepository.findAll()
-        return allServiceInstances.listIterator()
     }
 
     abstract boolean considerServiceInstance(ServiceInstance serviceInstance)
@@ -167,6 +161,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
     * failed provisionings cannot be detected once they have been followed by deprovisioning. By checking for IN_PROGRESS
     * the case that a service instance is still being successfully provisioned is excluded from failures
     */
+
     boolean checkIfNotCompletedProvisionIsInProgress(String serviceInstanceGuid) {
         def lastOperation = lastOperationRepository.findByGuid(serviceInstanceGuid)
         return lastOperation.status == LastOperation.Status.IN_PROGRESS
