@@ -45,7 +45,7 @@ class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         String username = StringGenerator.randomUuid()
         String password = StringGenerator.randomUuid()
 
-        mockCredHubWriteCredential(serviceBindingGuid, username, password)
+        def credentialsDetails = new CredentialDetails(StringGenerator.randomUuid(), new SimpleCredentialName(serviceBindingGuid), CredentialType.USER, new UserCredential(username, password))
 
         when:
         serviceLifeCycler.bindServiceInstanceAndAssert(null, [username: username, password: password])
@@ -61,11 +61,13 @@ class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         def credentials = JsonHelper.parse(serviceBinding.credentials, Map) as Map
         credentials.username == null
         credentials.password == null
+
+        1 * credHubService.writeCredential(_, _, _) >> credentialsDetails
     }
 
     def "get binding credentials from CredHub"() {
         given:
-        mockCredHubGetCredential()
+        def credentialsDetails = new CredentialDetails(StringGenerator.randomUuid(), new SimpleCredentialName(StringGenerator.randomUuid()), CredentialType.USER, new UserCredential(StringGenerator.randomUuid(), StringGenerator.randomUuid()))
 
         when:
         def bindingResponse = serviceBrokerClient.getServiceInstanceBinding(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.serviceBindingId)
@@ -78,12 +80,11 @@ class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         def credentials = JsonHelper.parse(bindingResponse.body.credentials, Map) as Map
         credentials.username != null
         credentials.password != null
+
+        1 * credHubService.getCredential(_) >> credentialsDetails
     }
 
     def "deprovision async service instance and delete credential from CredHub"() {
-        given:
-        mockCredHubDeleteCredential()
-
         when:
         serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
 
@@ -122,19 +123,6 @@ class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         def credentials = JsonHelper.parse(serviceBinding.credentials, Map) as Map
         credentials.username != null
         credentials.password != null
-    }
-
-    private void mockCredHubWriteCredential(String serviceBindingGuid, String username, String password) {
-        credHubService.writeCredential(_, _, _) >> new CredentialDetails(StringGenerator.randomUuid(), new SimpleCredentialName(serviceBindingGuid), CredentialType.USER, new UserCredential(username, password))
-    }
-
-    private void mockCredHubGetCredential() {
-        UserCredential cred = new UserCredential(StringGenerator.randomUuid(), StringGenerator.randomUuid())
-        credHubService.getCredential(_) >> new CredentialDetails(StringGenerator.randomUuid(), new SimpleCredentialName(StringGenerator.randomUuid()), CredentialType.USER, cred)
-    }
-
-    private void mockCredHubDeleteCredential() {
-        credHubService.deleteCredential(_) >> void
     }
 
 }
