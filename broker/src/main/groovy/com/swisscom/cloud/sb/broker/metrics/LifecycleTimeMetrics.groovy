@@ -12,31 +12,27 @@ import org.springframework.stereotype.Service
 @CompileStatic
 class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
+    private final String LIFECYCLE_TIME = "lifecycleTime"
+
+    private HashMap<String, Long> totalLifecycleTimePerService
+    private HashMap<String, Long> totalNrOfDeleteInstancesPerService
+    private HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
+
     @Autowired
     LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
         super(serviceInstanceRepository, lastOperationRepository)
     }
 
-    private final String LIFECYCLE_TIME = "lifecycleTime"
-
-    HashMap<String, Long> totalLifecycleTimePerService
-    HashMap<String, Long> totalNrOfDeleteInstancesPerService
-    HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
-
-
-
     void calculateLifecycleTimePerService() {
         HashMap<String, Long> total = new HashMap<>()
         HashMap<String, Long> totalLifecycleTime = new HashMap<>()
 
-        def it = getServiceInstanceIterator()
-        while (it.hasNext()) {
-            def serviceInstance = it.next()
-            if (serviceInstance.deleted) {
+        def list = serviceInstanceRepository.findAll()
+        list.findAll { instance -> instance.deleted }.each {
+            serviceInstance ->
                 def serviceName = getServiceName(serviceInstance)
                 total = addEntryToHm(total, serviceName)
                 totalLifecycleTime = addUpLifecycleTime(totalLifecycleTime, serviceName, serviceInstance)
-            }
         }
         totalNrOfDeleteInstancesPerService = total
         totalLifecycleTimePerService = totalLifecycleTime
@@ -46,8 +42,8 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     HashMap<String, Long> addUpLifecycleTime(HashMap<String, Long> hm, String key, ServiceInstance serviceInstance) {
         def dateCreated = serviceInstance.dateCreated.getTime()
         def dateDeleted = serviceInstance.dateDeleted.getTime()
-        if(dateCreated != null && dateDeleted != null) {
-            def lifecycleTime = dateDeleted-dateCreated
+        if (dateCreated != null && dateDeleted != null) {
+            def lifecycleTime = dateDeleted - dateCreated
             if (hm.get(key) == null) {
                 hm.put(key, lifecycleTime)
             } else {
@@ -60,13 +56,11 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     }
 
     void calculateMeanLifecycleTime() {
-        def it = totalNrOfDeleteInstancesPerService.iterator()
-        while (it.hasNext()) {
-            def next = (Map.Entry<String, Long>) it.next()
-            def serviceName = next.getKey()
-            def totalNrOfInstances = next.getValue()
+        totalNrOfDeleteInstancesPerService.findAll { service ->
+            def serviceName = service.getKey()
+            def totalNrOfInstances = service.getValue()
             def totalLifecycleTime = totalLifecycleTimePerService.get(serviceName)
-            def meanLifecycleTime = (totalLifecycleTime/totalNrOfInstances).toLong()
+            def meanLifecycleTime = (totalLifecycleTime / totalNrOfInstances).toLong()
             meanLifecycleTimePerService.put(serviceName, meanLifecycleTime)
         }
     }
