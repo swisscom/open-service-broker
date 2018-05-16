@@ -2,13 +2,13 @@ package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
-import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,17 +17,21 @@ import org.springframework.stereotype.Service
 class BindingMetricsService extends ServiceBrokerMetrics {
 
     @Autowired
+    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository) {
+        super(serviceInstanceRepository, lastOperationRepository)
+        this.serviceBindingRepository = serviceBindingRepository
+    }
+
     private ServiceBindingRepository serviceBindingRepository
 
     private final String BINDING = "binding"
     private final String BINDING_REQUEST = "bindingRequest"
 
-
-    private long totalSuccessfulNrOfBindings
-    private HashMap<String, Long> totalSuccessfulBindingsPerService
-    private HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
-    private HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
-    private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
+    long totalSuccessfulNrOfBindings
+    HashMap<String, Long> totalSuccessfulBindingsPerService
+    HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
+    HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
+    HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     void retrieveMetricsForTotalNrOfBindings() {
         def it = getServiceBindingIterator()

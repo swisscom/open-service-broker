@@ -1,13 +1,21 @@
 package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class ProvisioningMetricsService extends ServiceBrokerMetrics {
+class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
+
+    @Autowired
+    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+        super(serviceInstanceRepository, lastOperationRepository)
+    }
 
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
@@ -19,7 +27,7 @@ class ProvisioningMetricsService extends ServiceBrokerMetrics {
 
     @Override
     String tag() {
-        return ProvisioningMetricsService.class.getSimpleName()
+        return ProvisionedInstancesMetricsService.class.getSimpleName()
     }
 
     @Override
@@ -42,11 +50,6 @@ class ProvisioningMetricsService extends ServiceBrokerMetrics {
         metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalPerPlan, metrics, PROVISIONED_INSTANCES, PLAN, TOTAL)
         metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalSuccessPerPlan, metrics, PROVISIONED_INSTANCES, PLAN, SUCCESS)
         metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalFailurePerPlan, metrics, PROVISIONED_INSTANCES, PLAN, FAIL)
-
-        /*def influx = new InfluxDBConnector().influxMetricsWriter()
-        for(Metric<?> m: metrics) {
-            influx.set(m)
-        }*/
 
         return metrics
     }

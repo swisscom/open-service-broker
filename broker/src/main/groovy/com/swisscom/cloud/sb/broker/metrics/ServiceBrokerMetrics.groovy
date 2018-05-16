@@ -15,9 +15,12 @@ import org.springframework.boot.actuate.metrics.Metric
 abstract class ServiceBrokerMetrics implements PublicMetrics {
 
     @Autowired
-    protected ServiceInstanceRepository serviceInstanceRepository
+    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.lastOperationRepository = lastOperationRepository
+    }
 
-    @Autowired
+    protected ServiceInstanceRepository serviceInstanceRepository
     protected LastOperationRepository lastOperationRepository
 
     protected final String SUCCESS = "success"
@@ -41,7 +44,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
 
     abstract Collection<Metric<?>> metrics()
 
-    void retrieveTotalMetrics() {
+    protected void retrieveTotalMetrics() {
         def totalCounter = 0
         def successCounter = 0
         def failCounter = 0
