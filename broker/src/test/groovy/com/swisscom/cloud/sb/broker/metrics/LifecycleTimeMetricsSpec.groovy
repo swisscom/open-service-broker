@@ -1,4 +1,115 @@
 package com.swisscom.cloud.sb.broker.metrics
 
-class LifecycleTimeMetricsSpec {
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import spock.lang.Specification
+
+class LifecycleTimeMetricsSpec extends Specification {
+
+    private ServiceInstanceRepository serviceInstanceRepository
+    private LastOperationRepository lastOperationRepository
+    private LifecycleTimeMetrics lifecylceTimeMetrics
+
+    private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 = 20
+    private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2 = 10
+
+    private final int MILLISECONDS_PER_SECOND = 1000
+
+    def setup() {
+        serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        lastOperationRepository = Mock(LastOperationRepository)
+        lifecylceTimeMetrics = new LifecycleTimeMetrics(serviceInstanceRepository, lastOperationRepository)
+    }
+
+    def "retrieve mean lifecycle time per service"() {
+        setup:
+        def serviceInstanceList = new ArrayList<ServiceInstance>()
+        def serviceInstance = new ServiceInstance()
+        def plan = new Plan()
+        def service = new CFService()
+
+        and:
+        serviceInstance.dateCreated = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        serviceInstance.completed = true
+        serviceInstance.deleted = true
+        serviceInstance.dateDeleted = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:20")
+
+        and:
+        serviceInstance.plan = plan
+        service.name = "service"
+        serviceInstance.plan.service = service
+        serviceInstanceList.add(serviceInstance)
+
+        when:
+        serviceInstanceRepository.findAll() >> serviceInstanceList
+
+        then:
+        lifecylceTimeMetrics.calculateLifecycleTimePerService()
+
+        expect:
+        lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.size() == 1
+        lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.get(service.name) == 1
+
+        and:
+        lifecylceTimeMetrics.totalLifecycleTimePerService.size() == 1
+        lifecylceTimeMetrics.totalLifecycleTimePerService.get(service.name) == TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 * MILLISECONDS_PER_SECOND
+
+        and:
+        lifecylceTimeMetrics.meanLifecycleTimePerService.size() == 1
+        lifecylceTimeMetrics.meanLifecycleTimePerService.get(service.name) == TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 * MILLISECONDS_PER_SECOND
+    }
+
+    def "retrieve mean lifecycle time per service with multiple service instances"() {
+        setup:
+        def serviceInstanceList = new ArrayList<ServiceInstance>()
+        def serviceInstance1 = new ServiceInstance()
+        def serviceInstance2 = new ServiceInstance()
+        def plan = new Plan()
+        def service = new CFService()
+
+        and:
+        serviceInstance1.dateCreated = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        serviceInstance1.completed = true
+        serviceInstance1.deleted = true
+        serviceInstance1.dateDeleted = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:20")
+
+        and:
+        serviceInstance1.plan = plan
+        service.name = "service"
+        serviceInstance1.plan.service = service
+        serviceInstanceList.add(serviceInstance1)
+
+        and:
+        serviceInstance2.dateCreated = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        serviceInstance2.completed = true
+        serviceInstance2.deleted = true
+        serviceInstance2.dateDeleted = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:10")
+
+        and:
+        serviceInstance2.plan = plan
+        serviceInstance2.plan.service = service
+        serviceInstanceList.add(serviceInstance2)
+
+
+        when:
+        serviceInstanceRepository.findAll() >> serviceInstanceList
+
+        then:
+        lifecylceTimeMetrics.calculateLifecycleTimePerService()
+
+        expect:
+        lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.size() == 1
+        lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.get(service.name) == 2
+
+        and:
+        lifecylceTimeMetrics.totalLifecycleTimePerService.size() == 1
+        lifecylceTimeMetrics.totalLifecycleTimePerService.get(service.name) == (TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2) * MILLISECONDS_PER_SECOND
+
+        and:
+        lifecylceTimeMetrics.meanLifecycleTimePerService.size() == 1
+        lifecylceTimeMetrics.meanLifecycleTimePerService.get(service.name) == ((TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2)/2) * MILLISECONDS_PER_SECOND
+    }
 }
