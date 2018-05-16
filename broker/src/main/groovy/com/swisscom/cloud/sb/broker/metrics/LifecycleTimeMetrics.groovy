@@ -1,19 +1,27 @@
 package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class LifecylceTimeMetrics extends ServiceBrokerMetrics {
+class LifecycleTimeMetrics extends ServiceBrokerMetrics {
+
+    @Autowired
+    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+        super(serviceInstanceRepository, lastOperationRepository)
+    }
 
     private final String LIFECYCLE_TIME = "lifecycleTime"
 
-    private HashMap<String, Long> totalLifecycleTimePerService
-    private HashMap<String, Long> totalNrOfDeleteInstancesPerService
-    private HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
+    HashMap<String, Long> totalLifecycleTimePerService
+    HashMap<String, Long> totalNrOfDeleteInstancesPerService
+    HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
 
 
 
@@ -79,6 +87,6 @@ class LifecylceTimeMetrics extends ServiceBrokerMetrics {
 
     @Override
     String tag() {
-        return LifecylceTimeMetrics.class.getSimpleName()
+        return LifecycleTimeMetrics.class.getSimpleName()
     }
 }
