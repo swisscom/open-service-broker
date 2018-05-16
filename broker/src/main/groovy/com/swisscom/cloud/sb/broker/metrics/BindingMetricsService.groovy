@@ -22,8 +22,6 @@ class BindingMetricsService extends ServiceBrokerMetrics {
 
     private ServiceBindingRepository serviceBindingRepository
 
-    private long totalSuccessfulNrOfBindings
-    private HashMap<String, Long> totalSuccessfulBindingsPerService
     private HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
     private HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
     private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
@@ -34,17 +32,15 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         this.serviceBindingRepository = serviceBindingRepository
     }
 
-    void retrieveMetricsForTotalNrOfBindings() {
-        def list = serviceBindingRepository.findAll()
-        totalSuccessfulNrOfBindings = list.size()
-
-        log.info("Total nr of provision requests: ${totalSuccessfulNrOfBindings}")
+    long retrieveMetricsForTotalNrOfSuccessfulBindings(List<ServiceBinding> serviceBindingList) {
+        def totalNrOfSuccessfulBindings = serviceBindingList.size()
+        log.info("Total nr of provision requests: ${totalNrOfSuccessfulBindings}")
+        return totalNrOfSuccessfulBindings
     }
 
-    void retrieveTotalSuccessfulBindingsPerService() {
+    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList) {
         HashMap<String, Long> totalHm = new HashMap<>()
-        def list = serviceBindingRepository.findAll()
-        list.each { serviceBinding ->
+        serviceBindingList.each { serviceBinding ->
             def serviceInstance = serviceBinding.serviceInstance
             def service = serviceInstance.plan.service
             def serviceName = "someService"
@@ -53,8 +49,8 @@ class BindingMetricsService extends ServiceBrokerMetrics {
             }
             totalHm = addEntryToHm(totalHm, serviceName)
         }
-        totalSuccessfulBindingsPerService = totalHm
-        log.info("${tag()} total bindings per service: ${totalSuccessfulBindingsPerService}")
+        log.info("${tag()} total bindings per service: ${totalHm}")
+        return totalHm
     }
 
     public void setTotalBindingRequestsPerService(ServiceInstance serviceInstance) {
@@ -81,15 +77,16 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
+        List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
 
-        retrieveMetricsForTotalNrOfBindings()
-        metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalSuccessfulNrOfBindings))
+        def totalNrOfSuccessfulBinding = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingList)
+        metrics.add(new Metric<Long>("${BINDING}.${TOTAL}.${TOTAL}", totalNrOfSuccessfulBinding))
 
-        retrieveTotalSuccessfulBindingsPerService()
+        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
+        metrics = addCountersFromHashMapToMetrics(totalNrOfSuccessfulBindingsPerService, totalNrOfSuccessfulBindingsPerService, metrics, BINDING, SERVICE, SUCCESS)
         metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, TOTAL)
         metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalSuccessfulBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, SUCCESS)
         metrics = addCountersFromHashMapToMetrics(totalBindingRequestsPerService, totalFailedBindingRequestsPerService, metrics, BINDING_REQUEST, SERVICE, FAIL)
-        metrics = addCountersFromHashMapToMetrics(totalSuccessfulBindingsPerService, totalSuccessfulBindingsPerService, metrics, BINDING, SERVICE, SUCCESS)
 
         return metrics
     }

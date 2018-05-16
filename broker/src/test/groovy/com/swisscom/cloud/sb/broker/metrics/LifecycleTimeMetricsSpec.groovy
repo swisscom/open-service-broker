@@ -41,13 +41,12 @@ class LifecycleTimeMetricsSpec extends Specification {
         serviceInstance.plan = plan
         service.name = "service"
         serviceInstance.plan.service = service
-        serviceInstanceList.add(serviceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(serviceInstance)
 
         then:
-        lifecylceTimeMetrics.calculateLifecycleTimePerService()
+        def lifecycleTimePerService = lifecylceTimeMetrics.calculateLifecycleTimePerService(serviceInstanceList)
 
         expect:
         lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.size() == 1
@@ -58,8 +57,8 @@ class LifecycleTimeMetricsSpec extends Specification {
         lifecylceTimeMetrics.totalLifecycleTimePerService.get(service.name) == TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 * MILLISECONDS_PER_SECOND
 
         and:
-        lifecylceTimeMetrics.meanLifecycleTimePerService.size() == 1
-        lifecylceTimeMetrics.meanLifecycleTimePerService.get(service.name) == TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 * MILLISECONDS_PER_SECOND
+        lifecycleTimePerService.size() == 1
+        lifecycleTimePerService.get(service.name) == TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 * MILLISECONDS_PER_SECOND
     }
 
     def "retrieve mean lifecycle time per service with multiple service instances"() {
@@ -91,14 +90,12 @@ class LifecycleTimeMetricsSpec extends Specification {
         and:
         serviceInstance2.plan = plan
         serviceInstance2.plan.service = service
-        serviceInstanceList.add(serviceInstance2)
-
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(serviceInstance2)
 
         then:
-        lifecylceTimeMetrics.calculateLifecycleTimePerService()
+        def lifecycleTimePerService = lifecylceTimeMetrics.calculateLifecycleTimePerService(serviceInstanceList)
 
         expect:
         lifecylceTimeMetrics.totalNrOfDeleteInstancesPerService.size() == 1
@@ -109,7 +106,7 @@ class LifecycleTimeMetricsSpec extends Specification {
         lifecylceTimeMetrics.totalLifecycleTimePerService.get(service.name) == (TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2) * MILLISECONDS_PER_SECOND
 
         and:
-        lifecylceTimeMetrics.meanLifecycleTimePerService.size() == 1
-        lifecylceTimeMetrics.meanLifecycleTimePerService.get(service.name) == ((TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2)/2) * MILLISECONDS_PER_SECOND
+        lifecycleTimePerService.size() == 1
+        lifecycleTimePerService.get(service.name) == ((TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2)/2) * MILLISECONDS_PER_SECOND
     }
 }
