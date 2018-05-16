@@ -8,15 +8,15 @@ import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import spock.lang.Specification
 
-class ProvisioningMetricsServiceSpec extends Specification {
+class ProvisionedInstancesMetricsServiceSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
     private LastOperationRepository lastOperationRepository
-    private ProvisioningMetricsService provisioningMetricsService
+    private ProvisionedInstancesMetricsService provisioningMetricsService
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        provisioningMetricsService = new ProvisioningMetricsService(serviceInstanceRepository, lastOperationRepository)
+        provisioningMetricsService = new ProvisionedInstancesMetricsService(serviceInstanceRepository, lastOperationRepository)
     }
 
     def "retrieve total nr of provisioned instances"() {
