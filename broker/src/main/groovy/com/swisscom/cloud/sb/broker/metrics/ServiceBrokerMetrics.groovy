@@ -24,18 +24,6 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
     protected ServiceInstanceRepository serviceInstanceRepository
     protected LastOperationRepository lastOperationRepository
 
-    protected long total
-    protected HashMap<String, Long> totalPerService
-    protected HashMap<String, Long> totalPerPlan
-
-    protected long totalSuccess
-    protected HashMap<String, Long> totalSuccessPerService
-    protected HashMap<String, Long> totalSuccessPerPlan
-
-    protected long totalFailure
-    protected HashMap<String, Long> totalFailurePerService
-    protected HashMap<String, Long> totalFailurePerPlan
-
     @Autowired
     ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
         this.serviceInstanceRepository = serviceInstanceRepository
@@ -44,13 +32,12 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
 
     abstract Collection<Metric<?>> metrics()
 
-    protected void retrieveTotalMetrics() {
+    protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
         def totalCounter = 0
         def successCounter = 0
         def failCounter = 0
 
-        def list = serviceInstanceRepository.findAll()
-        list.each { serviceInstance ->
+        serviceInstanceList.each { serviceInstance ->
             if (considerServiceInstance(serviceInstance)) {
                 totalCounter++
                 if (serviceInstance.completed) {
@@ -62,23 +49,19 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
             }
         }
 
-        total = totalCounter
-        log.info("${tag()} total: ${total}")
+        log.info("${tag()} total: ${totalCounter}")
+        log.info("${tag()} total success: ${successCounter}")
+        log.info("${tag()} total failure: ${failCounter}")
 
-        totalSuccess = successCounter
-        log.info("${tag()} total success: ${totalSuccess}")
-
-        totalFailure = failCounter
-        log.info("${tag()} total failure: ${totalFailure}")
+        return new MetricsResult(total: totalCounter, totalSuccess: successCounter, totalFailures: failCounter)
     }
 
-    void retrieveTotalMetricsPerService() {
+    MetricsResultMap retrieveTotalMetricsPerService(List<ServiceInstance> serviceInstanceList) {
         HashMap<String, Long> totalHm = new HashMap<>()
         HashMap<String, Long> successHm = new HashMap<>()
         HashMap<String, Long> failHm = new HashMap<>()
 
-        def list = serviceInstanceRepository.findAll()
-        list.each { serviceInstance ->
+        serviceInstanceList.each { serviceInstance ->
             def serviceName = getServiceName(serviceInstance)
             if (considerServiceInstance(serviceInstance)) {
                 totalHm = addEntryToHm(totalHm, serviceName)
@@ -91,23 +74,19 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
             }
         }
 
-        totalPerService = totalHm
-        log.info("${tag()} total service: ${totalPerService}")
+        log.info("${tag()} total service: ${totalHm}")
+        log.info("${tag()} total success service: ${successHm}")
+        log.info("${tag()} total failure service: ${failHm}")
 
-        totalSuccessPerService = successHm
-        log.info("${tag()} total success service: ${totalSuccessPerService}")
-
-        totalFailurePerService = failHm
-        log.info("${tag()} total failure service: ${totalFailurePerService}")
+        return new MetricsResultMap(total: totalHm, totalSuccess: successHm, totalFailures: failHm)
     }
 
-    void retrieveTotalMetricsPerPlan() {
+    MetricsResultMap retrieveTotalMetricsPerPlan(List<ServiceInstance> serviceInstanceList) {
         HashMap<String, Long> totalHm = new HashMap<>()
         HashMap<String, Long> successHm = new HashMap<>()
         HashMap<String, Long> failHm = new HashMap<>()
 
-        def list = serviceInstanceRepository.findAll()
-        list.each { serviceInstance ->
+        serviceInstanceList.each { serviceInstance ->
             def planName = serviceInstance.plan.name
             if (considerServiceInstance(serviceInstance)) {
                 totalHm = addEntryToHm(totalHm, planName)
@@ -120,14 +99,11 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
             }
         }
 
-        totalPerPlan = totalHm
-        log.info("${tag()} total: ${totalPerPlan}")
+        log.info("${tag()} total: ${totalHm}")
+        log.info("${tag()} total success plan: ${successHm}")
+        log.info("${tag()} total failure plan: ${failHm}")
 
-        totalSuccessPerPlan = successHm
-        log.info("${tag()} total success plan: ${totalSuccessPerPlan}")
-
-        totalFailurePerPlan = failHm
-        log.info("${tag()} total failure plan: ${totalFailurePerPlan}")
+        return new MetricsResultMap(total: totalHm, totalSuccess: successHm, totalFailures: failHm)
     }
 
     abstract boolean considerServiceInstance(ServiceInstance serviceInstance)

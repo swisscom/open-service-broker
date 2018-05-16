@@ -30,16 +30,15 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(serviceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(serviceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetrics()
+        def totalMetrics = provisionRequestsMetricsService.retrieveTotalMetrics(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.total == 1
-        provisionRequestsMetricsService.totalSuccess == 1
-        provisionRequestsMetricsService.totalFailure == 0
+        totalMetrics.total == 1
+        totalMetrics.totalSuccess == 1
+        totalMetrics.totalFailures == 0
     }
 
     def "include deleted successfully provisioned service instances in total nr of provision requests"() {
@@ -50,18 +49,17 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         and:
         deletedServiceInstance.completed = true
         deletedServiceInstance.deleted = true
-        serviceInstanceList.add(deletedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(deletedServiceInstance)
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetrics()
+        def totalMetrics = provisionRequestsMetricsService.retrieveTotalMetrics(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.total == 1
-        provisionRequestsMetricsService.totalSuccess == 1
-        provisionRequestsMetricsService.totalFailure == 0
+        totalMetrics.total == 1
+        totalMetrics.totalSuccess == 1
+        totalMetrics.totalFailures == 0
 
     }
 
@@ -77,16 +75,15 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(deletedFailedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(deletedFailedServiceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetrics()
+        def totalMetrics = provisionRequestsMetricsService.retrieveTotalMetrics(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.total == 1
-        provisionRequestsMetricsService.totalSuccess == 0
-        provisionRequestsMetricsService.totalFailure == 1
+        totalMetrics.total == 1
+        totalMetrics.totalSuccess == 0
+        totalMetrics.totalFailures == 1
 
     }
 
@@ -101,16 +98,15 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(failedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(failedServiceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetrics()
+        def totalMetrics = provisionRequestsMetricsService.retrieveTotalMetrics(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.total == 1
-        provisionRequestsMetricsService.totalSuccess == 0
-        provisionRequestsMetricsService.totalFailure == 1
+        totalMetrics.total == 1
+        totalMetrics.totalSuccess == 0
+        totalMetrics.totalFailures == 1
     }
 
     def "retrieve total number of provision requests per service"() {
@@ -125,23 +121,22 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstance.completed = true
         serviceInstance.plan = plan
         serviceInstance.plan.service = cfService
-        serviceInstanceList.add(serviceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(serviceInstance)
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerService()
+        def totalMetricsPerService = provisionRequestsMetricsService.retrieveTotalMetricsPerService(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerService.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerService.size() == 1
-        provisionRequestsMetricsService.totalFailurePerService.size() == 0
+        totalMetricsPerService.total.size() == 1
+        totalMetricsPerService.totalSuccess.size() == 1
+        totalMetricsPerService.totalFailures.size() == 0
 
         and:
-        provisionRequestsMetricsService.totalPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalFailurePerService.get(cfService.name) == null
+        totalMetricsPerService.total.get(cfService.name) == 1
+        totalMetricsPerService.totalSuccess.get(cfService.name) == 1
+        totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
     def "include deleted service instances in total nr of provision requests per service"(){
@@ -157,23 +152,22 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         deletedServiceInstance.deleted = true
         deletedServiceInstance.plan = plan
         deletedServiceInstance.plan.service = cfService
-        serviceInstanceList.add(deletedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(deletedServiceInstance)
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerService()
+        def totalMetricsPerService = provisionRequestsMetricsService.retrieveTotalMetricsPerService(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerService.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerService.size() == 1
-        provisionRequestsMetricsService.totalFailurePerService.size() == 0
+        totalMetricsPerService.total.size() == 1
+        totalMetricsPerService.totalSuccess.size() == 1
+        totalMetricsPerService.totalFailures.size() == 0
 
         and:
-        provisionRequestsMetricsService.totalPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalFailurePerService.get(cfService.name) == null
+        totalMetricsPerService.total.get(cfService.name) == 1
+        totalMetricsPerService.totalSuccess.get(cfService.name) == 1
+        totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
     def "include deleted failed service instances in total nr of provision requests per service"(){
@@ -193,22 +187,21 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(deletedFailedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(deletedFailedServiceInstance.guid) >> lastOperation
 
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerService()
+        def totalMetricsPerService = provisionRequestsMetricsService.retrieveTotalMetricsPerService(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerService.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerService.size() == 0
-        provisionRequestsMetricsService.totalFailurePerService.size() == 1
+        totalMetricsPerService.total.size() == 1
+        totalMetricsPerService.totalSuccess.size() == 0
+        totalMetricsPerService.totalFailures.size() == 1
 
         and:
-        provisionRequestsMetricsService.totalPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerService.get(cfService.name) == null
-        provisionRequestsMetricsService.totalFailurePerService.get(cfService.name) == 1
+        totalMetricsPerService.total.get(cfService.name) == 1
+        totalMetricsPerService.totalSuccess.get(cfService.name) == null
+        totalMetricsPerService.totalFailures.get(cfService.name) == 1
     }
 
     def "retrieve total number of provision requests that failed per service"(){
@@ -227,21 +220,20 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(failedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(failedServiceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerService()
+        def totalMetricsPerService = provisionRequestsMetricsService.retrieveTotalMetricsPerService(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerService.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerService.size() == 0
-        provisionRequestsMetricsService.totalFailurePerService.size() == 1
+        totalMetricsPerService.total.size() == 1
+        totalMetricsPerService.totalSuccess.size() == 0
+        totalMetricsPerService.totalFailures.size() == 1
 
         and:
-        provisionRequestsMetricsService.totalPerService.get(cfService.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerService.get(cfService.name) == null
-        provisionRequestsMetricsService.totalFailurePerService.get(cfService.name) == 1
+        totalMetricsPerService.total.get(cfService.name) == 1
+        totalMetricsPerService.totalSuccess.get(cfService.name) == null
+        totalMetricsPerService.totalFailures.get(cfService.name) == 1
     }
 
     def "retrieve total number of provision requests per plan"() {
@@ -254,23 +246,22 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstance.completed = true
         plan.name = "plan"
         serviceInstance.plan = plan
-        serviceInstanceList.add(serviceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(serviceInstance)
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerPlan()
+        def totalMetricsPerPlan = provisionRequestsMetricsService.retrieveTotalMetricsPerPlan(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerPlan.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.size() == 1
-        provisionRequestsMetricsService.totalFailurePerPlan.size() == 0
+        totalMetricsPerPlan.total.size() == 1
+        totalMetricsPerPlan.totalSuccess.size() == 1
+        totalMetricsPerPlan.totalFailures.size() == 0
 
         and:
-        provisionRequestsMetricsService.totalPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalFailurePerPlan.get(plan.name) == null
+        totalMetricsPerPlan.total.get(plan.name) == 1
+        totalMetricsPerPlan.totalSuccess.get(plan.name) == 1
+        totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
     def "include deleted service instances in total nr of provision requests per plan"(){
@@ -284,23 +275,22 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         deletedServiceInstance.deleted = true
         plan.name = "plan"
         deletedServiceInstance.plan = plan
-        serviceInstanceList.add(deletedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
+        serviceInstanceList.add(deletedServiceInstance)
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerPlan()
+        def totalMetricsPerPlan = provisionRequestsMetricsService.retrieveTotalMetricsPerPlan(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerPlan.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.size() == 1
-        provisionRequestsMetricsService.totalFailurePerPlan.size() == 0
+        totalMetricsPerPlan.total.size() == 1
+        totalMetricsPerPlan.totalSuccess.size() == 1
+        totalMetricsPerPlan.totalFailures.size() == 0
 
         and:
-        provisionRequestsMetricsService.totalPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalFailurePerPlan.get(plan.name) == null
+        totalMetricsPerPlan.total.get(plan.name) == 1
+        totalMetricsPerPlan.totalSuccess.get(plan.name) == 1
+        totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
     def "include deleted failed service instances in total nr of provision requests per plan"(){
@@ -318,21 +308,20 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(deletedFailedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(deletedFailedServiceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerPlan()
+        def totalMetricsPerPlan = provisionRequestsMetricsService.retrieveTotalMetricsPerPlan(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerPlan.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.size() == 0
-        provisionRequestsMetricsService.totalFailurePerPlan.size() == 1
+        totalMetricsPerPlan.total.size() == 1
+        totalMetricsPerPlan.totalSuccess.size() == 0
+        totalMetricsPerPlan.totalFailures.size() == 1
 
         and:
-        provisionRequestsMetricsService.totalPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.get(plan.name) == null
-        provisionRequestsMetricsService.totalFailurePerPlan.get(plan.name) == 1
+        totalMetricsPerPlan.total.get(plan.name) == 1
+        totalMetricsPerPlan.totalSuccess.get(plan.name) == null
+        totalMetricsPerPlan.totalFailures.get(plan.name) == 1
     }
 
     def "retrieve total number of provision requests that failed per plan"(){
@@ -349,20 +338,19 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         serviceInstanceList.add(failedServiceInstance)
 
         when:
-        serviceInstanceRepository.findAll() >> serviceInstanceList
         lastOperationRepository.findByGuid(failedServiceInstance.guid) >> lastOperation
 
         then:
-        provisionRequestsMetricsService.retrieveTotalMetricsPerPlan()
+        def totalMetricsPerPlan = provisionRequestsMetricsService.retrieveTotalMetricsPerPlan(serviceInstanceList)
 
         expect:
-        provisionRequestsMetricsService.totalPerPlan.size() == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.size() == 0
-        provisionRequestsMetricsService.totalFailurePerPlan.size() == 1
+        totalMetricsPerPlan.total.size() == 1
+        totalMetricsPerPlan.totalSuccess.size() == 0
+        totalMetricsPerPlan.totalFailures.size() == 1
 
         and:
-        provisionRequestsMetricsService.totalPerPlan.get(plan.name) == 1
-        provisionRequestsMetricsService.totalSuccessPerPlan.get(plan.name) == null
-        provisionRequestsMetricsService.totalFailurePerPlan.get(plan.name) == 1
+        totalMetricsPerPlan.total.get(plan.name) == 1
+        totalMetricsPerPlan.totalSuccess.get(plan.name) == null
+        totalMetricsPerPlan.totalFailures.get(plan.name) == 1
     }
 }
