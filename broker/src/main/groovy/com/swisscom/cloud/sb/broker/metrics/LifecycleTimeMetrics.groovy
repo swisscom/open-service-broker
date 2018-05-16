@@ -39,20 +39,18 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         calculateMeanLifecycleTime()
     }
 
-    HashMap<String, Long> addUpLifecycleTime(HashMap<String, Long> hm, String key, ServiceInstance serviceInstance) {
+    HashMap<String, Long> addUpLifecycleTime(HashMap<String, Long> totalLifecycleTimePerServiceName, String serviceName, ServiceInstance serviceInstance) {
         def dateCreated = serviceInstance.dateCreated.getTime()
         def dateDeleted = serviceInstance.dateDeleted.getTime()
-        if (dateCreated != null && dateDeleted != null) {
-            def lifecycleTime = dateDeleted - dateCreated
-            if (hm.get(key) == null) {
-                hm.put(key, lifecycleTime)
-            } else {
-                def currentValue = hm.get(key)
-                def newValue = currentValue + lifecycleTime
-                hm.put(key, newValue)
-            }
+        def lifecycleTime = dateDeleted - dateCreated
+        if (totalLifecycleTimePerServiceName.get(serviceName) == null) {
+            totalLifecycleTimePerServiceName.put(serviceName, lifecycleTime)
+        } else {
+            def currentValue = totalLifecycleTimePerServiceName.get(serviceName)
+            def newValue = currentValue + lifecycleTime
+            totalLifecycleTimePerServiceName.put(serviceName, newValue)
         }
-        return hm
+        return totalLifecycleTimePerServiceName
     }
 
     void calculateMeanLifecycleTime() {
