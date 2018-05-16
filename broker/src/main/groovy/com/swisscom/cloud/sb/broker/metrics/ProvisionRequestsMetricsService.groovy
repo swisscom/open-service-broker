@@ -51,11 +51,6 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
         metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalSuccessPerPlan, metrics, PROVISION_REQUEST, PLAN, SUCCESS)
         metrics = addCountersFromHashMapToMetrics(totalPerPlan, totalFailurePerPlan, metrics, PROVISION_REQUEST, PLAN, FAIL)
 
-        /*def influx = new InfluxDBConnector().influxMetricsWriter()
-        for(Metric<?> m: metrics) {
-            influx.set(m)
-        }*/
-
         return metrics
     }
 }
