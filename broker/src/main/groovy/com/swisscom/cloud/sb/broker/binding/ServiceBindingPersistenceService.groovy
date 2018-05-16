@@ -115,7 +115,7 @@ class ServiceBindingPersistenceService {
         }
     }
 
-    private CredHubService getCredHubService() {
+    CredHubService getCredHubService() {
         try {
             return applicationContext.getBean(CredHubService)
         } catch (NoSuchBeanDefinitionException e) {

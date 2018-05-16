@@ -1,13 +1,12 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
-import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import org.apache.commons.io.FileUtils
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
@@ -16,6 +15,8 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
     protected ServiceBindingRepository serviceBindingRepository
+    @Autowired
+    private ServiceBindingPersistenceService serviceBindingPersistenceService
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
@@ -52,7 +53,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceBinding != null
         serviceBinding.credentials != null
         serviceBinding.applicationUser.username == cfAdminUser.username
-        if (getCredHubService()) {
+        if (serviceBindingPersistenceService.getCredHubService()) {
             serviceBinding.credhubCredentialId != null
         }
     }
@@ -142,11 +143,4 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
-    private CredHubService getCredHubService() {
-        try {
-            return applicationContext.getBean(CredHubService)
-        } catch (NoSuchBeanDefinitionException e) {
-            return null
-        }
-    }
 }

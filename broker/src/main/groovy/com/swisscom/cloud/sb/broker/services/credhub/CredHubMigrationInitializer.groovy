@@ -28,7 +28,13 @@ class CredHubMigrationInitializer {
     }
 
     void storeCredHubCredential() {
+        def credHubService = serviceBindingPersistenceService.getCredHubService()
+        if (!credHubService) {
+            return
+        }
+
         def bindings = serviceBindingRepository.findNotMigratedCredHubBindings()
+        log.info("Starting ServiceBinding credential migration to CredHub. Found: ${bindings?.size()} bindings to migrate.")
         bindings.each {
             it ->
                 def serviceBinding = it
