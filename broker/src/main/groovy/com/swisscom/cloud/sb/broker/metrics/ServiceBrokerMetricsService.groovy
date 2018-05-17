@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service
 
 import java.util.function.ToDoubleFunction
 
+import java.time.Duration
+
 @CompileStatic
 @Service
 @Slf4j
@@ -50,6 +52,25 @@ abstract class ServiceBrokerMetricsService {
     ServiceBrokerMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache) {
         this.lastOperationRepository = lastOperationRepository
         this.metricsCache = metricsCache
+    }
+
+    protected InfluxMeterRegistry configureInfluxMeterRegistry() {
+        new InfluxMeterRegistry(new InfluxConfig() {
+            @Override
+            public Duration step() {
+                return Duration.ofSeconds(5);
+            }
+
+            @Override
+            public String db() {
+                return "mydb";
+            }
+
+            @Override
+            public String get(String k) {
+                return null; // accept the rest of the defaults
+            }
+        }, Clock.SYSTEM)
     }
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
