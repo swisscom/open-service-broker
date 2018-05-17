@@ -37,9 +37,28 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         this.lastOperationRepository = lastOperationRepository
     }
 
-    //abstract void addMetricsToMeterRegistry(MeterRegistry meterRegistry, List<?> list)
+    abstract void addMetricsToMeterRegistry(MeterRegistry meterRegistry)
 
     abstract Collection<Metric<?>> metrics()
+
+    protected InfluxMeterRegistry configureInfluxMeterRegistry() {
+        new InfluxMeterRegistry(new InfluxConfig() {
+            @Override
+            public Duration step() {
+                return Duration.ofSeconds(5);
+            }
+
+            @Override
+            public String db() {
+                return "mydb";
+            }
+
+            @Override
+            public String get(String k) {
+                return null; // accept the rest of the defaults
+            }
+        }, Clock.SYSTEM)
+    }
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
         def totalCounter = 0
