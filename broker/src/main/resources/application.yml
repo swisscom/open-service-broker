@@ -19,8 +19,12 @@ management:
     export:
       influx:
         uri: http://localhost:8086
-        db: mydb
-        steps: 5s
+    enable:
+      jvm: false
+      dataSource: false
+      tomcat: false
+      process: false
+      system: false
 
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
