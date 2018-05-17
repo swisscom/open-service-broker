@@ -90,8 +90,12 @@ class BindingController extends BaseController {
 
     private CFService getAndCheckService(BindRequestDto bindingDto) {
         CFService service = cfServiceRepository.findByGuid(bindingDto.service_id)
-        if (!service || !service.bindable) {
+        if (!service) {
             ErrorCode.SERVICE_NOT_FOUND.throwNew("no service with id:${bindingDto.service_id} found")
+        }
+
+        if (!service.bindable) {
+            ErrorCode.SERVICE_NOT_BINDABLE.throwNew("the service with the id:${bindingDto.service_id} is not bindable")
         }
         return service
     }
