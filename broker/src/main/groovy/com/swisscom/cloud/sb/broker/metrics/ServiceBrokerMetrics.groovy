@@ -31,6 +31,8 @@ import org.springframework.boot.actuate.metrics.Metric
 
 import java.util.function.ToDoubleFunction
 
+import java.time.Duration
+
 @CompileStatic
 @Slf4j
 abstract class ServiceBrokerMetrics {
@@ -53,6 +55,25 @@ abstract class ServiceBrokerMetrics {
         this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository
         this.planRepository = planRepository
+    }
+
+    protected InfluxMeterRegistry configureInfluxMeterRegistry() {
+        new InfluxMeterRegistry(new InfluxConfig() {
+            @Override
+            public Duration step() {
+                return Duration.ofSeconds(5);
+            }
+
+            @Override
+            public String db() {
+                return "mydb";
+            }
+
+            @Override
+            public String get(String k) {
+                return null; // accept the rest of the defaults
+            }
+        }, Clock.SYSTEM)
     }
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
