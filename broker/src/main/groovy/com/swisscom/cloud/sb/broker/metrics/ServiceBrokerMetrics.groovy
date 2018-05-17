@@ -21,9 +21,16 @@ import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.Meter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.influx.InfluxConfig
+import io.micrometer.influx.InfluxMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.endpoint.PublicMetrics
 import org.springframework.boot.actuate.metrics.Metric
+
+import java.time.Duration
 
 @CompileStatic
 @Slf4j
@@ -45,7 +52,28 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         this.lastOperationRepository = lastOperationRepository
     }
 
+    abstract void addMetricsToMeterRegistry(MeterRegistry meterRegistry)
+
     abstract Collection<Metric<?>> metrics()
+
+    protected InfluxMeterRegistry configureInfluxMeterRegistry() {
+        new InfluxMeterRegistry(new InfluxConfig() {
+            @Override
+            public Duration step() {
+                return Duration.ofSeconds(5);
+            }
+
+            @Override
+            public String db() {
+                return "mydb";
+            }
+
+            @Override
+            public String get(String k) {
+                return null; // accept the rest of the defaults
+            }
+        }, Clock.SYSTEM)
+    }
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
         def totalCounter = 0
