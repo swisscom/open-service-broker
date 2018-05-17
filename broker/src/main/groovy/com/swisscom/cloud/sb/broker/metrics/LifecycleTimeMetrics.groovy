@@ -4,9 +4,18 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.Meter
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
+import io.micrometer.influx.InfluxConfig
+import io.micrometer.influx.InfluxMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
+
+import java.time.Duration
 
 @Service
 @CompileStatic
@@ -18,8 +27,10 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService
 
     @Autowired
-    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, lastOperationRepository)
+        meterRegistry = configureInfluxMeterRegistry()
+        addMetricsToMeterRegistry(meterRegistry)
     }
 
     HashMap<String, Long> calculateLifecycleTimePerService(List<ServiceInstance> serviceInstanceList) {
@@ -63,12 +74,24 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         return meanLifecycleTimePerService
     }
 
+    HashMap<String, Long> prepareMetricsForMetericsCollection() {
+        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
+        return calculateLifecycleTimePerService(serviceInstanceList)
+    }
+
+    @Override
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
+        def lifecycleTimePerService = prepareMetricsForMetericsCollection()
+        lifecycleTimePerService.each { entry ->
+            meterRegistry.gauge(LIFECYCLE_TIME + "." + SERVICE + "." + TOTAL + "." + entry.getKey() + 2, Tags.empty(), entry.getValue())
+        }
+    }
+
     @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
-        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
 
-        def lifecycleTimePerService = calculateLifecycleTimePerService(serviceInstanceList)
+        def lifecycleTimePerService = prepareMetricsForMetericsCollection()
         metrics = addCountersFromHashMapToMetrics(lifecycleTimePerService, lifecycleTimePerService, metrics, LIFECYCLE_TIME, SERVICE, TOTAL)
         return metrics
     }
