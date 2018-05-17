@@ -52,11 +52,6 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetricsService {
 
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository) {
-        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
-    }
-
-
     @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {
         // every provision request should be counted, whether the service instance has been deleted or not is irrelevant
