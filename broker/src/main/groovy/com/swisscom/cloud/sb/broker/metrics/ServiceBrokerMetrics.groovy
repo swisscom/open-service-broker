@@ -64,12 +64,12 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         serviceInstanceList.each { serviceInstance ->
             def serviceName = getServiceName(serviceInstance)
             if (considerServiceInstance(serviceInstance)) {
-                totalHm = addEntryToHm(totalHm, serviceName)
+                totalHm = addOrUpdateEntryOnHashMap(totalHm, serviceName)
                 if (serviceInstance.completed) {
-                    successHm = addEntryToHm(successHm, serviceName)
+                    successHm = addOrUpdateEntryOnHashMap(successHm, serviceName)
                 } else if (!checkIfNotCompletedProvisionIsInProgress(serviceInstance.guid)) {
                     // only failed provisions are counted, the ones in progress are ignored
-                    failHm = addEntryToHm(failHm, serviceName)
+                    failHm = addOrUpdateEntryOnHashMap(failHm, serviceName)
                 }
             }
         }
@@ -89,12 +89,12 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         serviceInstanceList.each { serviceInstance ->
             def planName = serviceInstance.plan.name
             if (considerServiceInstance(serviceInstance)) {
-                totalHm = addEntryToHm(totalHm, planName)
+                totalHm = addOrUpdateEntryOnHashMap(totalHm, planName)
                 if (serviceInstance.completed) {
-                    successHm = addEntryToHm(successHm, planName)
+                    successHm = addOrUpdateEntryOnHashMap(successHm, planName)
                 } else if (!checkIfNotCompletedProvisionIsInProgress(serviceInstance.guid)) {
                     // only failed provisions are counted, the ones in progress are ignored
-                    failHm = addEntryToHm(failHm, planName)
+                    failHm = addOrUpdateEntryOnHashMap(failHm, planName)
                 }
             }
         }
@@ -110,7 +110,7 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
 
     abstract String tag()
 
-    HashMap<String, Long> addEntryToHm(HashMap<String, Long> hm, String key) {
+    HashMap<String, Long> addOrUpdateEntryOnHashMap(HashMap<String, Long> hm, String key) {
         if (hm.get(key) == null) {
             hm.put(key, 1L)
         } else {
