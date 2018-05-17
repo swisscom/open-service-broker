@@ -37,6 +37,11 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     }
 
     @Override
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
+
+    }
+
+    @Override
     Collection<Metric<?>> metrics() {
         List<Metric<?>> metrics = new ArrayList<>()
         List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
