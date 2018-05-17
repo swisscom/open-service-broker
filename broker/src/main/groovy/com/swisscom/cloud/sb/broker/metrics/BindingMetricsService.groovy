@@ -7,6 +7,8 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
@@ -26,9 +28,11 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
-    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository) {
+    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, lastOperationRepository)
         this.serviceBindingRepository = serviceBindingRepository
+        meterRegistry = configureInfluxMeterRegistry()
+        addMetricsToMeterRegistry(meterRegistry)
     }
 
     long retrieveMetricsForTotalNrOfSuccessfulBindings(List<ServiceBinding> serviceBindingList) {
@@ -70,6 +74,31 @@ class BindingMetricsService extends ServiceBrokerMetrics {
             def successValue = totalSuccessfulBindingRequestsPerService.get(key)
             def failureValue = totalValue - successValue
             totalFailedBindingRequestsPerService.put(key, failureValue)
+        }
+    }
+
+    @Override
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
+        List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
+
+        def totalNrOfSuccessfulBinding = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingList)
+        meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), totalNrOfSuccessfulBinding)
+
+        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
+        totalNrOfSuccessfulBindingsPerService.each { entry ->
+            meterRegistry.gauge("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", Tags.empty(), entry.getValue())
+        }
+
+        totalBindingRequestsPerService.each { entry ->
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${TOTAL}", Tags.empty(), entry.getValue())
+        }
+
+        totalSuccessfulBindingRequestsPerService.each { entry ->
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}", Tags.empty(), entry.getValue())
+        }
+
+        totalFailedBindingRequestsPerService.each { entry ->
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}", Tags.empty(), entry.getValue())
         }
     }
 
