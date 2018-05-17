@@ -29,7 +29,7 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         serviceInstanceList.findAll { instance -> instance.deleted }.each {
             serviceInstance ->
                 def serviceName = getServiceName(serviceInstance)
-                total = addEntryToHm(total, serviceName)
+                total = addOrUpdateEntryOnHashMap(total, serviceName)
                 totalLifecycleTime = addUpLifecycleTime(totalLifecycleTime, serviceName, serviceInstance)
         }
         totalNrOfDeleteInstancesPerService = total
@@ -53,7 +53,7 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
     HashMap<String, Long> calculateMeanLifecycleTime(HashMap<String, Long> totalDeletedServiceInstanceMap) {
         HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
-        totalDeletedServiceInstanceMap.findAll { service ->
+        totalDeletedServiceInstanceMap.each { service ->
             def serviceName = service.getKey()
             def totalNrOfInstances = service.getValue()
             def totalLifecycleTime = totalLifecycleTimePerService.get(serviceName)

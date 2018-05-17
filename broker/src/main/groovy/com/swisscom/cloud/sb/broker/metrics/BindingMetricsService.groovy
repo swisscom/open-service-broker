@@ -46,7 +46,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
             if (service) {
                 serviceName = service.name
             }
-            totalHm = addEntryToHm(totalHm, serviceName)
+            totalHm = addOrUpdateEntryOnHashMap(totalHm, serviceName)
         }
         log.info("${tag()} total bindings per service: ${totalHm}")
         return totalHm
@@ -54,17 +54,17 @@ class BindingMetricsService extends ServiceBrokerMetrics {
 
     public void setTotalBindingRequestsPerService(ServiceInstance serviceInstance) {
         def cfServiceName = getServiceName(serviceInstance)
-        totalBindingRequestsPerService = addEntryToHm(totalBindingRequestsPerService, cfServiceName)
+        totalBindingRequestsPerService = addOrUpdateEntryOnHashMap(totalBindingRequestsPerService, cfServiceName)
     }
 
     public void setSuccessfulBindingRequestsPerService(ServiceInstance serviceInstance) {
         def cfServiceName = getServiceName(serviceInstance)
-        totalSuccessfulBindingRequestsPerService = addEntryToHm(totalSuccessfulBindingRequestsPerService, cfServiceName)
+        totalSuccessfulBindingRequestsPerService = addOrUpdateEntryOnHashMap(totalSuccessfulBindingRequestsPerService, cfServiceName)
         calculateFailedBindingRequestsPerService()
     }
 
     void calculateFailedBindingRequestsPerService() {
-        totalBindingRequestsPerService.findAll { service ->
+        totalBindingRequestsPerService.each { service ->
             def key = service.getKey()
             def totalValue = service.getValue()
             def successValue = totalSuccessfulBindingRequestsPerService.get(key)
