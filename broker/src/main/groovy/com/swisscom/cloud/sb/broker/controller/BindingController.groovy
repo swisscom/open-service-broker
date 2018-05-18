@@ -11,6 +11,7 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoCon
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -52,6 +53,9 @@ class BindingController extends BaseController {
     @Autowired
     private ServiceInstanceBindingDtoConverter bindingDtoConverter
 
+    @Autowired
+    private BindingMetricsService bindingMetricsService
+
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
     ResponseEntity<String> bind(@PathVariable('id') String bindingId,
@@ -61,6 +65,7 @@ class BindingController extends BaseController {
         log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceId}")
 
         ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
+        bindingMetricsService.setTotalBindingRequestsPerService(serviceInstance)
         verifyServiceInstanceIsReady(serviceInstance) //Don't allow binding if service is not ready
         CFService service = getAndCheckService(bindingDto)
         failIfServiceBindingAlreadyExists(bindingId)
@@ -69,6 +74,7 @@ class BindingController extends BaseController {
 
         serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
 
+        bindingMetricsService.setSuccessfulBindingRequestsPerService(serviceInstance)
         return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
     }
 
