@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
  */
 @Configuration
 @AutoConfigureBefore(CredHubTemplateAutoConfiguration.class)
-@ConditionalOnProperty("spring.credhub.oauth2-resourceowner.username")
+@ConditionalOnProperty(name = "spring.credhub.enable", havingValue = "true")
 @ConditionalOnClass(name = "org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails")
 class CredHubOAuth2TemplateAutoConfiguration {
     private final OAuth2CredHubTemplateFactory credHubTemplateFactory = new OAuth2CredHubTemplateFactory()

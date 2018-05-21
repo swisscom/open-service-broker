@@ -1,34 +1,39 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.IntegrationTestMockingConfig
-import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
+import com.swisscom.cloud.sb.broker.binding.CredentialService
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.context.annotation.Import
+import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.CredentialType
 import org.springframework.credhub.support.SimpleCredentialName
 import org.springframework.credhub.support.user.UserCredential
 import org.springframework.http.HttpStatus
+import spock.lang.IgnoreIf
 
+@IgnoreIf({ MockCredHubBindingParametersFunctionalSpec.checkCredHubConfigSet() })
 @Import([IntegrationTestMockingConfig])
 class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
     private ServiceBindingRepository serviceBindingRepository
     @Autowired
-    private ServiceBindingPersistenceService serviceBindingPersistenceService
+    private CredentialService credentialService
 
     private CredHubService credHubService
 
     def setup() {
-        credHubService = serviceBindingPersistenceService.getCredHubService()
+        credHubService = credentialService.getCredHubService()
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
     }
 
@@ -123,6 +128,13 @@ class MockCredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         def credentials = JsonHelper.parse(serviceBinding.credentials, Map) as Map
         credentials.username != null
         credentials.password != null
+    }
+
+    static boolean checkCredHubConfigSet() {
+        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
+        yaml.setResources(new ClassPathResource("application.yml"))
+        yaml.afterPropertiesSet()
+        return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
     }
 
 }
