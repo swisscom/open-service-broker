@@ -164,13 +164,13 @@ class ServiceLifeCycler {
 
     void cleanup() {
 
-        (serviceInstanceIds as String[]).reverseEach { it ->
+        serviceInstanceIds.each { it ->
             serviceInstanceRepository.deleteByGuid(it)
         }
 
         if (parameters.size() > 0) {
             parameters.each {
-                (plans as Plan[]).reverseEach { planIt ->
+                plans.each { planIt ->
                     planIt.parameters.remove(it)
                     planRepository.saveAndFlush(planIt)
                 }
@@ -178,12 +178,12 @@ class ServiceLifeCycler {
             }
         }
 
-        (plans as Plan[]).reverseEach { it ->
+        plans.each { it ->
             deletePlan(it)
         }
 
-        (cfServices as CFService[]).reverseEach { it ->
-            (it.plans as Plan[]).reverseEach{ planIt ->
+        cfServices.each { it ->
+            plans.each { planIt ->
                 it.plans.remove(planIt)
                 cfServiceRepository.saveAndFlush(it)
             }
@@ -370,17 +370,16 @@ class ServiceLifeCycler {
         int sleepTime = 1000
         if (seconds > 0) {
             for (
-                    def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
+                def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
-                    LastOperationState operationState = null
                     try {
-                        operationState = createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).getBody().state
+                        def operationState = createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).getBody().state
+                        if (operationState != null && operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
+                            return
+                        }
                     } catch (Exception ex) {
                         println("Exception when getting lastOperation: ${ex.toString()}")
-                    }
-                    if (operationState != null && operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
-                        return
                     }
                 }
                 println("Execution continues in ${timeUntilForcedExecution} second(s)")
