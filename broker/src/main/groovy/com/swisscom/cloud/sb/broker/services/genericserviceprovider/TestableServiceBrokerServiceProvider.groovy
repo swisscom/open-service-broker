@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component
  * In the edge case, that the ServiceBrokerServiceProvider is used to provision a service on http://localhost:8080
  * we have the issue, that the ServiceBrokerServiceProvider is run through twice with the same serviceInstanceId
  * provided via the URL. This is a problem because then the same serviceInstanceId is attempted to be inserted into the
- * same DB twice which results in an Exception thrown by the Hibernate DB. In this class the method which handles the
- * ServiceInstanceId forwarding is overwritten, so that the ServiceInstanceId is generated randomly for test cases
+ * same DB twice which results in an Exception thrown by the the unique constraint. In this class the method which handles
+ * the ServiceInstanceId forwarding is overwritten, so that the ServiceInstanceId is generated randomly for test cases
  * thereby avoiding the above described issue.
  */
 @Component("testableServiceBrokerServiceProvider")

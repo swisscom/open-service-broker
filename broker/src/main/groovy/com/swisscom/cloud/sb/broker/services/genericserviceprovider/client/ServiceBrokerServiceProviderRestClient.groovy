@@ -1,14 +1,9 @@
 package com.swisscom.cloud.sb.broker.services.genericserviceprovider.client
 
-import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
-import com.swisscom.cloud.sb.broker.config.UserConfig
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.ServiceBrokerServiceProvider
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.config.ServiceBrokerServiceProviderConfig
-import com.swisscom.cloud.sb.broker.services.genericserviceprovider.statemachine.ServiceBrokerServiceProviderProvisionState
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -17,13 +12,9 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
 
 @Component
 @CompileStatic
@@ -40,8 +31,10 @@ class ServiceBrokerServiceProviderRestClient {
         this.restTemplateBuilder = restTemplateBuilder
     }
 
-    // If the provisioning fails with an exception, the exception is caught in the execute method of the AbstractLastOperationJob
-    // which will result in the LastOperation status being set to failed
+    /*
+     * If the provisioning fails with an exception, the exception is caught in the execute method of the AbstractLastOperationJob
+     * which will result in the LastOperation status being set to failed
+     */
     boolean provisionServiceInstance(ServiceInstance serviceInstance) {
         log.info("Async provisioning of service instance with id ${serviceInstance.guid}")
         GenericProvisionRequestPlanParameter req = ServiceBrokerServiceProvider.populateGenericProvisionRequestPlanParameter(serviceInstance.plan.parameters)
@@ -54,9 +47,11 @@ class ServiceBrokerServiceProviderRestClient {
         return re.statusCode == HttpStatus.ACCEPTED || re.statusCode == HttpStatus.CREATED
     }
 
-    // making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this
-    // method can be overwritten to enable testing of the ServiceBrokerServiceProvider in the TestableServiceBrokerServiceProviderClass
-    // More details as to why this is necessary can be found in the TestableServiceBrokerServiceProvider class
+    /*
+    * making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this
+    * method can be overwritten to enable testing of the ServiceBrokerServiceProvider in the TestableServiceBrokerServiceProvider class
+    * More details as to why this is necessary can be found in the TestableServiceBrokerServiceProvider class
+    */
     ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, CreateServiceInstanceRequest createServiceInstanceRequest, String serviceInstanceId) {
         return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(true))
     }

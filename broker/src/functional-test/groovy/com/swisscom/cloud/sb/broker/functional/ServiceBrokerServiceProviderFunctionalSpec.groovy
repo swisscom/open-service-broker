@@ -28,7 +28,7 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         // parameters are added to plan which is used for the ServiceBrokerServiceProvider
         serviceLifeCycler.createParameter(BASE_URL,"http://localhost:8080", serviceLifeCycler.plan)
         serviceLifeCycler.createParameter(USERNAME, cfAdminUser.username, serviceLifeCycler.plan)
-        serviceLifeCycler.createParameter(PASSWORD,cfAdminUser.password, serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter(PASSWORD, cfAdminUser.password, serviceLifeCycler.plan)
     }
 
     def setup() {
