@@ -47,7 +47,6 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetricsService {
 
     }
 
-    @Override
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
 
     }
