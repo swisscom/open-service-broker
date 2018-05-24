@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
 
+import java.util.function.Function
 import java.util.function.ToDoubleFunction
 
 @Service
@@ -104,28 +105,34 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     }
 
     double getBindingCount() {
-        new Random().nextDouble()
+        retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll()).toDouble()
+    }
+
+    void addMetricsGauge(MeterRegistry meterRegistry, String name, Closure<Double> function) {
+        ToDoubleFunction<BindingMetricsService> getBindingCountFunction  = new ToDoubleFunction<BindingMetricsService>() {
+            @Override
+            double applyAsDouble(BindingMetricsService bindingMetricsService) {
+                function()
+            }
+        }
+        meterRegistry.gauge(name, Tags.empty(), this, getBindingCountFunction)
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         //ServiceBindingRepositoryHelper serviceBindingRepositoryHelper = new ServiceBindingRepositoryHelper()
         //List<ServiceBinding> serviceBindingList = serviceBindingRepositoryHelper.serviceBindingRepository.findAll()
-        Long total
 
-        def totalNrOfSuccessfulBindings = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())
+
+
+        addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() })
+        //def totalNrOfSuccessfulBindings = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())
         // meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), totalNrOfSuccessfulBindings)
 
-        ToDoubleFunction<BindingMetricsService> getBindingCountFunction  = new ToDoubleFunction<BindingMetricsService>() {
-            @Override
-            double applyAsDouble(BindingMetricsService bindingMetricsService) {
-                bindingMetricsService.getBindingCount()
-            }
-        }
 
-        meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}".toString(), Tags.empty(), this, getBindingCountFunction)
 
-        meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), serviceBindingRepository.findAll(), {retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())})
+
+        //meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), serviceBindingRepository.findAll(), {retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())})
         def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
         totalNrOfSuccessfulBindingsPerService.each { entry ->
             meterRegistry.gauge("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}".toString(), Tags.empty(), entry.getValue())
