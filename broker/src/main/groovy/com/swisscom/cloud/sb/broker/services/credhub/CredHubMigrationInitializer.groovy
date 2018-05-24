@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.swisscom.cloud.sb.broker.binding.CredentialService
+import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class CredHubMigrationInitializer {
     private ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    private CredentialService credentialService
+    private CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
 
     @PostConstruct
     void init() throws Exception {
@@ -28,7 +28,7 @@ class CredHubMigrationInitializer {
     }
 
     void storeCredHubCredential() {
-        def credHubService = credentialService.getCredHubService()
+        def credHubService = credHubCredentialStoreStrategy.getCredHubService()
         if (!credHubService) {
             return
         }
@@ -38,7 +38,7 @@ class CredHubMigrationInitializer {
         bindings.each {
             it ->
                 def serviceBinding = it
-                credentialService.writeCredential(serviceBinding, serviceBinding.credentials)
+                credHubCredentialStoreStrategy.writeCredential(serviceBinding, serviceBinding.credentials)
                 serviceBindingRepository.merge(serviceBinding)
         }
         serviceBindingRepository.flush()

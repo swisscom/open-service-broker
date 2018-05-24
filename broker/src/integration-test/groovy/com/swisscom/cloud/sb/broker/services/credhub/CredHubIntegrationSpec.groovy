@@ -1,39 +1,36 @@
-package com.swisscom.cloud.sb.broker.functional
+package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
+import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
+import com.swisscom.cloud.sb.broker.binding.CredentialService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
-import org.springframework.context.ApplicationContext
 import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.user.UserCredential
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
-import java.security.Security
-
-@IgnoreIf({ !CredHubFunctionalSpec.checkCredHubConfigSet() })
-class CredHubFunctionalSpec extends BaseFunctionalSpec {
+@IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
+class CredHubIntegrationSpec extends BaseSpecification {
 
     @Autowired
-    private ApplicationContext applicationContext
+    private CredentialService credentialService
 
     @Shared
     private String credentialId
     @Shared
     private String credentialName
 
+    @Shared
     CredHubService credHubService
 
-    static {
-        Security.addProvider(new BouncyCastleProvider())
-    }
+    @Autowired
+    CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
@@ -44,7 +41,7 @@ class CredHubFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def setup() {
-        credHubService = getCredHubService()
+        credHubService = credHubCredentialStoreStrategy.getCredHubService()
     }
 
     def "Write CredHub credential"() {
@@ -89,14 +86,6 @@ class CredHubFunctionalSpec extends BaseFunctionalSpec {
         then:
         noExceptionThrown()
 
-    }
-
-    CredHubService getCredHubService() {
-        try {
-            return applicationContext.getBean(CredHubService)
-        } catch (NoSuchBeanDefinitionException e) {
-            return null
-        }
     }
 
     static boolean checkCredHubConfigSet() {
