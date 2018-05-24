@@ -32,7 +32,6 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
         return ProvisionedInstancesMetricsService.class.getSimpleName()
     }
 
-    @Override
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
 
     }
