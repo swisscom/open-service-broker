@@ -38,8 +38,8 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
 
     @Autowired
-    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, lastOperationRepository)
         addMetricsToMeterRegistry(meterRegistry)
     }
 
