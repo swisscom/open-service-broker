@@ -19,6 +19,7 @@ management:
     export:
       influx:
         uri: http://localhost:8086
+        step: 5s
     enable:
       jvm: false
       dataSource: false
