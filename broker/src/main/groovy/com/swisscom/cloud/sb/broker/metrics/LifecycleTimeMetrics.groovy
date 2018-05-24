@@ -29,7 +29,6 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     @Autowired
     LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, lastOperationRepository)
-        meterRegistry = configureInfluxMeterRegistry()
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -79,7 +78,6 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         return calculateLifecycleTimePerService(serviceInstanceList)
     }
 
-    @Override
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
         def lifecycleTimePerService = prepareMetricsForMetericsCollection()
         lifecycleTimePerService.each { entry ->
