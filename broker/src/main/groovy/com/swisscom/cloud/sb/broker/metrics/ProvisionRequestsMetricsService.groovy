@@ -35,10 +35,6 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
         super(serviceInstanceRepository, lastOperationRepository)
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-
-    }
-
     @Override
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
 
