@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service
 
 import java.util.Map.Entry
 
+import java.util.function.ToDoubleFunction
+
 @Service
 @CompileStatic
 @Slf4j
@@ -115,6 +117,9 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
     }
 
+    double getBindingCount() {
+        new Random().nextDouble()
+    }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
@@ -125,24 +130,31 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         def totalNrOfSuccessfulBindings = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())
         // meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), totalNrOfSuccessfulBindings)
 
-        meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", this, t -> )
+        ToDoubleFunction<BindingMetricsService> getBindingCountFunction  = new ToDoubleFunction<BindingMetricsService>() {
+            @Override
+            double applyAsDouble(BindingMetricsService bindingMetricsService) {
+                bindingMetricsService.getBindingCount()
+            }
+        }
+
+        meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}".toString(), Tags.empty(), this, getBindingCountFunction)
 
         meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), serviceBindingRepository.findAll(), {retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())})
         def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
         totalNrOfSuccessfulBindingsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", Tags.empty(), entry.getValue())
+            meterRegistry.gauge("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}".toString(), Tags.empty(), entry.getValue())
         }
 
         totalBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${TOTAL}", Tags.empty(), entry.getValue())
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${TOTAL}".toString(), Tags.empty(), entry.getValue())
         }
 
         totalSuccessfulBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}", Tags.empty(), entry.getValue())
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}".toString(), Tags.empty(), entry.getValue())
         }
 
         totalFailedBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}", Tags.empty(), entry.getValue())
+            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}".toString(), Tags.empty(), entry.getValue())
         }
     }
 
