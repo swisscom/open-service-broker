@@ -35,7 +35,9 @@ class ExtendedUsageController extends BaseController {
         this.serviceInstanceRepository = serviceInstanceRepository
     }
 
-    @ApiOperation(value = "Gets usage informations for a service instance", response = ProvisionResponseDto.class)
+    @ApiOperation(value = "Gets list of usage information for a service instance",
+            response = ServiceUsageItem.class,
+            responseContainer = "List")
     @RequestMapping(value = '/v2/service_instances/{instanceId}/usage', method = RequestMethod.GET)
     ResponseEntity<Set<ServiceUsageItem>> provision(@PathVariable("instanceId") String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
