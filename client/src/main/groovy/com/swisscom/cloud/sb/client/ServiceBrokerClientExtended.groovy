@@ -7,9 +7,9 @@ import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
-import org.apache.http.HttpHeaders
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
@@ -109,7 +109,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
                 HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
     }
 
-    private org.springframework.http.HttpHeaders addJsonContentTypeHeader(org.springframework.http.HttpHeaders headers) {
+    private HttpHeaders addJsonContentTypeHeader(HttpHeaders headers) {
         headers.add("Content-Type", "application/json")
 
         return headers
