@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity
 interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<Endpoint> getEndpoint(String serviceInstanceId)
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId)
+    ResponseEntity<Set<ServiceUsage>> getExtendedUsage(String serviceInstanceId)
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition)
     ResponseEntity<Void> deleteServiceDefinition(String definition)
     ResponseEntity<BackupDto> createBackup(String serviceInstanceId)
@@ -22,4 +23,5 @@ interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<String> getApi(String serviceInstanceId)
     ResponseEntity<String> lockUser(String serviceInstanceId)
     ResponseEntity<String> unlockUser(String serviceInstanceId)
+
 }
