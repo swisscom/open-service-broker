@@ -5,6 +5,9 @@ import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
+import org.apache.http.HttpHeaders
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -40,7 +43,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     @Override
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
         return restTemplate.exchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
-                new HttpEntity(definition, createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),Void.class)
+                new HttpEntity(definition, addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername,cfExtPassword))),Void.class)
     }
 
     @Override
@@ -68,6 +71,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     }
 
     @Override
+    @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<List<BackupDto>> listBackups(String serviceInstanceId){
         return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups"), HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)), List.class, serviceInstanceId)
@@ -103,5 +107,11 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     ResponseEntity<String> unlockUser(String serviceInstanceId){
         return restTemplate.exchange(appendPath("/custom/service_instances/{instanceId}/unlock"),
                 HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
+    }
+
+    private org.springframework.http.HttpHeaders addJsonContentTypeHeader(org.springframework.http.HttpHeaders headers) {
+        headers.add("Content-Type", "application/json")
+
+        return headers
     }
 }
