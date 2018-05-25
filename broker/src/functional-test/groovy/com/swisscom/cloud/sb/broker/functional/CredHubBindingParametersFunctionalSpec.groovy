@@ -37,7 +37,7 @@ class CredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.cleanup()
     }
 
-    def "provision async service instance and bind with parameters store to mock credhub"() {
+    def "provision async service instance and bind with parameters store credhub"() {
         given:
         def serviceBindingGuid = StringGenerator.randomUuid()
         serviceLifeCycler.setServiceBindingId(serviceBindingGuid)

@@ -28,8 +28,7 @@ class CredHubMigrationInitializer {
     }
 
     void storeCredHubCredential() {
-        def credHubService = credHubCredentialStoreStrategy.getCredHubService()
-        if (!credHubService) {
+        if (!credHubCredentialStoreStrategy.isCredHubServiceAvailable()) {
             return
         }
 

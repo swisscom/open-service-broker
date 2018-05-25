@@ -13,6 +13,8 @@ class DefaultCredentialStoreStrategy implements CredentialStoreStrategy {
     }
 
     def deleteCredential(ServiceBinding serviceBinding) {
+        serviceBinding.credentials = null
+        // service binding will be removed after deleting of credential
     }
 
     String getCredential(ServiceBinding serviceBinding) {

@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -17,6 +18,8 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     protected ServiceBindingRepository serviceBindingRepository
     @Autowired
     private ServiceBindingPersistenceService serviceBindingPersistenceService
+    @Autowired
+    private CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
@@ -53,7 +56,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceBinding != null
         serviceBinding.credentials != null
         serviceBinding.applicationUser.username == cfAdminUser.username
-        if (serviceBindingPersistenceService.getCredHubService()) {
+        if (credHubCredentialStoreStrategy.isCredHubServiceAvailable()) {
             serviceBinding.credhubCredentialId != null
         }
     }
