@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
@@ -49,8 +50,8 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
 
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
-    ResponseEntity<Set<ServiceUsage>> getExtendedUsage(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
+    ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
                 Set.class,serviceInstanceId)
     }
