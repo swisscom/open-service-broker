@@ -21,16 +21,14 @@ import org.springframework.stereotype.Component
 @Slf4j
 class ServiceBrokerServiceProviderRestClient {
 
-    // maybe put url into sbspConfig?
-    private ServiceBrokerServiceProviderConfig sbspConfig
     private RestTemplateBuilder restTemplateBuilder
 
+    ServiceBrokerServiceProviderRestClient(){}
+
     @Autowired
-    EceRestClient(ServiceBrokerServiceProviderConfig sbspConfig, RestTemplateBuilder restTemplateBuilder) {
-        this.sbspConfig = sbspConfig
+    ServiceBrokerServiceProviderRestClient(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplateBuilder = restTemplateBuilder
     }
-
     /*
      * If the provisioning fails with an exception, the exception is caught in the execute method of the AbstractLastOperationJob
      * which will result in the LastOperation status being set to failed
