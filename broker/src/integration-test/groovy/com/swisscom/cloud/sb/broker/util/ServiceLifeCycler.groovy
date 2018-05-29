@@ -126,7 +126,7 @@ class ServiceLifeCycler {
             addCFServiceToSet(cfService)
         }
         if (cfService.plans.empty && servicePlan == null) {
-            plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
+            plan = planRepository.saveAndFlush  (new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
                     serviceInstanceCreateSchema: serviceInstanceCreateSchema,
@@ -164,7 +164,8 @@ class ServiceLifeCycler {
 
     void cleanup() {
 
-        serviceInstanceIds.each { it ->
+        // reverse iteration is required in case a service instance has a child service instance which needs to be deleted first
+        (serviceInstanceIds as String[]).reverseEach { it ->
             serviceInstanceRepository.deleteByGuid(it)
         }
 
@@ -183,12 +184,13 @@ class ServiceLifeCycler {
         }
 
         cfServices.each { it ->
-            plans.each { planIt ->
+            it.plans.each { planIt ->
                 it.plans.remove(planIt)
                 cfServiceRepository.saveAndFlush(it)
             }
         }
         cfServiceRepository.deleteAll()
+
     }
 
     private void deletePlan(Plan plan) {
@@ -309,7 +311,6 @@ class ServiceLifeCycler {
     }
 
     boolean removeParameters() {
-        parameters.removeAll(parameters)
         plan.parameters.removeAll(plan.parameters)
         planRepository.saveAndFlush(plan)
     }
