@@ -80,9 +80,9 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         mockServer.verify()
     }
 
-    def "provision async service instance with async client"() {
+    def "provision sync service instance with async client"() {
         given:
-        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: asyncPlan)
+        ProvisionRequest provisionRequest = new ProvisionRequest(acceptsIncomplete: true, serviceInstanceGuid: "65d546f1-2c74-4871-9d5f-b5b0df1a7082", plan: syncPlan)
 
         mockServer.expect(MockRestRequestMatchers.requestTo("http://dummy/v2/service_instances/${provisionRequest.serviceInstanceGuid}?accepts_incomplete=${provisionRequest.acceptsIncomplete}"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.PUT))
@@ -92,17 +92,17 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         def provisionResponse = serviceBrokerServiceProvider.provision(provisionRequest)
 
         then:
-        provisionResponse.isAsync == true
+        !provisionResponse.isAsync
         noExceptionThrown()
 
         and:
         mockServer.verify()
     }
 
-    def "deprovision async service instance with async client"() {
+    def "deprovision sync service instance with async client"() {
         given:
         def serviceId = "65d546f1-2c74-4871-9d5f-b5b0df1a7082"
-        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: asyncPlan)
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceId, plan: syncPlan)
         DeprovisionRequest deprovisionRequest = new DeprovisionRequest(acceptsIncomplete: true, serviceInstanceGuid: serviceId, serviceInstance: serviceInstance)
 
         def url = "http://dummy/v2/service_instances/${deprovisionRequest.serviceInstanceGuid}?service_id=dummy&plan_id=dummy&accepts_incomplete=${deprovisionRequest.acceptsIncomplete}"
@@ -115,7 +115,8 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         def deprovisionResponse = serviceBrokerServiceProvider.deprovision(deprovisionRequest)
 
         then:
-        deprovisionResponse.isAsync == true
+
+        !deprovisionResponse.isAsync
         noExceptionThrown()
 
         and:

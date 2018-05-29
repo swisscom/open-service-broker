@@ -49,6 +49,7 @@ enum ErrorCode {
     SERVICE_UPDATE_NOT_ALLOWED("69040", "Service update is not allowed", "SC-SB-SI", UNPROCESSABLE_ENTITY),
     OPENWHISK_NAMESPACE_ALREADY_EXISTS("69041", "OpenWhisk namespace already exists", "SC-SB-OPENWHISK-NAMESPACE-ALREADY-EXISTS", HttpStatus.CONFLICT),
     OPENWHISK_CANNOT_CREATE_NAMESPACE("69042", "OpenWhisk cannot create subject", "SC-SB-OPENWHISK-CANNOT-CREATE-NAMESPACE", HttpStatus.BAD_REQUEST),
+    OPENWHISK_SUBJECT_NOT_FOUND("69043", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),
     CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
     PARENT_SERVICE_INSTANCE_NOT_FOUND("69045", "Parent service instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     UPDATE_INCORRECT_PLAN_ID("69046", "plan_id in previos_values is incorrect", "SC-SB-PLAN-INCORRECT-PLAN-ID", HttpStatus.BAD_REQUEST),
@@ -74,10 +75,6 @@ enum ErrorCode {
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_GONE("69066", "Service to be deprovisioned not found while deprovisioning using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-GONE", HttpStatus.GONE),
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_UNPROCESSABLE_ENTITY("69067", "Unprocessable entity encountered while deprovisioning a service using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-UNPROCESSABLE-ENTITY", HttpStatus.UNPROCESSABLE_ENTITY),
     SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR("69068", "Unexpected error occured during a ServiceBrokerServiceProvider operation", "SC-SB-SERVICEBROKERSERVICEPROVIDER-INTERNAL-SERVER-ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
-    OPENWHISK_SUBJECT_NOT_FOUND("69069", "OpenWhisk subject not found", "SC-SB-OPENWHISK-SUBJECT-NOT-FOUND", HttpStatus.BAD_REQUEST),CLOUDFOUNDRY_CONTEXT_REQUIRED("69044", "CloudFoundryContext required", "SC-SB-SI", HttpStatus.CONFLICT),
-
-
-
 
 
     final String code

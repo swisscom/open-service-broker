@@ -8,12 +8,10 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.lapi.config.LapiConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 

@@ -97,24 +97,11 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
                 serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
             }
 
-            // for testing purposes, a ServiceBrokerClient can be provided, if no ServiceBrokerClient is provided it has to be
-            // initialized using the GenericProvisionRequestPlanParameter object.
-            if (serviceBrokerClient == null) {
-                serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
-            }
-
-        def createServiceInstanceRequest = new CreateServiceInstanceRequest()
-        //Check out ResponseEntity
-        ResponseEntity<CreateServiceInstanceResponse> re = serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
-        return new ProvisionResponse(isAsync: request.acceptsIncomplete)
+            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, null)
+            //Check out ResponseEntity
+            ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(createServiceInstanceRequest, request)
+            return new ProvisionResponse(isAsync: request.plan.asyncRequired)
         }
-    }
-
-    // making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this
-    // method can be overwritten to enable testing of the ServiceBrokerServiceProvider in the TestableServiceBrokerServiceProviderClass
-    // More details as to why this is necessary can be found in the TestableServiceBrokerServiceProvider class
-    ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(CreateServiceInstanceRequest createServiceInstanceRequest, ProvisionRequest request) {
-        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
     }
 
     // making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this
@@ -142,11 +129,6 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
     }
 
     ResponseEntity<Void> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
-        DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
-        return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
-    }
-
-    ResponseEntity<DeleteServiceInstanceResponse> makeDeleteServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, DeprovisionRequest request, GenericProvisionRequestPlanParameter req) {
         DeleteServiceInstanceRequest deleteServiceInstanceRequest = new DeleteServiceInstanceRequest(request.serviceInstanceGuid, req.serviceId, req.planId, request.acceptsIncomplete)
         return serviceBrokerClient.deleteServiceInstance(deleteServiceInstanceRequest)
     }
@@ -191,7 +173,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
         return null
     }
 
-    public GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
+    public static GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
         GenericProvisionRequestPlanParameter req = new GenericProvisionRequestPlanParameter();
         Iterator<Parameter> it = params.iterator()
         while (it.hasNext()) {
@@ -302,6 +284,7 @@ class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerSer
             } else {
                 ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew()
             }
+            super.handleError(response)
         }
     }
 

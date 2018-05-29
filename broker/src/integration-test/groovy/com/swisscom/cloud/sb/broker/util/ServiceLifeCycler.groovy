@@ -146,11 +146,6 @@ class ServiceLifeCycler {
             setPlan(plan)
             cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
-        } else if (cfService.plans.empty && servicePlan != null) {
-            plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service:cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
-            cfService.plans.add(plan)
-            cfServiceRepository.saveAndFlush(cfService)
-            planCreated = true
         } else {
             if (planName) {
                 plan = cfService.plans.find { it.name == planName }
@@ -202,8 +197,8 @@ class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false, String newServiceInstanceId = serviceInstanceId, CFService service = cfService, Plan servicePlan = plan, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, service, servicePlan, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }

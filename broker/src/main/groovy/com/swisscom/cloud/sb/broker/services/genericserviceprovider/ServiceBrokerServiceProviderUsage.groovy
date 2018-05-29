@@ -28,24 +28,6 @@ class ServiceBrokerServiceProviderUsage {
         this.serviceBrokerClientExtended = serviceBrokerClientExtended
     }
 
-    ServiceBrokerClientExtended serviceBrokerClientExtended
-
-    @Autowired
-    ServiceBrokerServiceProviderUsage(ApplicationUserConfig applicationUserConfig){
-        this.userConfig = applicationUserConfig
-        this.serviceBrokerClientExtended = null
-    }
-
-    ServiceBrokerServiceProviderUsage(ApplicationUserConfig userConfig, ServiceBrokerClientExtended serviceBrokerClientExtended) {
-        this.userConfig = userConfig
-        this.serviceBrokerClientExtended = serviceBrokerClientExtended
-    }
-
-    ApplicationUserConfig userConfig
-
-    ServiceBrokerClientExtended serviceBrokerClientExtended
-
-
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
         GenericProvisionRequestPlanParameter req = ServiceBrokerServiceProvider.populateGenericProvisionRequestPlanParameter(serviceInstance.plan.parameters)
         ServiceBrokerServiceProviderUsageClient serviceBrokerServiceProviderUsageClient = instantiateServiceBrokerServiceProviderUsageClient(req)
