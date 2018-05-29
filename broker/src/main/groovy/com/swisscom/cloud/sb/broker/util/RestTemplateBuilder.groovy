@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.util
 
 import groovy.transform.CompileStatic
+import groovy.transform.Synchronized
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -65,6 +66,7 @@ class RestTemplateBuilder {
         return this.restTemplate
     }
 
+    @Synchronized
     private void addLoggingRequestInterceptor() {
         List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
         if (interceptors == null) {
