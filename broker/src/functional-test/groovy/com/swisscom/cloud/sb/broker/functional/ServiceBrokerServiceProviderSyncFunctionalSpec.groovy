@@ -36,6 +36,10 @@ class ServiceBrokerServiceProviderSyncFunctionalSpec extends BaseFunctionalSpec 
         serviceLifeCycler.createServiceIfDoesNotExist('syncDummyServiceProvider', ServiceProviderLookup.findInternalName(TestableServiceBrokerServiceProvider.class))
     }
 
+    def cleanupSpec() {
+        serviceLifeCycler.cleanup()
+    }
+
     def "provision and bind sync service instance"() {
         setup:
         addParameters()

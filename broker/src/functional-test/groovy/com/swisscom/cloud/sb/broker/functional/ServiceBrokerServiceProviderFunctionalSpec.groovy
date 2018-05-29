@@ -38,6 +38,10 @@ class ServiceBrokerServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceIfDoesNotExist('dummyAsyncServiceProvider', ServiceProviderLookup.findInternalName(TestableServiceBrokerServiceProvider.class))
     }
 
+    def cleanupSpec() {
+        serviceLifeCycler.cleanup()
+    }
+
     def "provision async service instance"() {
         setup:
         addParameters()
