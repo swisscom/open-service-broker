@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
@@ -116,6 +117,13 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def "deprovision async service instance"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+        def serviceBindingGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert()
+
         when:
         serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
 
