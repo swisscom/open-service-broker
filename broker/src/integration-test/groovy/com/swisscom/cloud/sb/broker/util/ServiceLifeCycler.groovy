@@ -198,6 +198,20 @@ class ServiceLifeCycler {
         planRepository.delete(plan)
     }
 
+    Plan getPlanByGuid(String planGuid) {
+        planRepository.findByGuid(planGuid)
+    }
+
+    CFService getServiceByGuid(String serviceGuid) {
+        cfServiceRepository.findByGuid(serviceGuid)
+    }
+
+    void updateServiceOfPlanInRepository(String planGuid, CFService service) {
+        Plan planToUpdate = planRepository.findByGuid(planGuid)
+        planToUpdate.service = service
+        planRepository.saveAndFlush(planToUpdate)
+    }
+
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
         createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
