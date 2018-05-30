@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.client
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
+import com.swisscom.cloud.sb.model.health.ServiceHealth
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic
@@ -54,6 +55,13 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
                 Set.class,serviceInstanceId)
+    }
+
+    @Override
+    ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/health'),HttpMethod.GET,
+                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+                ServiceHealth.class, serviceInstanceId)
     }
 
     @Override
