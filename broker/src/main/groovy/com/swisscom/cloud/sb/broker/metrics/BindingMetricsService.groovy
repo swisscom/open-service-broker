@@ -68,6 +68,12 @@ class BindingMetricsService extends ServiceBrokerMetrics {
             def key = service.getKey()
             def totalValue = service.getValue()
             def successValue = totalSuccessfulBindingRequestsPerService.get(key)
+            if (totalValue == null) {
+                totalValue = 0
+            }
+            if (successValue == null) {
+                successValue = 0
+            }
             def failureValue = totalValue - successValue
             totalFailedBindingRequestsPerService.put(key, failureValue)
         }

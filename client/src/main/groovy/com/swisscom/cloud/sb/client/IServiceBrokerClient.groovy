@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceBindingResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
+import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.cloud.servicebroker.model.Catalog
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest

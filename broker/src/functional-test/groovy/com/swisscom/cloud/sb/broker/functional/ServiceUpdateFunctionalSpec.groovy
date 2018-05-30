@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -25,8 +27,10 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
 
     static String notUpdatableServiceGuid = "updateTest_notUpdateable"
     static String notUpdatablePlanGuid = "updateTest_notUpdateable_plan_a"
+    static String secondNotUpdatablePlanGuid = "updateTest_notUpdateable_plan_b"
     static String defaultServiceGuid = "updateTest_Updateable"
     static String defaultPlanGuid = "updateTest_Updateable_plan_a"
+    static String secondPlanGuid = "updateTest_Updateable_plan_b"
     static String defaultOrgGuid = "org_id"
     static String defaultSpaceGuid = "space_id"
 
@@ -55,6 +59,24 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         return serviceInstanceGuid
     }
 
+    private updatePlans(){
+        Plan defaultPlan = serviceLifeCycler.getPlanByGuid(defaultPlanGuid)
+        Plan secondPlan = serviceLifeCycler.getPlanByGuid(secondPlanGuid)
+        CFService defaultService = serviceLifeCycler.getServiceByGuid(defaultServiceGuid)
+        defaultPlan.service = defaultService
+        serviceLifeCycler.updateServiceOfPlanInRepository(defaultPlanGuid, defaultService)
+        secondPlan.service = defaultService
+        serviceLifeCycler.updateServiceOfPlanInRepository(secondPlanGuid, defaultService)
+
+        Plan notUpdatablePlan = serviceLifeCycler.getPlanByGuid(notUpdatablePlanGuid)
+        Plan secondNotUpdatablePlan = serviceLifeCycler.getPlanByGuid(secondNotUpdatablePlanGuid)
+        CFService notUpdatableService = serviceLifeCycler.getServiceByGuid(notUpdatableServiceGuid)
+        notUpdatablePlan.service = notUpdatableService
+        secondNotUpdatablePlan.service = notUpdatableService
+        serviceLifeCycler.updateServiceOfPlanInRepository(notUpdatablePlanGuid, notUpdatableService)
+        serviceLifeCycler.updateServiceOfPlanInRepository(secondNotUpdatablePlanGuid, notUpdatableService)
+    }
+
     def setup() {
         if (!serviceDefinitionsSetUp) {
             serviceBrokerClient.createOrUpdateServiceDefinition(
@@ -64,25 +86,34 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             serviceDefinitionsSetUp = true
         }
 
+        updatePlans()
+
         parameters = new HashMap<String, Object>()
         parameters.put(parameterKey, parameterOldValue)
     }
 
+    def cleanupSpec() {
+        /*Plan defaultPlan = serviceLifeCycler.getPlanByGuid(defaultPlanGuid)
+        serviceLifeCycler.setPlan(defaultPlan)
+        Plan secondPlan = serviceLifeCycler.getPlanByGuid(secondPlanGuid)
+        serviceLifeCycler.setPlan(secondPlan)
+        serviceLifeCycler.cleanup()*/
+    }
+
     def "plan can be updated"() {
         setup:
-        def newPlanGuid = "updateTest_Updateable_plan_b"
         def serviceInstanceGuid = requestServiceProvisioning()
 
         when:
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance
-        serviceInstance.plan.guid == newPlanGuid
+        serviceInstance.plan.guid == secondPlanGuid
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "parameters can be updated"() {
