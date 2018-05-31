@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
@@ -19,11 +20,18 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     private final String cfExtUsername
     private final String cfExtPassword
 
+    private final String cfUsername
+    private final String cfPassword
+
     ServiceBrokerClientExtended(RestTemplate restTemplate,String baseUrl, String cfUsername, String cfPassword,
         String cfExtUsername, String cfExtPassword) {
         super(restTemplate,baseUrl,cfUsername,cfPassword)
+
         this.cfExtUsername = cfExtUsername
         this.cfExtPassword = cfExtPassword
+
+        this.cfUsername = cfUsername
+        this.cfPassword = cfPassword
     }
 
     @Override
@@ -38,6 +46,14 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         return restTemplate.exchange(appendPath('/custom/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),
                 ServiceUsage.class,serviceInstanceId)
+    }
+
+    @Override
+    @TypeChecked(TypeCheckingMode.SKIP)
+    ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
+                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+                Set.class,serviceInstanceId)
     }
 
     @Override
