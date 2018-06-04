@@ -1,11 +1,8 @@
 package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import groovy.transform.CompileStatic
 import spock.lang.Specification
 
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 

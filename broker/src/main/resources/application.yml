@@ -3,6 +3,10 @@ spring:
 ---
 spring:
   profiles: default
+  autoconfigure.exclude:
+  - org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class
+  - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+  - MongoDataAutoConfiguration.class
 
   datasource:
     driverClassName: com.mysql.jdbc.Driver
