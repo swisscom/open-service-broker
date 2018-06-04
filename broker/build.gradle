@@ -27,6 +27,7 @@ processResources {
     }
 }
 
+bootRepackage.enabled = false
 
 repositories {
     mavenCentral()
