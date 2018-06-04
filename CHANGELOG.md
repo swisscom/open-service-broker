@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [2.13.0] - 2018-06-04
 - Fix issue #110 last operation not allowing querying by operationId (client)
 - Add additional extended usage endpoint to service instance
 - Add custom ServiceHealth Endpoint to service instance
