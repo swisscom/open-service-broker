@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.4.2.RELEASE'
+        springBootVersion = '1.5.13.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -28,6 +28,10 @@ processResources {
 }
 
 bootRepackage.enabled = false
+
+bootRun {
+    main = 'com.swisscom.cloud.sb.broker.ServiceBroker'
+}
 
 repositories {
     mavenCentral()
@@ -67,7 +71,8 @@ dependencies {
     compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
 
     runtime('mysql:mysql-connector-java')
-    runtime('javax.el:javax.el-api:2.2.4')
+    runtime('javax.el:javax.el-api:3.0.0')
+    runtime('org.glassfish:javax.el:3.0.0')
 
     if (project.hasProperty('tomcat')) {
         // Used for production environment
