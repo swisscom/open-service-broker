@@ -38,7 +38,7 @@ class BoshFacadeSpec extends Specification {
         boshClientFactory = Mock(BoshClientFactory)
         boshClientFactory.build(*_) >> boshClient
         and:
-        TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
+        TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('../../../broker/src/test/resources/bosh/template_mongodbent_v5.yml').text])
         serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
         templateConfig = new TemplateConfig(serviceTemplates: [st])
         and:
