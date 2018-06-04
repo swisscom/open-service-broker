@@ -152,7 +152,9 @@ class ProvisioningController extends BaseController {
     @ApiOperation(value = "Get the last operation status", response = LastOperationResponseDto.class,
             notes = "Returns the last operation status for the given service instance")
     @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
-    LastOperationResponseDto lastOperation(@PathVariable("instanceId") String serviceInstanceGuid) {
+    LastOperationResponseDto lastOperation(
+            @PathVariable("instanceId") String serviceInstanceGuid,
+            @RequestParam(value = "operation", required = false) String operationId) {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
     }
 
