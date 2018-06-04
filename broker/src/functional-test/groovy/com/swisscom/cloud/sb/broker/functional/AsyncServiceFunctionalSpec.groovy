@@ -8,6 +8,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
@@ -64,6 +65,23 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
 
+    def "deprovision not existing async service instance"() {
+        when:
+        serviceBrokerClient.deleteServiceInstance(new DeleteServiceInstanceRequest(UUID.randomUUID().toString(), serviceLifeCycler.cfService.guid, serviceLifeCycler.cfService.plans[0].guid, true))
+
+        then:
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.GONE
+    }
+
+    def "fetch not existing async service instance"() {
+        when:
+        serviceBrokerClient.getServiceInstance(UUID.randomUUID().toString())
+
+        then:
+        def ex = thrown(HttpClientErrorException)
+        ex.statusCode == HttpStatus.NOT_FOUND
+    }
 
     def "provision async service instance"() {
         given:

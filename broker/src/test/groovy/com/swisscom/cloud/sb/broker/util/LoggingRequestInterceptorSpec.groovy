@@ -8,6 +8,7 @@ import uk.org.lidalia.slf4jext.Level
 import uk.org.lidalia.slf4jtest.LoggingEvent
 import uk.org.lidalia.slf4jtest.TestLogger
 import uk.org.lidalia.slf4jtest.TestLoggerFactory
+import java.util.concurrent.atomic.AtomicBoolean
 
 class LoggingRequestInterceptorSpec extends Specification {
     RestTemplate restTemplate
@@ -42,5 +43,32 @@ class LoggingRequestInterceptorSpec extends Specification {
             LoggingEvent logEvent = logger.getLoggingEvents().asList()[1]
             assert logEvent.getLevel() == Level.INFO
             assert logEvent.getMessage() =~ /Request: POST ${testURL} - Duration: [0-9]+ms - Response: 404/
+    }
+
+    def "assert addLoggingInterceptor is thread safe"() {
+        when:
+        AtomicBoolean concurrentModificationExceptionHit = new AtomicBoolean(false)
+        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder()
+        // Tests showed that ConcurrentModificationException only happens reliably with about 200 threads
+        int numberOfThreads = 200
+
+        List threads = new ArrayList()
+        for (int i = 0; i < numberOfThreads; i++) {
+            def t = new Thread({
+                try {
+                    restTemplateBuilder.build()
+                } catch (ConcurrentModificationException e) {
+                    concurrentModificationExceptionHit.set(true)
+                }
+            })
+            t.start()
+            threads.add(t)
+        }
+        for (int i = 0; i < threads.size(); i++) {
+            ((Thread) threads.get(i)).join()
+        }
+        then:
+        !concurrentModificationExceptionHit.get()
+        noExceptionThrown()
     }
 }

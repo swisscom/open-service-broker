@@ -3,6 +3,10 @@ spring:
 ---
 spring:
   profiles: default
+  autoconfigure.exclude:
+  - org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class
+  - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+  - MongoDataAutoConfiguration.class
 
   datasource:
     driverClassName: com.mysql.jdbc.Driver
@@ -10,11 +14,25 @@ spring:
     username: root
     password:
 
+management:
+  metrics:
+    export:
+      influx:
+        uri: http://localhost:8086
+        db: mydb
+        steps: 5s
+
 endpoints:
+  # accessibility of the endpoints is handled in ApplicationUserDetailsService class
   enabled: false
+  # renaming of the spring boot actuator endpoint from info to version -> /info can only be accessed under /version
   info:
     enabled: true
     id: version
+  metrics:
+    enabled: true
+  health:
+    enabled: true
 
 info:
   build:

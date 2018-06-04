@@ -3,10 +3,15 @@ package com.swisscom.cloud.sb.client
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
+import com.swisscom.cloud.sb.model.health.ServiceHealth
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
@@ -16,11 +21,18 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     private final String cfExtUsername
     private final String cfExtPassword
 
+    private final String cfUsername
+    private final String cfPassword
+
     ServiceBrokerClientExtended(RestTemplate restTemplate,String baseUrl, String cfUsername, String cfPassword,
         String cfExtUsername, String cfExtPassword) {
         super(restTemplate,baseUrl,cfUsername,cfPassword)
+
         this.cfExtUsername = cfExtUsername
         this.cfExtPassword = cfExtPassword
+
+        this.cfUsername = cfUsername
+        this.cfPassword = cfPassword
     }
 
     @Override
@@ -38,9 +50,24 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     }
 
     @Override
+    @TypeChecked(TypeCheckingMode.SKIP)
+    ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
+                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+                Set.class,serviceInstanceId)
+    }
+
+    @Override
+    ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId) {
+        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/health'),HttpMethod.GET,
+                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+                ServiceHealth.class, serviceInstanceId)
+    }
+
+    @Override
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
         return restTemplate.exchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
-                new HttpEntity(definition, createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),Void.class)
+                new HttpEntity(definition, addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername,cfExtPassword))),Void.class)
     }
 
     @Override
@@ -68,6 +95,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     }
 
     @Override
+    @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<List<BackupDto>> listBackups(String serviceInstanceId){
         return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups"), HttpMethod.GET,
                 new HttpEntity(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)), List.class, serviceInstanceId)
@@ -103,5 +131,11 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     ResponseEntity<String> unlockUser(String serviceInstanceId){
         return restTemplate.exchange(appendPath("/custom/service_instances/{instanceId}/unlock"),
                 HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
+    }
+
+    private HttpHeaders addJsonContentTypeHeader(HttpHeaders headers) {
+        headers.add("Content-Type", "application/json")
+
+        return headers
     }
 }

@@ -8,7 +8,7 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
 
     def "catalog controller returns 401 when no credentials provided"() {
         when:
-        def response = new ServiceBrokerClient(appBaseUrl,null,null).getCatalog()
+        new ServiceBrokerClient(appBaseUrl,null,null).getCatalog()
 
         then:
         def ex = thrown(HttpClientErrorException)
@@ -17,7 +17,7 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
 
     def "catalog controller returns 401 when wrong credentials provided"() {
         when:
-        def response = new ServiceBrokerClient(appBaseUrl,'SomeUsername','WrongPassword').getCatalog()
+        new ServiceBrokerClient(appBaseUrl,'SomeUsername','WrongPassword').getCatalog()
 
         then:
         def ex = thrown(HttpClientErrorException)
@@ -34,7 +34,7 @@ class AuthenticationFunctionalSpec extends BaseFunctionalSpec {
 
     def "catalog controller returns Forbidden 403 when wrong role provided"() {
         when:
-        def response = new ServiceBrokerClient(appBaseUrl, cfExtUser.username, cfExtUser.password).getCatalog()
+        new ServiceBrokerClient(appBaseUrl, cfExtUser.username, cfExtUser.password).getCatalog()
 
         then:
         def ex = thrown(HttpClientErrorException)

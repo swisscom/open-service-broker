@@ -22,7 +22,8 @@ class ServiceDefinitionController extends BaseController {
     @ApiOperation(value = "Add/Update service definition", response = ServiceDto)
     @RequestMapping(value = ['/service-definition', //deprecated, prefer the path below
             '/custom/admin/service-definition'],
-            method = [RequestMethod.POST,RequestMethod.PUT])
+            method = [RequestMethod.POST,RequestMethod.PUT],
+            headers = "content-type=application/json")
     void createOrUpdate(@RequestBody String text) {
         serviceDefinitionProcessor.createOrUpdateServiceDefinition(text)
     }

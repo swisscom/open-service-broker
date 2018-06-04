@@ -37,6 +37,8 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     final String FILE_SERVICE1_WITHOUT_PLAN_INTERNAL_NAME = "/service-data/service1WithoutPlanInternalName.json"
     public static
     final String FILE_SERVICE1_WITHOUT_BACKUP_CAPABLE_SP = "/service-data/service1WithoutBackupCapableServiceProvider.json"
+    public static
+    final String FILE_SERVICE1_WITH_INVALID_JSON = "/service-data/service1WithInvalidJson.json"
 
     public static final String INTERNAL_NAME = "dummySynchronousBackupCapable"
     public static
@@ -486,6 +488,15 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         def dto = serviceDefinitionProcessor.getServiceDefinition(serviceGuid)
         then:
         JSONAssert.assertEquals(Resource.readTestFileContent(FILE_SERVICE1), new ObjectMapper().writeValueAsString(dto), JSONCompareMode.LENIENT)
+    }
+
+    def "service definition with invalid json should be rejected"() {
+        when:
+        processServiceDefinition(FILE_SERVICE1_WITH_INVALID_JSON)
+        then:
+        def ex = thrown(ServiceBrokerException)
+        ex.httpStatus == HttpStatus.BAD_REQUEST
+        ex.code == ErrorCode.INVALID_JSON.code
     }
 
     def "service with correct specified json schema"() {

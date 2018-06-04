@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.services.kubernetes.config
+package com.swisscom.cloud.sb.broker.services.common
 
 import com.swisscom.cloud.sb.broker.config.Config
 import org.springframework.boot.context.properties.ConfigurationProperties

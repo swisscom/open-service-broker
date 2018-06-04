@@ -30,7 +30,7 @@ set -x
 git checkout $branch_to_release_from
 set +e
 RES=$(git pull origin "$branch_to_release_from")
-if [[ $RES != *"Already up-to-date"* ]]; then
+if [[ ! $RES =~ Already.up.to.date ]]; then
     set -e
     echo "$branch_to_release_from wasn't up-to-date prior to execution. $branch_to_release_from has been pulled now. Please ensure state of $branch_to_release_from is good before executing release."
     exit 1
