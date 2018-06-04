@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Add additional extended usage endpoint to service instance
 - Add custom ServiceHealth Endpoint to service instance
+- Fix LoggingInterceptor thread unsafe operation
 
 ## [2.12.1] - 2018-05-07
 - Fix not found binding and instance status code
