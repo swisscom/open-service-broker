@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity
 interface IServiceBrokerClient {
     ResponseEntity<Catalog> getCatalog()
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId)
+    ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId, String operationId)
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request)
     ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request)
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request)
