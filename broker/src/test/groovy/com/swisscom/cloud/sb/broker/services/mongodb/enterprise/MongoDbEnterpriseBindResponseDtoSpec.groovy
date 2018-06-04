@@ -29,7 +29,7 @@ class MongoDbEnterpriseBindResponseDtoSpec extends Specification {
                                 "ops_manager_url": "url",
                                 "ops_manager_user": "opsUser",
                                 "ops_manager_password": "opsPw",
-                                "replica_set": "replicaSet1",
+                                "replica_set": "replicaSet1"
                             }
                         }"""
         expect:
