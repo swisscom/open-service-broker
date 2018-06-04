@@ -26,7 +26,7 @@ import org.springframework.web.client.RestTemplate
 trait ExtensionProvider{
     //Trying to manage both sync and async extensions in this trait. Maybe I should create an AsyncExtensionProvider
     @Autowired
-    protected JobManager jobManager
+    JobManager jobManager
 
     @Autowired
     Environment env
