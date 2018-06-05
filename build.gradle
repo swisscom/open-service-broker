@@ -45,10 +45,10 @@ subprojects {
     ext.isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
 
     task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
-        from new File(project(':broker').getBuildDir().toString() + "/classes/test")
-        from new File(project(':broker').getBuildDir().toString() + "/classes/functionalTest")
-        from new File(project(':broker').getBuildDir().toString() + "/classes/integrationTest")
-        from new File(project(':client').getBuildDir().toString() + "/classes/test")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/test")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/functionalTest")
+        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/integrationTest")
+        from new File(project(':client').getBuildDir().toString() + "/classes/groovy/test")
         classifier "test"
     }
     task sourceJar(type: Jar) {
