@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Fix build script for gradle 4 to include test jar sources
+- Fix exchange response object in ServiceBrokerClient (#115)
 
 ## [2.13.0] - 2018-06-04
 - Fix issue #110 last operation not allowing querying by operationId (client)
