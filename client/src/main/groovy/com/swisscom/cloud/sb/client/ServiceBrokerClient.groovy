@@ -4,13 +4,13 @@ import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceBindingResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
+import com.swisscom.cloud.sb.client.model.CreateServiceInstanceResponse
 import groovy.transform.CompileStatic
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.Catalog
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceResponse
 import org.springframework.http.HttpEntity
