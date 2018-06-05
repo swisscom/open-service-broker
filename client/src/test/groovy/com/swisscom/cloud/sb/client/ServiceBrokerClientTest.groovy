@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.springframework.boot.SpringApplication
+import com.swisscom.cloud.sb.client.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.*
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.Assert

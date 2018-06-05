@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [2.13.1] - 2018-06-05
+- Fix build script for gradle 4 to include test jar sources
+- Fix exchange response object in ServiceBrokerClient (#115)
+
 ## [2.13.0] - 2018-06-04
 - Fix issue #110 last operation not allowing querying by operationId (client)
 - Add additional extended usage endpoint to service instance
