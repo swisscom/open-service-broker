@@ -24,20 +24,20 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
         ExecuteStateTransition(lastOperationJobContext, LastOperation.Operation.UPDATE)
     }
 
-    protected abstract StateMachine getProvisionStateMachine()
+    protected abstract StateMachine getProvisionStateMachine(LastOperationJobContext lastOperationJobContext)
 
-    protected abstract StateMachine getDeprovisionStateMachine()
+    protected abstract StateMachine getDeprovisionStateMachine(LastOperationJobContext lastOperationJobContext)
 
-    protected abstract StateMachine getUpdateStateMachine()
+    protected abstract StateMachine getUpdateStateMachine(LastOperationJobContext lastOperationJobContext)
 
-    private StateMachine getStateMachineForOperation(LastOperation.Operation operation) {
+    protected StateMachine getStateMachineForOperation(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
         switch (operation) {
             case LastOperation.Operation.DEPROVISION:
-                return getDeprovisionStateMachine()
+                return getDeprovisionStateMachine(lastOperationJobContext)
             case LastOperation.Operation.PROVISION:
-                return getProvisionStateMachine()
+                return getProvisionStateMachine(lastOperationJobContext)
             case LastOperation.Operation.UPDATE:
-                return getUpdateStateMachine()
+                return getUpdateStateMachine(lastOperationJobContext)
         }
     }
 
@@ -53,7 +53,7 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
         getStateMachineForOperation(LastOperation.Operation.UPDATE).states.first()
     }
 
-    private ServiceStateWithAction getInitialState(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
+    protected ServiceStateWithAction getInitialState(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
         switch (operation) {
             case LastOperation.Operation.DEPROVISION:
                 return getDeprovisionInitialState(lastOperationJobContext)
@@ -66,8 +66,8 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
 
     protected abstract StateMachineContext createStateMachineContext(LastOperationJobContext lastOperationJobContext)
 
-    private AsyncOperationResult ExecuteStateTransition(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
-        def stateMachine = getStateMachineForOperation(operation)
+    protected AsyncOperationResult ExecuteStateTransition(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
+        def stateMachine = getStateMachineForOperation(lastOperationJobContext, operation)
         def currentState = getCurrentStateForContext(stateMachine, lastOperationJobContext, operation)
         def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(lastOperationJobContext))
 
@@ -77,7 +77,7 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
                 actionResult.message)
     }
 
-    private ServiceStateWithAction getCurrentStateForContext(
+    protected ServiceStateWithAction getCurrentStateForContext(
             StateMachine stateMachine,
             LastOperationJobContext context,
             LastOperation.Operation operation) {
