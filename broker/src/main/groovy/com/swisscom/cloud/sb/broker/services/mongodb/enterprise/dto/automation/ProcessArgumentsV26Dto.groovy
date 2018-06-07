@@ -6,6 +6,7 @@ class ProcessArgumentsV26Dto implements Serializable {
     Storage storage
     SystemLog systemLog
     Replication replication
+    AuditLog auditLog
 
     static class Net implements Serializable {
         int port
@@ -22,5 +23,11 @@ class ProcessArgumentsV26Dto implements Serializable {
 
     static class Replication implements Serializable {
         String replSetName
+    }
+
+    static class AuditLog implements Serializable{
+        String destination
+        String format
+        String path
     }
 }

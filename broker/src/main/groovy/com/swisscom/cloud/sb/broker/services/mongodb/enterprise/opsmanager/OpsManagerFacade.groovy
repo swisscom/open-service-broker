@@ -240,7 +240,8 @@ class OpsManagerFacade {
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),
                         storage: new ProcessArgumentsV26Dto.Storage(dbPath: path),
-                        systemLog: new ProcessArgumentsV26Dto.SystemLog(destination: SYSTEM_LOG_DESTINATION, path: "${path}/mongodb.log"),
+                        systemLog: new ProcessArgumentsV26Dto.SystemLog(destination: SYSTEM_LOG_DESTINATION, path: "${mongoDbEnterpriseConfig.logFolder}/mongodb.log"),
+                        auditLog: new ProcessArgumentsV26Dto.AuditLog(destination: SYSTEM_LOG_DESTINATION, path: "${mongoDbEnterpriseConfig.logFolder}/audit.log", format: "JSON"),
                         replication: new ProcessArgumentsV26Dto.Replication(replSetName: replicaSet)))
         return processDto
     }
