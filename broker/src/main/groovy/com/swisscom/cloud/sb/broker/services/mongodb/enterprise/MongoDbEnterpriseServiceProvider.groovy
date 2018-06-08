@@ -34,7 +34,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import javax.annotation.PostConstruct
 
@@ -102,6 +101,28 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     private String getOpsManagerUrl() {
         def mongodbConfig = (MongoDbEnterpriseConfig) serviceConfig
         return mongodbConfig.opsManagerUrlForAutomationAgent ?: mongodbConfig.opsManagerUrl
+    }
+
+    @Override
+    AsyncOperationResult requestUpdate(LastOperationJobContext context) {
+        // verify upgrade possible
+        if (context.updateRequest.plan == context.serviceInstance.plan) {
+            // perform upgrade
+            StateMachine stateMachine = createUpdateStateMachine()
+            ServiceStateWithAction currentState = getProvisionState(context)
+            def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
+            return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
+        } else {
+            // throw error for impossible upgrade
+            ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+            return null
+        }
+    }
+
+    @VisibleForTesting
+    private StateMachine createUpdateStateMachine() {
+        StateMachine stateMachine = new StateMachine([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, PROVISION_SUCCESS])
+        return stateMachine
     }
 
     @Override

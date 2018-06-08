@@ -123,13 +123,13 @@ class OpsManagerFacade {
     }
 
     //TODO refactor this method ,passing in too many arguments
-    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion) {
+    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion, String featureCompatibilityVersion) {
         final List<String> hosts = findHostsForGroup(groupId)
         final List<HostPort> hostPorts = hosts.collect { String host -> new HostPort(host: host, port: port) }
 
         MongoDbEnterpriseDeployment deployment = null
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
-            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword, mongoDbVersion)
+            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword, mongoDbVersion, featureCompatibilityVersion)
         })
 
         return deployment
@@ -149,7 +149,8 @@ class OpsManagerFacade {
 
     private MongoDbEnterpriseDeployment configureInstancesWithReplicaSetMode(String database, List<HostPort> hostPorts, AutomationConfigDto automationConfig,
                                                                              String healthUser, String healthPassword,
-                                                                             String mongoDbVersion) {
+                                                                             String mongoDbVersion,
+                                                                             String featureCompatibilityVersion) {
         final String replicaSetId = "rs_${database}"
 
         if (!automationConfig.options) {
@@ -166,7 +167,7 @@ class OpsManagerFacade {
             HostPort hostPort, int i ->
                 String name = "${replicaSetId}_${i}"
                 String path = createDbPath(name)
-                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name, mongoDbVersion)
+                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name, mongoDbVersion, featureCompatibilityVersion)
                 automationConfig.processes.add(processDto)
         }
 
@@ -230,12 +231,12 @@ class OpsManagerFacade {
         return result
     }
 
-    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name, String mongoDbVersion) {
+    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name, String mongoDbVersion, String featureCompatibilityVersion) {
         ProcessDto processDto = new ProcessDto(version: mongoDbVersion,
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,
-                featureCompatibilityVersion: mongoDbEnterpriseConfig.featureCompatibilityVersion,
+                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbEnterpriseConfig.featureCompatibilityVersion,
                 hostname: hostPort.host,
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),
