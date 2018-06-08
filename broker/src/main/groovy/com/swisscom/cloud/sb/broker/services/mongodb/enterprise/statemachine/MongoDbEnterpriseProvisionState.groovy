@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
+import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceState
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -53,7 +55,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(ServiceDetailKey.PORT) as int,
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER),
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD),
-                    findTargetMongoDBVersion(stateContext), findTargetCompatibillityVersion())
+                    findTargetMongoDBVersion(stateContext), findTargetCompatibillityVersion(stateContext.lastOperationJobContext))
 
             return new StateChangeActionResult(go2NextState: true, details: [from(ServiceDetailKey.DATABASE, deployment.database),
                                                                              from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion + 1)),
@@ -64,14 +66,23 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
                                                                              from(MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD, deployment.backupAgentPassword)])
         }
 
-        String findTargetCompatibillityVersion(MongoDbEnterperiseStateMachineContext context) {
-            if (context.lastOperationJobContext.updateRequest.parameters["featureCompatibilityVersion"] != null) {
-                return context.lastOperationJobContext.updateRequest.parameters["featureCompatibilityVersion"]
-            } else if (context.lastOperationJobContext.provisionRequest.parameters["featureCompatibilityVersion"] != null) {
-                return context.lastOperationJobContext.provisionRequest.parameters["featureCompatibilityVersion"]
-            } else {
-                return ""
+        @VisibleForTesting
+        String findTargetCompatibillityVersion(LastOperationJobContext context) {
+            if (context.updateRequest != null) {
+                if (context.updateRequest.parameters != null) {
+                    if (context.updateRequest.parameters["featureCompatibilityVersion"] != null) {
+                        return context.updateRequest.parameters["featureCompatibilityVersion"]
+                    }
+                }
+            } else if (context.provisionRequest != null) {
+                if (context.provisionRequest.parameters != null) {
+                    if (context.provisionRequest.parameters["featureCompatibilityVersion"] != null) {
+                        return context.provisionRequest.parameters["featureCompatibilityVersion"]
+                    }
+                }
             }
+            return ""
+
         }
 
         static String findTargetMongoDBVersion(MongoDbEnterperiseStateMachineContext context) {

@@ -76,6 +76,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
         def mongodb_version = 'Some Version'
+        def feature_compatibility_version = ""
         context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(parameters: [new Parameter(name: MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION, value: mongodb_version)]),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
@@ -88,7 +89,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
         and:
         def deployment = new MongoDbEnterpriseDeployment()
-        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
 
         when:
         def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
@@ -113,6 +114,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
         def mongodb_version = 'A version from SB Config'
+        def feature_compatibility_version = ""
 
         and:
         context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(mongoDbVersion: mongodb_version)
@@ -129,7 +131,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
         and:
         def deployment = new MongoDbEnterpriseDeployment()
-        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
 
         when:
         def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
