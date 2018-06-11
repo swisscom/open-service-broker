@@ -33,13 +33,15 @@ class ServiceBindingPersistenceService {
     @Autowired
     protected ApplicationUserRepository applicationUserRepository
 
+    @Autowired
+    protected CredentialService credentialService
+
     ServiceBinding create(ServiceInstance serviceInstance, String credentials, String parameters, String guid, Collection<ServiceDetail> details, Context context, String applicationUser) {
         ServiceBinding serviceBinding = new ServiceBinding()
         serviceBinding.guid = guid
-        serviceBinding.credentials = credentials
         serviceBinding.parameters = parameters
         serviceBinding.applicationUser = applicationUserRepository.findByUsername(applicationUser)
-
+        credentialService.writeCredential(serviceBinding, credentials)
         serviceBindingRepository.save(serviceBinding)
         details?.each {
             ServiceDetail detail ->
@@ -65,7 +67,6 @@ class ServiceBindingPersistenceService {
         return serviceBinding
     }
 
-
     void delete(ServiceBinding serviceBinding, ServiceInstance serviceInstance) {
         ServiceInstance serviceInstance_new = serviceInstanceRepository.merge(serviceInstance)
         serviceInstance_new.bindings.remove(serviceBinding)
@@ -78,7 +79,7 @@ class ServiceBindingPersistenceService {
                 serviceDetailRepository.delete(detail)
         }
         serviceBindingRepository.delete(serviceBinding_new)
+        credentialService.deleteCredential(serviceBinding)
     }
-
 
 }
