@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.support.CredentialDetails
-import org.springframework.credhub.support.user.UserCredential
+import org.springframework.credhub.support.json.JsonCredential
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
@@ -47,11 +47,9 @@ class CredHubIntegrationSpec extends BaseSpecification {
     def "Write CredHub credential"() {
         given:
         credentialName = StringGenerator.randomUuid()
-        String username = StringGenerator.randomUuid()
-        String password = StringGenerator.randomUuid()
 
         when:
-        CredentialDetails<UserCredential> credential = credHubService.writeCredential(credentialName, username, password)
+        CredentialDetails<JsonCredential> credential = credHubService.writeCredential(credentialName, [username: StringGenerator.randomUuid(), password: StringGenerator.randomUuid()])
         assert credential != null
         credentialId = credential.id
 
@@ -66,7 +64,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         assert credentialId != null
 
         when:
-        CredentialDetails<UserCredential> details = credHubService.getCredential(credentialId)
+        CredentialDetails<JsonCredential> details = credHubService.getCredential(credentialId)
 
         then:
         details != null

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.SimpleCredentialName
-import org.springframework.credhub.support.user.UserCredential
-import org.springframework.credhub.support.user.UserCredentialRequest
+import org.springframework.credhub.support.json.JsonCredential
+import org.springframework.credhub.support.json.JsonCredentialRequest
 
 @CompileStatic
 @Slf4j
@@ -17,23 +17,22 @@ class CredHubServiceImpl implements CredHubService {
     private CredHubOperations credHubOperations
 
     @Override
-    CredentialDetails<UserCredential> writeCredential(String credentialName, String username, String password) {
-        log.info("Writing new CredHub Credential for name: ${credentialName}, username: ${username}")
-        UserCredential userCredential = new UserCredential(username, password)
-        UserCredentialRequest request =
-                UserCredentialRequest.builder()
+    CredentialDetails<JsonCredential> writeCredential(String credentialName, Map<String, String> credentials) {
+        log.info("Writing new CredHub Credential for name: ${credentialName}")
+        JsonCredential jsonCredential = new JsonCredential(credentials)
+        JsonCredentialRequest request =
+                JsonCredentialRequest.builder()
                         .overwrite(true)
                         .name(new SimpleCredentialName('/' + credentialName))
-                        .value(userCredential)
+                        .value(jsonCredential)
                         .build()
-
         credHubOperations.write(request)
     }
 
     @Override
-    CredentialDetails<UserCredential> getCredential(String id) {
+    CredentialDetails<JsonCredential> getCredential(String id) {
         log.info("Get CredHub credentials for id: ${id}")
-        credHubOperations.getById(id, UserCredential)
+        credHubOperations.getById(id, JsonCredential)
     }
 
     @Override

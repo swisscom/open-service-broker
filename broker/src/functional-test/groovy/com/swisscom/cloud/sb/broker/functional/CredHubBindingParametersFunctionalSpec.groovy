@@ -55,11 +55,7 @@ class CredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
         def serviceBinding = serviceBindingRepository.findByGuid(serviceBindingGuid)
         serviceBinding != null
         serviceBinding.credhubCredentialId != null
-        serviceBinding.credentials != null
-
-        def credentials = JsonHelper.parse(serviceBinding.credentials, Map) as Map
-        credentials.username == null
-        credentials.password == null
+        serviceBinding.credentials == null
     }
 
     def "get binding credentials from CredHub"() {

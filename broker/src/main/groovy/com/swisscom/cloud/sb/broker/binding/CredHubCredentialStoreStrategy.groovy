@@ -21,11 +21,9 @@ class CredHubCredentialStoreStrategy implements CredentialStoreStrategy {
     def writeCredential(ServiceBinding serviceBinding, String credentialJson) {
         def credhubService = getCredHubService()
         Map credentials = JsonHelper.parse(credentialJson, Map) as Map
-        def credhubUserCredential = credhubService.writeCredential(serviceBinding.guid, credentials.username as String, credentials.password as String)
-        serviceBinding.credhubCredentialId = credhubUserCredential.id
-        credentials.username = null
-        credentials.password = null
-        serviceBinding.credentials = JsonHelper.toJsonString(credentials)
+        def credhubJsonCredential = credhubService.writeCredential(serviceBinding.guid, credentials)
+        serviceBinding.credhubCredentialId = credhubJsonCredential.id
+        serviceBinding.credentials = null
     }
 
     def deleteCredential(ServiceBinding serviceBinding) {
@@ -34,14 +32,7 @@ class CredHubCredentialStoreStrategy implements CredentialStoreStrategy {
     }
 
     String getCredential(ServiceBinding serviceBinding) {
-        def credentials = JsonHelper.parse(serviceBinding.credentials, Map) as Map
-        def credHubService = getCredHubService()
-
-        def credentialDetails = credHubService.getCredential(serviceBinding.credhubCredentialId)
-        credentials.username = credentialDetails.value.username
-        credentials.password = credentialDetails.value.password
-
-        return JsonHelper.toJsonString(credentials)
+        JsonHelper.toJsonString(getCredHubService().getCredential(serviceBinding.credhubCredentialId).value)
     }
 
     CredHubService getCredHubService() {
