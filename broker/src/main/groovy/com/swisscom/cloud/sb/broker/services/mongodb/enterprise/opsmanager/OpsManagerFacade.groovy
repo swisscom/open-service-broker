@@ -118,12 +118,12 @@ class OpsManagerFacade {
         return true
     }
 
-    def MongoDbEnterpriseDeployment deployStandAlone(String groupId, String database, int port) {
+    MongoDbEnterpriseDeployment deployStandAlone(String groupId, String database, int port) {
         throw new NotImplementedException()
     }
 
     //TODO refactor this method ,passing in too many arguments
-    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion, String featureCompatibilityVersion) {
+    MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion, String featureCompatibilityVersion) {
         final List<String> hosts = findHostsForGroup(groupId)
         final List<HostPort> hostPorts = hosts.collect { String host -> new HostPort(host: host, port: port) }
 
@@ -135,7 +135,15 @@ class OpsManagerFacade {
         return deployment
     }
 
-    def MongoDbEnterpriseDeployment deployShard(String groupId, String database, int port) {
+    Boolean updateReplicaSet(String groupId, String mongoDbVersion, String featureCompatibilityVersion) {
+        updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
+            automationConfigDto.processes.first().featureCompatibilityVersion = featureCompatibilityVersion
+            automationConfigDto.processes.first().version = mongoDbVersion
+        })
+        return true
+    }
+
+    MongoDbEnterpriseDeployment deployShard(String groupId, String database, int port) {
         throw new NotImplementedException()
     }
 
