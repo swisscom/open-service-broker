@@ -31,8 +31,6 @@ import org.springframework.boot.actuate.metrics.Metric
 
 import java.util.function.ToDoubleFunction
 
-import java.time.Duration
-
 @CompileStatic
 @Slf4j
 abstract class ServiceBrokerMetrics {
@@ -50,7 +48,7 @@ abstract class ServiceBrokerMetrics {
     protected PlanRepository planRepository
 
     @Autowired
-    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository) {
+    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository) {
         this.serviceInstanceRepository = serviceInstanceRepository
         this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository

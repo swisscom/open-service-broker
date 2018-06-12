@@ -24,10 +24,7 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tags
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
@@ -52,9 +49,10 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
-    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
         this.serviceBindingRepository = serviceBindingRepository
+        this.meterRegistry = meterRegistry
         addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository)
     }
 
@@ -118,49 +116,43 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     }
 
     double getBindingCount() {
+        addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository)
         retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll()).toDouble()
-    }
-
-    void addMetricsGauge(MeterRegistry meterRegistry, String name, Closure<Double> function) {
-        ToDoubleFunction<BindingMetricsService> getBindingCountFunction  = new ToDoubleFunction<BindingMetricsService>() {
-            @Override
-            double applyAsDouble(BindingMetricsService bindingMetricsService) {
-                function()
-            }
-        }
-        meterRegistry.gauge(name, Tags.empty(), this, getBindingCountFunction)
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
-        //ServiceBindingRepositoryHelper serviceBindingRepositoryHelper = new ServiceBindingRepositoryHelper()
-        //List<ServiceBinding> serviceBindingList = serviceBindingRepositoryHelper.serviceBindingRepository.findAll()
-
-
-
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() })
-        //def totalNrOfSuccessfulBindings = retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())
-        // meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), totalNrOfSuccessfulBindings)
 
-
-
-
-        //meterRegistry.gauge("${BINDING}.${TOTAL}.${TOTAL}", Tags.empty(), serviceBindingRepository.findAll(), {retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll())})
         def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
         totalNrOfSuccessfulBindingsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}".toString(), Tags.empty(), entry.getValue())
+            addMetricsGauge(meterRegistry, "${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
+                retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingRepository.findAll()).get(entry.getKey()).toDouble()
+            })
         }
 
+        if (totalBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
+            totalBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalBindingRequestsPerService, cfServiceRepository)
+        }
         totalBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${TOTAL}".toString(), Tags.empty(), entry.getValue())
+            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
+                totalBindingRequestsPerService.get(entry.getKey()).toDouble()
+            })
         }
 
+        if (totalSuccessfulBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
+            totalSuccessfulBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalSuccessfulBindingRequestsPerService, cfServiceRepository)
+        }
         totalSuccessfulBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}".toString(), Tags.empty(), entry.getValue())
+            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
+                totalSuccessfulBindingRequestsPerService.get(entry.getKey()).toDouble()
+            })
         }
 
         totalFailedBindingRequestsPerService.each { entry ->
-            meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}".toString(), Tags.empty(), entry.getValue())
+            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
+                totalFailedBindingRequestsPerService.get(entry.getKey()).toDouble()
+            })
         }
     }
 

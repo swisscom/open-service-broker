@@ -33,9 +33,9 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
     @Autowired
-    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, lastOperationRepository)
-        addMetricsToMeterRegistry(meterRegistry)
+    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISIONED_INSTANCES)
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository){
@@ -52,10 +52,6 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     @Override
     String tag() {
         return ProvisionedInstancesMetricsService.class.getSimpleName()
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-
     }
 
     @Override

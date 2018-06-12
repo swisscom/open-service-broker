@@ -38,8 +38,8 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
 
     @Autowired
-    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, lastOperationRepository)
+    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -101,11 +101,6 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        /*addMetricsGauge(meterRegistry, "fake", {addMetricsToMeterRegistry(meterRegistry)
-        0.toDouble()})*/
-        if (totalLifecycleTimePerService.size() < cfServiceRepository.findAll().size()) {
-            totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
-        }
         totalLifecycleTimePerService.each { entry ->
             addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {getTotalLifecycleTime(entry)})
         }

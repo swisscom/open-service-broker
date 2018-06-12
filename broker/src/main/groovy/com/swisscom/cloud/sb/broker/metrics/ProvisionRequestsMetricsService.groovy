@@ -33,12 +33,9 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
     private final String PROVISION_REQUEST = "provisionRequest"
 
     @Autowired
-    ProvisionRequestsMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, lastOperationRepository)
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-
+    ProvisionRequestsMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
     }
 
     @Override
