@@ -138,8 +138,8 @@ class OpsManagerFacade {
     Boolean updateReplicaSet(String groupId, String mongoDbVersion, String featureCompatibilityVersion) {
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
             automationConfigDto.version = automationConfigDto.version + 1
-            automationConfigDto.processes.first().featureCompatibilityVersion = featureCompatibilityVersion
-            automationConfigDto.processes.first().version = mongoDbVersion
+            automationConfigDto.processes.each { it.featureCompatibilityVersion = featureCompatibilityVersion }
+            automationConfigDto.processes.each { it.version = mongoDbVersion }
         })
         return true
     }
@@ -335,8 +335,8 @@ class OpsManagerFacade {
         //populateKeyInfo(authenticationDto)
     }
 
-    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto){
-        if(!authenticationDto.autoAuthMechanism){
+    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto) {
+        if (!authenticationDto.autoAuthMechanism) {
             authenticationDto.autoAuthMechanism = AUTH_MECHANISM_MONGODB_CR
         }
     }
