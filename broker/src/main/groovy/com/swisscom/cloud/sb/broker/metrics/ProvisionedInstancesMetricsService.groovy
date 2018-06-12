@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
@@ -31,9 +32,9 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
     @Autowired
-    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, lastOperationRepository)
-        addMetricsToMeterRegistry(meterRegistry)
+    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISIONED_INSTANCES)
     }
 
     @Override
@@ -45,10 +46,6 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     @Override
     String tag() {
         return ProvisionedInstancesMetricsService.class.getSimpleName()
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-
     }
 
     @Override

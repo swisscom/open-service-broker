@@ -17,20 +17,18 @@ package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import io.micrometer.core.instrument.Clock
-import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.influx.InfluxConfig
-import io.micrometer.influx.InfluxMeterRegistry
+import io.micrometer.core.instrument.Tags
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.endpoint.PublicMetrics
 import org.springframework.boot.actuate.metrics.Metric
 
-import java.time.Duration
+import java.util.function.ToDoubleFunction
 
 @CompileStatic
 @Slf4j
@@ -44,11 +42,13 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
     protected final String RATIO = "ratio"
 
     protected ServiceInstanceRepository serviceInstanceRepository
+    protected CFServiceRepository cfServiceRepository
     protected LastOperationRepository lastOperationRepository
 
     @Autowired
-    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, LastOperationRepository lastOperationRepository) {
+    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository) {
         this.serviceInstanceRepository = serviceInstanceRepository
+        this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository
     }
 
@@ -78,6 +78,15 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         log.info("${tag()} total failure: ${failCounter}")
 
         return new MetricsResult(total: totalCounter, totalSuccess: successCounter, totalFailures: failCounter)
+    }
+
+    HashMap<String, Long> harmonizeServicesHashMapsWithServicesInRepository(HashMap<String, Long> hashMap, CFServiceRepository cfServiceRepository) {
+        cfServiceRepository.findAll().each { cfService ->
+            if (hashMap.get(cfService.name) == null) {
+                hashMap.put(cfService.name, 0L)
+            }
+        }
+        return hashMap
     }
 
     MetricsResultMap retrieveTotalMetricsPerService(List<ServiceInstance> serviceInstanceList) {
@@ -168,7 +177,76 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
     }
 
     double calculateRatio(long total, long amount) {
-        return 100 / total * amount
+        if (total * amount != 0) {
+            return 100 / total * amount
+        }
+        return 0
+    }
+
+    void addMetricsGauge(MeterRegistry meterRegistry, String name, Closure<Double> function) {
+        ToDoubleFunction<ServiceBrokerMetrics> getBindingCountFunction = new ToDoubleFunction<ServiceBrokerMetrics>() {
+            @Override
+            double applyAsDouble(ServiceBrokerMetrics serviceBrokerMetrics) {
+                function()
+            }
+        }
+        meterRegistry.gauge(name, Tags.empty(), this, getBindingCountFunction)
+    }
+
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository, String kind) {
+        addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${TOTAL}", {
+            retrieveTotalMetrics(serviceInstanceRepository.findAll()).total.toDouble()
+        })
+        addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${SUCCESS}", {
+            retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalSuccess.toDouble()
+        })
+        addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${FAIL}", {
+            retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalFailures.toDouble()
+        })
+        addMetricsGauge(meterRegistry, "${kind}.${SUCCESS}.${RATIO}", {
+            calculateRatio(retrieveTotalMetrics(serviceInstanceRepository.findAll()).total, retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalSuccess).toDouble()
+        })
+        addMetricsGauge(meterRegistry, "${kind}.${FAIL}.${RATIO}", {
+            calculateRatio(retrieveTotalMetrics(serviceInstanceRepository.findAll()).total, retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalFailures).toDouble()
+        })
+
+        def totalMetricsPerService = retrieveTotalMetricsPerService(serviceInstanceRepository.findAll())
+        totalMetricsPerService.total.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
+                retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).total.get(entry.getKey()).toDouble()
+            })
+        }
+
+        totalMetricsPerService.totalSuccess.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
+                retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).totalSuccess.get(entry.getKey()).toDouble()
+            })
+        }
+
+        totalMetricsPerService.totalFailures.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${FAIL}.${entry.getKey()}", {
+                retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).totalFailures.get(entry.getKey()).toDouble()
+            })
+        }
+
+        def totalMetricsPerPlan = retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll())
+        totalMetricsPerPlan.total.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${TOTAL}.${entry.getKey()}", {
+                retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).total.get(entry.getKey()).toDouble()
+            })
+        }
+
+        totalMetricsPerPlan.totalSuccess.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${SUCCESS}.${entry.getKey()}", {
+                retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).totalSuccess.get(entry.getKey()).toDouble()
+            })
+        }
+
+        totalMetricsPerPlan.totalFailures.each { entry ->
+            addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${FAIL}.${entry.getKey()}", {
+                retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).totalFailures.get(entry.getKey()).toDouble()
+            })
+        }
     }
 
     List<Metric<?>> addCountersFromHashMapToMetrics(HashMap<String, Long> totalhm, HashMap<String, Long> hm, List<Metric<?>> metrics, String kind, String level, String qualifier) {
