@@ -137,6 +137,7 @@ class OpsManagerFacade {
 
     Boolean updateReplicaSet(String groupId, String mongoDbVersion, String featureCompatibilityVersion) {
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
+            automationConfigDto.version = automationConfigDto.version + 1
             automationConfigDto.processes.first().featureCompatibilityVersion = featureCompatibilityVersion
             automationConfigDto.processes.first().version = mongoDbVersion
         })
