@@ -22,7 +22,7 @@ class ServiceDefinitionController extends BaseController {
     @ApiOperation(value = "Add/Update service definition", response = ServiceDto)
     @RequestMapping(value = ['/service-definition', //deprecated, prefer the path below
             '/custom/admin/service-definition'],
-            method = [RequestMethod.POST,RequestMethod.PUT],
+            method = [RequestMethod.POST, RequestMethod.PUT],
             headers = "content-type=application/json")
     void createOrUpdate(@RequestBody String text) {
         serviceDefinitionProcessor.createOrUpdateServiceDefinition(text)
@@ -30,7 +30,7 @@ class ServiceDefinitionController extends BaseController {
 
     @ApiOperation(value = "Get service definition", response = ServiceDto)
     @RequestMapping(value = ['/service-definition/{service_id}', //deprecated, prefer the path below
-                             '/custom/admin/service-definition/{service_id}'],
+            '/custom/admin/service-definition/{service_id}'],
             method = RequestMethod.GET)
     ServiceDto get(@PathVariable('service_id') String serviceId) {
         return serviceDefinitionProcessor.getServiceDefinition(serviceId)

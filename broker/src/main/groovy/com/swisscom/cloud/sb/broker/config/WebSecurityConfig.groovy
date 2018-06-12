@@ -42,8 +42,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers('/version', '/v2/api-docs','/swagger-ui.html','/swagger-resources/**').permitAll()
-                .antMatchers('/v2/cf-ext/**/*','/custom/**/*').hasRole(ROLE_CF_EXT_ADMIN)
+                .antMatchers('/version', '/v2/api-docs', '/swagger-ui.html', '/swagger-resources/**').permitAll()
+                .antMatchers('/v2/cf-ext/**/*', '/custom/**/*').hasRole(ROLE_CF_EXT_ADMIN)
                 .antMatchers('/v2/**/*').hasRole(ROLE_CF_ADMIN)
                 .antMatchers('/metrics').hasRole(ROLE_CF_EXT_ADMIN)
                 .antMatchers('/health').hasRole(ROLE_CF_EXT_ADMIN)

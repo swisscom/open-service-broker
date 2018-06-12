@@ -6,11 +6,11 @@ class ServiceDetailSpec extends Specification {
 
     void "two different ServiceDetails with the same ID are equal"() {
         given:
-            def serviceDetailOne = new ServiceDetail(id: 100, key: "some Key", value: "some Value", uniqueKey: false)
-            def serviceDetailTwo = new ServiceDetail(id: 100, key: "some other Key", value: "some other Value", uniqueKey: false)
+        def serviceDetailOne = new ServiceDetail(id: 100, key: "some Key", value: "some Value", uniqueKey: false)
+        def serviceDetailTwo = new ServiceDetail(id: 100, key: "some other Key", value: "some other Value", uniqueKey: false)
 
         expect:
-            serviceDetailOne == serviceDetailTwo
+        serviceDetailOne == serviceDetailTwo
     }
 
     void "two different ServiceDetails with different ID are not equal"() {

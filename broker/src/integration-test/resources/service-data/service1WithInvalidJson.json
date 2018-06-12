@@ -50,5 +50,5 @@
         "key2": true
       }
     }
-  ], # this comma makes the json invalid
+  ], #this comma makes the json invalid
 }

@@ -15,10 +15,10 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.json.JsonSlurper
 
-import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 import static MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
 import static MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
 import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
+import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 import static ServiceDetail.from
 import static ServiceDetailKey.DATABASE
 
@@ -26,12 +26,12 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
     private String serviceInstanceGuid = 'serviceInstanceGuid'
 
 
-    def setup(){
+    def setup() {
         serviceProvider.serviceConfig = new MongoDbEnterpriseConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
         serviceProvider.opsManagerFacade = Mock(OpsManagerFacade)
     }
 
-    def "template customization works correctly"(){
+    def "template customization works correctly"() {
         given:
         String mongoOpsManagerGroupId = 'mongoOpsManagerGroupId'
         String mongoAgentApiKey = 'mongoAgentApiKey'
@@ -41,7 +41,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
 
         and:
 
-        def serviceInstance = new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID,mongoOpsManagerGroupId),
+        def serviceInstance = new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, mongoOpsManagerGroupId),
                                                             ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY, mongoAgentApiKey),
                                                             ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, healthCheckUser),
                                                             ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, healthCheckPassword),
@@ -55,20 +55,20 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def request = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid)
 
         when:
-        def details = serviceProvider.customizeBoshTemplate(template,request)
+        def details = serviceProvider.customizeBoshTemplate(template, request)
 
         then:
-        1 * template.replace(MongoDbEnterpriseServiceProvider.PARAM_MMS_BASE_URL,serviceProvider.getOpsManagerUrl())
-        1 * template.replace(MongoDbEnterpriseServiceProvider.PARAM_MMS_API_KEY,mongoAgentApiKey)
-        1 * template.replace(MongoDbEnterpriseServiceProvider.MMS_GROUP_ID,mongoOpsManagerGroupId)
-        1 * template.replace(MongoDbEnterpriseServiceProvider.PORT,port)
-        1 * template.replace(MongoDbEnterpriseServiceProvider.MONGODB_BINARY_PATH,serviceProvider.getMongoDbBinaryPath())
-        1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_USER,healthCheckUser)
-        1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_PASSWORD,healthCheckPassword)
+        1 * template.replace(MongoDbEnterpriseServiceProvider.PARAM_MMS_BASE_URL, serviceProvider.getOpsManagerUrl())
+        1 * template.replace(MongoDbEnterpriseServiceProvider.PARAM_MMS_API_KEY, mongoAgentApiKey)
+        1 * template.replace(MongoDbEnterpriseServiceProvider.MMS_GROUP_ID, mongoOpsManagerGroupId)
+        1 * template.replace(MongoDbEnterpriseServiceProvider.PORT, port)
+        1 * template.replace(MongoDbEnterpriseServiceProvider.MONGODB_BINARY_PATH, serviceProvider.getMongoDbBinaryPath())
+        1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_USER, healthCheckUser)
+        1 * template.replace(MongoDbEnterpriseServiceProvider.HEALTH_CHECK_PASSWORD, healthCheckPassword)
         ServiceDetailsHelper.from(details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) == instanceCount.toString()
     }
 
-    def "StateMachineContext is created correctly"(){
+    def "StateMachineContext is created correctly"() {
         given:
         def context = new LastOperationJobContext()
         when:
@@ -78,7 +78,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         stateMachineContext.opsManagerFacade == serviceProvider.opsManagerFacade
     }
 
-    def "Provisioning StateMachine is created correctly"(){
+    def "Provisioning StateMachine is created correctly"() {
         when:
         def result = serviceProvider.createProvisionStateMachine(new LastOperationJobContext())
         then:
@@ -86,7 +86,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         result.states.last() == MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
     }
 
-    def "provision state is initialized correctly if context does not contain any state"(){
+    def "provision state is initialized correctly if context does not contain any state"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation())
         when:
@@ -95,7 +95,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         state == MongoDbEnterpriseProvisionState.CREATE_OPS_MANAGER_GROUP
     }
 
-    def "provision state is initialized correctly if context include some previous state"(){
+    def "provision state is initialized correctly if context include some previous state"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: MongoDbEnterpriseProvisionState.CHECK_AUTOMATION_UPDATE_STATUS.toString()))
         when:
@@ -104,16 +104,16 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         state == MongoDbEnterpriseProvisionState.CHECK_AUTOMATION_UPDATE_STATUS
     }
 
-    def "happy path: requestProvision"(){
+    def "happy path: requestProvision"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: PROVISION_SUCCESS.toString()))
         when:
-        def result=serviceProvider.requestProvision(context)
+        def result = serviceProvider.requestProvision(context)
         then:
         result
     }
 
-    def "deprovision state is initialized correctly if context does not contain any state"(){
+    def "deprovision state is initialized correctly if context does not contain any state"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation())
         when:
@@ -122,7 +122,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         state == DISABLE_BACKUP_IF_ENABLED
     }
 
-    def "deprovision state is initialized correctly if context include some previous state"(){
+    def "deprovision state is initialized correctly if context include some previous state"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: UPDATE_AUTOMATION_CONFIG.toString()))
         when:
@@ -131,11 +131,11 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         state == UPDATE_AUTOMATION_CONFIG
     }
 
-    def "happy path: requestDeprovision"(){
+    def "happy path: requestDeprovision"() {
         given:
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS.toString()))
         when:
-        def result=serviceProvider.requestDeprovision(context)
+        def result = serviceProvider.requestDeprovision(context)
         then:
         result
     }

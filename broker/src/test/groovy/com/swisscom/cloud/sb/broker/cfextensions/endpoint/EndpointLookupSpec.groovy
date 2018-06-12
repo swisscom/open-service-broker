@@ -45,7 +45,7 @@ class EndpointLookupSpec extends Specification {
         list.size() == 1
     }
 
-    def 'parsing single endpoint ip range'(){
+    def 'parsing single endpoint ip range'() {
         given:
         ServiceInstance serviceInstance = new ServiceInstance(plan: new Plan(templateUniqueIdentifier: null, service: new CFService()))
         serviceInstance.details.add(new ServiceDetail().from(ServiceDetailKey.PORT, '2222'))
@@ -62,7 +62,7 @@ class EndpointLookupSpec extends Specification {
         endpoints.first().protocol == 'tcp'
     }
 
-    def 'parsing multiple endpoint ip ranges'(){
+    def 'parsing multiple endpoint ip ranges'() {
         given:
         ServiceInstance serviceInstance = new ServiceInstance(plan: new Plan(templateUniqueIdentifier: null, service: new CFService()))
         serviceInstance.details.add(new ServiceDetail().from(ServiceDetailKey.PORT, '2222'))

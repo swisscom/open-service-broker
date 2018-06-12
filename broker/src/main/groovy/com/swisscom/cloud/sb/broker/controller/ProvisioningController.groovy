@@ -76,10 +76,10 @@ class ProvisioningController extends BaseController {
 
         ProvisionResponse provisionResponse = provisioningService.provision(request)
 
-        if(provisionResponse.extensions){
+        if (provisionResponse.extensions) {
             return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),
                     provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
-        }else{
+        } else {
             return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
                     provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
         }

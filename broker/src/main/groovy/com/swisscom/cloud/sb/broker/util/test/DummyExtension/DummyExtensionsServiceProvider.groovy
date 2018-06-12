@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
-class DummyExtensionsServiceProvider extends DummyExtension implements ServiceProvider{
+class DummyExtensionsServiceProvider extends DummyExtension implements ServiceProvider {
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
@@ -39,7 +39,7 @@ class DummyExtensionsServiceProvider extends DummyExtension implements ServicePr
     }
 
     @Override
-    UpdateResponse update(UpdateRequest request){
+    UpdateResponse update(UpdateRequest request) {
         throw new NotImplementedException()
     }
 }

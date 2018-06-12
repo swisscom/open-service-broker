@@ -3,9 +3,9 @@ package com.swisscom.cloud.sb.broker.model
 import javax.persistence.*
 
 @Entity
-class Restore extends BaseModel{
+class Restore extends BaseModel {
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     String guid
     @Column(unique = true)
     String externalId
@@ -17,7 +17,7 @@ class Restore extends BaseModel{
     Backup.Status status
 
     @ManyToOne
-    @JoinColumn(name="backup_id")
+    @JoinColumn(name = "backup_id")
     Backup backup
 
     @Override

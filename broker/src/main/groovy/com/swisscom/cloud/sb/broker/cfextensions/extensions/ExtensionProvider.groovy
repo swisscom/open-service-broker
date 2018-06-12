@@ -3,27 +3,16 @@ package com.swisscom.cloud.sb.broker.cfextensions.extensions
 import com.swisscom.cloud.sb.broker.async.job.JobConfig
 import com.swisscom.cloud.sb.broker.async.job.JobManager
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
-import com.swisscom.cloud.sb.broker.config.ApplicationConfiguration
 import groovy.util.logging.Slf4j
 import io.swagger.v3.core.util.Json
-import io.swagger.v3.core.util.Yaml
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Paths
 import io.swagger.v3.parser.OpenAPIV3Parser
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
-import org.springframework.web.client.RestTemplate
 
 @Slf4j
-trait ExtensionProvider{
+trait ExtensionProvider {
     //Trying to manage both sync and async extensions in this trait. Maybe I should create an AsyncExtensionProvider
     @Autowired
     JobManager jobManager
@@ -33,7 +22,7 @@ trait ExtensionProvider{
 
     abstract Collection<Extension> buildExtensions()
 
-    String getApi(){
+    String getApi() {
         getApi(null)
     }
 
@@ -62,11 +51,11 @@ trait ExtensionProvider{
     //The following methods are required for asynchronous extensions.
 
     //This should be overriden.
-    JobStatus getJobStatus(Status status){
+    JobStatus getJobStatus(Status status) {
         return JobStatus.SUCCESSFUL
     }
 
-    def queueExtension(JobConfig jobConfig){
+    def queueExtension(JobConfig jobConfig) {
         jobManager.queue(jobConfig)
     }
 }

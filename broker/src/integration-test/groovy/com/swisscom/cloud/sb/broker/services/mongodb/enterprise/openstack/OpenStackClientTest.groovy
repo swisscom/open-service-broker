@@ -8,7 +8,7 @@ import spock.lang.Ignore
 class OpenStackClientTest extends BaseSpecification {
 
     private def createClient() {
-        new OpenStackClient("https://localhost:5000/v2.0", 'test','test','test')
+        new OpenStackClient("https://localhost:5000/v2.0", 'test', 'test', 'test')
     }
 
     def "listing server groups functions correctly"() {

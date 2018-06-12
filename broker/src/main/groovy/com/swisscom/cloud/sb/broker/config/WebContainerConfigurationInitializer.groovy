@@ -18,16 +18,16 @@ class WebContainerConfigurationInitializer implements ApplicationContextInitiali
 
     void initialize(ConfigurableApplicationContext applicationContext) {
         String filePath = getFilePathInTomcatConfigFolder(CONFIG_FILE)
-        if(!filePath){
+        if (!filePath) {
             log.warn("Please make sure that catalina.home or catalina.base is configured correctly.")
             return
         }
 
         final File file = new File(filePath)
-        if(file.exists()){
-            log.warn('Adding config location:'+ filePath)
+        if (file.exists()) {
+            log.warn('Adding config location:' + filePath)
             applicationContext.getEnvironment().getPropertySources().addFirst(loadYamlResource(file))
-        }else{
+        } else {
             log.warn("Config does not exist at location:${filePath}")
         }
     }
@@ -39,12 +39,12 @@ class WebContainerConfigurationInitializer implements ApplicationContextInitiali
         return yamlProperties
     }
 
-    static String getFilePathInTomcatConfigFolder(String fileName){
-        if(System.getProperty(CATALINA_BASE)){
+    static String getFilePathInTomcatConfigFolder(String fileName) {
+        if (System.getProperty(CATALINA_BASE)) {
             return System.getProperty(CATALINA_BASE) + FOLDER_CONFIG + fileName
         }
 
-        if(System.getProperty(CATALINA_HOME)){
+        if (System.getProperty(CATALINA_HOME)) {
             return System.getProperty(CATALINA_HOME) + FOLDER_CONFIG + fileName
         }
 

@@ -24,6 +24,6 @@ enum ServiceUsageType {
 
     @JsonCreator
     public static ServiceUsageType fromString(String key) {
-        return key ? ServiceUsageType.values().find { it.value == key } :  null
+        return key ? ServiceUsageType.values().find { it.value == key } : null
     }
 }

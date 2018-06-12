@@ -109,7 +109,7 @@ class BoshFacadeSpec extends Specification {
     def "templating from file is handled correctly"() {
         given:
         def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: '/bosh/template_mongodbent_v5.yml',
-                parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
+                parameters: [new Parameter(name: 'name1', value: 'value1'), new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
         def customizer = Mock(BoshTemplateCustomizer)
         and:
         def boshUuid = 'boshUuid'
@@ -133,7 +133,7 @@ class BoshFacadeSpec extends Specification {
     def "templating from config is handled correctly"() {
         given:
         def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: 'test',
-                parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
+                parameters: [new Parameter(name: 'name1', value: 'value1'), new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
         def customizer = Mock(BoshTemplateCustomizer)
         and:
         def boshUuid = 'boshUuid'

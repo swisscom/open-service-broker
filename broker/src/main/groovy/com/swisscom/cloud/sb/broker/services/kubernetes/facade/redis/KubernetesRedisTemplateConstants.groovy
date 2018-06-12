@@ -4,7 +4,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.Abst
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum KubernetesRedisTemplateConstants implements AbstractTemplateConstants{
+enum KubernetesRedisTemplateConstants implements AbstractTemplateConstants {
     ROLE_MASTER("master"),
     ROLE_SLAVE("slave"),
     REDIS_PASS("REDIS_PASS"),

@@ -34,7 +34,7 @@ class BoshRestClient {
     }
 
     String fetchBoshInfo() {
-        createRestTemplate().getForEntity(prependBaseUrl(INFO),String.class).body
+        createRestTemplate().getForEntity(prependBaseUrl(INFO), String.class).body
     }
 
     String getDeployment(String id) {
@@ -49,10 +49,10 @@ class BoshRestClient {
     String postDeployment(String data) {
         log.trace("Posting new bosh deployment: \n${data}")
         HttpHeaders headers = createAuthHeaders()
-        headers.add('Content-Type',CONTENT_TYPE_YAML)
-        HttpEntity<String> request = new HttpEntity<>(data,headers)
+        headers.add('Content-Type', CONTENT_TYPE_YAML)
+        HttpEntity<String> request = new HttpEntity<>(data, headers)
 
-        def responseEntity = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS),HttpMethod.POST,request,String.class)
+        def responseEntity = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS), HttpMethod.POST, request, String.class)
 
         return handleRedirectonAndExtractTaskId(responseEntity)
     }
@@ -70,24 +70,24 @@ class BoshRestClient {
     }
 
     String deleteDeployment(String id) {
-        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id)+'?force=true',HttpMethod.DELETE,new HttpEntity<Object>(createAuthHeaders()),String.class)
+        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '?force=true', HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
         return handleRedirectonAndExtractTaskId(response)
     }
 
     String fetchCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
     }
 
     void postCloudConfig(String data) {
         log.trace("Updating cloud config with: ${data}")
         HttpHeaders headers = createAuthHeaders()
-        headers.add('Content-Type',CONTENT_TYPE_YAML)
-        HttpEntity<String> request = new HttpEntity<>(data,headers)
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS),HttpMethod.POST,request,Void.class)
+        headers.add('Content-Type', CONTENT_TYPE_YAML)
+        HttpEntity<String> request = new HttpEntity<>(data, headers)
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS), HttpMethod.POST, request, Void.class)
     }
 
     String getTask(String id) {
-        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity( createAuthHeaders()), String.class).body
+        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
     }
 
     @VisibleForTesting
@@ -109,7 +109,7 @@ class BoshRestClient {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
             // your error handling here
-            if(response.statusCode == HttpStatus.NOT_FOUND){
+            if (response.statusCode == HttpStatus.NOT_FOUND) {
                 throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
             }
             super.handleError(response)

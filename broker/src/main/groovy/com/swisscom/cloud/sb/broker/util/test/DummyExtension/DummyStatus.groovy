@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.util.test.DummyExtension
 
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 
-enum DummyStatus implements Status{
+enum DummyStatus implements Status {
     INIT('initialized', false),
     IN_PROGRESS('in_progress', false),
     SUCCESS('success', true),

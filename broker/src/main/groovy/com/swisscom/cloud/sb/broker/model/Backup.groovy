@@ -6,14 +6,14 @@ import org.hibernate.validator.constraints.NotBlank
 import javax.persistence.*
 
 @Entity
-class Backup extends BaseModel{
+class Backup extends BaseModel {
     @NotBlank
     @Column(unique = true)
     String guid
 
     String serviceInstanceGuid
 
-    @Column(columnDefinition='tinyint(1) default 0', nullable = false)
+    @Column(columnDefinition = 'tinyint(1) default 0', nullable = false)
     int retryBackupCount
 
     @Column(unique = true)
@@ -38,7 +38,7 @@ class Backup extends BaseModel{
     Operation operation
 
     @OneToMany
-    @JoinColumn(name="backup_id")
+    @JoinColumn(name = "backup_id")
     Set<Restore> restores = []
 
     @Override

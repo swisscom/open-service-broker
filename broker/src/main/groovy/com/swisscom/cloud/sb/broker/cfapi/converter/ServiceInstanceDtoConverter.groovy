@@ -17,6 +17,6 @@ class ServiceInstanceDtoConverter extends AbstractGenericConverter<ServiceInstan
         prototype.dashboardUrl = null
         prototype.parameters = source.parameters
         prototype.parentServiceInstance = source.parentServiceInstance?.guid
-        prototype.childInstances = source.childs.collect( {it -> it.guid })
+        prototype.childInstances = source.childs.collect({ it -> it.guid })
     }
 }

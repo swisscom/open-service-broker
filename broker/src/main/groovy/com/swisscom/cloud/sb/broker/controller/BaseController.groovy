@@ -80,6 +80,8 @@ abstract class BaseController {
     }
 
     private String createValidationErrorMessage(Errors errors) {
-        "Validation failed. " + errors.getErrorCount() + " error(s): " + errors.getAllErrors().collect({it.getDefaultMessage()}).join(", ")
+        "Validation failed. " + errors.getErrorCount() + " error(s): " + errors.getAllErrors().collect({
+            it.getDefaultMessage()
+        }).join(", ")
     }
 }

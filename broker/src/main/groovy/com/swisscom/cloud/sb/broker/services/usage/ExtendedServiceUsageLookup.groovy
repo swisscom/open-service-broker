@@ -27,8 +27,8 @@ class ExtendedServiceUsageLookup {
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
         if (!(serviceProvider instanceof ExtendedServiceUsageProvider)) {
             log.info("Usage requested for serviceinstance(guid:${serviceInstance.guid}) " +
-                        "with plan(guid:${serviceInstance.plan.guid},name:${serviceInstance.plan.name}) " +
-                        "not providing a ExtendedServiceUsageProvider implementation.")
+                    "with plan(guid:${serviceInstance.plan.guid},name:${serviceInstance.plan.name}) " +
+                    "not providing a ExtendedServiceUsageProvider implementation.")
 
             return new HashSet<ServiceUsageItem>()
         }

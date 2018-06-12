@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum OpenWhiskServiceDetailKey implements AbstractServiceDetailKey{
+enum OpenWhiskServiceDetailKey implements AbstractServiceDetailKey {
 
     OPENWHISK_EXECUTION_URL("openwhisk_execution_url", ServiceDetailType.HOST),
     OPENWHISK_ADMIN_URL("openwhisk_admin_url", ServiceDetailType.HOST),

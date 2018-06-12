@@ -1,36 +1,36 @@
 buildscript {
-	ext {
-		springBootVersion = '1.4.2.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    ext {
+        springBootVersion = '1.4.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 repositories {
-	mavenCentral()
-	maven {
-		url "https://artifacts.alfresco.com/nexus/content/repositories/public/"
-		}
+    mavenCentral()
+    maven {
+        url "https://artifacts.alfresco.com/nexus/content/repositories/public/"
+    }
 }
 
 
 dependencies {
-	compile('org.codehaus.groovy:groovy:2.4.7')
-	compile('org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:1.0.2.RELEASE')
-	compile('commons-codec:commons-codec:1.10')
-	compile('org.apache.httpcomponents:httpclient:4.5.2')
-	compile project(':model')
+    compile('org.codehaus.groovy:groovy:2.4.7')
+    compile('org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:1.0.2.RELEASE')
+    compile('commons-codec:commons-codec:1.10')
+    compile('org.apache.httpcomponents:httpclient:4.5.2')
+    compile project(':model')
 
-	testCompile ('junit:junit:4.12')
-	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.2.RELEASE'
-	testRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+    testCompile('junit:junit:4.12')
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.2.RELEASE'
+    testRuntime('org.springframework.boot:spring-boot-starter-tomcat')
 
 }
 bootRepackage.enabled = false

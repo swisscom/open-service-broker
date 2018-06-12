@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.context.WebApplicationContext
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -22,6 +23,9 @@ import spock.lang.Stepwise
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ContextConfiguration
 abstract class BaseFunctionalSpec extends Specification {
+
+    @Autowired
+    protected WebApplicationContext applicationContext
 
     @Shared
     protected ServiceLifeCycler serviceLifeCycler

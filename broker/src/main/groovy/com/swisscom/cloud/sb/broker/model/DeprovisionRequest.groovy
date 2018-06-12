@@ -6,14 +6,14 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
 @Entity
-class DeprovisionRequest extends BaseModel{
+class DeprovisionRequest extends BaseModel {
 
     boolean acceptsIncomplete
     @Column(unique = true)
     String serviceInstanceGuid
 
     @ManyToOne
-    @JoinColumn(name="service_instance_id")
+    @JoinColumn(name = "service_instance_id")
     ServiceInstance serviceInstance
 
     @Override

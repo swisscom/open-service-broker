@@ -4,7 +4,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = 'service')
-class CFService extends BaseModel{
+class CFService extends BaseModel {
 
     @Column(unique = true)
     String guid
@@ -16,9 +16,9 @@ class CFService extends BaseModel{
     String serviceProviderClass
     @Column(columnDefinition = 'int default 0')
     int displayIndex
-    @Column(columnDefinition='tinyint(1) default 0')
+    @Column(columnDefinition = 'tinyint(1) default 0')
     Boolean plan_updateable
-    @Column(columnDefinition='tinyint(1) default 0')
+    @Column(columnDefinition = 'tinyint(1) default 0')
     Boolean asyncRequired
 
     String dashboardClientId
@@ -26,16 +26,16 @@ class CFService extends BaseModel{
     String dashboardClientRedirectUri
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="cf_service_id")
+    @JoinColumn(name = "cf_service_id")
     Set<Tag> tags = []
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="service_id")
+    @JoinColumn(name = "service_id")
     Set<Plan> plans = []
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="service_id")
+    @JoinColumn(name = "service_id")
     Set<CFServiceMetadata> metadata = []
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name="cf_service_id")
+    @JoinColumn(name = "cf_service_id")
     Set<CFServicePermission> permissions = []
 
     @Column(columnDefinition = 'tinyint(1) default 0')

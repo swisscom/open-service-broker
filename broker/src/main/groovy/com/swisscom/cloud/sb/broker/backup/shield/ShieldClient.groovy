@@ -1,7 +1,7 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
+import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
@@ -62,8 +62,8 @@ class ShieldClient {
         }
         if (task.statusParsed.isFailed()) {
             log.warn("Shield task failed: ${task}")
-            if (task.typeParsed.isBackup()){
-                if (backup.retryBackupCount < shieldConfig.maxRetryBackup){
+            if (task.typeParsed.isBackup()) {
+                if (backup.retryBackupCount < shieldConfig.maxRetryBackup) {
                     log.info("Retrying backup count: ${backup.retryBackupCount + 1}")
                     backup.retryBackupCount++
                     backup.externalId = buildClient().runJob(task.job_uuid)

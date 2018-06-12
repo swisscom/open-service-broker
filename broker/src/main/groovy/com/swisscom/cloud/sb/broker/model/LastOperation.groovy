@@ -9,7 +9,7 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
 @Entity
-class LastOperation extends BaseModel{
+class LastOperation extends BaseModel {
     @NotBlank
     @Column(unique = true)
     @Description("ServiceInstanceGuid")

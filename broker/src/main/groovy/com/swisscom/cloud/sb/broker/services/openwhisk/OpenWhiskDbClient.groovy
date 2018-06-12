@@ -40,7 +40,7 @@ class OpenWhiskDbClient {
         return restTemplateBuilder.withBasicAuthentication(username, password).build()
     }
 
-    String getSubjectFromDB(String subject){
+    String getSubjectFromDB(String subject) {
 
         try {
             return createRestTemplate().getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}", String.class).getBody()
@@ -52,17 +52,17 @@ class OpenWhiskDbClient {
 
     }
 
-    String insertIntoDatabase(JsonNode payload){
+    String insertIntoDatabase(JsonNode payload) {
 
         return createRestTemplate().postForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects", payload, String.class).getBody()
     }
 
     String deleteSubjectFromDb(String subject, String rev) {
 
-        return createRestTemplate().exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE,null, String.class).getBody()
+        return createRestTemplate().exchange("${protocol}://${host}:${port}/${localUser}_${hostname}_subjects/${subject}?rev=${rev}", HttpMethod.DELETE, null, String.class).getBody()
     }
 
-    String getUsageForNamespace(String namespace){
+    String getUsageForNamespace(String namespace) {
 
         return createRestTemplate().getForEntity("${protocol}://${host}:${port}/${localUser}_${hostname}_whisks/_design/meter/_view/namespace?key=\"${namespace}\"", String.class).getBody()
     }

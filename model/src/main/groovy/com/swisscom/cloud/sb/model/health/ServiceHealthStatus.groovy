@@ -25,6 +25,6 @@ enum ServiceHealthStatus {
 
     @JsonCreator
     public static ServiceHealthStatus fromString(String key) {
-        return key ? ServiceHealthStatus.values().find { it.value == key } :  null
+        return key ? ServiceHealthStatus.values().find { it.value == key } : null
     }
 }

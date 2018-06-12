@@ -5,18 +5,18 @@ import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 
-class DummyExtension implements ExtensionProvider{
+class DummyExtension implements ExtensionProvider {
 
     @Override
-    Collection<Extension> buildExtensions(){
+    Collection<Extension> buildExtensions() {
         return [new Extension(discovery_url: "DummyExtensionURL")]
     }
 
-    String lockUser(String id){
+    String lockUser(String id) {
         return "User locked with id = ${id}"
     }
 
-    String unlockUser(String id){
+    String unlockUser(String id) {
         queueExtension(new DummyJobConfig(DummyJob.class, id, 10, 300))
         getJobStatus(DummyStatus.SUCCESS)
     }

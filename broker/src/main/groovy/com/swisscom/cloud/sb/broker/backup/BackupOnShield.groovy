@@ -1,8 +1,8 @@
 package com.swisscom.cloud.sb.broker.backup
 
+import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
-import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter

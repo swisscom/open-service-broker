@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum MongoDbEnterpriseServiceDetailKey implements AbstractServiceDetailKey{
+enum MongoDbEnterpriseServiceDetailKey implements AbstractServiceDetailKey {
 
     MONGODB_ENTERPRISE_GROUP_ID("mongodb_enterprise_group_id", ServiceDetailType.OTHER),
     MONGODB_ENTERPRISE_GROUP_NAME("mongodb_enterprise_group_name", ServiceDetailType.OTHER),

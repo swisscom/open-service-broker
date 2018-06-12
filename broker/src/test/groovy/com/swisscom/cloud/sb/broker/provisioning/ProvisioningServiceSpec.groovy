@@ -102,10 +102,10 @@ class ProvisioningServiceSpec extends Specification {
         ErrorCodeHelper.assertServiceBrokerException(ex, ErrorCode.ASYNC_REQUIRED)
 
         where:
-        planAsync   | serviceAsync | expectedException      | expectedErrorCode
-        true        | false        | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
-        false       | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
-        true        | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        planAsync | serviceAsync | expectedException      | expectedErrorCode
+        true      | false        | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        false     | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        true      | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
     }
 
 }

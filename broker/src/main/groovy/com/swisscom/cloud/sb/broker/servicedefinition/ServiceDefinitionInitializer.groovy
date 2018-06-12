@@ -36,9 +36,9 @@ class ServiceDefinitionInitializer {
     }
 
     void checkForMissingServiceDefinitions(List<CFService> cfServiceList) {
-        def configGuidList = serviceDefinitionConfig.serviceDefinitions.collect {it.guid}
+        def configGuidList = serviceDefinitionConfig.serviceDefinitions.collect { it.guid }
 
-        def guidList = cfServiceList.collect {it.guid}
+        def guidList = cfServiceList.collect { it.guid }
 
         if (configGuidList.size() != 0) {
             if (!configGuidList.containsAll(guidList)) {

@@ -11,6 +11,7 @@ import spock.lang.IgnoreIf
 class SystemBackupProviderTest extends BaseSpecification implements SystemBackupProvider {
 
     private final String SERVICE_INSTANCE_ID = "44651d63-b7c0-4f20-86bb-efef081a99ca"
+
     void setup() {
 
     }
@@ -50,7 +51,7 @@ class SystemBackupProviderTest extends BaseSpecification implements SystemBackup
         "localhost:1234"
     }
 
-    Collection<Extension> buildExtensions(){
+    Collection<Extension> buildExtensions() {
 
     }
 }

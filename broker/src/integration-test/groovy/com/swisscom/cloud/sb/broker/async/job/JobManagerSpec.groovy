@@ -59,15 +59,14 @@ class JobManagerSpec extends BaseSpecification {
     }
 
     @Autowired
-    void poorMansSetupSpec(ServiceLifeCycler  serviceLifeCycler,CFServiceRepository cfServiceRepository,DBTestUtil dbTestUtil,ServiceInstanceRepository serviceInstanceRepository) {
+    void poorMansSetupSpec(ServiceLifeCycler serviceLifeCycler, CFServiceRepository cfServiceRepository, DBTestUtil dbTestUtil, ServiceInstanceRepository serviceInstanceRepository) {
         if (!initialized) {
             this.serviceLifeCycler = serviceLifeCycler
             this.cfServiceRepository = cfServiceRepository
             this.dbTestUtil = dbTestUtil
             this.serviceInstanceRepository = serviceInstanceRepository
 
-            serviceLifeCycler.createServiceIfDoesNotExist(serviceName, serviceName)
-            CFService cfService = cfServiceRepository.findByName(serviceName)
+            CFService cfService = serviceLifeCycler.createServiceIfDoesNotExist(serviceName, serviceName)
             dbTestUtil.createServiceInstace(cfService, id)
             initialized = true
         }
@@ -86,7 +85,7 @@ class JobManagerSpec extends BaseSpecification {
         results = []
     }
 
-    def     "failing job is handled correctly"() {
+    def "failing job is handled correctly"() {
         given:
         int executionIntervalInSeconds = 10
 

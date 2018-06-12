@@ -49,7 +49,9 @@ import javax.annotation.PostConstruct
 @CompileStatic
 class ServiceLifeCycler {
     private CFService cfService
+    private Set<CFService> cfServices = []
     private Plan plan
+    private Set<Plan> plans = []
     private PlanMetadata planMetaData
     private Parameter parameter
     private ArrayList<Parameter> parameters = new ArrayList<Parameter>()
@@ -110,9 +112,9 @@ class ServiceLifeCycler {
 
     private Map<String, Object> credentials
 
-    void createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
-                                     String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
-                                     String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null
+    CFService createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
+                                          String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
+                                          String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null, Plan servicePlan = null
     ) {
         cfService = cfServiceRepository.findByName(serviceName)
         if (cfService == null) {
@@ -121,9 +123,10 @@ class ServiceLifeCycler {
                     name: serviceName, internalName: serviceInternalName,
                     description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable))
             serviceCreated = true
+            addCFServiceToSet(cfService)
         }
-        if (cfService.plans.empty) {
-            plan = planRepository.saveAndFlush(new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
+        if (cfService.plans.empty && servicePlan == null) {
+            plan = planRepository.saveAndFlush  (new Plan(name: planName ?: 'plan', description: 'Plan for ' + serviceName,
                     guid: UUID.randomUUID().toString(), service: cfService,
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
                     serviceInstanceCreateSchema: serviceInstanceCreateSchema,
@@ -133,7 +136,14 @@ class ServiceLifeCycler {
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
             plan.metadata.add(planMetaData)
             plan = planRepository.saveAndFlush(plan)
+            setPlan(plan)
             cfService.plans.add(plan)
+            cfServiceRepository.saveAndFlush(cfService)
+            planCreated = true
+        } else if (cfService.plans.empty && servicePlan != null) {
+            plan = planRepository.saveAndFlush(new Plan(guid: servicePlan.guid, service: cfService, internalName: servicePlan.internalName, asyncRequired: servicePlan.asyncRequired))
+            cfService.plans.add(plan)
+            setPlan(plan)
             cfServiceRepository.saveAndFlush(cfService)
             planCreated = true
         } else {
@@ -149,32 +159,57 @@ class ServiceLifeCycler {
             plan.maxBackups = maxBackups
             planRepository.saveAndFlush(plan)
         }
+        return cfService
     }
 
     void cleanup() {
+
+        // reverse iteration is required in case a service instance has a child service instance which needs to be deleted first
         (serviceInstanceIds as String[]).reverseEach { it ->
             serviceInstanceRepository.deleteByGuid(it)
         }
 
         if (parameters.size() > 0) {
             parameters.each {
+                plans.each { planIt ->
+                    planIt.parameters.remove(it)
+                    planRepository.saveAndFlush(planIt)
+                }
                 parameterRepository.delete(it)
             }
         }
 
-        if (serviceCreated) {
-            deletePlan()
-            cfServiceRepository.delete(cfService)
-        } else if (planCreated) {
-            deletePlan()
+        plans.each { it ->
+            deletePlan(it)
         }
+
+        cfServices.each { it ->
+            it.plans.each { planIt ->
+                it.plans.remove(planIt)
+                cfServiceRepository.saveAndFlush(it)
+            }
+        }
+        cfServiceRepository.deleteAll()
+
     }
 
-    private void deletePlan() {
+    private void deletePlan(Plan plan) {
         plan.metadata.remove(planMetaData)
-        cfService.plans.remove(plan)
-        cfService = cfServiceRepository.saveAndFlush(cfService)
         planRepository.delete(plan)
+    }
+
+    Plan getPlanByGuid(String planGuid) {
+        planRepository.findByGuid(planGuid)
+    }
+
+    CFService getServiceByGuid(String serviceGuid) {
+        cfServiceRepository.findByGuid(serviceGuid)
+    }
+
+    void updateServiceOfPlanInRepository(String planGuid, CFService service) {
+        Plan planToUpdate = planRepository.findByGuid(planGuid)
+        planToUpdate.service = service
+        planRepository.saveAndFlush(planToUpdate)
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
@@ -216,6 +251,11 @@ class ServiceLifeCycler {
                 .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
     }
 
+    void createServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0, boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
+        bindServiceInstanceAndAssert(null, null, true, context)
+        println("Bound serviceInstanceId: ${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
+    }
+
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
         def bindResponse = requestBindService(bindingId, bindingParameters, context)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
@@ -234,7 +274,7 @@ class ServiceLifeCycler {
                 .withBindingId(bindingId))
     }
 
-    void deleteServiceBindingAndServiceInstaceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
+    void deleteServiceBindingAndServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
         deleteServiceBindingAndAssert()
         deleteServiceInstanceAndAssert(isAsync, maxSecondsToAwaitDelete)
     }
@@ -274,14 +314,19 @@ class ServiceLifeCycler {
         assert unbindResponse.statusCode == HttpStatus.OK
     }
 
-    LastOperationResponse getServiceInstanceStatus() {
-        return createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).body
+    LastOperationResponse getServiceInstanceStatus(String newServiceInstanceId = serviceInstanceId) {
+        return createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).body
     }
 
     Parameter createParameter(String name, String value, Plan plan) {
         parameter = new Parameter(name: name, value: value, plan: plan)
         parameters.add(parameter)
         return parameterRepository.saveAndFlush(parameter)
+    }
+
+    boolean removeParameters() {
+        plan.parameters.removeAll(plan.parameters)
+        planRepository.saveAndFlush(plan)
     }
 
     CFService getCfService() {
@@ -336,16 +381,20 @@ class ServiceLifeCycler {
         }
     }
 
-    void waitUntilMaxTimeOrTargetState(int seconds) {
+    void waitUntilMaxTimeOrTargetState(int seconds, String newServiceInstanceId = serviceInstanceId) {
         int sleepTime = 1000
         if (seconds > 0) {
             for (
                     def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
-                    LastOperationState operationState = createServiceBrokerClient().getServiceInstanceLastOperation(serviceInstanceId).getBody().state
-                    if (operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
-                        return
+                    try {
+                        def operationState = createServiceBrokerClient().getServiceInstanceLastOperation(newServiceInstanceId).getBody().state
+                        if (operationState != null && operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
+                            return
+                        }
+                    } catch (Exception ex) {
+                        println("Exception when getting lastOperation: ${ex.toString()}")
                     }
                 }
                 println("Execution continues in ${timeUntilForcedExecution} second(s)")
@@ -395,5 +444,19 @@ class ServiceLifeCycler {
 
     void setServiceBindingId(String serviceBindingId) {
         this.serviceBindingId = serviceBindingId
+    }
+
+    void setPlan(Plan plan) {
+        this.plan = plan
+        this.plans << plan
+    }
+
+    void addCFServiceToSet(CFService cfService) {
+        this.cfServices << cfService
+    }
+
+    void setAsyncRequestInPlan(boolean asyncRequired) {
+        plan.asyncRequired = asyncRequired
+        plan = planRepository.saveAndFlush(plan)
     }
 }

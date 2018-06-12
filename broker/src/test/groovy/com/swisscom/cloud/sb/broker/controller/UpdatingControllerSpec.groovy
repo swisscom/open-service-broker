@@ -21,22 +21,22 @@ class UpdatingControllerSpec extends Specification {
     }
 
     def "Throws Exception when ServiceInstance does not exist"() {
-        def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
+        def sut = new UpdatingController(serviceInstanceRepository, planRepository, updatingService)
         def notExisitingGuid = "DoesNotExist";
         def updateRequestDto = new UpdateDto()
         def acceptIncomplete = true;
 
         when:
-            sut.update(notExisitingGuid, acceptIncomplete, updateRequestDto)
+        sut.update(notExisitingGuid, acceptIncomplete, updateRequestDto)
 
         then:
-            def exception = thrown(Exception)
-            exception.message == ErrorCode.SERVICE_INSTANCE_NOT_FOUND.description
+        def exception = thrown(Exception)
+        exception.message == ErrorCode.SERVICE_INSTANCE_NOT_FOUND.description
 
     }
 
     def "Doesn't throw Exception when ServiceInstance exists"() {
-        def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
+        def sut = new UpdatingController(serviceInstanceRepository, planRepository, updatingService)
         def existingGuid = "DoesExist";
         def updateRequestDto = new UpdateDto()
         def acceptIncomplete = true;
@@ -45,9 +45,9 @@ class UpdatingControllerSpec extends Specification {
         updatingService.update(*_) >> new UpdateResponse()
 
         when:
-            sut.update(existingGuid, acceptIncomplete, updateRequestDto)
+        sut.update(existingGuid, acceptIncomplete, updateRequestDto)
 
         then:
-            noExceptionThrown()
+        noExceptionThrown()
     }
 }
