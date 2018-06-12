@@ -4,6 +4,7 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.context.ApplicationContext
 
 class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
@@ -42,7 +43,5 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
         cleanup:
         lifeCycler.deleteServiceInstanceAndAssert(false)
-        lifeCycler.cleanup()
     }
-
 }
