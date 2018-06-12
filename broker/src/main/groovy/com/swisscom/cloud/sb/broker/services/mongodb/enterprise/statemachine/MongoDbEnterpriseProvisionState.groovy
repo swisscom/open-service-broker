@@ -71,14 +71,14 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         String findTargetCompatibillityVersion(LastOperationJobContext context) {
             if (context.updateRequest != null) {
                 if (context.updateRequest.parameters != null) {
-                    def parsedContext = new JsonSlurper().parse(context.updateRequest.parameters)
+                    def parsedContext = new JsonSlurper().parseText(context.updateRequest.parameters)
                     if (parsedContext["featureCompatibilityVersion"] != null) {
                         return parsedContext["featureCompatibilityVersion"]
                     }
                 }
             } else if (context.provisionRequest != null) {
                 if (context.provisionRequest.parameters != null) {
-                    def parsedContext = new JsonSlurper().parse(context.provisionRequest.parameters)
+                    def parsedContext = new JsonSlurper().parseText(context.provisionRequest.parameters)
                     if (parsedContext["featureCompatibilityVersion"] != null) {
                         return parsedContext["featureCompatibilityVersion"]
                     }
