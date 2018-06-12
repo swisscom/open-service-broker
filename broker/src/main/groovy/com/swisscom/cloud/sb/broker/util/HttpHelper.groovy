@@ -6,17 +6,17 @@ import org.springframework.http.HttpHeaders
 import java.nio.charset.Charset
 
 class HttpHelper {
-    public static HttpHeaders createSimpleAuthHeaders(String username, String password ){
-        return new HttpHeaders(){
+    public static HttpHeaders createSimpleAuthHeaders(String username, String password) {
+        return new HttpHeaders() {
             {
-                set(HttpHeaders.AUTHORIZATION, computeBasicAuth(username,password) )
+                set(HttpHeaders.AUTHORIZATION, computeBasicAuth(username, password))
             }
         }
     }
 
-    public static String computeBasicAuth(String username,String password){
+    public static String computeBasicAuth(String username, String password) {
         String auth = username + ":" + password
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")) )
-        return "Basic " + new String( encodedAuth )
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")))
+        return "Basic " + new String(encodedAuth)
     }
 }

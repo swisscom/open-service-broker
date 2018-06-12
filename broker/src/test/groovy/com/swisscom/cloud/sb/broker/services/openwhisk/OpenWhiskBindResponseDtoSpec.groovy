@@ -3,16 +3,16 @@ package com.swisscom.cloud.sb.broker.services.openwhisk
 import org.skyscreamer.jsonassert.JSONAssert
 import spock.lang.Specification
 
-class OpenWhiskBindResponseDtoSpec extends Specification{
+class OpenWhiskBindResponseDtoSpec extends Specification {
 
     def "Verify json serialization works correctly"() {
         given:
         OpenWhiskBindResponseDto openWhiskBindResponseDto = new OpenWhiskBindResponseDto(openwhiskExecutionUrl: "/v1/execution/",
-                                                                                        openwhiskAdminUrl: "/v1/admin/",
-                                                                                        openwhiskUUID: "TEST_UUID",
-                                                                                        openwhiskKey: "TEST_KEY",
-                                                                                        openwhiskNamespace: "TEST_NAMESPACE",
-                                                                                        openwhiskSubject: "TEST_SUBJECT")
+                openwhiskAdminUrl: "/v1/admin/",
+                openwhiskUUID: "TEST_UUID",
+                openwhiskKey: "TEST_KEY",
+                openwhiskNamespace: "TEST_NAMESPACE",
+                openwhiskSubject: "TEST_SUBJECT")
 
         and:
         String expected = """{

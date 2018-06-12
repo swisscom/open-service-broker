@@ -16,12 +16,14 @@ class TemplateConfig implements Config {
     }
 
     List<String> getTemplateForServiceKey(String templateUniqueIdentifier) {
-        def matchedServiceTemplates = serviceTemplates.findAll { it.name == templateUniqueIdentifier}
+        def matchedServiceTemplates = serviceTemplates.findAll { it.name == templateUniqueIdentifier }
         matchedServiceTemplates.first()?.templates
     }
 
     List<String> getTemplateForServiceKey(String templateUniqueIdentifier, String templateVersion) {
-        def matchedServiceTemplates = serviceTemplates.findAll { it.name == templateUniqueIdentifier && it.version == templateVersion }
+        def matchedServiceTemplates = serviceTemplates.findAll {
+            it.name == templateUniqueIdentifier && it.version == templateVersion
+        }
         matchedServiceTemplates.first()?.templates
     }
 }

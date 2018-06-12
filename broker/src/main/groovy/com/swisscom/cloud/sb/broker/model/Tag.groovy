@@ -7,12 +7,12 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
 @Entity
-class Tag extends BaseModel{
+class Tag extends BaseModel {
 
     String tag
 
     @ManyToOne
-    @JoinColumn(name="cf_service_id")
+    @JoinColumn(name = "cf_service_id")
     @JsonIgnore
     CFService cfService
 }

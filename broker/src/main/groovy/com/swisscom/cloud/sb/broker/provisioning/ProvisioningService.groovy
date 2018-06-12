@@ -1,13 +1,13 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
-import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
@@ -37,7 +37,7 @@ class ProvisioningService {
         }
 
         ProvisionResponse provisionResponse = serviceProvider.provision(provisionRequest)
-        if (serviceProvider instanceof ExtensionProvider){
+        if (serviceProvider instanceof ExtensionProvider) {
             provisionResponse.extensions = serviceProvider.buildExtensions()
         }
         instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)

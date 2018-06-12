@@ -69,13 +69,13 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
-    void createPackage(Map credentials, HttpHeaders headers){
+    void createPackage(Map credentials, HttpHeaders headers) {
         String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
         ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.PUT, new HttpEntity<String>("""{"version": "0.0.1", "publish": true}""", headers), String.class)
         println("packageRes = ${packageRes}")
     }
 
-    void createAction(Map credentials, HttpHeaders headers){
+    void createAction(Map credentials, HttpHeaders headers) {
         String actionPayload = """{"version": "0.0.1",
                 "publish": false,
                 "exec": {
@@ -114,22 +114,22 @@ class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {
         assert helloRes == "Hello world"
     }
 
-    void deleteActivation(){
+    void deleteActivation() {
 //        TODO: Delete activation from DB
 //        String activationUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/activations"
 //        ResponseEntity<String> activationRes =  restTemplate.getForEntity(activationUrl, String.class)
 //        println("activationRes = ${activationRes}")
     }
 
-    void deleteAction(Map credentials){
+    void deleteAction(Map credentials) {
         String actionUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/actions/OWTestPackage1/OWTestAction"
-        ResponseEntity<String> actionRes =  restTemplate.exchange(actionUrl, HttpMethod.DELETE,null, String.class)
+        ResponseEntity<String> actionRes = restTemplate.exchange(actionUrl, HttpMethod.DELETE, null, String.class)
         assert actionRes.statusCodeValue == 200
     }
 
-    void deletePackage(Map credentials){
+    void deletePackage(Map credentials) {
         String packageUrl = credentials.get("adminUrl") + "/" + credentials.get("namespace") + "/packages/OWTestPackage1"
-        ResponseEntity<String> packageRes =  restTemplate.exchange(packageUrl, HttpMethod.DELETE,null, String.class)
+        ResponseEntity<String> packageRes = restTemplate.exchange(packageUrl, HttpMethod.DELETE, null, String.class)
         assert packageRes.statusCodeValue == 200
     }
 }

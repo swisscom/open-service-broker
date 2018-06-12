@@ -12,11 +12,11 @@ class BoshClientSpec extends Specification {
     private BoshClient client
 
 
-    def setup(){
+    def setup() {
         def boshRestClient = Mock(BoshRestClient)
         boshRestClient.boshConfig >> Stub(BoshConfig)
         def mutexFactory = Mock(MutexFactory)
-        client = new BoshClient(boshRestClient,mutexFactory)
+        client = new BoshClient(boshRestClient, mutexFactory)
     }
 
     def "happy path: FetchCloudConfig"() {
@@ -56,11 +56,11 @@ class BoshClientSpec extends Specification {
         client.addOrUpdateVmInCloudConfig(vm, instanceType, affinityGroup)
 
         then:
-        1 * client.boshRestClient.postCloudConfig(_)>> {String s ->
+        1 * client.boshRestClient.postCloudConfig(_) >> { String s ->
             def given = (Map) new Yaml().load(s)
             def expected = (Map) new Yaml().load(expectedInput)
-            assert ((List)given['vm_types']).size() == ((List)expected['vm_types']).size()
-            assert ((List)given['vm_types']).last().name == vm
+            assert ((List) given['vm_types']).size() == ((List) expected['vm_types']).size()
+            assert ((List) given['vm_types']).last().name == vm
         }
     }
 
@@ -78,10 +78,10 @@ class BoshClientSpec extends Specification {
         client.removeVmInCloudConfig(vm)
 
         then:
-        1 * client.boshRestClient.postCloudConfig(_)>> {String s ->
+        1 * client.boshRestClient.postCloudConfig(_) >> { String s ->
             def given = (Map) new Yaml().load(s)
             def initial = (Map) new Yaml().load(new JsonSlurper().parseText(initialCloudConfig).first().properties as String)
-            assert ((List)given['vm_types']).size() == (((List)initial['vm_types']).size() - 1)
+            assert ((List) given['vm_types']).size() == (((List) initial['vm_types']).size() - 1)
         }
     }
 
@@ -105,7 +105,9 @@ class BoshClientSpec extends Specification {
     def "DeleteDeploymentIfExists handles exception when resource not found"() {
         given:
         def deploymentId = ''
-        client.boshRestClient.deleteDeployment(deploymentId) >> {throw new BoshResourceNotFoundException('','','', HttpStatus.NOT_FOUND)}
+        client.boshRestClient.deleteDeployment(deploymentId) >> {
+            throw new BoshResourceNotFoundException('', '', '', HttpStatus.NOT_FOUND)
+        }
         when:
         def result = client.deleteDeploymentIfExists(deploymentId)
         then:

@@ -13,7 +13,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
-class OpenWhiskDbClientSpec extends Specification{
+class OpenWhiskDbClientSpec extends Specification {
     private final String SUBJECT = "testing"
 
     private OpenWhiskDbClient openWhiskDbClient
@@ -77,7 +77,7 @@ class OpenWhiskDbClientSpec extends Specification{
         noExceptionThrown()
     }
 
-    def "Insert subject with success"(){
+    def "Insert subject with success"() {
         given:
         def response = """{
                                 "_id":"testing",
@@ -103,7 +103,7 @@ class OpenWhiskDbClientSpec extends Specification{
         noExceptionThrown()
     }
 
-    def "Insert subject with failure"(){
+    def "Insert subject with failure"() {
         given:
         def response = """{
                                 "_id":"testing",

@@ -193,12 +193,12 @@ class ShieldRestClientSpec extends Specification {
 
     def "create job"() {
         given:
-        def job = [ name: "jobName",
-                    target: "target-id",
-                    store: "store-id",
-                    retention: "retention-id",
-                    schedule: "schedule-id",
-                    paused: false]
+        def job = [name     : "jobName",
+                   target   : "target-id",
+                   store    : "store-id",
+                   retention: "retention-id",
+                   schedule : "schedule-id",
+                   paused   : false]
         mockServer.expect(requestTo(shieldRestClient.jobsUrl()))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))
@@ -221,13 +221,13 @@ class ShieldRestClientSpec extends Specification {
     def "update job"() {
         given:
         JobDto jobDto = new JobDto(uuid: "jobUuid", name: "jobName")
-        def job = [ name: jobDto.name,
-                    summary: jobDto.summary,
-                    target: "target-id",
-                    store: "store-id",
-                    retention: "retention-id",
-                    schedule: "schedule-id",
-                    paused: false]
+        def job = [name     : jobDto.name,
+                   summary  : jobDto.summary,
+                   target   : "target-id",
+                   store    : "store-id",
+                   retention: "retention-id",
+                   schedule : "schedule-id",
+                   paused   : false]
         mockServer.expect(requestTo(shieldRestClient.jobUrl(jobDto.uuid)))
                 .andExpect(method(HttpMethod.PUT))
                 .andExpect(header(ShieldRestClient.HEADER_API_KEY, apiKey))

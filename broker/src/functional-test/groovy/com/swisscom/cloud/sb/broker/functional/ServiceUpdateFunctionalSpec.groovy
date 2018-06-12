@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -25,8 +27,10 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
 
     static String notUpdatableServiceGuid = "updateTest_notUpdateable"
     static String notUpdatablePlanGuid = "updateTest_notUpdateable_plan_a"
+    static String secondNotUpdatablePlanGuid = "updateTest_notUpdateable_plan_b"
     static String defaultServiceGuid = "updateTest_Updateable"
     static String defaultPlanGuid = "updateTest_Updateable_plan_a"
+    static String secondPlanGuid = "updateTest_Updateable_plan_b"
     static String defaultOrgGuid = "org_id"
     static String defaultSpaceGuid = "space_id"
 
@@ -55,6 +59,24 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         return serviceInstanceGuid
     }
 
+    private updatePlans(){
+        Plan defaultPlan = serviceLifeCycler.getPlanByGuid(defaultPlanGuid)
+        Plan secondPlan = serviceLifeCycler.getPlanByGuid(secondPlanGuid)
+        CFService defaultService = serviceLifeCycler.getServiceByGuid(defaultServiceGuid)
+        defaultPlan.service = defaultService
+        serviceLifeCycler.updateServiceOfPlanInRepository(defaultPlanGuid, defaultService)
+        secondPlan.service = defaultService
+        serviceLifeCycler.updateServiceOfPlanInRepository(secondPlanGuid, defaultService)
+
+        Plan notUpdatablePlan = serviceLifeCycler.getPlanByGuid(notUpdatablePlanGuid)
+        Plan secondNotUpdatablePlan = serviceLifeCycler.getPlanByGuid(secondNotUpdatablePlanGuid)
+        CFService notUpdatableService = serviceLifeCycler.getServiceByGuid(notUpdatableServiceGuid)
+        notUpdatablePlan.service = notUpdatableService
+        secondNotUpdatablePlan.service = notUpdatableService
+        serviceLifeCycler.updateServiceOfPlanInRepository(notUpdatablePlanGuid, notUpdatableService)
+        serviceLifeCycler.updateServiceOfPlanInRepository(secondNotUpdatablePlanGuid, notUpdatableService)
+    }
+
     def setup() {
         if (!serviceDefinitionsSetUp) {
             serviceBrokerClient.createOrUpdateServiceDefinition(
@@ -63,6 +85,8 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
                     Resource.readTestFileContent("/service-data/serviceDefinition_updateTest_notUpdateable.json"))
             serviceDefinitionsSetUp = true
         }
+
+        updatePlans()
 
         parameters = new HashMap<String, Object>()
         parameters.put(parameterKey, parameterOldValue)
@@ -74,15 +98,15 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstanceGuid = requestServiceProvisioning()
 
         when:
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
 
         then:
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance
-        serviceInstance.plan.guid == newPlanGuid
+        serviceInstance.plan.guid == secondPlanGuid
 
         cleanup:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "parameters can be updated"() {
@@ -139,7 +163,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
-    
+
     def "plan and parameters can be updated"() {
         setup:
         def parameters = new HashMap<String, Object>()
@@ -183,69 +207,69 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
 
     def "async parameter update is supported"() {
         setup:
-            def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-            parameters.put(parameterKey, parameterNewValue)
-            serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
-            waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
+        parameters.put(parameterKey, parameterNewValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
+        waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
 
         then:
-            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
-            def operationState = lastOperationResponse.state
-            operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
-            def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-            assert serviceInstance
-            def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
-            assert modeDetail
-            modeDetail.value == parameterNewValue
+        def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
+        def operationState = lastOperationResponse.state
+        operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance
+        def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
+        assert modeDetail
+        modeDetail.value == parameterNewValue
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "async update is failing if provision is still in progress"() {
         setup:
-            def newPlanGuid = "updateTest_notUpdateable_plan_b"
-            def serviceInstanceGuid = requestServiceProvisioning(parameters, defaultPlanGuid, true)
+        def newPlanGuid = "updateTest_notUpdateable_plan_b"
+        def serviceInstanceGuid = requestServiceProvisioning(parameters, defaultPlanGuid, true)
 
         when:
-            parameters.put(parameterKey, parameterNewValue)
-            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, parameters, true)
+        parameters.put(parameterKey, parameterNewValue)
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, parameters, true)
 
         then:
-            response.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
+        response.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
     def "second async parameter update is denied"() {
         setup:
 
-            def secondNewValue = "unidirectional"
-            def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        def secondNewValue = "unidirectional"
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
 
         when:
-            parameters.put(parameterKey, parameterNewValue)
-            def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
-            parameters.put(parameterKey, secondNewValue)
-            def response2 = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultSpaceGuid, null, parameters, true)
-            waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
+        parameters.put(parameterKey, parameterNewValue)
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, true)
+        parameters.put(parameterKey, secondNewValue)
+        def response2 = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultSpaceGuid, null, parameters, true)
+        waitUntilMaxTimeOrTargetState(serviceInstanceGuid, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
 
         then:
-            response.statusCode == HttpStatus.ACCEPTED
-            response2.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
-            def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
-            def operationState = lastOperationResponse.state
-            operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
-            def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-            assert serviceInstance
-            def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
-            assert modeDetail
-            modeDetail.value == parameterNewValue
+        response.statusCode == HttpStatus.ACCEPTED
+        response2.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
+        def lastOperationResponse = serviceBrokerClient.getServiceInstanceLastOperation(serviceInstanceGuid).getBody()
+        def operationState = lastOperationResponse.state
+        operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance
+        def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
+        assert modeDetail
+        modeDetail.value == parameterNewValue
 
         cleanup:
-            serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 }

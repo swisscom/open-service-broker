@@ -5,7 +5,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import groovy.transform.CompileStatic
 
 @CompileStatic
-enum KubernetesRedisServiceDetailKey implements AbstractServiceDetailKey{
+enum KubernetesRedisServiceDetailKey implements AbstractServiceDetailKey {
 
     KUBERNETES_REDIS_HOST("kubernetes_redis_service_host", ServiceDetailType.HOST),
     KUBERNETES_REDIS_PASSWORD("kubernetes_redis_service_password", ServiceDetailType.PASSWORD),

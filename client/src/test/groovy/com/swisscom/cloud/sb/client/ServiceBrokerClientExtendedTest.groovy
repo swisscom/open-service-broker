@@ -21,16 +21,17 @@ class ServiceBrokerClientExtendedTest {
     private RestTemplate restTemplate
     private MockRestServiceServer mockRestServiceServer
     private String baseUrl = 'baseUrl'
-    @Before
-    void setup(){
-        restTemplate = new RestTemplate()
-        mockRestServiceServer =  MockRestServiceServer.createServer(restTemplate)
 
-        serviceBrokerClientExtended = new ServiceBrokerClientExtended(restTemplate, baseUrl,'cfUsername','cfPassword','cfExtusername','cfExtpassword')
+    @Before
+    void setup() {
+        restTemplate = new RestTemplate()
+        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate)
+
+        serviceBrokerClientExtended = new ServiceBrokerClientExtended(restTemplate, baseUrl, 'cfUsername', 'cfPassword', 'cfExtusername', 'cfExtpassword')
     }
 
     @Test
-    void getUsage(){
+    void getUsage() {
         //Given
         mockRestServiceServer.expect(MockRestRequestMatchers.requestTo("${baseUrl}/custom/service_instances/${serviceInstanceId}/usage"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
@@ -39,7 +40,7 @@ class ServiceBrokerClientExtendedTest {
                 .body("""{"value":"49651712","type":"watermark","end_date":null}"""))
         //Expect
         def result = serviceBrokerClientExtended.getUsage(serviceInstanceId).body
-        Assert.assertEquals("49651712",result.value)
-        Assert.assertEquals(ServiceUsageType.WATERMARK,result.type)
+        Assert.assertEquals("49651712", result.value)
+        Assert.assertEquals(ServiceUsageType.WATERMARK, result.type)
     }
 }

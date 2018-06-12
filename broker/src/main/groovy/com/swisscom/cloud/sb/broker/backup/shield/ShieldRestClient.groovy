@@ -4,7 +4,10 @@ import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.web.client.RestTemplate
 
 @Slf4j

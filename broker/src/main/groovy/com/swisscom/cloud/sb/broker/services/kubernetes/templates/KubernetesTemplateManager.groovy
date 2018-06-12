@@ -26,7 +26,7 @@ class KubernetesTemplateManager {
     }
 
     private List<KubernetesTemplate> splitTemplatesFromYamlDoucments(List<String> templates) {
-        def deploymentTemplates = templates.collect{it.split("---")}.flatten()
-        return deploymentTemplates.collect{new KubernetesTemplate(it as String)}
+        def deploymentTemplates = templates.collect { it.split("---") }.flatten()
+        return deploymentTemplates.collect { new KubernetesTemplate(it as String) }
     }
 }

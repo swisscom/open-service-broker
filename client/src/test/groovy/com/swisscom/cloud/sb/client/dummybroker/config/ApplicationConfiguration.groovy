@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 class ApplicationConfiguration {
 
     @Bean
-    public BrokerApiVersion brokerApiVersion(){
+    public BrokerApiVersion brokerApiVersion() {
         new BrokerApiVersion()
     }
 }

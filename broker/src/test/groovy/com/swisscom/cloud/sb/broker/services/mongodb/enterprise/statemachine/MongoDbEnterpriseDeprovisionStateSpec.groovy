@@ -3,9 +3,9 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import spock.lang.Specification
 

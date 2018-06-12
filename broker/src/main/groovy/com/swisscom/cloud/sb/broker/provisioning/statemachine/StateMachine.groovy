@@ -19,8 +19,8 @@ class StateMachine {
     }
 
     synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState, StateMachineContext context) {
-        Preconditions.checkNotNull(serviceState,'ServiceState can not be null')
-        Preconditions.checkArgument(states.contains(serviceState),"Invalid state:${serviceState.toString()}")
+        Preconditions.checkNotNull(serviceState, 'ServiceState can not be null')
+        Preconditions.checkArgument(states.contains(serviceState), "Invalid state:${serviceState.toString()}")
         currentState = serviceState
 
         return currentState.triggerAction(context)
@@ -44,7 +44,7 @@ class StateMachine {
         addAll(stateMachine.states)
     }
 
-    StateMachine addAll(List<? extends ServiceStateWithAction> states){
+    StateMachine addAll(List<? extends ServiceStateWithAction> states) {
         stateList.addAll(states)
         return this
     }

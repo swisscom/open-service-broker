@@ -325,8 +325,8 @@ class OpsManagerFacade {
         //populateKeyInfo(authenticationDto)
     }
 
-    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto){
-        if(!authenticationDto.autoAuthMechanism){
+    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto) {
+        if (!authenticationDto.autoAuthMechanism) {
             authenticationDto.autoAuthMechanism = AUTH_MECHANISM_MONGODB_CR
         }
     }

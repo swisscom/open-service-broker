@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.provisioning.job
 
 import com.swisscom.cloud.sb.broker.async.job.AbstractLastOperationJob
-import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -30,7 +29,7 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
         jobContext.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         jobContext.plan = jobContext.serviceInstance.plan
         jobContext.updateRequest = updateRequestRepository.findByServiceInstanceGuid(serviceInstanceGuid)
-                .sort({it -> it.dateCreated})
+                .sort({ it -> it.dateCreated })
                 .reverse()
                 .first()
         return jobContext
@@ -39,6 +38,6 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
     @Override
     protected AsyncOperationResult handleJob(LastOperationJobContext context) {
         log.info("About to update service instance, ${context.lastOperation.toString()}")
-        return ((AsyncServiceUpdater)serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
+        return ((AsyncServiceUpdater) serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
     }
 }

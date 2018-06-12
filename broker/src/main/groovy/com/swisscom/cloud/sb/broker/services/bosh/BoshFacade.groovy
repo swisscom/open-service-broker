@@ -100,7 +100,7 @@ class BoshFacade {
         template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
         template.replace(PARAM_BOSH_DIRECTOR_UUID, createBoshClient().fetchBoshInfo().uuid)
-        template.replace(BoshFacade.PARAM_VM_TYPE, shouldCreateOpenStackServerGroup(provisionRequest.plan)?provisionRequest.serviceInstanceGuid:findBoshVmInstanceType(provisionRequest.plan))
+        template.replace(BoshFacade.PARAM_VM_TYPE, shouldCreateOpenStackServerGroup(provisionRequest.plan) ? provisionRequest.serviceInstanceGuid : findBoshVmInstanceType(provisionRequest.plan))
 
         updateTemplateFromDatabaseConfiguration(template, provisionRequest)
 
@@ -202,10 +202,10 @@ class BoshFacade {
     }
 
     boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
-        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
-        if(maybe.present){
+        Optional<String> maybe = ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
+        if (maybe.present) {
             return isBoshTaskSuccessful(maybe.get())
-        }else{
+        } else {
             return true
         }
     }
@@ -216,7 +216,7 @@ class BoshFacade {
 
     boolean shouldCreateOpenStackServerGroup(Plan plan) {
         def param = plan?.parameters?.find { it.name == PLAN_PARAMETER_CREATE_OPEN_STACK_SERVER_GROUP }
-        if(!param){
+        if (!param) {
             return false
         }
         return param.value.toBoolean()

@@ -8,7 +8,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = 'application_user')
-class ApplicationUser extends BaseModel{
+class ApplicationUser extends BaseModel {
 
     @Column(unique = true)
     String username

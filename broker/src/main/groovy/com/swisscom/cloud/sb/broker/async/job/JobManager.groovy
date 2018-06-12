@@ -2,7 +2,10 @@ package com.swisscom.cloud.sb.broker.async.job
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.quartz.*
+import org.quartz.JobBuilder
+import org.quartz.SimpleScheduleBuilder
+import org.quartz.Trigger
+import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.quartz.SchedulerFactoryBean

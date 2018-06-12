@@ -15,10 +15,11 @@ class LastOperationServiceSpec extends BaseTransactionalSpecification {
     DBTestUtil dbTestUtil
     @Autowired
     LastOperationRepository lastOperationRepository
+
     def "updating a LastOperation that is 'in progress' state throws an exception"() {
         given:
         String id = "lastOperationId"
-        LastOperation lastOperation = lastOperationRepository.save( new LastOperation(guid: id, operation: LastOperation.Operation.PROVISION, dateCreation: new Date(), status: LastOperation.Status.IN_PROGRESS))
+        LastOperation lastOperation = lastOperationRepository.save(new LastOperation(guid: id, operation: LastOperation.Operation.PROVISION, dateCreation: new Date(), status: LastOperation.Status.IN_PROGRESS))
         when:
         lastOperationPersistenceService.createOrUpdateLastOperation(id, LastOperation.Operation.DEPROVISION)
         then:

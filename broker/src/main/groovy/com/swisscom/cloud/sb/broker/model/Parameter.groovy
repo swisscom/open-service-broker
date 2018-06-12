@@ -7,7 +7,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
 @Entity
-class Parameter extends BaseModel{
+class Parameter extends BaseModel {
 
     String name
     String description
@@ -15,7 +15,7 @@ class Parameter extends BaseModel{
     String template
 
     @ManyToOne
-    @JoinColumn(name="plan_id")
+    @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
 }

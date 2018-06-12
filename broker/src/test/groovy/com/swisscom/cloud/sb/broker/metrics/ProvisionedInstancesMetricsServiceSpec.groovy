@@ -115,7 +115,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
-    def "exclude deleted service instances from total nr of provisioned instances per service"(){
+    def "exclude deleted service instances from total nr of provisioned instances per service"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def deletedServiceInstance = new ServiceInstance()
@@ -146,7 +146,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
-    def "retrieve total number of provisioned instances that failed being provisioned per service"(){
+    def "retrieve total number of provisioned instances that failed being provisioned per service"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def failedServiceInstance = new ServiceInstance()
@@ -206,7 +206,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
-    def "exclude deleted service instances from total nr of provisioned instances per plan"(){
+    def "exclude deleted service instances from total nr of provisioned instances per plan"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def deletedServiceInstance = new ServiceInstance()
@@ -235,7 +235,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
-    def "retrieve total number of provisioned instances that failed being provisioned per plan"(){
+    def "retrieve total number of provisioned instances that failed being provisioned per plan"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def failedServiceInstance = new ServiceInstance()

@@ -11,12 +11,12 @@ import spock.lang.Specification
 class BoshProvisionStateSpec extends Specification {
     private BoshStateMachineContext context
 
-    def setup(){
+    def setup() {
         context = new BoshStateMachineContext()
         context.boshFacade = Mock(BoshFacade)
     }
 
-    def "CREATE_OPEN_STACK_SERVER_GROUP"(){
+    def "CREATE_OPEN_STACK_SERVER_GROUP"() {
         given:
         def openStackGroupId = 'openStackGroupId'
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
@@ -26,10 +26,12 @@ class BoshProvisionStateSpec extends Specification {
         def result = BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
         then:
         result.go2NextState
-        result.details.find({it.key ==  BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
+        result.details.find({
+            it.key == BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key
+        }).value == openStackGroupId
     }
 
-    def "UPDATE_BOSH_CLOUD_CONFIG"(){
+    def "UPDATE_BOSH_CLOUD_CONFIG"() {
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
@@ -41,13 +43,13 @@ class BoshProvisionStateSpec extends Specification {
         !result.details
     }
 
-    def "CREATE_DEPLOYMENT"(){
+    def "CREATE_DEPLOYMENT"() {
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         context.boshTemplateCustomizer = Mock(BoshTemplateCustomizer)
-        def details = [ServiceDetail.from('key','value')]
+        def details = [ServiceDetail.from('key', 'value')]
         and:
-        1 * context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest,context.boshTemplateCustomizer) >> details
+        1 * context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer) >> details
         when:
         def result = BoshProvisionState.CREATE_DEPLOYMENT.triggerAction(context)
         then:
@@ -55,11 +57,11 @@ class BoshProvisionStateSpec extends Specification {
         result.details == details
     }
 
-    def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "(){
+    def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "() {
         given:
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
-        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext)>>isBoshDeploySuccessful
+        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext) >> isBoshDeploySuccessful
         when:
         def result = BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.triggerAction(context)
         then:

@@ -85,92 +85,92 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
 
     def "Create redis instance, create backup, cancel backup to try out retry, and restore"() {
         when:
-            serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1000, true, true)
-            def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
-            def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
-            def jobName = shieldClient.getJobName(jobUuid)
-            def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
-            serviceLifeCycler.setBackupId(createBU.id)
-            Backup backup = backupPersistenceService.findBackupByGuid(createBU.id)
-            def backupCount = 0
-            while(backup.externalId == null){
-                println("Retrying to get backup externalId attempt number ${backupCount + 1}")
-                serviceLifeCycler.pauseExecution(5)
-                backup = backupPersistenceService.findBackupByGuid(createBU.id)
-                backupCount++
-                if (backupCount == 15) {
-                    throw new Exception("backup get externalId count exceeded")
-                }
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1000, true, true)
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
+        def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
+        def jobName = shieldClient.getJobName(jobUuid)
+        def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
+        serviceLifeCycler.setBackupId(createBU.id)
+        Backup backup = backupPersistenceService.findBackupByGuid(createBU.id)
+        def backupCount = 0
+        while (backup.externalId == null) {
+            println("Retrying to get backup externalId attempt number ${backupCount + 1}")
+            serviceLifeCycler.pauseExecution(5)
+            backup = backupPersistenceService.findBackupByGuid(createBU.id)
+            backupCount++
+            if (backupCount == 15) {
+                throw new Exception("backup get externalId count exceeded")
+            }
+        }
+
+        shieldClient.deleteTask(backup.externalId)
+
+        pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_SUCCEEDED, BackupStatus.CREATE_FAILED)
+
+        def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
+        def restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
+
+        def count = 0
+        while (restoreStatus.status != RestoreStatus.SUCCEEDED) {
+            count += 1
+            serviceLifeCycler.pauseExecution(10)
+            restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
+            println("Attempt number ${count + 1}. Restore status = ${restoreStatus.status}.")
+
+            if (count == 11) {
+                throw new Exception("Restore timed out.")
             }
 
-            shieldClient.deleteTask(backup.externalId)
-
-            pollBackupStatus(0, serviceInstance.guid, createBU.id, BackupStatus.CREATE_SUCCEEDED, BackupStatus.CREATE_FAILED)
-
-            def restoreBU = serviceBrokerClient.restoreBackup(serviceInstance.guid, createBU.id).getBody()
-            def restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
-
-            def count = 0
-            while(restoreStatus.status != RestoreStatus.SUCCEEDED){
-                count += 1
-                serviceLifeCycler.pauseExecution(10)
-                restoreStatus = serviceBrokerClient.getRestoreStatus(serviceInstance.guid, createBU.id, restoreBU.id).getBody()
-                println("Attempt number ${count + 1}. Restore status = ${restoreStatus.status}.")
-
-                if(count == 11) {
-                    throw new Exception("Restore timed out.")
-                }
-
-                if(restoreStatus.status == RestoreStatus.FAILED)
-                {
-                    throw new Exception("Restore failed.")
-                }
+            if (restoreStatus.status == RestoreStatus.FAILED) {
+                throw new Exception("Restore failed.")
             }
+        }
 
         then:
-            jobName == "${shieldConfig.jobPrefix}redis-${serviceInstance.guid}" as String
-            noExceptionThrown()
+        jobName == "${shieldConfig.jobPrefix}redis-${serviceInstance.guid}" as String
+        noExceptionThrown()
     }
 
     def "Verify backup limit is reached"() {
         when:
-            serviceBrokerClient.createBackup(serviceLifeCycler.serviceInstanceId).getBody()
+        serviceBrokerClient.createBackup(serviceLifeCycler.serviceInstanceId).getBody()
         then:
-            def exception = thrown(HttpClientErrorException)
-            exception.statusCode == HttpStatus.CONFLICT
+        def exception = thrown(HttpClientErrorException)
+        exception.statusCode == HttpStatus.CONFLICT
     }
 
     def "Delete backup"() {
         when:
-            serviceBrokerClient.deleteBackup(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId()).getBody()
-            pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_SUCCEEDED, BackupStatus.DELETE_FAILED)
+        serviceBrokerClient.deleteBackup(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId()).getBody()
+        pollBackupStatus(0, serviceLifeCycler.serviceInstanceId, serviceLifeCycler.getBackupId(), BackupStatus.DELETE_SUCCEEDED, BackupStatus.DELETE_FAILED)
         then:
-            noExceptionThrown()
+        noExceptionThrown()
     }
 
     def "Remove service"() {
         when:
-            serviceLifeCycler.deleteServiceBindingAndAssert()
-            serviceLifeCycler.deleteServiceInstanceAndAssert(true)
-            serviceLifeCycler.pauseExecution(50)
+        serviceLifeCycler.deleteServiceBindingAndAssert()
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true)
+        serviceLifeCycler.pauseExecution(50)
 
         then:
-            noExceptionThrown()
+        noExceptionThrown()
     }
+
     void pollBackupStatus(int count, String serviceInstanceId, String backupId, BackupStatus status, BackupStatus failedStatus) {
         def getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
 
-        while(getBU.status != status){
+        while (getBU.status != status) {
             count += 1
             serviceLifeCycler.pauseExecution(10)
             getBU = serviceBrokerClient.getBackup(serviceInstanceId, backupId).getBody()
             println("Attempt number ${count + 1}. Backup status = ${getBU.status}.")
 
-            if(count == 11) {
+            if (count == 11) {
                 throw new Exception("Backup creation timed out.")
             }
 
-            if(getBU.status == failedStatus){
+            if (getBU.status == failedStatus) {
                 throw new Exception("Backup failed.")
             }
         }

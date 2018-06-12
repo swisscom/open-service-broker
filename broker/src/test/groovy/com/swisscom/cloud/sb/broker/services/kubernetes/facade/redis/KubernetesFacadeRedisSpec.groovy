@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
+
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Slf4j
@@ -53,7 +54,7 @@ metadata:
         deprovisionRequest = Stub()
         kubernetesRedisConfig = Stub()
         kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
-        kubernetesRedisConfig.redisConfigurationDefaults >> ["testing":"test"]
+        kubernetesRedisConfig.redisConfigurationDefaults >> ["testing": "test"]
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
         kubernetesTemplateManager = Mock()
@@ -163,7 +164,7 @@ kind: Namespace""")
         plan.setGuid("test")
         ServiceContext ctx = new ServiceContext()
         ctx.setPlatform("cloudfoundry")
-        ctx.setDetails([ServiceContextDetail.from("space_guid","test"),ServiceContextDetail.from("organization_guid","test")].toSet())
+        ctx.setDetails([ServiceContextDetail.from("space_guid", "test"), ServiceContextDetail.from("organization_guid", "test")].toSet())
 
         when:
         List threads = new ArrayList()

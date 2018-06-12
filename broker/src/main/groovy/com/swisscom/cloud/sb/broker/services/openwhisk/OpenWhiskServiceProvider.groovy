@@ -30,7 +30,6 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceDetailKey.*
@@ -38,7 +37,7 @@ import static com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceDe
 @Component
 @CompileStatic
 @Slf4j
-class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
+class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider {
 
     private final OpenWhiskConfig openWhiskConfig
     private final OpenWhiskDbClient openWhiskDbClient
@@ -54,9 +53,9 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @Override
-    ProvisionResponse provision(ProvisionRequest request){
+    ProvisionResponse provision(ProvisionRequest request) {
         ObjectMapper mapper = new ObjectMapper()
-        JsonNode params =  null
+        JsonNode params = null
         if (request.parameters != null) {
             params = mapper.readTree(request.parameters)
         }
@@ -77,7 +76,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @Override
-    DeprovisionResponse deprovision(DeprovisionRequest request){
+    DeprovisionResponse deprovision(DeprovisionRequest request) {
         deleteEntity(getNamespace(request.serviceInstanceGuid))
         log.info("Namespace deleted.")
 
@@ -85,7 +84,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @Override
-    BindResponse bind(BindRequest request){
+    BindResponse bind(BindRequest request) {
         String namespace = getNamespace(request.serviceInstance.guid)
 
         def uuid = UUID.randomUUID().toString()
@@ -105,11 +104,11 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
                                           from(OPENWHISK_SUBJECT, subject),
                                           from(OPENWHISK_NAMESPACE, namespace)],
                 credentials: new OpenWhiskBindResponseDto(openwhiskExecutionUrl: url, openwhiskAdminUrl: adminUrl, openwhiskUUID: uuid, openwhiskKey: key,
-                                                          openwhiskNamespace: namespace, openwhiskSubject: subject))
+                        openwhiskNamespace: namespace, openwhiskSubject: subject))
     }
 
     @Override
-    void unbind(UnbindRequest request){
+    void unbind(UnbindRequest request) {
         deleteEntity(getSubject(request.binding.guid))
         log.info("Subject deleted.")
     }
@@ -122,7 +121,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
         usageArray.each {
             usageMS = usageMS + it.path("value").intValue()
         }
-        return new ServiceUsage(value: (usageMS/1000).toString(), type: ServiceUsageType.TRANSACTIONS, unit: ServiceUsageUnit.MEGABYTE_SECOND)
+        return new ServiceUsage(value: (usageMS / 1000).toString(), type: ServiceUsageType.TRANSACTIONS, unit: ServiceUsageUnit.MEGABYTE_SECOND)
     }
 
     @VisibleForTesting
@@ -174,7 +173,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @VisibleForTesting
-    private String validateNamespace(JsonNode params, String uuid){
+    private String validateNamespace(JsonNode params, String uuid) {
         if (params == null) {
             return uuid
         } else if (!params.has("namespace")) {
@@ -206,7 +205,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @VisibleForTesting
     private void deleteEntity(String entity) {
         String doc = openWhiskDbClient.getSubjectFromDB(entity)
-        if (doc == null){
+        if (doc == null) {
             log.error("Subject not found.")
             ErrorCode.OPENWHISK_SUBJECT_NOT_FOUND.throwNew()
         }
@@ -216,7 +215,7 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     }
 
     @Override
-    Collection<Extension> buildExtensions(){
+    Collection<Extension> buildExtensions() {
         return [new Extension("discovery_url": openWhiskConfig.discoveryURL)]
     }
 }

@@ -17,7 +17,7 @@ import com.swisscom.cloud.sb.model.health.ServiceHealthStatus
 import org.springframework.stereotype.Component
 
 @Component
-class DummyServiceHealthServiceProvider implements ServiceProvider, ServiceHealthProvider  {
+class DummyServiceHealthServiceProvider implements ServiceProvider, ServiceHealthProvider {
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         return new ProvisionResponse(details: [], isAsync: false)
@@ -45,6 +45,6 @@ class DummyServiceHealthServiceProvider implements ServiceProvider, ServiceHealt
 
     @Override
     ServiceHealth getHealth(ServiceInstance serviceInstance) {
-        new ServiceHealth( status: ServiceHealthStatus.OK)
+        new ServiceHealth(status: ServiceHealthStatus.OK)
     }
 }

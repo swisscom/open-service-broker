@@ -38,7 +38,7 @@ class BoshRestClientTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "get task"(){
+    def "get task"() {
         when:
         def task = client.getTask("2857986")
         then:

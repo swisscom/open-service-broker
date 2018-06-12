@@ -8,16 +8,16 @@ import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 @Entity
-@Table(name='service_permission')
+@Table(name = 'service_permission')
 
-class CFServicePermission extends BaseModel{
+class CFServicePermission extends BaseModel {
 
     public static final SYSLOG_DRAIN = "syslog_drain"
 
     String permission
 
     @ManyToOne
-    @JoinColumn(name="cf_service_id")
+    @JoinColumn(name = "cf_service_id")
     @JsonIgnore
     CFService service
 }

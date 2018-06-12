@@ -139,11 +139,17 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def "deprovision async service instance"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+        def serviceBindingGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert()
+
         when:
-        serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
+        serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
 
         then:
         noExceptionThrown()
     }
-
 }

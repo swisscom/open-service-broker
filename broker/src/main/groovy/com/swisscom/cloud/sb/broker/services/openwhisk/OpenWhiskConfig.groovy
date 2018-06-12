@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.openwhisk")
-class OpenWhiskConfig implements ExtensionConfig{
+class OpenWhiskConfig implements ExtensionConfig {
     String openWhiskUrl
     String openWhiskProtocol
     String openWhiskHost

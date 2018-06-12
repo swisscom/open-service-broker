@@ -8,17 +8,17 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
 @Entity
-class PlanMetadata extends BaseModel{
+class PlanMetadata extends BaseModel {
 
     @Column(name = '_key')
     String key
     @Column(name = '_value')
     String value
-    @Column(name = '_type',columnDefinition="varchar(255) default 'String'")
+    @Column(name = '_type', columnDefinition = "varchar(255) default 'String'")
     String type
 
     @ManyToOne
-    @JoinColumn(name="plan_id")
+    @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
 

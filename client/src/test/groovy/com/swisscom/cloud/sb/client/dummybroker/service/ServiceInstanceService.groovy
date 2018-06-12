@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class ServiceInstanceService implements org.springframework.cloud.servicebroker.service.ServiceInstanceService{
+class ServiceInstanceService implements org.springframework.cloud.servicebroker.service.ServiceInstanceService {
 
     @Override
     CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest request) {

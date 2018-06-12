@@ -15,7 +15,7 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDbEnterperiseStateMachineContext> {
-    DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
+    DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
@@ -29,28 +29,28 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
+    UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             context.opsManagerFacade.undeploy(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    CHECK_AUTOMATION_CONFIG_STATE(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
+    CHECK_AUTOMATION_CONFIG_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            return new StateChangeActionResult(go2NextState:  context.opsManagerFacade.isAutomationUpdateComplete(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)))
+            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isAutomationUpdateComplete(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)))
 
         }
     }),
-    DELETE_HOSTS_ON_OPS_MANAGER(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
+    DELETE_HOSTS_ON_OPS_MANAGER(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             context.opsManagerFacade.deleteAllHosts(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    CLEAN_UP_GROUP(LastOperation.Status.IN_PROGRESS,new OnStateChange<MongoDbEnterperiseStateMachineContext>()  {
+    CLEAN_UP_GROUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             context.opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID))
@@ -73,7 +73,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     private final LastOperation.Status status
     private final OnStateChange<MongoDbEnterperiseStateMachineContext> onStateChange
 
-    MongoDbEnterpriseDeprovisionState(LastOperation.Status lastOperationStatus,OnStateChange<MongoDbEnterperiseStateMachineContext> onStateChange) {
+    MongoDbEnterpriseDeprovisionState(LastOperation.Status lastOperationStatus, OnStateChange<MongoDbEnterperiseStateMachineContext> onStateChange) {
         this.status = lastOperationStatus
         this.onStateChange = onStateChange
     }

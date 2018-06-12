@@ -35,7 +35,7 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
     }
 
-   def "deprovision mongoDbEnterprise service instance"() {
+    def "deprovision mongoDbEnterprise service instance"() {
         when:
         serviceLifeCycler.deleteServiceBindingAndAssert()
         serviceLifeCycler.deleteServiceInstanceAndAssert(true, 180)

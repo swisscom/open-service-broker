@@ -15,10 +15,10 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             String serverGroupId = context.boshFacade.createOpenStackServerGroup(context.lastOperationJobContext.provisionRequest.serviceInstanceGuid)
-            new StateChangeActionResult(go2NextState: true, details:[ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)])
+            new StateChangeActionResult(go2NextState: true, details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)])
         }
     }),
-    UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
+    UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             context.boshFacade.addOrUpdateVmInBoshCloudConfig(context.lastOperationJobContext)
@@ -41,7 +41,7 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
     final LastOperation.Status status
     final OnStateChange<BoshStateMachineContext> onStateChange
 
-    BoshProvisionState(final LastOperation.Status status,OnStateChange<BoshStateMachineContext> onStateChange) {
+    BoshProvisionState(final LastOperation.Status status, OnStateChange<BoshStateMachineContext> onStateChange) {
         this.status = status
         this.onStateChange = onStateChange
     }

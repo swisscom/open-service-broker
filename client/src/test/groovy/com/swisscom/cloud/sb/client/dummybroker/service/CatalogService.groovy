@@ -14,17 +14,17 @@ class CatalogService implements org.springframework.cloud.servicebroker.service.
     private Catalog catalog
 
     @PostConstruct
-    public void init(){
+    public void init() {
         catalog = new ObjectMapper().readValue(new File(this.getClass().getResource('/demo-service-definition.json').getFile()).text, Catalog.class)
     }
 
     @Override
     Catalog getCatalog() {
-        return  catalog
+        return catalog
     }
 
     @Override
     ServiceDefinition getServiceDefinition(String serviceId) {
-        return catalog.serviceDefinitions.find {it.id == serviceId}
+        return catalog.serviceDefinitions.find { it.id == serviceId }
     }
 }

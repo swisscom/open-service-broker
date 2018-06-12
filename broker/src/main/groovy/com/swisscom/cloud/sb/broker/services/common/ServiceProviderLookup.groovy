@@ -38,21 +38,21 @@ class ServiceProviderLookup {
             return findServiceProvider(plan.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
-        if (plan?.service?.serviceProviderClass){
+        if (plan?.service?.serviceProviderClass) {
             return findServiceProvider(plan.service.serviceProviderClass)
         }
 
         return findServiceProvider(plan.service.internalName + POSTFIX_SERVICE_PROVIDER)
     }
 
-    ServiceProvider findServiceProvider(CFService service, Plan plan){
+    ServiceProvider findServiceProvider(CFService service, Plan plan) {
         Preconditions.checkNotNull(service, "A valid service is needed for finding the corresponding ServiceProvider")
 
-        if(service?.serviceProviderClass){
+        if (service?.serviceProviderClass) {
             return findServiceProvider(service.serviceProviderClass)
         }
 
-        if(service?.internalName){
+        if (service?.internalName) {
             return findServiceProvider(service.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 

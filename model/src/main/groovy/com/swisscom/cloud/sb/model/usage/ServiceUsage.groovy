@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ServiceUsage implements Serializable{
+class ServiceUsage implements Serializable {
     @JsonSerialize
     @JsonProperty("value")
     String value

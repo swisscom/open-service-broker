@@ -107,6 +107,6 @@ class LifecycleTimeMetricsSpec extends Specification {
 
         and:
         lifecycleTimePerService.size() == 1
-        lifecycleTimePerService.get(service.name) == ((TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2)/2) * MILLISECONDS_PER_SECOND
+        lifecycleTimePerService.get(service.name) == ((TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 + TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2) / 2) * MILLISECONDS_PER_SECOND
     }
 }

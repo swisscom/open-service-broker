@@ -4,7 +4,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j

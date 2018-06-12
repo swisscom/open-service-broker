@@ -18,7 +18,6 @@ import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import spock.lang.Specification
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class ServiceUsageLookupSpec extends Specification {
     ServiceProviderLookup serviceProviderLookup
@@ -101,11 +100,11 @@ class ServiceUsageLookupSpec extends Specification {
             return null
         }
 
-        Collection<Extension> buildExtensions(){
+        Collection<Extension> buildExtensions() {
             return [new Extension("discovery_url": "discoveryURL")]
         }
 
-        TaskDto getTask(String taskUuid){
+        TaskDto getTask(String taskUuid) {
             new TaskDto()
         }
     }

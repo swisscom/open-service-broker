@@ -1,8 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.health
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
-import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -10,7 +8,6 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.model.health.ServiceHealth
 import com.swisscom.cloud.sb.model.health.ServiceHealthStatus
-import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

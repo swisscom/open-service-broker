@@ -6,11 +6,7 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
-import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepository
-import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.*
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j

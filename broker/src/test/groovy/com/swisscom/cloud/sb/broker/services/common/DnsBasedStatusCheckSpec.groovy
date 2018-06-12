@@ -57,7 +57,7 @@ class DnsBasedStatusCheckSpec extends Specification {
         !statusCheck.isGone(serviceInstance)
     }
 
-    enum DnsBasedStatusCheckServiceDetailKey implements AbstractServiceDetailKey{
+    enum DnsBasedStatusCheckServiceDetailKey implements AbstractServiceDetailKey {
 
         TEST_HOST1("dns_based_status_check_test_host1", ServiceDetailType.HOST),
         TEST_HOST2("dns_based_status_check_test_host2", ServiceDetailType.HOST)

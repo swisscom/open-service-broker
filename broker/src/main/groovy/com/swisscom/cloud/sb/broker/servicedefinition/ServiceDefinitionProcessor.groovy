@@ -4,21 +4,8 @@ import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
-import com.swisscom.cloud.sb.broker.model.CFServicePermission
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServicePermissionRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.model.repository.TagRepository
+import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.ServiceDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -59,14 +46,14 @@ class ServiceDefinitionProcessor {
     private ParameterRepository parameterRepository
 
     def createOrUpdateServiceDefinition(String content) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(content),"Service Definition can't be empty")
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(content), "Service Definition can't be empty")
         // Preconditions.checkArgument() // TODO: check content type is application/json
 
         def serviceJson
         try {
-          serviceJson = new JsonSlurper().parseText(content)
-        } catch(Exception e) {
-          ErrorCode.INVALID_JSON.throwNew()
+            serviceJson = new JsonSlurper().parseText(content)
+        } catch (Exception e) {
+            ErrorCode.INVALID_JSON.throwNew()
         }
 
         CFService service = processServiceBasicDefiniton(serviceJson)

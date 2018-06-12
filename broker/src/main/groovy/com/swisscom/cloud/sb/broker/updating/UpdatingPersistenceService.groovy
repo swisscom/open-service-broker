@@ -39,14 +39,17 @@ class UpdatingPersistenceService {
         updateRequestRepository.saveAndFlush(updateRequest)
     }
 
-    void updatePlanAndServiceDetails(final ServiceInstance serviceInstance, final String updateParameters, final Collection<ServiceDetail> serviceDetails, Plan plan) {
+    void updatePlanAndServiceDetails(
+            final ServiceInstance serviceInstance,
+            final String updateParameters, final Collection<ServiceDetail> serviceDetails, Plan plan) {
         serviceInstance.plan = plan
         serviceInstance.parameters = mergeServiceInstanceParameter(serviceInstance.parameters, updateParameters)
         serviceInstanceRepository.saveAndFlush(serviceInstance)
         updateServiceDetails(serviceDetails, serviceInstance)
     }
 
-    private void updateServiceDetails(final Collection<ServiceDetail> serviceDetails, final ServiceInstance serviceInstance) {
+    private void updateServiceDetails(
+            final Collection<ServiceDetail> serviceDetails, final ServiceInstance serviceInstance) {
         provisioningPersistenceService.updateServiceDetails(serviceDetails, serviceInstance)
     }
 
@@ -68,6 +71,6 @@ class UpdatingPersistenceService {
         if (StringUtils.isEmpty(jsonMap))
             return new HashMap()
         def result = new JsonSlurper().parseText(jsonMap)
-        return (Map)result
+        return (Map) result
     }
 }

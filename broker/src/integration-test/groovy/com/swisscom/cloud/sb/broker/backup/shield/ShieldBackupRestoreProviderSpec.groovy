@@ -33,7 +33,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         }
 
         @Override
-        Collection<Extension> buildExtensions(){
+        Collection<Extension> buildExtensions() {
             return [new Extension(discovery_url: "something")]
         }
     }
@@ -105,7 +105,9 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId, backup) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
+        shieldClient.getJobStatus(backup.externalId, backup) >> {
+            throw new ShieldResourceNotFoundException("Doesntmatter")
+        }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
@@ -161,9 +163,9 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         expect:
         DummyShieldBackupRestoreProvider.convertBackupStatus(jobStatus) == backupStatus
         where:
-        jobStatus          | backupStatus
-        JobStatus.RUNNING  | Backup.Status.IN_PROGRESS
-        JobStatus.FAILED   | Backup.Status.FAILED
+        jobStatus            | backupStatus
+        JobStatus.RUNNING    | Backup.Status.IN_PROGRESS
+        JobStatus.FAILED     | Backup.Status.FAILED
         JobStatus.SUCCESSFUL | Backup.Status.SUCCESS
     }
 }

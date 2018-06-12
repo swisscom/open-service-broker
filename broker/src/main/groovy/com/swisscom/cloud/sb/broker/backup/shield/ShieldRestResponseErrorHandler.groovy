@@ -8,7 +8,7 @@ import org.springframework.web.client.ResponseErrorHandler
 class ShieldRestResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
-    void handleError(ClientHttpResponse response) throws IOException{
+    void handleError(ClientHttpResponse response) throws IOException {
         String errorMessage = "Rest call to Shield failed with status:${response.statusCode}"
         // Shield raises a 501 and not a 404 if you query GET /v1/task/null or /v1/task/; let's handle this as it were a 404
         if (HttpStatus.NOT_IMPLEMENTED == response.statusCode) {
