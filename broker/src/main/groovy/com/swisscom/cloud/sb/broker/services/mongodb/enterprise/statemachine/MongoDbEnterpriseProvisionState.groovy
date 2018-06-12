@@ -14,6 +14,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpris
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerGroup
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
@@ -70,14 +71,16 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         String findTargetCompatibillityVersion(LastOperationJobContext context) {
             if (context.updateRequest != null) {
                 if (context.updateRequest.parameters != null) {
-                    if (context.updateRequest.parameters["featureCompatibilityVersion"] != null) {
-                        return context.updateRequest.parameters["featureCompatibilityVersion"]
+                    def parsedContext = new JsonSlurper().parse(context.updateRequest.parameters)
+                    if (parsedContext["featureCompatibilityVersion"] != null) {
+                        return parsedContext["featureCompatibilityVersion"]
                     }
                 }
             } else if (context.provisionRequest != null) {
                 if (context.provisionRequest.parameters != null) {
-                    if (context.provisionRequest.parameters["featureCompatibilityVersion"] != null) {
-                        return context.provisionRequest.parameters["featureCompatibilityVersion"]
+                    def parsedContext = new JsonSlurper().parse(context.provisionRequest.parameters)
+                    if (parsedContext["featureCompatibilityVersion"] != null) {
+                        return parsedContext["featureCompatibilityVersion"]
                     }
                 }
             }
