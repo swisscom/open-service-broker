@@ -51,7 +51,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
             String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
             int initialAutomationVersion = stateContext.opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId)
-            MongoDbEnterpriseDeployment deployment = stateContext.opsManagerFacade.deployReplicaSet(groupId, stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid,
+            MongoDbEnterpriseDeployment deployment = stateContext.opsManagerFacade.deployReplicaSet(groupId, stateContext.lastOperationJobContext.serviceInstance.guid,
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(ServiceDetailKey.PORT) as int,
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER),
                     ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD),
