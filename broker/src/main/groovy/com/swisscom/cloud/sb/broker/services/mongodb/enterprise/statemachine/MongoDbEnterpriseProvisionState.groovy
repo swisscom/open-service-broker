@@ -57,7 +57,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
                         go2NextState: stateContext.opsManagerFacade.updateReplicaSet(groupId,
                                 findTargetMongoDBVersion(stateContext),
                                 findTargetCompatibillityVersion(stateContext.lastOperationJobContext)),
-                        details: [from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion + 1))])
+                        details: [from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion))])
 
             } else if (stateContext.lastOperationJobContext.provisionRequest) {
                 MongoDbEnterpriseDeployment deployment = stateContext.opsManagerFacade.deployReplicaSet(groupId, stateContext.lastOperationJobContext.serviceInstance.guid,
