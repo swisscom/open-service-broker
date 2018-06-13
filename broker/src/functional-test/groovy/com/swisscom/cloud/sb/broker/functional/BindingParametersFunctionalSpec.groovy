@@ -78,7 +78,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.NOT_FOUND
+        ex.statusCode == HttpStatus.BAD_REQUEST
     }
 
     def "provision async service instance and bind with parameters with bindings retrievable"() {
@@ -139,11 +139,17 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def "deprovision async service instance"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+        def serviceBindingGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert()
+
         when:
-        serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
+        serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
 
         then:
         noExceptionThrown()
     }
-
 }
