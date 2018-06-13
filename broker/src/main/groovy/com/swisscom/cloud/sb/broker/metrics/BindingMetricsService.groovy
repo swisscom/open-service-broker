@@ -41,15 +41,15 @@ import java.util.function.ToDoubleFunction
 @Slf4j
 class BindingMetricsServiceService extends ServiceBrokerMetricsService {
 
-    final String BINDING = "binding"
-    final String BINDING_REQUEST = "bindingRequest"
+    private final String BINDING = "binding"
+    private final String BINDING_REQUEST = "bindingRequest"
 
-    ServiceBindingRepository serviceBindingRepository
-    MeterRegistry meterRegistry
+    private ServiceBindingRepository serviceBindingRepository
+    private MeterRegistry meterRegistry
 
-    HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
-    HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
-    HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
+    private HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
+    private HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
+    private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
     BindingMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
@@ -159,9 +159,6 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
             meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}".toString(), Tags.empty(), entry.getValue())
         }
 
-        if(totalFailedBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
-            totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
-        }
         totalFailedBindingRequestsPerService.each { entry ->
             meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}".toString(), Tags.empty(), entry.getValue())
         }
