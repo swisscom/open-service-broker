@@ -56,15 +56,15 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
                 return new StateChangeActionResult(
                         go2NextState: stateContext.opsManagerFacade.updateReplicaSet(groupId,
                                 findTargetMongoDBVersion(stateContext),
-                                findTargetCompatibillityVersion(stateContext.lastOperationJobContext)),
-                        details: [from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion))])
+                                findTargetCompatibillityVersion(stateContext.lastOperationJobContext)))
 
             } else if (stateContext.lastOperationJobContext.provisionRequest) {
                 MongoDbEnterpriseDeployment deployment = stateContext.opsManagerFacade.deployReplicaSet(groupId, stateContext.lastOperationJobContext.serviceInstance.guid,
                         ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(ServiceDetailKey.PORT) as int,
                         ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_USER),
                         ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD),
-                        findTargetMongoDBVersion(stateContext), findTargetCompatibillityVersion(stateContext.lastOperationJobContext))
+                        findTargetMongoDBVersion(stateContext),
+                        findTargetCompatibillityVersion(stateContext.lastOperationJobContext))
                 return new StateChangeActionResult(go2NextState: true, details: [from(ServiceDetailKey.DATABASE, deployment.database),
                                                                                  from(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, String.valueOf(initialAutomationVersion + 1)),
                                                                                  from(MONGODB_ENTERPRISE_REPLICA_SET, deployment.replicaSet),
@@ -105,10 +105,13 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
             String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
-            int targetAutomationGoalVersion = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) as int
-            return new StateChangeActionResult(go2NextState: stateContext.opsManagerFacade.isAutomationUpdateComplete(groupId, targetAutomationGoalVersion))
+            if (stateContext.lastOperationJobContext.provisionRequest) {
+                int targetAutomationGoalVersion = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) as int
+                return new StateChangeActionResult(go2NextState: stateContext.opsManagerFacade.isAutomationUpdateComplete(groupId, targetAutomationGoalVersion))
+            } else if (stateContext.lastOperationJobContext.updateRequest) {
+                return new StateChangeActionResult(go2NextState: stateContext.opsManagerFacade.isAutomationUpdateComplete(groupId))
+            }
         }
-
     }),
     ENABLE_BACKUP_IF_CONFIGURED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
