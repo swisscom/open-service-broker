@@ -76,7 +76,7 @@ class CredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "deprovision async service instance and delete credential from CredHub"() {
         when:
-        serviceLifeCycler.deleteServiceBindingAndServiceInstaceAndAssert()
+        serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
 
         then:
         noExceptionThrown()

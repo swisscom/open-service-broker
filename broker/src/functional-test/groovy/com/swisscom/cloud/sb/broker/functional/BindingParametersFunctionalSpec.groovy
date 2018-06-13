@@ -78,7 +78,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.NOT_FOUND
+        ex.statusCode == HttpStatus.BAD_REQUEST
     }
 
     def "provision async service instance and bind with parameters with bindings retrievable"() {

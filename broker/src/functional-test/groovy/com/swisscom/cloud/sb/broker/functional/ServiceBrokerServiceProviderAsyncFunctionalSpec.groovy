@@ -9,7 +9,7 @@ import com.swisscom.cloud.sb.client.model.LastOperationState
 
 class ServiceBrokerServiceProviderAsyncFunctionalSpec extends BaseFunctionalSpec {
 
-    private final int MAX_TIME_TO_WAIT_FOR_PROVISION = 60
+    private final int MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS = 60
 
     private
     final String ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID = "asyncServiceBrokerServiceProviderInstanceId"
@@ -54,12 +54,12 @@ class ServiceBrokerServiceProviderAsyncFunctionalSpec extends BaseFunctionalSpec
         when:
         serviceLifeCycler.setServiceInstanceId(ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.createServiceInstanceAndAssert(0, true, true)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION, ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS, ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         and:
         serviceLifeCycler.setServiceInstanceId(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION, ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS, ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         then:
@@ -82,12 +82,12 @@ class ServiceBrokerServiceProviderAsyncFunctionalSpec extends BaseFunctionalSpec
         serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS + 50)
 
         then:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION, ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS, ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_SERVICE_BROKER__SERVICE_PROVIDER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         and:
         serviceLifeCycler.setServiceInstanceId(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION, ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS, ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID)
         serviceLifeCycler.getServiceInstanceStatus(ASYNC_DUMMY_SERVICE_BROKER_SERVICE_INSTANCE_ID).state == LastOperationState.SUCCEEDED
 
         cleanup:
@@ -107,7 +107,7 @@ class ServiceBrokerServiceProviderAsyncFunctionalSpec extends BaseFunctionalSpec
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(0, true, true, ['success': false])
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(MAX_TIME_TO_WAIT_FOR_PROVISION_IN_SECONDS)
         assert serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.FAILED
 
         then:
