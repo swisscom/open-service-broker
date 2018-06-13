@@ -159,6 +159,9 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
             meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${SUCCESS}".toString(), Tags.empty(), entry.getValue())
         }
 
+        if(totalFailedBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
+            totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
+        }
         totalFailedBindingRequestsPerService.each { entry ->
             meterRegistry.gauge("${BINDING_REQUEST}.${SERVICE}.${FAIL}".toString(), Tags.empty(), entry.getValue())
         }
