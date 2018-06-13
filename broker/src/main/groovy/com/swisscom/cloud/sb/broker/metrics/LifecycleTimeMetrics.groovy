@@ -5,25 +5,31 @@ import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Tags
+import io.micrometer.influx.InfluxConfig
+import io.micrometer.influx.InfluxMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
+
+import java.time.Duration
 
 @Service
 @CompileStatic
 class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
     private final String LIFECYCLE_TIME = "lifecycleTime"
-    private MeterRegistry meterRegistry
 
-    private HashMap<String, Long> totalLifecycleTimePerService = new HashMap<>()
-    private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
+    private HashMap<String, Long> totalLifecycleTimePerService
+    private HashMap<String, Long> totalNrOfDeleteInstancesPerService
 
     @Autowired
     LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
-        this.meterRegistry = meterRegistry
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -76,16 +82,7 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         return totalLifecycleTimePerService
     }
 
-    double getRandomDouble() {
-        addMetricsToMeterRegistry(meterRegistry)
-        Math.random()
-    }
-
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        addMetricsGauge(meterRegistry, "fake", {getRandomDouble()})
-        if(totalLifecycleTimePerService.size() < cfServiceRepository.findAll().size()) {
-            totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
-        }
         totalLifecycleTimePerService.each { entry ->
             addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {prepareMetricsForMetericsCollection().get(entry.getKey()).toDouble()})
         }
