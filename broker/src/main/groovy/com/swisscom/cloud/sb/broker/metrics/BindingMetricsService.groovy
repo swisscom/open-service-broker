@@ -33,15 +33,15 @@ import org.springframework.stereotype.Service
 @Slf4j
 class BindingMetricsService extends ServiceBrokerMetrics {
 
-    private final String BINDING = "binding"
-    private final String BINDING_REQUEST = "bindingRequest"
+    final String BINDING = "binding"
+    final String BINDING_REQUEST = "bindingRequest"
 
-    private ServiceBindingRepository serviceBindingRepository
-    private MeterRegistry meterRegistry
+    ServiceBindingRepository serviceBindingRepository
+    MeterRegistry meterRegistry
 
-    private HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
-    private HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
-    private HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
+    HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
+    HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
+    HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
     BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MeterRegistry meterRegistry) {
@@ -144,6 +144,9 @@ class BindingMetricsService extends ServiceBrokerMetrics {
             })
         }
 
+        if(totalFailedBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
+            totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
+        }
         totalFailedBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
                 totalFailedBindingRequestsPerService.get(entry.getKey()).toDouble()
