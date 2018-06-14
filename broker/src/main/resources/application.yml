@@ -75,6 +75,18 @@ com.swisscom.cloud.sb.broker.backup:
   retryIntervalInSeconds: 10
   maxRetryDurationInMinutes: 30
 
+com.swisscom.cloud.sb.broker.service.mariadb:
+  nameOfDefault: "default"
+  clusters:
+  - name: "default"
+    host: 127.0.0.1
+    port: 3306
+    adminUser: 'root'
+    adminPassword:
+    databasePrefix: 'cfdb_'
+    shieldAgentUrl: '127.0.0.1:5444'
+    discoveryURL: "http://localhost:8080/v2/api-docs"
+
 com.swisscom.cloud.sb.broker.shield:
   baseUrl: 'https://shield.service.consul:8002'
   apiKey:
