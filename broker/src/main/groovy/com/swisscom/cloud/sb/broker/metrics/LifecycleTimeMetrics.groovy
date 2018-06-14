@@ -90,6 +90,11 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
+        addMetricsGauge(meterRegistry, "fake", {addMetricsToMeterRegistry(meterRegistry)
+        Math.random()})
+        if (totalLifecycleTimePerService.size() < cfServiceRepository.findAll().size()) {
+            totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
+        }
         totalLifecycleTimePerService.each { entry ->
             addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {prepareMetricsForMetericsCollection().get(entry.getKey()).toDouble()})
         }
