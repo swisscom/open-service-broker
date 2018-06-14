@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Rename deleteServiceBindingAndServiceInstaceAndAssert function in the ServiceLifeCylcer to deleteServiceBindingAndServiceInstanceAndAssert
 - Fix method calls in StateBasedServiceProvider (#123)
+- Add MariaDB Service Provider
 - [MAJOR] Change return type of value in ExtendedUsage EndPoint from string to float (#125)
 
 ## [3.0.0] - 2018-06-07
