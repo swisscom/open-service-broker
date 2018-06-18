@@ -66,13 +66,13 @@ class DummySynchronousExtendedUsageServiceProvider implements ServiceProvider, E
         return [
                 new ServiceUsageItem(
                         property: "cpu",
-                        value: "1",
+                        value: 1.0f,
                         unit: "number",
                         type: ServiceUsageType.WATERMARK
                 ),
                 new ServiceUsageItem(
                         property: "ram",
-                        value: "1",
+                        value: 1.0f,
                         unit: "gb",
                         type: ServiceUsageType.WATERMARK
                 )
