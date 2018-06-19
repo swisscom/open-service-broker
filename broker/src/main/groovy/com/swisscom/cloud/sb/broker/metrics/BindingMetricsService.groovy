@@ -121,8 +121,6 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     }
 
     double getSuccessfulBindingCount(Entry<String, Long> entry) {
-        log.info("Entry: ${entry.getKey()}, ${entry.getValue()}")
-        log.info("ServiceBindingRepository size: ${serviceBindingRepository.findAll().size()}")
         def serviceBindings = serviceBindingRepository.findAll()
         if (serviceBindings.size() > 0) {
             return retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings).get(entry.getKey()).toDouble()
@@ -130,7 +128,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         0.0
     }
 
-    double getBindingRequestCount(HashMap<String, Long> bindingRequestsPerService, Entry<String, Long> entry) {
+    double getBindingRequestCountForEntryFromHashMap(HashMap<String, Long> bindingRequestsPerService, Entry<String, Long> entry) {
         if (bindingRequestsPerService.size() > 0) {
             return bindingRequestsPerService.get(entry.getKey()).toDouble()
         }
@@ -153,7 +151,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getBindingRequestCount(totalBindingRequestsPerService, entry)
+                getBindingRequestCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
             })
         }
 
@@ -162,7 +160,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalSuccessfulBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
-                getBindingRequestCount(totalSuccessfulBindingRequestsPerService, entry)
+                getBindingRequestCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
             })
         }
 
@@ -171,61 +169,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalFailedBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
-                getBindingRequestCount(totalFailedBindingRequestsPerService, entry)
-            })
-        }
-    }
-
-    @Override
-    Collection<Metric<?>> metrics() {
-        List<Metric<?>> metrics = new ArrayList<>()
-    double getBindingCount() {
-        retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll()).toDouble()
-    }
-
-    double getSuccessfulBindingCount(Entry<String, Long> entry) {
-        def serviceBindings = serviceBindingRepository.findAll()
-        if (serviceBindings.size() > 0) {
-            return retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings).get(entry.getKey()).toDouble()
-        }
-        0.0
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
-        List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
-        addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() })
-
-        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
-        totalNrOfSuccessfulBindingsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getSuccessfulBindingCount(entry)
-            })
-        }
-
-        if (totalBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
-            totalBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalBindingRequestsPerService, cfServiceRepository)
-        }
-        totalBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
-            })
-        }
-
-        if (totalSuccessfulBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
-            totalSuccessfulBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalSuccessfulBindingRequestsPerService, cfServiceRepository)
-        }
-        totalSuccessfulBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
-            })
-        }
-
-        if (totalFailedBindingRequestsPerService.size() < cfServiceRepository.findAll().size()) {
-            totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
-        }
-        totalFailedBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
+                getBindingRequestCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
             })
         }
     }
