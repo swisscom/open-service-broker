@@ -14,6 +14,16 @@ spring:
     username: root
     password:
 
+  credhub:
+    enable: false
+    url: https://credhub.service.consul:8844
+    oauth2-resourceowner:
+      username:
+      password:
+      client-id: credhub_cli
+      client-secret:
+      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+
 management:
   metrics:
     export:
@@ -21,6 +31,17 @@ management:
         uri: http://localhost:8086
         db: mydb
         steps: 5s
+
+#  credhub:
+#    url: https://credhub.service.consul:8844
+#    oauth2-resourceowner:
+#      username:
+#      password:
+#      client-id: credhub_cli
+#      client-secret:
+#      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+
+
 
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
@@ -53,6 +74,18 @@ com.swisscom.cloud.sb.broker.security.platformUsers:
 com.swisscom.cloud.sb.broker.backup:
   retryIntervalInSeconds: 10
   maxRetryDurationInMinutes: 30
+
+com.swisscom.cloud.sb.broker.service.mariadb:
+  nameOfDefault: "default"
+  clusters:
+  - name: "default"
+    host: 127.0.0.1
+    port: 3306
+    adminUser: 'root'
+    adminPassword:
+    databasePrefix: 'cfdb_'
+    shieldAgentUrl: '127.0.0.1:5444'
+    discoveryURL: "http://localhost:8080/v2/api-docs"
 
 com.swisscom.cloud.sb.broker.shield:
   baseUrl: 'https://shield.service.consul:8002'
@@ -138,6 +171,10 @@ com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
     INFLUXDB_PASS: # Bosh
     ENVIRONMENT: # Deployment
     SHIELD_AUTHORIZED_KEYS: # Deployment
+
+com.swisscom.cloud.sb.broker.service.servicebrokerserviceprovider:
+  retryIntervalInSeconds: 5
+  maxRetryDurationInMinutes: 600
 
 com.swisscom.cloud.sb.broker.serviceDefinitions: []
 

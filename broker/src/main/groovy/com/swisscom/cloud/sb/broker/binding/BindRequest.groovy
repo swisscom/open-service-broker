@@ -6,6 +6,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 
 class BindRequest {
     ServiceInstance serviceInstance
+    String binding_guid
     String app_guid
     Plan plan
     CFService service

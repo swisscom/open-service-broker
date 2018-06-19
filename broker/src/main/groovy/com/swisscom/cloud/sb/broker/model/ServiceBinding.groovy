@@ -39,6 +39,8 @@ class ServiceBinding extends BaseModel {
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
 
+    String credhubCredentialId
+
     @Override
     String toString() {
         return "ServiceBinding{" +

@@ -65,10 +65,13 @@ dependencies {
     compile('com.networknt:json-schema-validator:0.1.19')
     compile('io.swagger.parser.v3:swagger-parser:2.0.1')
     compile('org.passay:passay:1.3.1')
+    compile('org.springframework.credhub:spring-credhub-starter:1.0.1.RELEASE')
+    compile 'org.springframework.security.oauth:spring-security-oauth2:2.3.2.RELEASE'
+
     compile project(':model')
     compile project(':client')
     // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
-    compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
+    compile group: 'org.apache.tomcat', name: 'tomcat-juli', version: property('tomcat.version')
 
     runtime('mysql:mysql-connector-java')
     runtime('javax.el:javax.el-api:3.0.0')

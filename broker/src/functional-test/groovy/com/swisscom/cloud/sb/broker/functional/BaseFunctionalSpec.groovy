@@ -23,6 +23,7 @@ import spock.lang.Stepwise
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ContextConfiguration
 abstract class BaseFunctionalSpec extends Specification {
+
     @Autowired
     protected WebApplicationContext applicationContext
 
