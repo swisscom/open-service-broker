@@ -6,7 +6,9 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
+import groovy.transform.CompileStatic
 
+@CompileStatic
 abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> extends AsyncServiceProvider<T> {
 
     @Override
@@ -42,15 +44,15 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
     }
 
     protected ServiceStateWithAction getProvisionInitialState(LastOperationJobContext lastOperationJobContext) {
-        getStateMachineForOperation(LastOperation.Operation.PROVISION).states.first()
+        getStateMachineForOperation(lastOperationJobContext, LastOperation.Operation.PROVISION).states.first()
     }
 
     protected ServiceStateWithAction getDeprovisionInitialState(LastOperationJobContext lastOperationJobContext) {
-        getStateMachineForOperation(LastOperation.Operation.DEPROVISION).states.first()
+        getStateMachineForOperation(lastOperationJobContext, LastOperation.Operation.DEPROVISION).states.first()
     }
 
     protected ServiceStateWithAction getUpdateInitialState(LastOperationJobContext lastOperationJobContext) {
-        getStateMachineForOperation(LastOperation.Operation.UPDATE).states.first()
+        getStateMachineForOperation(lastOperationJobContext, LastOperation.Operation.UPDATE).states.first()
     }
 
     protected ServiceStateWithAction getInitialState(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
