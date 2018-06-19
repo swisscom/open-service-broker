@@ -4,7 +4,7 @@ import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 
 class ServiceUsageItem implements Serializable {
     String property
-    String value
+    float value
     String unit
 
     ServiceUsageType type
@@ -12,10 +12,10 @@ class ServiceUsageItem implements Serializable {
     @Override
     public String toString() {
         return "ServiceUsageItem{" +
-                "property=" + property +
-                ", value='" + value + '\'' +
-                ", unit=" + unit +
-                ", type=" + type +
+                "property='" + property + "'" +
+                ", value=" + value +
+                ", unit='" + unit + "'" +
+                ", type='" + type + "'" +
                 '}';
     }
 }
