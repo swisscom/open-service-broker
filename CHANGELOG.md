@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Rename deleteServiceBindingAndServiceInstaceAndAssert function in the ServiceLifeCylcer to deleteServiceBindingAndServiceInstanceAndAssert
-- Fix method calls in StateBasedServiceProvider (#123)
+
 
 ## [3.0.0] - 2018-06-07
 - Fix issue that StateMachineBasedServiceProvider has no access to Context information (#116)
