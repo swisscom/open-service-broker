@@ -101,15 +101,6 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     }
 
     @Override
-    Collection<Metric<?>> metrics() {
-        List<Metric<?>> metrics = new ArrayList<>()
-
-        def lifecycleTimePerService = prepareMetricsForMetericsCollection()
-        metrics = addCountersFromHashMapToMetrics(lifecycleTimePerService, lifecycleTimePerService, metrics, LIFECYCLE_TIME, SERVICE, TOTAL)
-        return metrics
-    }
-
-    @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {
         return false
     }
