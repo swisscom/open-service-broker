@@ -17,7 +17,7 @@ import java.util.function.ToDoubleFunction
 
 @CompileStatic
 @Slf4j
-abstract class ServiceBrokerMetrics implements PublicMetrics {
+abstract class ServiceBrokerMetrics {
 
     protected final String SUCCESS = "success"
     protected final String FAIL = "fail"
@@ -36,10 +36,6 @@ abstract class ServiceBrokerMetrics implements PublicMetrics {
         this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository
     }
-
-    //abstract void addMetricsToMeterRegistry(MeterRegistry meterRegistry, List<?> list)
-
-    abstract Collection<Metric<?>> metrics()
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
         def totalCounter = 0

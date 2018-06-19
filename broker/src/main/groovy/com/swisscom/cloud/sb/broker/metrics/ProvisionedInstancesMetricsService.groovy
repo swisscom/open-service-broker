@@ -32,29 +32,4 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     String tag() {
         return ProvisionedInstancesMetricsService.class.getSimpleName()
     }
-
-    @Override
-    Collection<Metric<?>> metrics() {
-        List<Metric<?>> metrics = new ArrayList<>()
-        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
-
-        def totalMetrics = retrieveTotalMetrics(serviceInstanceList)
-        metrics.add(new Metric<Long>("${PROVISIONED_INSTANCES}.${TOTAL}.${TOTAL}", totalMetrics.total))
-        metrics.add(new Metric<Long>("${PROVISIONED_INSTANCES}.${TOTAL}.${SUCCESS}", totalMetrics.totalSuccess))
-        metrics.add(new Metric<Long>("${PROVISIONED_INSTANCES}.${TOTAL}.${FAIL}", totalMetrics.totalFailures))
-        metrics.add(new Metric<Double>("${PROVISIONED_INSTANCES}.${SUCCESS}.${RATIO}", calculateRatio(totalMetrics.total, totalMetrics.totalSuccess)))
-        metrics.add(new Metric<Double>("${PROVISIONED_INSTANCES}.${FAIL}.${RATIO}", calculateRatio(totalMetrics.total, totalMetrics.totalFailures)))
-
-        def totalMetricsPerService = retrieveTotalMetricsPerService(serviceInstanceList)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.total, metrics, PROVISIONED_INSTANCES, SERVICE, TOTAL)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.totalSuccess, metrics, PROVISIONED_INSTANCES, SERVICE, SUCCESS)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerService.total, totalMetricsPerService.totalFailures, metrics, PROVISIONED_INSTANCES, SERVICE, FAIL)
-
-        def totalMetricsPerPlan = retrieveTotalMetricsPerPlan(serviceInstanceList)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.total, metrics, PROVISIONED_INSTANCES, PLAN, TOTAL)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.totalSuccess, metrics, PROVISIONED_INSTANCES, PLAN, SUCCESS)
-        metrics = addCountersFromHashMapToMetrics(totalMetricsPerPlan.total, totalMetricsPerPlan.totalFailures, metrics, PROVISIONED_INSTANCES, PLAN, FAIL)
-
-        return metrics
-    }
 }
