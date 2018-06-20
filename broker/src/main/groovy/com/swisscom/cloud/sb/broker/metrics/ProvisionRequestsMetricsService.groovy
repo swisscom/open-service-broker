@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.metrics
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
@@ -40,6 +41,11 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
 
     }
+
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository) {
+        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
+    }
+
 
     @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {
