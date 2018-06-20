@@ -48,7 +48,7 @@ abstract class ServiceBrokerMetrics {
     protected PlanRepository planRepository
 
     @Autowired
-    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository) {
+    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository) {
         this.serviceInstanceRepository = serviceInstanceRepository
         this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository
