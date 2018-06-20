@@ -36,7 +36,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
         this.serviceBindingRepository = serviceBindingRepository
         this.meterRegistry = meterRegistry
-        addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository, cfServiceRepository)
     }
 
     long retrieveMetricsForTotalNrOfSuccessfulBindings(List<ServiceBinding> serviceBindingList) {
@@ -45,7 +45,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         return totalNrOfSuccessfulBindings
     }
 
-    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList) {
+    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList, CFServiceRepository cfServiceRepository) {
         HashMap<String, Long> totalHm = new HashMap<>()
         totalHm = harmonizeServicesHashMapsWithServicesInRepository(totalHm, cfServiceRepository)
 
@@ -102,22 +102,22 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll()).toDouble()
     }
 
-    double getSuccessfulBindingCount(Entry<String, Long> entry) {
+    double getSuccessfulBindingCount(Entry<String, Long> entry, CFServiceRepository cfServiceRepository) {
         def serviceBindings = serviceBindingRepository.findAll()
         if (serviceBindings.size() > 0) {
-            return retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings).get(entry.getKey()).toDouble()
+            return retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings, cfServiceRepository).get(entry.getKey()).toDouble()
         }
         0.0
     }
-    
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
+
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository, CFServiceRepository cfServiceRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() })
 
-        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
+        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList, cfServiceRepository)
         totalNrOfSuccessfulBindingsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getSuccessfulBindingCount(entry)
+                getSuccessfulBindingCount(entry, cfServiceRepository)
             })
         }
 

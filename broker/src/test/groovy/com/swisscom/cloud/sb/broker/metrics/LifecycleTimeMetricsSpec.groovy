@@ -2,15 +2,22 @@ package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import io.micrometer.core.instrument.MeterRegistry
 import spock.lang.Specification
 
 class LifecycleTimeMetricsSpec extends Specification {
 
     private ServiceInstanceRepository serviceInstanceRepository
+    private CFServiceRepository cfServiceRepository
     private LastOperationRepository lastOperationRepository
+    private PlanRepository planRepository
+    private MeterRegistry meterRegistry
     private LifecycleTimeMetrics lifecylceTimeMetrics
 
     private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 = 20
@@ -20,9 +27,14 @@ class LifecycleTimeMetricsSpec extends Specification {
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        cfServiceRepository = Mock(CFServiceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        lifecylceTimeMetrics = new LifecycleTimeMetrics(serviceInstanceRepository, lastOperationRepository)
-    }
+        planRepository = Mock(PlanRepository)
+        meterRegistry = Mock(MeterRegistry)
+        cfServiceRepository.findAll() >> new ArrayList<CFService>()
+
+        lifecylceTimeMetrics = new LifecycleTimeMetrics(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
+        }
 
     def "retrieve mean lifecycle time per service"() {
         setup:
