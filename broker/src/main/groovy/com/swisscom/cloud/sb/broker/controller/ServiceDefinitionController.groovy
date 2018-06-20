@@ -21,6 +21,7 @@ import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetrics
 import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsService
 import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsService
 import com.swisscom.cloud.sb.broker.metrics.ServiceBrokerMetrics
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
@@ -40,6 +41,8 @@ class ServiceDefinitionController extends BaseController {
     @VisibleForTesting
     @Autowired
     private ServiceDefinitionProcessor serviceDefinitionProcessor
+    @Autowired
+    CFServiceRepository cfServiceRepository
     @Autowired
     BindingMetricsService bindingMetricsService
     @Autowired
@@ -64,7 +67,7 @@ class ServiceDefinitionController extends BaseController {
     }
 
     void registerNewServiceWithMetricsService(){
-        bindingMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository)
+        bindingMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository, cfServiceRepository)
         lifecycleTimeMetrics.addMetricsToMeterRegistry(meterRegistry)
         provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
         provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)

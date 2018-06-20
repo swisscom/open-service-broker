@@ -19,19 +19,31 @@ import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import io.micrometer.core.instrument.MeterRegistry
 import spock.lang.Specification
 
 class ProvisionRequestsMetricsServiceSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
+    private CFServiceRepository cfServiceRepository
     private LastOperationRepository lastOperationRepository
+    private PlanRepository planRepository
+    private MeterRegistry meterRegistry
     private ProvisionRequestsMetricsService provisionRequestsMetricsService
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        cfServiceRepository = Mock(CFServiceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        provisionRequestsMetricsService = new ProvisionRequestsMetricsService(serviceInstanceRepository, lastOperationRepository)
+        planRepository = Mock(PlanRepository)
+        meterRegistry = Mock(MeterRegistry)
+        serviceInstanceRepository.findAll() >> new ArrayList<ServiceInstance>()
+        cfServiceRepository.findAll() >> new ArrayList<CFService>()
+
+        provisionRequestsMetricsService = new ProvisionRequestsMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
     }
 
     def "retrieve total nr of provision Requests"() {
