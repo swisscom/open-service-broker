@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.metrics
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
@@ -32,10 +33,15 @@ class ProvisionRequestsMetricsService extends ServiceBrokerMetrics {
     private final String PROVISION_REQUEST = "provisionRequest"
 
     @Autowired
-    ProvisionRequestsMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
-        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
+    ProvisionRequestsMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
     }
+
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository) {
+        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
+    }
+
 
     @Override
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {

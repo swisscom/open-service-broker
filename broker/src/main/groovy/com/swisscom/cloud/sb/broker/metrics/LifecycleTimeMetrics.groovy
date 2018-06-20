@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.metrics
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
@@ -35,8 +36,8 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
 
     @Autowired
-    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
+    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -89,14 +90,22 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
         return totalLifecycleTimePerService
     }
 
+    double getTotalLifecycleTime(Map.Entry<String, Long> entry) {
+        def totalLifecycleTime = prepareMetricsForMetericsCollection()
+        if(totalLifecycleTime.size() > 0) {
+            return totalLifecycleTime.get(entry.getKey()).toDouble()
+        }
+        0.0
+    }
+
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        addMetricsGauge(meterRegistry, "fake", {addMetricsToMeterRegistry(meterRegistry)
-        0.toDouble()})
+        /*addMetricsGauge(meterRegistry, "fake", {addMetricsToMeterRegistry(meterRegistry)
+        0.toDouble()})*/
         if (totalLifecycleTimePerService.size() < cfServiceRepository.findAll().size()) {
             totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
         }
         totalLifecycleTimePerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {totalLifecycleTimePerService.get(entry.getKey()).toDouble()})
+            addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {getTotalLifecycleTime(entry)})
         }
     }
 
