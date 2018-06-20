@@ -47,7 +47,6 @@ management:
 #      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
 
 
-
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
   enabled: false
