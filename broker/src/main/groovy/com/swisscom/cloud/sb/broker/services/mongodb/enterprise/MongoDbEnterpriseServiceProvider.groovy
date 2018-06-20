@@ -10,7 +10,6 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -26,7 +25,6 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsMa
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
-import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
@@ -34,7 +32,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import javax.annotation.PostConstruct
 
@@ -102,6 +99,39 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     private String getOpsManagerUrl() {
         def mongodbConfig = (MongoDbEnterpriseConfig) serviceConfig
         return mongodbConfig.opsManagerUrlForAutomationAgent ?: mongodbConfig.opsManagerUrl
+    }
+
+    @Override
+    AsyncOperationResult requestUpdate(LastOperationJobContext context) {
+        // verify upgrade possible
+        if (context.updateRequest.plan == context.updateRequest.previousPlan) {
+            // perform upgrade
+            StateMachine stateMachine = createUpdateStateMachine()
+            ServiceStateWithAction currentState = getUpdateState(context)
+            def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
+            return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
+        } else {
+            // throw error for impossible upgrade
+            ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+            return null
+        }
+    }
+
+    @VisibleForTesting
+    private StateMachine createUpdateStateMachine() {
+        StateMachine stateMachine = new StateMachine([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, PROVISION_SUCCESS])
+        return stateMachine
+    }
+
+    @VisibleForTesting
+    private ServiceStateWithAction getUpdateState(LastOperationJobContext context) {
+        ServiceStateWithAction provisionState = null
+        if (!context.lastOperation.internalState) {
+            provisionState = MongoDbEnterpriseProvisionState.CHECK_AGENTS
+        } else {
+            provisionState = MongoDbEnterpriseProvisionState.of(context.lastOperation.internalState)
+        }
+        return provisionState
     }
 
     @Override
@@ -201,11 +231,6 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
                 ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
                 ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
         opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
-    }
-
-    UpdateResponse update(UpdateRequest request) {
-        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
-        return null
     }
 
     public static String getMongoDbGroupId(LastOperationJobContext context) {

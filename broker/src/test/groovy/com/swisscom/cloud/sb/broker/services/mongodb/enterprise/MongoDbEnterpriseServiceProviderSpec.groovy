@@ -15,10 +15,10 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.json.JsonSlurper
 
-import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
+import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
 import static MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
 import static MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
-import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
+import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 import static ServiceDetail.from
 import static ServiceDetailKey.DATABASE
 
@@ -109,6 +109,18 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: PROVISION_SUCCESS.toString()))
         when:
         def result=serviceProvider.requestProvision(context)
+        then:
+        result
+    }
+
+    def "happy path: requestUpdate"(){
+        given:
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: PROVISION_SUCCESS.toString()))
+        and:
+        def plan = new Plan()
+        context.updateRequest = new UpdateRequest(previousPlan: plan, plan: plan)
+        when:
+        def result=serviceProvider.requestUpdate(context)
         then:
         result
     }
