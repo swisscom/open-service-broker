@@ -19,19 +19,31 @@ import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import io.micrometer.core.instrument.MeterRegistry
 import spock.lang.Specification
 
 class ProvisionedInstancesMetricsServiceSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
+    private CFServiceRepository cfServiceRepository
     private LastOperationRepository lastOperationRepository
+    private PlanRepository planRepository
+    private MeterRegistry meterRegistry
     private ProvisionedInstancesMetricsService provisioningMetricsService
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        cfServiceRepository = Mock(CFServiceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        provisioningMetricsService = new ProvisionedInstancesMetricsService(serviceInstanceRepository, lastOperationRepository)
+        planRepository = Mock(PlanRepository)
+        meterRegistry = Mock(MeterRegistry)
+        serviceInstanceRepository.findAll() >> new ArrayList<ServiceInstance>()
+        cfServiceRepository.findAll() >> new ArrayList<CFService>()
+
+        provisioningMetricsService = new ProvisionedInstancesMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
     }
 
     def "retrieve total nr of provisioned instances"() {
@@ -130,7 +142,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
-    def "exclude deleted service instances from total nr of provisioned instances per service"(){
+    def "exclude deleted service instances from total nr of provisioned instances per service"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def deletedServiceInstance = new ServiceInstance()
@@ -161,7 +173,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerService.totalFailures.get(cfService.name) == null
     }
 
-    def "retrieve total number of provisioned instances that failed being provisioned per service"(){
+    def "retrieve total number of provisioned instances that failed being provisioned per service"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def failedServiceInstance = new ServiceInstance()
@@ -221,7 +233,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
-    def "exclude deleted service instances from total nr of provisioned instances per plan"(){
+    def "exclude deleted service instances from total nr of provisioned instances per plan"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def deletedServiceInstance = new ServiceInstance()
@@ -250,7 +262,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         totalMetricsPerPlan.totalFailures.get(plan.name) == null
     }
 
-    def "retrieve total number of provisioned instances that failed being provisioned per plan"(){
+    def "retrieve total number of provisioned instances that failed being provisioned per plan"() {
         setup:
         def serviceInstanceList = new ArrayList<ServiceInstance>()
         def failedServiceInstance = new ServiceInstance()
