@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.broker.metrics
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
@@ -17,10 +18,15 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
     @Autowired
-    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository)
-        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISIONED_INSTANCES)
+    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
     }
+
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository){
+        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISIONED_INSTANCES)
+    }
+
 
     @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {

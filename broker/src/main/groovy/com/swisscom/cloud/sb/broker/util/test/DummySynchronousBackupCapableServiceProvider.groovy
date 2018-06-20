@@ -29,7 +29,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, BackupRestoreProvider, ServiceUsageProvider {
     @Override
     BindResponse bind(BindRequest request) {
-        throw new NotImplementedException()
+        new BindResponse()
     }
 
     @Override
