@@ -21,8 +21,6 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ProvisioningDto
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsService
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
@@ -35,7 +33,6 @@ import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import io.micrometer.core.instrument.MeterRegistry
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.apache.commons.lang.StringUtils
@@ -73,12 +70,6 @@ class ProvisioningController extends BaseController {
     private PlanRepository planRepository
     @Autowired
     private ServiceInstanceDtoConverter serviceInstanceDtoConverter
-    @Autowired
-    ProvisionRequestsMetricsService provisionRequestsMetricsService
-    @Autowired
-    ProvisionedInstancesMetricsService provisionedInstancesMetricsService
-    @Autowired
-    MeterRegistry meterRegistry
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -99,8 +90,6 @@ class ProvisioningController extends BaseController {
         }
 
         ProvisionResponse provisionResponse = provisioningService.provision(request)
-        provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
-        provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
 
         if(provisionResponse.extensions){
             return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),

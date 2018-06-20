@@ -53,10 +53,6 @@ endpoints:
   info:
     enabled: true
     id: version
-  metrics:
-    enabled: true
-  health:
-    enabled: true
 
 server.tomcat.accesslog.enabled: true
 
