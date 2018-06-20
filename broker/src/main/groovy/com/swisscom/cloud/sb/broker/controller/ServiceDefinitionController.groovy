@@ -32,6 +32,10 @@ class ServiceDefinitionController extends BaseController {
     @Autowired
     LifecycleTimeMetrics lifecycleTimeMetrics
     @Autowired
+    ProvisionedInstancesMetricsService provisionedInstancesMetricsService
+    @Autowired
+    ProvisionRequestsMetricsService provisionRequestsMetricsService
+    @Autowired
     MeterRegistry meterRegistry
 
     @ApiOperation(value = "Add/Update service definition", response = ServiceDto)
@@ -47,6 +51,8 @@ class ServiceDefinitionController extends BaseController {
     void registerNewServiceWithMetricsService(){
         bindingMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository)
         lifecycleTimeMetrics.addMetricsToMeterRegistry(meterRegistry)
+        provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
+        provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
     }
 
     @ApiOperation(value = "Get service definition", response = ServiceDto)

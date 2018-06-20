@@ -110,13 +110,6 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         0.0
     }
 
-    double getBindingRequestCountForEntryFromHashMap(HashMap<String, Long> bindingRequestsPerService, Entry<String, Long> entry) {
-        if (bindingRequestsPerService.size() > 0) {
-            return bindingRequestsPerService.get(entry.getKey()).toDouble()
-        }
-        0.0
-    }
-
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() })
@@ -133,7 +126,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getBindingRequestCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
+                getCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
             })
         }
 
@@ -142,7 +135,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalSuccessfulBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
-                getBindingRequestCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
+                getCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
             })
         }
 
@@ -151,7 +144,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
         }
         totalFailedBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
-                getBindingRequestCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
+                getCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
             })
         }
     }
