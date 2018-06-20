@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.metrics.measurements
+package com.swisscom.cloud.sb.broker.util.measurements
 
 import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement

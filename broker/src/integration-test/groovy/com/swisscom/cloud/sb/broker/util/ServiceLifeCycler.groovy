@@ -66,8 +66,8 @@ class ServiceLifeCycler {
 
     @Autowired
     private ApplicationUserConfig userConfig
-    private UserConfig cfAdminUser
-    private UserConfig cfExtUser
+    UserConfig cfAdminUser
+    UserConfig cfExtUser
 
     ServiceLifeCycler() {
         this(UUID.randomUUID().toString(), UUID.randomUUID().toString())
