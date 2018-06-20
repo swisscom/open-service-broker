@@ -26,6 +26,7 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
     final String SERVICE_GUID = "service1GuidIntegrationTest"
     final String PLAN_NAME = "small"
     final String PLAN_GUID = "plan1GuidIntegrationTest"
+    final String BINDING_TOTAL_TOTAL = "binding_total_total"
     final int TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS = 10000
     final int LIFECYCLE_TIME_IN_MILLISECONDS = 6000
     final int WAIT_FOR_SERVICE_DEFINITION_TO_BE_DONE_IN_MILLISECONDS = 1000
