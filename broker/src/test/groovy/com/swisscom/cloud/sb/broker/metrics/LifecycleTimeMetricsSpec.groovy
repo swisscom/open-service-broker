@@ -47,6 +47,7 @@ class LifecycleTimeMetricsSpec extends Specification {
         planRepository = Mock(PlanRepository)
         meterRegistry = Mock(MeterRegistry)
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
+        planRepository.findAll() >> new ArrayList<Plan>()
 
         lifecylceTimeMetrics = new LifecycleTimeMetrics(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
         }
