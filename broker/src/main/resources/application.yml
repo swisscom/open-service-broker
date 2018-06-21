@@ -36,6 +36,8 @@ management:
       tomcat: false
       process: false
       system: false
+      http: false
+      logback: false
 
 
 endpoints:
