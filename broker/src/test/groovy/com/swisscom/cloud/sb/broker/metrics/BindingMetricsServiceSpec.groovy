@@ -25,6 +25,7 @@ class BindingMetricsServiceSpec extends Specification {
         cfServiceRepository = Mock(CFServiceRepository)
         planRepository = Mock(PlanRepository)
         meterRegistry = Mock(MeterRegistry)
+        planRepository.findAll() >> new ArrayList<Plan>()
 
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
         serviceBindingRepository.findAll() >> new ArrayList<ServiceBinding>()

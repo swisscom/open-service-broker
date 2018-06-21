@@ -27,6 +27,7 @@ class ProvisionedInstancesMetricsServiceSpec extends Specification {
         meterRegistry = Mock(MeterRegistry)
         serviceInstanceRepository.findAll() >> new ArrayList<ServiceInstance>()
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
+        planRepository.findAll() >> new ArrayList<Plan>()
 
         provisioningMetricsService = new ProvisionedInstancesMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
     }
