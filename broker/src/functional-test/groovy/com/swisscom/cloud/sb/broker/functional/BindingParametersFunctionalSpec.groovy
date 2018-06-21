@@ -74,6 +74,9 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         if (credHubCredentialStoreStrategy.isCredHubServiceAvailable()) {
             serviceBinding.credhubCredentialId != null
         }
+
+        cleanup:
+        serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
     }
 
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
@@ -94,6 +97,9 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         then:
         def ex = thrown(HttpClientErrorException)
         ex.statusCode == HttpStatus.BAD_REQUEST
+
+        cleanup:
+        serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
     }
 
     def "provision async service instance and bind with parameters with bindings retrievable"() {
@@ -115,6 +121,9 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         bindingResponse != null
         bindingResponse.body.credentials != null
         bindingResponse.body.parameters != null
+
+        cleanup:
+        serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
     }
 
     def "provision async service instance and fetch non existing binding"() {
