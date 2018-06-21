@@ -23,7 +23,6 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
 
 @Service
@@ -92,20 +91,18 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
     double getTotalLifecycleTime(Map.Entry<String, Long> entry) {
         def totalLifecycleTime = prepareMetricsForMetericsCollection()
-        if(totalLifecycleTime.size() > 0) {
+        if (totalLifecycleTime.containsKey(entry.getKey())) {
             return totalLifecycleTime.get(entry.getKey()).toDouble()
         }
         0.0
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        /*addMetricsGauge(meterRegistry, "fake", {addMetricsToMeterRegistry(meterRegistry)
-        0.toDouble()})*/
-        if (totalLifecycleTimePerService.size() < cfServiceRepository.findAll().size()) {
-            totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
-        }
+        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
         totalLifecycleTimePerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {getTotalLifecycleTime(entry)})
+            addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
+                getTotalLifecycleTime(entry)
+            }, SERVICE)
         }
     }
 
