@@ -26,8 +26,8 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
     final String SERVICE_GUID = "service1GuidIntegrationTest"
     final String PLAN_NAME = "small"
     final String PLAN_GUID = "plan1GuidIntegrationTest"
-    final int TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS = 10000
-    final int LIFECYCLE_TIME_IN_MILLISECONDS = 6000
+    final int TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS = 5000
+    final int LIFECYCLE_TIME_IN_MILLISECONDS = 10000
     final int WAIT_FOR_SERVICE_DEFINITION_TO_BE_DONE_IN_MILLISECONDS = 1000
 
     ServiceBrokerClientExtended serviceBrokerClientExtended
@@ -48,9 +48,11 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
         serviceBrokerClientExtended = new ServiceBrokerClientExtended(new RestTemplate(), "http://localhost:8080", serviceLifeCycler.cfAdminUser.username, serviceLifeCycler.cfAdminUser.password, serviceLifeCycler.cfExtUser.username, serviceLifeCycler.cfExtUser.password)
 
         influxDB = InfluxDBFactory.connect("http://localhost:8086", "admin", "admin")
-        if (!influxDB.databaseExists(DB_NAME)) {
-            influxDB.createDatabase(DB_NAME)
+        if (influxDB.databaseExists(DB_NAME)) {
+            influxDB.deleteDatabase(DB_NAME)
         }
+        influxDB.createDatabase(DB_NAME)
+
         influxDBResultMapper = new InfluxDBResultMapper()
     }
 
@@ -109,8 +111,9 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
         assert (!results.name.containsAll(dynamicallyGeneratedMetrics.name))
 
         and:
-        assert (measurementValueList.each { result ->
-            result == 0.0
+        assert (measurementValueList.each {
+            result ->
+                result == 0.0
         })
     }
 
@@ -146,6 +149,7 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/service1.json"))
+        Thread.sleep(WAIT_FOR_SERVICE_DEFINITION_TO_BE_DONE_IN_MILLISECONDS)
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
         then:
@@ -221,7 +225,7 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
             def query = new Query("select value from ${metric.name}", DB_NAME)
             def queryResult = influxDB.query(query)
             List<GeneralMeasurement> result = influxDBResultMapper.toPOJO(queryResult, metric.measurementPointClass)
-            assertEquals (result.get(result.size() - 1).value, metric.expectedReturnValue, 1000)
+            assertEquals(result.get(result.size() - 1).value, metric.expectedReturnValue, 1000)
         }
 
         cleanup:
@@ -334,4 +338,5 @@ class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
         cfServiceRepository.delete(cfServiceRepository.findByGuid(SERVICE_GUID))
         planRepository.delete(planRepository.findByGuid(PLAN_GUID))
     }
+
 }
