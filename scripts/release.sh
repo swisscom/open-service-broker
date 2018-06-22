@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# Modified by Swisscom (Schweiz) AG) on 27th of March 2018
 
 cd `dirname $0`/..
 
