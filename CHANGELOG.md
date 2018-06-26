@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.0.1] - 2018-06-26
+- Support Update Service for MongoDB Enterprise
+- MongoDB Enterprise improvements
+- Add Copyright Headers
+
 ## [4.0.0] - 2018-06-19
 - Rename deleteServiceBindingAndServiceInstaceAndAssert function in the ServiceLifeCylcer to deleteServiceBindingAndServiceInstanceAndAssert
 - Fix method calls in StateBasedServiceProvider (#123)

@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2018 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
 import com.swisscom.cloud.sb.broker.model.*
@@ -71,16 +86,19 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
     def "REQUEST_AUTOMATION_UPDATE for a mongodb version specified in plan"() {
         given:
+        //stateContext.lastOperationJobContext.serviceInstance.guid
         def groupId = 'GroupId'
         def port = 666
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
         def mongodb_version = 'Some Version'
+        def feature_compatibility_version = ""
         context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(parameters: [new Parameter(name: MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION, value: mongodb_version)]),
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
                                                                ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
-                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)])
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)],
+                        guid: 'guid')
                 , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
         def initialAutomationVersion = 1
@@ -88,7 +106,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
         and:
         def deployment = new MongoDbEnterpriseDeployment()
-        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
 
         when:
         def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
@@ -113,6 +131,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
         def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
         def mongodb_version = 'A version from SB Config'
+        def feature_compatibility_version = ""
 
         and:
         context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(mongoDbVersion: mongodb_version)
@@ -121,7 +140,8 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
                 serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
                                                                ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
-                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)])
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)],
+                        guid: 'guid')
                 , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
         and:
         def initialAutomationVersion = 1
@@ -129,7 +149,7 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
 
         and:
         def deployment = new MongoDbEnterpriseDeployment()
-        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version) >> deployment
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
 
         when:
         def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
@@ -147,13 +167,98 @@ class MongoDbEnterpriseProvisionStateSpec extends Specification {
         helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD) == deployment.backupAgentPassword
     }
 
+    def "REQUEST_AUTOMATION_UPDATE without a compatibility version specified"() {
+        given:
+        def groupId = 'GroupId'
+        def port = 666
+        def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
+        def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
+        def mongodb_version = 'A version from SB Config'
+        def feature_compatibility_version = ""
+
+        and:
+        context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(mongoDbVersion: mongodb_version)
+        and:
+        context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(),
+                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                               ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)],
+                        guid: 'guid')
+                , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
+        and:
+        def initialAutomationVersion = 1
+        1 * context.opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId) >> initialAutomationVersion
+
+        and:
+        def deployment = new MongoDbEnterpriseDeployment()
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
+
+        when:
+        def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
+
+        then:
+        result.go2NextState
+        def helper = ServiceDetailsHelper.from(result.details)
+
+        helper.getValue(ServiceDetailKey.DATABASE) == deployment.database
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) == (initialAutomationVersion + 1).toString()
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET) == deployment.replicaSet
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_USER) == deployment.monitoringAgentUser
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_PASSWORD) == deployment.monitoringAgentPassword
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_USER) == deployment.backupAgentUser
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD) == deployment.backupAgentPassword
+    }
+
+    def "REQUEST_AUTOMATION_UPDATE with a compatibility version specified in provision request"() {
+        given:
+        def groupId = 'GroupId'
+        def port = 666
+        def mongodb_enterprise_health_check_user = 'MONGODB_ENTERPRISE_HEALTH_CHECK_USER'
+        def mongodb_enterprise_health_check_password = 'MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD'
+        def mongodb_version = 'A version from SB Config'
+        def feature_compatibility_version = "3.4"
+
+        and:
+        context.mongoDbEnterpriseConfig = new MongoDbEnterpriseConfig(mongoDbVersion: mongodb_version)
+        and:
+        context.lastOperationJobContext = new LastOperationJobContext(plan: new Plan(),
+                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                               ServiceDetail.from(ServiceDetailKey.PORT, port.toString()),
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD, mongodb_enterprise_health_check_password),
+                                                               ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER, mongodb_enterprise_health_check_user)],
+                        guid: 'guid')
+                , provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid', parameters: '{"featureCompatibilityVersion":"3.4"}'))
+        and:
+        def initialAutomationVersion = 1
+        1 * context.opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId) >> initialAutomationVersion
+
+        and:
+        def deployment = new MongoDbEnterpriseDeployment()
+        1 * context.opsManagerFacade.deployReplicaSet(groupId, 'guid', port, mongodb_enterprise_health_check_user, mongodb_enterprise_health_check_password, mongodb_version, feature_compatibility_version) >> deployment
+
+        when:
+        def result = MongoDbEnterpriseProvisionState.REQUEST_AUTOMATION_UPDATE.triggerAction(context)
+
+        then:
+        result.go2NextState
+        def helper = ServiceDetailsHelper.from(result.details)
+
+        helper.getValue(ServiceDetailKey.DATABASE) == deployment.database
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) == (initialAutomationVersion + 1).toString()
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET) == deployment.replicaSet
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_USER) == deployment.monitoringAgentUser
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_MONITORING_AGENT_PASSWORD) == deployment.monitoringAgentPassword
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_USER) == deployment.backupAgentUser
+        helper.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_BACKUP_AGENT_PASSWORD) == deployment.backupAgentPassword
+    }
 
     def "CHECK_AUTOMATION_UPDATE_STATUS"() {
         given:
         def groupId = 'GroupId'
         def automationVersion = 666
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
-                                                                                                                     ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, automationVersion.toString())]))
+                                                                                                                     ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION, automationVersion.toString())]), provisionRequest: new ProvisionRequest())
         and:
         context.opsManagerFacade.isAutomationUpdateComplete(groupId, automationVersion) >> opsManagerResponse
 

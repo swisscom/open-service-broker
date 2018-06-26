@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2018 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.binding.BindRequest
@@ -15,10 +30,10 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.json.JsonSlurper
 
-import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
+import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
 import static MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
 import static MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
-import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
+import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
 import static ServiceDetail.from
 import static ServiceDetailKey.DATABASE
 
@@ -109,6 +124,18 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: PROVISION_SUCCESS.toString()))
         when:
         def result=serviceProvider.requestProvision(context)
+        then:
+        result
+    }
+
+    def "happy path: requestUpdate"(){
+        given:
+        def context = new LastOperationJobContext(lastOperation: new LastOperation(internalState: PROVISION_SUCCESS.toString()))
+        and:
+        def plan = new Plan()
+        context.updateRequest = new UpdateRequest(previousPlan: plan, plan: plan)
+        when:
+        def result=serviceProvider.requestUpdate(context)
         then:
         result
     }

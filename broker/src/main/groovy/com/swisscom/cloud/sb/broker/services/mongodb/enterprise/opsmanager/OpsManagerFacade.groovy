@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2018 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager
 
 import com.google.common.base.Optional
@@ -118,24 +133,32 @@ class OpsManagerFacade {
         return true
     }
 
-    def MongoDbEnterpriseDeployment deployStandAlone(String groupId, String database, int port) {
+    MongoDbEnterpriseDeployment deployStandAlone(String groupId, String database, int port) {
         throw new NotImplementedException()
     }
 
     //TODO refactor this method ,passing in too many arguments
-    def MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion) {
+    MongoDbEnterpriseDeployment deployReplicaSet(String groupId, String database, int port, String healthUser, String healthPassword, String mongoDbVersion, String featureCompatibilityVersion) {
         final List<String> hosts = findHostsForGroup(groupId)
         final List<HostPort> hostPorts = hosts.collect { String host -> new HostPort(host: host, port: port) }
 
         MongoDbEnterpriseDeployment deployment = null
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
-            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword, mongoDbVersion)
+            deployment = configureInstancesWithReplicaSetMode(database, hostPorts, automationConfigDto, healthUser, healthPassword, mongoDbVersion, featureCompatibilityVersion)
         })
 
         return deployment
     }
 
-    def MongoDbEnterpriseDeployment deployShard(String groupId, String database, int port) {
+    Boolean updateReplicaSet(String groupId, String mongoDbVersion, String featureCompatibilityVersion) {
+        updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
+            automationConfigDto.processes.each { it.featureCompatibilityVersion = featureCompatibilityVersion }
+            automationConfigDto.processes.each { it.version = mongoDbVersion }
+        })
+        return true
+    }
+
+    MongoDbEnterpriseDeployment deployShard(String groupId, String database, int port) {
         throw new NotImplementedException()
     }
 
@@ -149,7 +172,8 @@ class OpsManagerFacade {
 
     private MongoDbEnterpriseDeployment configureInstancesWithReplicaSetMode(String database, List<HostPort> hostPorts, AutomationConfigDto automationConfig,
                                                                              String healthUser, String healthPassword,
-                                                                             String mongoDbVersion) {
+                                                                             String mongoDbVersion,
+                                                                             String featureCompatibilityVersion) {
         final String replicaSetId = "rs_${database}"
 
         if (!automationConfig.options) {
@@ -166,7 +190,7 @@ class OpsManagerFacade {
             HostPort hostPort, int i ->
                 String name = "${replicaSetId}_${i}"
                 String path = createDbPath(name)
-                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name, mongoDbVersion)
+                ProcessDto processDto = createProcessDto(hostPort, replicaSetId, path, name, mongoDbVersion, featureCompatibilityVersion)
                 automationConfig.processes.add(processDto)
         }
 
@@ -230,12 +254,12 @@ class OpsManagerFacade {
         return result
     }
 
-    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name, String mongoDbVersion) {
+    private ProcessDto createProcessDto(HostPort hostPort, String replicaSet, String path, String name, String mongoDbVersion, String featureCompatibilityVersion) {
         ProcessDto processDto = new ProcessDto(version: mongoDbVersion,
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,
-                featureCompatibilityVersion: mongoDbEnterpriseConfig.featureCompatibilityVersion,
+                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbEnterpriseConfig.featureCompatibilityVersion,
                 hostname: hostPort.host,
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),
@@ -326,8 +350,8 @@ class OpsManagerFacade {
         //populateKeyInfo(authenticationDto)
     }
 
-    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto){
-        if(!authenticationDto.autoAuthMechanism){
+    private void setAuthMechamnismIfNotAlreadySet(AuthenticationDto authenticationDto) {
+        if (!authenticationDto.autoAuthMechanism) {
             authenticationDto.autoAuthMechanism = AUTH_MECHANISM_MONGODB_CR
         }
     }
