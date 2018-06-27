@@ -1,4 +1,5 @@
-# In your Quartz properties file, you'll need to set
+#
+# In your Quartz properties file, you'll need to set 
 # org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 #
 #
@@ -151,8 +152,6 @@ CREATE TABLE IF NOT EXISTS QRTZ_LOCKS (
   PRIMARY KEY (SCHED_NAME, LOCK_NAME)
 )
   ENGINE = InnoDB;
-
-# Modified by Swisscom (Schweiz) AG) on 23th of May 2017
 
 CREATE INDEX IDX_QRTZ_J_REQ_RECOVERY
   ON QRTZ_JOB_DETAILS (SCHED_NAME, REQUESTS_RECOVERY);
