@@ -34,7 +34,7 @@ class HttpHelper {
     static HttpHeaders createBearerTokenAuthHeaders(String token ){
         return new HttpHeaders(){
             {
-                log.info("Bearer " + token)
+                log.trace("Bearer " + token)
                 set(HttpHeaders.AUTHORIZATION, "Bearer " + token)
             }
         }
