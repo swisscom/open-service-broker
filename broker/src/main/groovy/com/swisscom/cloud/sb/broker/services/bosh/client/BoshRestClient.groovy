@@ -18,13 +18,17 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
 import org.springframework.http.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
+import static com.swisscom.cloud.sb.broker.util.HttpHelper.createBearerTokenAuthHeaders
 import static com.swisscom.cloud.sb.broker.util.HttpHelper.createSimpleAuthHeaders
 
 @CompileStatic
@@ -36,9 +40,14 @@ class BoshRestClient {
     public static final String DEPLOYMENTS = '/deployments'
     public static final String VMS = '/vms'
     public static final String CLOUD_CONFIGS = '/cloud_configs'
+    public static final String OAUTH_TOKEN = '/oauth/token'
 
     public static final String CONTENT_TYPE_YAML = "text/yaml"
     public static final String CLOUD_CONFIG_QUERY = "?limit=1"
+
+    private boolean checkedAuthType
+    private String token
+    private Calendar tokenExpirationTime
 
     private final BoshConfig boshConfig
     private final RestTemplateBuilder restTemplateBuilder
@@ -58,7 +67,37 @@ class BoshRestClient {
     }
 
     private HttpHeaders createAuthHeaders() {
-        return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
+        if (!checkedAuthType || (checkedAuthType && checkTokenIsExpired())) checkAuthTypeAndLogin()
+        if (token != null) {
+            return createBearerTokenAuthHeaders(token)
+        } else {
+            return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
+        }
+    }
+
+    @VisibleForTesting
+    private boolean checkTokenIsExpired() {
+        return tokenExpirationTime.before(Calendar.getInstance())
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
+    protected void checkAuthTypeAndLogin() {
+        def jsonSlurper = new JsonSlurper()
+        def info = jsonSlurper.parseText(fetchBoshInfo())
+        if (info.user_authentication.type == "uaa") {
+            uaaLogin(info.user_authentication.options.url)
+        }
+        checkedAuthType = true
+    }
+
+    @VisibleForTesting
+    @TypeChecked(TypeCheckingMode.SKIP)
+    private void uaaLogin(String uaaBaseUrl) {
+        def jsonSlurper = new JsonSlurper()
+        def authResponse = jsonSlurper.parseText(createRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials", HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)), String.class).body)
+        token = authResponse.access_token
+        tokenExpirationTime = Calendar.getInstance()
+        tokenExpirationTime.add(Calendar.SECOND, authResponse.expires_in - 5)
     }
 
     String postDeployment(String data) {
@@ -102,7 +141,7 @@ class BoshRestClient {
     }
 
     String getTask(String id) {
-        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity( createAuthHeaders()), String.class).body
+        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity(createAuthHeaders()), String.class).body
     }
 
     @VisibleForTesting
@@ -122,7 +161,7 @@ class BoshRestClient {
 
     private class CustomErrorHandler extends DefaultResponseErrorHandler {
         @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
+        void handleError(ClientHttpResponse response) throws IOException {
             // your error handling here
             if(response.statusCode == HttpStatus.NOT_FOUND){
                 throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
