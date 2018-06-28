@@ -68,38 +68,21 @@ class BoshRestClientSpec extends Specification {
 
     def "Login to UAA"() {
         given:
-        def response = '''{"access_token": "eyJhbGciOiSldUIn0eyJqdGkiOiI0MGZhMmY4NjY5Y2E0YzNjY",
+        String expectedToken = "eyJhbGciOiSldUIn0eyJqdGkiOiI0MGZhMmY4NjY5Y2E0YzNjY"
+        def response = """{"access_token": "${expectedToken}",
                           "token_type": "bearer",
                           "expires_in": 41199,
                           "scope": "clients.read password.write clients.secret clients.write uaa.admin scim.write scim.read",
                           "jti": "fadfwe235wfdafawfewaf43fewf2"
-                        }'''
+                        }"""
         mockServer.expect(requestTo("https://localhost" + BoshRestClient.OAUTH_TOKEN + "?grant_type=client_credentials"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
         when:
-        boshRestClient.uaaLogin("https://localhost")
+        String responseToken = boshRestClient.uaaLogin("https://localhost")
         then:
         mockServer.verify()
-        !boshRestClient.checkTokenIsExpired()
-    }
-
-    def "Check expiration for UAA login is correct"() {
-        given:
-        def response = '''{"access_token": "eyJhbGciOiSldUIn0eyJqdGkiOiI0MGZhMmY4NjY5Y2E0YzNjY",
-                          "token_type": "bearer",
-                          "expires_in": 1,
-                          "scope": "clients.read password.write clients.secret clients.write uaa.admin scim.write scim.read",
-                          "jti": "fadfwe235wfdafawfewaf43fewf2"
-                        }'''
-        mockServer.expect(requestTo("https://localhost" + BoshRestClient.OAUTH_TOKEN + "?grant_type=client_credentials"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
-        when:
-        boshRestClient.uaaLogin("https://localhost")
-        then:
-        mockServer.verify()
-        boshRestClient.checkTokenIsExpired()
+        responseToken == expectedToken
     }
 
     def "GetDeployment"() {
