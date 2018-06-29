@@ -107,10 +107,17 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         }
 
         static String findTargetMongoDBVersion(MongoDbEnterperiseStateMachineContext context) {
-            def mongoDbVersion = context.lastOperationJobContext.plan.parameters?.find({
-                it.name == MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION
-            })?.value
-            log.info("Could not find a '${PLAN_PARAMETER_MONGODB_VERSION}' parameter in plan. Falling back to SB wide configuration.")
+            def mongoDbVersion
+            if (context.lastOperationJobContext.updateRequest)
+                mongoDbVersion = context.lastOperationJobContext.updateRequest.plan.parameters?.find({
+                    it.name == MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION
+                })?.value
+            else
+                mongoDbVersion = context.lastOperationJobContext.plan.parameters?.find({
+                    it.name == MongoDbEnterpriseProvisionState.PLAN_PARAMETER_MONGODB_VERSION
+                })?.value
+            if (!mongoDbVersion)
+                log.info("Could not find a '${PLAN_PARAMETER_MONGODB_VERSION}' parameter in plan. Falling back to SB wide configuration.")
             return mongoDbVersion ?: context.mongoDbEnterpriseConfig.mongoDbVersion
         }
     }
