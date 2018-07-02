@@ -1,5 +1,5 @@
 spring:
-  profiles.active: default,extensions,secrets
+  profiles.active: info,default,extensions,secrets
 ---
 spring:
   profiles: default
@@ -41,8 +41,6 @@ management:
 #      client-secret:
 #      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
 
-
-
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
   enabled: false
@@ -54,10 +52,6 @@ endpoints:
     enabled: true
   health:
     enabled: true
-
-info:
-  build:
-    version: ${version}
 
 server.tomcat.accesslog.enabled: true
 
