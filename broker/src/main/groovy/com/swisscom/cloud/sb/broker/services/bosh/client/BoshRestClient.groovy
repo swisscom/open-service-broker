@@ -18,13 +18,17 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
 import org.springframework.http.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
+import static com.swisscom.cloud.sb.broker.util.HttpHelper.createBearerTokenAuthHeaders
 import static com.swisscom.cloud.sb.broker.util.HttpHelper.createSimpleAuthHeaders
 
 @CompileStatic
@@ -34,8 +38,8 @@ class BoshRestClient {
     public static final String INFO = '/info'
     public static final String TASKS = '/tasks'
     public static final String DEPLOYMENTS = '/deployments'
-    public static final String VMS = '/vms'
     public static final String CLOUD_CONFIGS = '/cloud_configs'
+    public static final String OAUTH_TOKEN = '/oauth/token'
 
     public static final String CONTENT_TYPE_YAML = "text/yaml"
     public static final String CLOUD_CONFIG_QUERY = "?limit=1"
@@ -49,7 +53,7 @@ class BoshRestClient {
     }
 
     String fetchBoshInfo() {
-        createRestTemplate().getForEntity(prependBaseUrl(INFO),String.class).body
+        createRestTemplate().getForEntity(prependBaseUrl(INFO), String.class).body
     }
 
     String getDeployment(String id) {
@@ -58,16 +62,38 @@ class BoshRestClient {
     }
 
     private HttpHeaders createAuthHeaders() {
-        return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
+        String token = checkAuthTypeAndLogin()
+        if (token != null) {
+            return createBearerTokenAuthHeaders(token)
+        } else {
+            return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
+        }
+    }
+
+    @TypeChecked(TypeCheckingMode.SKIP)
+    protected String checkAuthTypeAndLogin() {
+        def jsonSlurper = new JsonSlurper()
+        def info = jsonSlurper.parseText(fetchBoshInfo())
+        if (info.user_authentication.type == "uaa") {
+            return uaaLogin(info.user_authentication.options.url)
+        }
+        return null
+    }
+
+    @VisibleForTesting
+    @TypeChecked(TypeCheckingMode.SKIP)
+    private String uaaLogin(String uaaBaseUrl) {
+        def jsonSlurper = new JsonSlurper()
+        return jsonSlurper.parseText(createRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials", HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)), String.class).body).access_token
     }
 
     String postDeployment(String data) {
         log.trace("Posting new bosh deployment: \n${data}")
         HttpHeaders headers = createAuthHeaders()
-        headers.add('Content-Type',CONTENT_TYPE_YAML)
-        HttpEntity<String> request = new HttpEntity<>(data,headers)
+        headers.add('Content-Type', CONTENT_TYPE_YAML)
+        HttpEntity<String> request = new HttpEntity<>(data, headers)
 
-        def responseEntity = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS),HttpMethod.POST,request,String.class)
+        def responseEntity = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS), HttpMethod.POST, request, String.class)
 
         return handleRedirectonAndExtractTaskId(responseEntity)
     }
@@ -85,24 +111,24 @@ class BoshRestClient {
     }
 
     String deleteDeployment(String id) {
-        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id)+'?force=true',HttpMethod.DELETE,new HttpEntity<Object>(createAuthHeaders()),String.class)
+        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '?force=true', HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
         return handleRedirectonAndExtractTaskId(response)
     }
 
     String fetchCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY),HttpMethod.GET,new HttpEntity<Object>(createAuthHeaders()),String.class).body
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
     }
 
     void postCloudConfig(String data) {
         log.trace("Updating cloud config with: ${data}")
         HttpHeaders headers = createAuthHeaders()
-        headers.add('Content-Type',CONTENT_TYPE_YAML)
-        HttpEntity<String> request = new HttpEntity<>(data,headers)
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS),HttpMethod.POST,request,Void.class)
+        headers.add('Content-Type', CONTENT_TYPE_YAML)
+        HttpEntity<String> request = new HttpEntity<>(data, headers)
+        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS), HttpMethod.POST, request, Void.class)
     }
 
     String getTask(String id) {
-        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),HttpMethod.GET,new HttpEntity( createAuthHeaders()), String.class).body
+        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
     }
 
     @VisibleForTesting
@@ -122,9 +148,9 @@ class BoshRestClient {
 
     private class CustomErrorHandler extends DefaultResponseErrorHandler {
         @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
+        void handleError(ClientHttpResponse response) throws IOException {
             // your error handling here
-            if(response.statusCode == HttpStatus.NOT_FOUND){
+            if (response.statusCode == HttpStatus.NOT_FOUND) {
                 throw new BoshResourceNotFoundException("Bosh resource not found, response body:${response.body?.toString()}", null, null, HttpStatus.NOT_FOUND)
             }
             super.handleError(response)

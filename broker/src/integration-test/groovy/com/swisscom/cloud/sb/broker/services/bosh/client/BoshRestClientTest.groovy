@@ -41,7 +41,7 @@ class BoshRestClientTest extends BaseSpecification {
 
     def "get deployment"() {
         when:
-        def deployment = client.getDeployment("d-8tlihzux5s3nq370")
+        def deployment = client.getDeployment("shield")
         then:
         noExceptionThrown()
     }
@@ -55,7 +55,7 @@ class BoshRestClientTest extends BaseSpecification {
 
     def "get task"(){
         when:
-        def task = client.getTask("2857986")
+        def task = client.getTask("114794")
         then:
         noExceptionThrown()
     }
