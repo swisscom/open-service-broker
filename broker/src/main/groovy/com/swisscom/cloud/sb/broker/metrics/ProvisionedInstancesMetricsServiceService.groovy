@@ -23,17 +23,16 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
+class ProvisionedInstancesMetricsServiceService extends ServiceBrokerMetricsService {
 
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
     @Autowired
-    ProvisionedInstancesMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+    ProvisionedInstancesMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
         addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
     }
@@ -51,7 +50,7 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetrics {
 
     @Override
     String tag() {
-        return ProvisionedInstancesMetricsService.class.getSimpleName()
+        return ProvisionedInstancesMetricsServiceService.class.getSimpleName()
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {

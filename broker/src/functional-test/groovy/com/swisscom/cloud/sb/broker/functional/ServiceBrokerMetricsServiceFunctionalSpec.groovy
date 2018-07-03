@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate
 
 import static junit.framework.Assert.assertEquals
 
-class ServiceBrokerMetricsFunctionalSpec extends BaseFunctionalSpec {
+class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
     final String DB_NAME = "mydb"
     final String SERVICE_NAME = "service1Name"
