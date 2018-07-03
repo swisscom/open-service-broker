@@ -16,11 +16,10 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.google.common.annotations.VisibleForTesting
-import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
-import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetrics
-import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ServiceBrokerMetrics
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricsServiceService
+import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
+import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsServiceService
+import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsServiceService
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
@@ -44,15 +43,15 @@ class ServiceDefinitionController extends BaseController {
     @Autowired
     CFServiceRepository cfServiceRepository
     @Autowired
-    BindingMetricsService bindingMetricsService
+    BindingMetricsServiceService bindingMetricsService
     @Autowired
     ServiceBindingRepository serviceBindingRepository
     @Autowired
-    LifecycleTimeMetrics lifecycleTimeMetrics
+    LifecycleTimeMetricsService lifecycleTimeMetrics
     @Autowired
-    ProvisionedInstancesMetricsService provisionedInstancesMetricsService
+    ProvisionedInstancesMetricsServiceService provisionedInstancesMetricsService
     @Autowired
-    ProvisionRequestsMetricsService provisionRequestsMetricsService
+    ProvisionRequestsMetricsServiceService provisionRequestsMetricsService
     @Autowired
     MeterRegistry meterRegistry
 

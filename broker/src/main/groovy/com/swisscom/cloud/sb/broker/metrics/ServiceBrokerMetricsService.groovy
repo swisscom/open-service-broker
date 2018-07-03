@@ -25,14 +25,13 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Tags
 import org.springframework.beans.factory.annotation.Autowired
 
 import java.util.function.ToDoubleFunction
 
 @CompileStatic
 @Slf4j
-abstract class ServiceBrokerMetrics {
+abstract class ServiceBrokerMetricsService {
 
     protected final String SUCCESS = "success"
     protected final String FAIL = "fail"
@@ -47,7 +46,7 @@ abstract class ServiceBrokerMetrics {
     protected PlanRepository planRepository
 
     @Autowired
-    ServiceBrokerMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository) {
+    ServiceBrokerMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository) {
         this.serviceInstanceRepository = serviceInstanceRepository
         this.cfServiceRepository = cfServiceRepository
         this.lastOperationRepository = lastOperationRepository
@@ -191,9 +190,9 @@ abstract class ServiceBrokerMetrics {
     }
 
     void addMetricsGauge(MeterRegistry meterRegistry, String name, Closure<Double> function, String tag) {
-        ToDoubleFunction<ServiceBrokerMetrics> doubleFunction = new ToDoubleFunction<ServiceBrokerMetrics>() {
+        ToDoubleFunction<ServiceBrokerMetricsService> doubleFunction = new ToDoubleFunction<ServiceBrokerMetricsService>() {
             @Override
-            double applyAsDouble(ServiceBrokerMetrics serviceBrokerMetrics) {
+            double applyAsDouble(ServiceBrokerMetricsService serviceBrokerMetrics) {
                 function()
             }
         }
@@ -209,6 +208,7 @@ abstract class ServiceBrokerMetrics {
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository, String kind) {
         addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${TOTAL}", {
+            serviceInstanceRepository.count()
             retrieveTotalMetrics(serviceInstanceRepository.findAll()).total.toDouble()
         }, TOTAL)
         addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${SUCCESS}", {
