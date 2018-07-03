@@ -5,11 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Get a proper version for mongodb ent
+- Support UAA authentication for BOSH based services
+- Fix /version endpoint
 
 ## [4.0.2] - 2018-06-27
 - Revert change in `V1_0_1__quartz_tables_mysql_innodb.sql` to match checksum again
-- Support UAA authentication for BOSH based services
-- Fix /version endpoint
 
 ## [4.0.1] - 2018-06-26
 - Support Update Service for MongoDB Enterprise
