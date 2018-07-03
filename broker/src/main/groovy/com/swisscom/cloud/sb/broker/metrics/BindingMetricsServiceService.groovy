@@ -14,7 +14,7 @@ import java.util.Map.Entry
 @Service
 @CompileStatic
 @Slf4j
-class BindingMetricsService extends ServiceBrokerMetrics {
+class BindingMetricsServiceService extends ServiceBrokerMetricsService {
 
     final String BINDING = "binding"
     final String BINDING_REQUEST = "bindingRequest"
@@ -27,7 +27,7 @@ class BindingMetricsService extends ServiceBrokerMetrics {
     HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
-    BindingMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+    BindingMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
         this.serviceBindingRepository = serviceBindingRepository
         this.meterRegistry = meterRegistry
@@ -143,6 +143,6 @@ class BindingMetricsService extends ServiceBrokerMetrics {
 
     @Override
     String tag() {
-        return BindingMetricsService.class.getSimpleName()
+        return BindingMetricsServiceService.class.getSimpleName()
     }
 }

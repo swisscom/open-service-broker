@@ -2,7 +2,6 @@ package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
@@ -18,7 +17,7 @@ class LifecycleTimeMetricsSpec extends Specification {
     private LastOperationRepository lastOperationRepository
     private PlanRepository planRepository
     private MeterRegistry meterRegistry
-    private LifecycleTimeMetrics lifecylceTimeMetrics
+    private LifecycleTimeMetricsService lifecylceTimeMetrics
 
     private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 = 20
     private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION2 = 10
@@ -34,7 +33,7 @@ class LifecycleTimeMetricsSpec extends Specification {
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
         planRepository.findAll() >> new ArrayList<Plan>()
 
-        lifecylceTimeMetrics = new LifecycleTimeMetrics(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
+        lifecylceTimeMetrics = new LifecycleTimeMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
         }
 
     def "retrieve mean lifecycle time per service"() {

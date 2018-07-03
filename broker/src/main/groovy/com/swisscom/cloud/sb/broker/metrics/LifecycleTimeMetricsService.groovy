@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class LifecycleTimeMetrics extends ServiceBrokerMetrics {
+class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
 
     private final String LIFECYCLE_TIME = "lifecycleTime"
 
@@ -20,7 +20,7 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
 
     @Autowired
-    LifecycleTimeMetrics(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
+    LifecycleTimeMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
         super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
         addMetricsToMeterRegistry(meterRegistry)
     }
@@ -98,6 +98,6 @@ class LifecycleTimeMetrics extends ServiceBrokerMetrics {
 
     @Override
     String tag() {
-        return LifecycleTimeMetrics.class.getSimpleName()
+        return LifecycleTimeMetricsService.class.getSimpleName()
     }
 }
