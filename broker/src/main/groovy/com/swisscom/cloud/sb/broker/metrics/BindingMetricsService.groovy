@@ -26,8 +26,6 @@ import org.springframework.stereotype.Service
 
 import java.util.Map.Entry
 
-import java.util.function.ToDoubleFunction
-
 @Service
 @CompileStatic
 @Slf4j
@@ -119,7 +117,6 @@ class BindingMetricsService extends ServiceBrokerMetricsService {
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() }, TOTAL)
 
         def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList)

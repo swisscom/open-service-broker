@@ -41,7 +41,6 @@ class ProvisionedInstancesMetricsService extends ServiceBrokerMetricsService {
         super.addMetricsToMeterRegistry(meterRegistry, PROVISIONED_INSTANCES)
     }
 
-
     @Override
     boolean considerServiceInstance(ServiceInstance serviceInstance) {
         // service instance should only be considered if it hasn't been deleted, yet
