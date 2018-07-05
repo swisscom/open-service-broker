@@ -17,7 +17,7 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
     private LastOperationRepository lastOperationRepository
     private PlanRepository planRepository
     private MeterRegistry meterRegistry
-    private ProvisionRequestsMetricsServiceService provisionRequestsMetricsService
+    private ProvisionRequestsMetricsService provisionRequestsMetricsService
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
@@ -29,7 +29,7 @@ class ProvisionRequestsMetricsServiceSpec extends Specification {
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
         planRepository.findAll() >> new ArrayList<Plan>()
 
-        provisionRequestsMetricsService = new ProvisionRequestsMetricsServiceService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
+        provisionRequestsMetricsService = new ProvisionRequestsMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
     }
 
     def "retrieve total nr of provision Requests"() {

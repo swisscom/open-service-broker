@@ -12,7 +12,7 @@ class BindingMetricsServiceSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
     private LastOperationRepository lastOperationRepository
     private ServiceBindingRepository serviceBindingRepository
-    private BindingMetricsServiceService bindingMetricsService
+    private BindingMetricsService bindingMetricsService
     private CFServiceRepository cfServiceRepository
     private PlanRepository planRepository
     private MeterRegistry meterRegistry
@@ -30,7 +30,7 @@ class BindingMetricsServiceSpec extends Specification {
         cfServiceRepository.findAll() >> new ArrayList<CFService>()
         serviceBindingRepository.findAll() >> new ArrayList<ServiceBinding>()
 
-        bindingMetricsService = new BindingMetricsServiceService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, serviceBindingRepository, planRepository, meterRegistry)
+        bindingMetricsService = new BindingMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, serviceBindingRepository, planRepository, meterRegistry)
     }
 
     def "retrieve total nr of successful service bindings"() {

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
+import uk.org.lidalia.slf4jext.LoggerFactory
 
 import static junit.framework.Assert.assertEquals
 
@@ -26,7 +27,7 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
     final String SERVICE_GUID = "service1GuidIntegrationTest"
     final String PLAN_NAME = "small"
     final String PLAN_GUID = "plan1GuidIntegrationTest"
-    final int TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS = 5000
+    final int TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS = 15000
     final int LIFECYCLE_TIME_IN_MILLISECONDS = 10000
     final int WAIT_FOR_SERVICE_DEFINITION_TO_BE_DONE_IN_MILLISECONDS = 1000
 
@@ -195,6 +196,7 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         }
 
         cleanup:
+        Thread.sleep(10000)
         serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingId))
         serviceInstanceRepository.delete(serviceInstanceRepository.findByGuid(serviceInstanceGuid))
         cfServiceRepository.delete(cfServiceRepository.findByGuid(SERVICE_GUID))
@@ -280,6 +282,7 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         }
 
         cleanup:
+        Thread.sleep(10000)
         serviceInstanceRepository.delete(serviceInstanceRepository.findByGuid(serviceInstanceGuid))
         cfServiceRepository.delete(cfServiceRepository.findByGuid(SERVICE_GUID))
         planRepository.delete(planRepository.findByGuid(PLAN_GUID))

@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class ProvisionRequestsMetricsServiceService extends ServiceBrokerMetricsService {
+class ProvisionRequestsMetricsService extends ServiceBrokerMetricsService {
 
     private final String PROVISION_REQUEST = "provisionRequest"
 
     @Autowired
-    ProvisionRequestsMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
-        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
+    ProvisionRequestsMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
+        super(lastOperationRepository, metricsCache)
+        addMetricsToMeterRegistry(meterRegistry)
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository) {
-        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISION_REQUEST)
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
+        super.addMetricsToMeterRegistry(meterRegistry, PROVISION_REQUEST)
     }
 
 
@@ -35,6 +35,6 @@ class ProvisionRequestsMetricsServiceService extends ServiceBrokerMetricsService
 
     @Override
     String tag() {
-        return ProvisionRequestsMetricsServiceService.class.getSimpleName()
+        return ProvisionRequestsMetricsService.class.getSimpleName()
     }
 }

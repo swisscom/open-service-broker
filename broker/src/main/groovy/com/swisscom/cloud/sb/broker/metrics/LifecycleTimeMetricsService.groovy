@@ -20,8 +20,8 @@ class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
     private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
 
     @Autowired
-    LifecycleTimeMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+    LifecycleTimeMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
+        super(lastOperationRepository, metricsCache)
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -56,7 +56,7 @@ class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
 
     HashMap<String, Long> calculateMeanLifecycleTime(HashMap<String, Long> totalDeletedServiceInstanceMap) {
         HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
-        meanLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(meanLifecycleTimePerService, cfServiceRepository)
+        meanLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(meanLifecycleTimePerService)
         totalDeletedServiceInstanceMap.each { service ->
             def serviceName = service.getKey()
             def totalNrOfInstances = service.getValue()
@@ -68,9 +68,8 @@ class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
     }
 
     HashMap<String, Long> prepareMetricsForMetericsCollection() {
-        List<ServiceInstance> serviceInstanceList = serviceInstanceRepository.findAll()
-        def list = calculateLifecycleTimePerService(serviceInstanceList)
-        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(list, cfServiceRepository)
+        def list = calculateLifecycleTimePerService(metricsCache.serviceInstanceList)
+        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(list)
         return totalLifecycleTimePerService
     }
 
@@ -83,7 +82,7 @@ class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService, cfServiceRepository)
+        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService)
         totalLifecycleTimePerService.each { entry ->
             addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
                 getTotalLifecycleTime(entry)

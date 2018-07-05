@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.google.common.annotations.VisibleForTesting
-import com.swisscom.cloud.sb.broker.metrics.BindingMetricsServiceService
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsServiceService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsServiceService
+import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsService
+import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsService
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
@@ -28,15 +28,15 @@ class ServiceDefinitionController extends BaseController {
     @Autowired
     CFServiceRepository cfServiceRepository
     @Autowired
-    BindingMetricsServiceService bindingMetricsService
+    BindingMetricsService bindingMetricsService
     @Autowired
     ServiceBindingRepository serviceBindingRepository
     @Autowired
     LifecycleTimeMetricsService lifecycleTimeMetrics
     @Autowired
-    ProvisionedInstancesMetricsServiceService provisionedInstancesMetricsService
+    ProvisionedInstancesMetricsService provisionedInstancesMetricsService
     @Autowired
-    ProvisionRequestsMetricsServiceService provisionRequestsMetricsService
+    ProvisionRequestsMetricsService provisionRequestsMetricsService
     @Autowired
     MeterRegistry meterRegistry
 
@@ -51,10 +51,10 @@ class ServiceDefinitionController extends BaseController {
     }
 
     void registerNewServiceWithMetricsService(){
-        bindingMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository, cfServiceRepository)
+        bindingMetricsService.addMetricsToMeterRegistry(meterRegistry)
         lifecycleTimeMetrics.addMetricsToMeterRegistry(meterRegistry)
-        provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
-        provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
+        provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry)
+        provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry)
     }
 
     @ApiOperation(value = "Get service definition", response = ServiceDto)

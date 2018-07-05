@@ -11,10 +11,13 @@ import groovy.util.logging.Slf4j
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 
 import java.util.function.ToDoubleFunction
 
 @CompileStatic
+@Service
 @Slf4j
 abstract class ServiceBrokerMetricsService {
 
@@ -25,17 +28,13 @@ abstract class ServiceBrokerMetricsService {
     protected final String PLAN = "plan"
     protected final String RATIO = "ratio"
 
-    protected ServiceInstanceRepository serviceInstanceRepository
-    protected CFServiceRepository cfServiceRepository
     protected LastOperationRepository lastOperationRepository
-    protected PlanRepository planRepository
+    protected MetricsCache metricsCache
 
     @Autowired
-    ServiceBrokerMetricsService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository) {
-        this.serviceInstanceRepository = serviceInstanceRepository
-        this.cfServiceRepository = cfServiceRepository
+    ServiceBrokerMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache) {
         this.lastOperationRepository = lastOperationRepository
-        this.planRepository = planRepository
+        this.metricsCache = metricsCache
     }
 
     protected MetricsResult retrieveTotalMetrics(List<ServiceInstance> serviceInstanceList) {
@@ -62,8 +61,8 @@ abstract class ServiceBrokerMetricsService {
         return new MetricsResult(total: totalCounter, totalSuccess: successCounter, totalFailures: failCounter)
     }
 
-    HashMap<String, Long> harmonizeServicesHashMapsWithServicesInRepository(HashMap<String, Long> hashMap, CFServiceRepository cfServiceRepository) {
-        cfServiceRepository.findAll().each { cfService ->
+    HashMap<String, Long> harmonizeServicesHashMapsWithServicesInRepository(HashMap<String, Long> hashMap) {
+        metricsCache.cfServiceList.each { cfService ->
             if (hashMap.get(cfService.name) == null) {
                 hashMap.put(cfService.name, 0L)
             }
@@ -71,8 +70,8 @@ abstract class ServiceBrokerMetricsService {
         return hashMap
     }
 
-    HashMap<String, Long> harmonizePlansHashMapsWithPlansInRepository(HashMap<String, Long> hashMap, PlanRepository planRepository) {
-        planRepository.findAll().each { plan ->
+    HashMap<String, Long> harmonizePlansHashMapsWithPlansInRepository(HashMap<String, Long> hashMap) {
+        metricsCache.planList.each { plan ->
             if (hashMap.get(plan.name) == null) {
                 hashMap.put(plan.name, 0L)
             }
@@ -186,70 +185,72 @@ abstract class ServiceBrokerMetricsService {
 
     double getCountForEntryFromHashMap(HashMap<String, Long> hashMap, Map.Entry<String, Long> entry) {
         if (hashMap.containsKey(entry.getKey())) {
+            def result = hashMap.get(entry.getKey()).toDouble()
+            log.info("${entry.getKey()} result: ${result}")
             return hashMap.get(entry.getKey()).toDouble()
         }
         0.0
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository, String kind) {
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, String kind) {
         addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${TOTAL}", {
-            serviceInstanceRepository.count()
-            retrieveTotalMetrics(serviceInstanceRepository.findAll()).total.toDouble()
+            metricsCache.serviceInstanceList.size()
+            retrieveTotalMetrics(metricsCache.serviceInstanceList).total.toDouble()
         }, TOTAL)
         addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${SUCCESS}", {
-            retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalSuccess.toDouble()
+            retrieveTotalMetrics(metricsCache.serviceInstanceList).totalSuccess.toDouble()
         }, TOTAL)
         addMetricsGauge(meterRegistry, "${kind}.${TOTAL}.${FAIL}", {
-            retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalFailures.toDouble()
+            retrieveTotalMetrics(metricsCache.serviceInstanceList).totalFailures.toDouble()
         }, TOTAL)
         addMetricsGauge(meterRegistry, "${kind}.${SUCCESS}.${RATIO}", {
-            calculateRatio(retrieveTotalMetrics(serviceInstanceRepository.findAll()).total, retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalSuccess).toDouble()
+            calculateRatio(retrieveTotalMetrics(metricsCache.serviceInstanceList).total, retrieveTotalMetrics(metricsCache.serviceInstanceList).totalSuccess).toDouble()
         }, RATIO)
         addMetricsGauge(meterRegistry, "${kind}.${FAIL}.${RATIO}", {
-            calculateRatio(retrieveTotalMetrics(serviceInstanceRepository.findAll()).total, retrieveTotalMetrics(serviceInstanceRepository.findAll()).totalFailures).toDouble()
+            calculateRatio(retrieveTotalMetrics(metricsCache.serviceInstanceList).total, retrieveTotalMetrics(metricsCache.serviceInstanceList).totalFailures).toDouble()
         }, RATIO)
 
-        def totalMetricsPerService = retrieveTotalMetricsPerService(serviceInstanceRepository.findAll())
-        totalMetricsPerService.total = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.total, cfServiceRepository)
+        def totalMetricsPerService = retrieveTotalMetricsPerService(metricsCache.serviceInstanceList)
+        totalMetricsPerService.total = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.total)
         totalMetricsPerService.total.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).total, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(metricsCache.serviceInstanceList).total, entry)
             }, SERVICE)
         }
 
-        totalMetricsPerService.totalSuccess = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.totalSuccess, cfServiceRepository)
+        totalMetricsPerService.totalSuccess = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.totalSuccess)
         totalMetricsPerService.totalSuccess.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).totalSuccess, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(metricsCache.serviceInstanceList).totalSuccess, entry)
             }, SERVICE)
         }
 
-        totalMetricsPerService.totalFailures = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.totalFailures, cfServiceRepository)
+        totalMetricsPerService.totalFailures = harmonizeServicesHashMapsWithServicesInRepository(totalMetricsPerService.totalFailures)
         totalMetricsPerService.totalFailures.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${SERVICE}.${FAIL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(serviceInstanceRepository.findAll()).totalFailures, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerService(metricsCache.serviceInstanceList).totalFailures, entry)
             }, SERVICE)
         }
 
-        def totalMetricsPerPlan = retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll())
-        totalMetricsPerPlan.total = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.total, planRepository)
+        def totalMetricsPerPlan = retrieveTotalMetricsPerPlan(metricsCache.serviceInstanceList)
+        totalMetricsPerPlan.total = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.total)
         totalMetricsPerPlan.total.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${TOTAL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).total, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(metricsCache.serviceInstanceList).total, entry)
             }, PLAN)
         }
 
-        totalMetricsPerPlan.totalSuccess = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.totalSuccess, planRepository)
+        totalMetricsPerPlan.totalSuccess = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.totalSuccess)
         totalMetricsPerPlan.totalSuccess.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${SUCCESS}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).totalSuccess, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(metricsCache.serviceInstanceList).totalSuccess, entry)
             }, PLAN)
         }
 
-        totalMetricsPerPlan.totalFailures = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.totalFailures, planRepository)
+        totalMetricsPerPlan.totalFailures = harmonizePlansHashMapsWithPlansInRepository(totalMetricsPerPlan.totalFailures)
         totalMetricsPerPlan.totalFailures.each { entry ->
             addMetricsGauge(meterRegistry, "${kind}.${PLAN}.${FAIL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(serviceInstanceRepository.findAll()).totalFailures, entry)
+                getCountForEntryFromHashMap(retrieveTotalMetricsPerPlan(metricsCache.serviceInstanceList).totalFailures, entry)
             }, PLAN)
         }
     }
