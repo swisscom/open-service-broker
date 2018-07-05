@@ -27,18 +27,18 @@ import org.springframework.stereotype.Service
 
 @Service
 @CompileStatic
-class ProvisionedInstancesMetricsServiceService extends ServiceBrokerMetricsService {
+class ProvisionedInstancesMetricsService extends ServiceBrokerMetricsService {
 
     private final String PROVISIONED_INSTANCES = "provisionedInstances"
 
     @Autowired
-    ProvisionedInstancesMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
-        addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository)
+    ProvisionedInstancesMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
+        super(lastOperationRepository, metricsCache)
+        addMetricsToMeterRegistry(meterRegistry)
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceInstanceRepository serviceInstanceRepository){
-        super.addMetricsToMeterRegistry(meterRegistry, serviceInstanceRepository, PROVISIONED_INSTANCES)
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry){
+        super.addMetricsToMeterRegistry(meterRegistry, PROVISIONED_INSTANCES)
     }
 
 
@@ -50,6 +50,6 @@ class ProvisionedInstancesMetricsServiceService extends ServiceBrokerMetricsServ
 
     @Override
     String tag() {
-        return ProvisionedInstancesMetricsServiceService.class.getSimpleName()
+        return ProvisionedInstancesMetricsService.class.getSimpleName()
     }
 }

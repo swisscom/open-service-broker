@@ -31,7 +31,7 @@ import java.util.function.ToDoubleFunction
 @Service
 @CompileStatic
 @Slf4j
-class BindingMetricsServiceService extends ServiceBrokerMetricsService {
+class BindingMetricsService extends ServiceBrokerMetricsService {
 
     final String BINDING = "binding"
     final String BINDING_REQUEST = "bindingRequest"
@@ -44,11 +44,11 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
     HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
-    BindingMetricsServiceService(ServiceInstanceRepository serviceInstanceRepository, CFServiceRepository cfServiceRepository, LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, PlanRepository planRepository, MeterRegistry meterRegistry) {
-        super(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository)
+    BindingMetricsService(LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
+        super(lastOperationRepository, metricsCache)
         this.serviceBindingRepository = serviceBindingRepository
         this.meterRegistry = meterRegistry
-        addMetricsToMeterRegistry(meterRegistry, serviceBindingRepository, cfServiceRepository)
+        addMetricsToMeterRegistry(meterRegistry)
     }
 
     long retrieveMetricsForTotalNrOfSuccessfulBindings(List<ServiceBinding> serviceBindingList) {
@@ -57,9 +57,9 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
         return totalNrOfSuccessfulBindings
     }
 
-    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList, CFServiceRepository cfServiceRepository) {
+    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList) {
         HashMap<String, Long> totalHm = new HashMap<>()
-        totalHm = harmonizeServicesHashMapsWithServicesInRepository(totalHm, cfServiceRepository)
+        totalHm = harmonizeServicesHashMapsWithServicesInRepository(totalHm)
 
         serviceBindingList.each { serviceBinding ->
             def serviceInstance = serviceBinding.serviceInstance
@@ -89,7 +89,7 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
     }
 
     void calculateFailedBindingRequestsPerService() {
-        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
+        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService)
         totalBindingRequestsPerService.each { service ->
             def key = service.getKey()
             def totalValue = service.getValue()
@@ -109,43 +109,45 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
     }
 
     double getBindingCount() {
-        retrieveMetricsForTotalNrOfSuccessfulBindings(serviceBindingRepository.findAll()).toDouble()
+        retrieveMetricsForTotalNrOfSuccessfulBindings(metricsCache.serviceBindingList).toDouble()
     }
 
-    double getSuccessfulBindingCount(Entry<String, Long> entry, CFServiceRepository cfServiceRepository) {
-        def serviceBindings = serviceBindingRepository.findAll()
-        if (retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings, cfServiceRepository).containsKey(entry.getKey())) {
-            return retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindings, cfServiceRepository).get(entry.getKey()).toDouble()
+    double getSuccessfulBindingCount(Entry<String, Long> entry) {
+        if (retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).containsKey(entry.getKey())) {
+            return retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).get(entry.getKey()).toDouble()
         }
-        0.0
+        7.0
     }
 
     void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() }, TOTAL)
 
-        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList, cfServiceRepository)
+        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList)
         totalNrOfSuccessfulBindingsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getSuccessfulBindingCount(entry, cfServiceRepository)
+                def result = getSuccessfulBindingCount(entry)
+                log.info("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()} : result${result}")
+
+                return result
             }, SERVICE)
         }
 
-        totalBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalBindingRequestsPerService, cfServiceRepository)
+        totalBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalBindingRequestsPerService)
         totalBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
                 getCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
             }, SERVICE)
         }
 
-        totalSuccessfulBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalSuccessfulBindingRequestsPerService, cfServiceRepository)
+        totalSuccessfulBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalSuccessfulBindingRequestsPerService)
         totalSuccessfulBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
                 getCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
             }, SERVICE)
         }
 
-        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService, cfServiceRepository)
+        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService)
         totalFailedBindingRequestsPerService.each { entry ->
             addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
                 getCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
@@ -160,6 +162,6 @@ class BindingMetricsServiceService extends ServiceBrokerMetricsService {
 
     @Override
     String tag() {
-        return BindingMetricsServiceService.class.getSimpleName()
+        return BindingMetricsService.class.getSimpleName()
     }
 }
