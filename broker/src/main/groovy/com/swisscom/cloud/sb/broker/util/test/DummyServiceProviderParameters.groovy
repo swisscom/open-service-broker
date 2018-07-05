@@ -23,6 +23,7 @@ class DummyServiceProviderParameters {
     String mode
     Integer delay
     String success
+    String dashboard_url
 
     @NotNull
     @JsonProperty("parent_reference")
