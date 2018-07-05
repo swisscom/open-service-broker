@@ -27,24 +27,20 @@ import io.micrometer.core.instrument.MeterRegistry
 import spock.lang.Specification
 
 class ProvisionedInstancesMetricsServiceSpec extends Specification {
-    private ServiceInstanceRepository serviceInstanceRepository
-    private CFServiceRepository cfServiceRepository
     private LastOperationRepository lastOperationRepository
-    private PlanRepository planRepository
+    private MetricsCache metricsCache
     private MeterRegistry meterRegistry
     private ProvisionedInstancesMetricsService provisioningMetricsService
 
     def setup() {
-        serviceInstanceRepository = Mock(ServiceInstanceRepository)
-        cfServiceRepository = Mock(CFServiceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        planRepository = Mock(PlanRepository)
+        metricsCache = Mock(MetricsCache)
         meterRegistry = Mock(MeterRegistry)
-        serviceInstanceRepository.findAll() >> new ArrayList<ServiceInstance>()
-        cfServiceRepository.findAll() >> new ArrayList<CFService>()
-        planRepository.findAll() >> new ArrayList<Plan>()
+        metricsCache.serviceInstanceList >> new ArrayList<ServiceInstance>()
+        metricsCache.cfServiceList >> new ArrayList<CFService>()
+        metricsCache.planList >> new ArrayList<Plan>()
 
-        provisioningMetricsService = new ProvisionedInstancesMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
+        provisioningMetricsService = new ProvisionedInstancesMetricsService(lastOperationRepository, metricsCache, meterRegistry)
     }
 
     def "retrieve total nr of provisioned instances"() {

@@ -42,9 +42,8 @@ class BindingMetricsService extends ServiceBrokerMetricsService {
     HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
 
     @Autowired
-    BindingMetricsService(LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
+    BindingMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
         super(lastOperationRepository, metricsCache)
-        this.serviceBindingRepository = serviceBindingRepository
         addMetricsToMeterRegistry(meterRegistry)
     }
 

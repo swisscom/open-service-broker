@@ -24,28 +24,21 @@ import io.micrometer.core.instrument.MeterRegistry
 import spock.lang.Specification
 
 class BindingMetricsServiceSpec extends Specification {
-    private ServiceInstanceRepository serviceInstanceRepository
     private LastOperationRepository lastOperationRepository
-    private ServiceBindingRepository serviceBindingRepository
-    private BindingMetricsService bindingMetricsService
-    private CFServiceRepository cfServiceRepository
-    private PlanRepository planRepository
     private MeterRegistry meterRegistry
+    private MetricsCache metricsCache
+    private BindingMetricsService bindingMetricsService
 
 
     def setup() {
-        serviceInstanceRepository = Mock(ServiceInstanceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        serviceBindingRepository = Mock(ServiceBindingRepository)
-        cfServiceRepository = Mock(CFServiceRepository)
-        planRepository = Mock(PlanRepository)
         meterRegistry = Mock(MeterRegistry)
-        planRepository.findAll() >> new ArrayList<Plan>()
+        metricsCache = Mock(MetricsCache)
 
-        cfServiceRepository.findAll() >> new ArrayList<CFService>()
-        serviceBindingRepository.findAll() >> new ArrayList<ServiceBinding>()
+        metricsCache.cfServiceList >> new ArrayList<CFService>()
+        metricsCache.serviceBindingList >> new ArrayList<ServiceBinding>()
 
-        bindingMetricsService = new BindingMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, serviceBindingRepository, planRepository, meterRegistry)
+        bindingMetricsService = new BindingMetricsService(lastOperationRepository, metricsCache, meterRegistry)
     }
 
     def "retrieve total nr of successful service bindings"() {
@@ -81,7 +74,7 @@ class BindingMetricsServiceSpec extends Specification {
         serviceBindingList.add(serviceBinding)
 
         then:
-        def totalNrOfSuccessfulBindingsPerService = bindingMetricsService.retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList, cfServiceRepository)
+        def totalNrOfSuccessfulBindingsPerService = bindingMetricsService.retrieveTotalNrOfSuccessfulBindingsPerService(serviceBindingList)
 
         expect:
         totalNrOfSuccessfulBindingsPerService.size() == 1

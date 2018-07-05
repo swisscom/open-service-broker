@@ -27,11 +27,9 @@ import spock.lang.Specification
 
 class LifecycleTimeMetricsSpec extends Specification {
 
-    private ServiceInstanceRepository serviceInstanceRepository
-    private CFServiceRepository cfServiceRepository
     private LastOperationRepository lastOperationRepository
-    private PlanRepository planRepository
     private MeterRegistry meterRegistry
+    private MetricsCache metricsCache
     private LifecycleTimeMetricsService lifecylceTimeMetrics
 
     private final int TIME_INTERVAL_BETWEEN_CREATION_AND_DELETION1 = 20
@@ -40,15 +38,13 @@ class LifecycleTimeMetricsSpec extends Specification {
     private final int MILLISECONDS_PER_SECOND = 1000
 
     def setup() {
-        serviceInstanceRepository = Mock(ServiceInstanceRepository)
-        cfServiceRepository = Mock(CFServiceRepository)
         lastOperationRepository = Mock(LastOperationRepository)
-        planRepository = Mock(PlanRepository)
         meterRegistry = Mock(MeterRegistry)
-        cfServiceRepository.findAll() >> new ArrayList<CFService>()
-        planRepository.findAll() >> new ArrayList<Plan>()
+        metricsCache = Mock(MetricsCache)
+        metricsCache.cfServiceList >> new ArrayList<CFService>()
+        metricsCache.planList >> new ArrayList<Plan>()
 
-        lifecylceTimeMetrics = new LifecycleTimeMetricsService(serviceInstanceRepository, cfServiceRepository, lastOperationRepository, planRepository, meterRegistry)
+        lifecylceTimeMetrics = new LifecycleTimeMetricsService(lastOperationRepository, metricsCache, meterRegistry)
         }
 
     def "retrieve mean lifecycle time per service"() {
