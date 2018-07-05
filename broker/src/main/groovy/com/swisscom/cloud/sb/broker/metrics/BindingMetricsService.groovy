@@ -47,7 +47,6 @@ class BindingMetricsService extends ServiceBrokerMetricsService {
     BindingMetricsService(LastOperationRepository lastOperationRepository, ServiceBindingRepository serviceBindingRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
         super(lastOperationRepository, metricsCache)
         this.serviceBindingRepository = serviceBindingRepository
-        this.meterRegistry = meterRegistry
         addMetricsToMeterRegistry(meterRegistry)
     }
 
@@ -116,10 +115,10 @@ class BindingMetricsService extends ServiceBrokerMetricsService {
         if (retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).containsKey(entry.getKey())) {
             return retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).get(entry.getKey()).toDouble()
         }
-        7.0
+        0.0
     }
 
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry, ServiceBindingRepository serviceBindingRepository) {
+    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
         List<ServiceBinding> serviceBindingList = serviceBindingRepository.findAll()
         addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() }, TOTAL)
 
