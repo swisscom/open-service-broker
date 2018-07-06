@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.0.4] - 2018-07-06
+- Return dashboard_url according to spec
+
 ## [4.0.3] - 2018-07-03
 - Get a proper version for mongodb ent
 - Support UAA authentication for BOSH based services

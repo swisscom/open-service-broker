@@ -97,12 +97,13 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
                     value: DeserializeParameters(request.parameters).mode))
         }
 
+        def dashboardUrl = (request.parameters) ? DeserializeParameters(request.parameters)?.dashboard_url : null
         if (request.acceptsIncomplete) {
             asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
-            return new ProvisionResponse(details: serviceDetails, isAsync: true)
-        } else {
-            return new ProvisionResponse(details: serviceDetails, isAsync: false)
         }
+        return (dashboardUrl?.isEmpty()) ?
+                new ProvisionResponse(details: serviceDetails, isAsync: request.acceptsIncomplete) :
+                new ProvisionResponse(details: serviceDetails, isAsync: request.acceptsIncomplete, dashboardURL: dashboardUrl)
     }
 
     @Override
@@ -160,9 +161,9 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         def serviceDetails = new ArrayList<ServiceDetail>()
         if (!StringUtils.isEmpty(updateRequest.parameters)) {
             serviceDetails.add(new ServiceDetail(
-                        key: "mode",
-                        uniqueKey: true,
-                        value: DeserializeParameters(updateRequest.parameters).mode))
+                    key: "mode",
+                    uniqueKey: true,
+                    value: DeserializeParameters(updateRequest.parameters).mode))
         }
 
         if (updateRequest.acceptsIncomplete) {

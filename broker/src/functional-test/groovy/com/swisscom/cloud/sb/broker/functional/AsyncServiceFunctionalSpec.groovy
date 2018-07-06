@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 import spock.lang.Shared
 
@@ -215,6 +216,56 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         def instanceResponse = serviceInstance.getBody()
         instanceResponse.serviceId == serviceLifeCycler.cfService.guid
         instanceResponse.parameters == "{\"delay\":\"${String.valueOf(processDelayInSeconds)}\"}"
+    }
+
+    def "provision async service instance without dashboard_url"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+
+        when:
+        ResponseEntity provisionResponse = serviceLifeCycler.requestServiceProvisioning(
+                true,
+                null,
+                ['delay': String.valueOf(processDelayInSeconds)]
+        )
+
+        then:
+        assert provisionResponse.statusCode == HttpStatus.ACCEPTED
+        provisionResponse.body.dashboardUrl == null
+
+        and:
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, serviceLifeCycler.serviceInstanceId)
+        serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
+
+        and:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
+    }
+
+    def "provision async service instance with dashboard_url"() {
+        given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        def myDashboardUrl = 'https://somedashboardhwithoauth.com'
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+
+        when:
+        ResponseEntity provisionResponse = serviceLifeCycler.requestServiceProvisioning(
+                true,
+                null,
+                ['delay': String.valueOf(processDelayInSeconds),
+                 'dashboard_url': myDashboardUrl]
+        )
+
+        then:
+        assert provisionResponse.statusCode == HttpStatus.ACCEPTED
+        provisionResponse.body.dashboardUrl == myDashboardUrl
+
+        and:
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, serviceLifeCycler.serviceInstanceId)
+        serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
+
+        and:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
     }
 
     void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {

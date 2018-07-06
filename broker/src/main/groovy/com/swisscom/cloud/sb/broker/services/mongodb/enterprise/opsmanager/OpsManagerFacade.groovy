@@ -154,6 +154,10 @@ class OpsManagerFacade {
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
             automationConfigDto.processes.each { it.featureCompatibilityVersion = featureCompatibilityVersion }
             automationConfigDto.processes.each { it.version = mongoDbVersion }
+            // enable current MongoDB Ent version on OpsManager project in a unique way
+            def versionSet = automationConfigDto.mongoDbVersions.toSet()
+            versionSet.add(new MongoDbVersionDto(name: mongoDbVersion))
+            automationConfigDto.mongoDbVersions = versionSet.toList()
         })
         return true
     }
