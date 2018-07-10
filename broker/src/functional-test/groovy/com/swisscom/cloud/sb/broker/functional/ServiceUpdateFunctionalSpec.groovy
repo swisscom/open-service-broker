@@ -258,6 +258,22 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
+    def "async update is not returning null operation"() {
+        setup:
+        def newPlanGuid = "updateTest_notUpdateable_plan_b"
+        def serviceInstanceGuid = requestServiceProvisioning(parameters, defaultPlanGuid, true)
+
+        when:
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, parameters, true)
+
+        then:
+        response.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
+        response.body.operation == null
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
+
     def "second async parameter update is denied"() {
         setup:
 
