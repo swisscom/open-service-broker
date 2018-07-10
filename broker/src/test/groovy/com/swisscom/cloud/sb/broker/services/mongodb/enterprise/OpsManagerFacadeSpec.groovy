@@ -271,5 +271,41 @@ class OpsManagerFacadeSpec extends Specification {
         then:
         1 * opsManagerClient.updateAutomationConfig(GROUP_ID, _)
     }
+
+    def "match version regex"(){
+        given:
+        String regex = "^\\d+\\.\\d+\$"
+        String version = "3.5"
+
+        when:
+        def result = version.matches(regex)
+
+        then:
+        result
+    }
+
+    def "do nat match version regex when starting with a character"(){
+        given:
+        String regex = "^\\d+\\.\\d+\$"
+        String version = "a3.5"
+
+        when:
+        def result = version.matches(regex)
+
+        then:
+        !result
+    }
+
+    def "match version regex when ending with a character"(){
+        given:
+        String regex = "^\\d+\\.\\d+\$"
+        String version = "3.5a"
+
+        when:
+        def result = version.matches(regex)
+
+        then:
+        !result
+    }
 }
 
