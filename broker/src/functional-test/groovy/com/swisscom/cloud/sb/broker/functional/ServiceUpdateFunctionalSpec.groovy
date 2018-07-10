@@ -258,16 +258,15 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
-    def "async update is not returning null operation"() {
+    def "async update response does not contain field 'operation' if value would be empty or null"() {
         setup:
-        def newPlanGuid = "updateTest_notUpdateable_plan_b"
-        def serviceInstanceGuid = requestServiceProvisioning(parameters, defaultPlanGuid, true)
+        def serviceInstanceGuid = requestServiceProvisioning()
 
         when:
-        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, newPlanGuid, parameters, true)
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
 
         then:
-        response.statusCode == ErrorCode.OPERATION_IN_PROGRESS.httpStatus
+        response.statusCode == HttpStatus.CREATED
         response.body.operation == null
 
         cleanup:
