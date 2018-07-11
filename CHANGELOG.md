@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.0.5] - 2018-07-11
+- Return operation field according to spec 
+
 ## [4.0.4] - 2018-07-06
 - Return dashboard_url according to spec
 

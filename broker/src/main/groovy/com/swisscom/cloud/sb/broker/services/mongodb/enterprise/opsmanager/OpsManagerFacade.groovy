@@ -152,13 +152,17 @@ class OpsManagerFacade {
 
     Boolean updateReplicaSet(String groupId, String mongoDbVersion, String featureCompatibilityVersion) {
         updateAutomationConfig(groupId, { AutomationConfigDto automationConfigDto ->
-            automationConfigDto.processes.each { it.featureCompatibilityVersion = featureCompatibilityVersion }
+            if (featureCompatibilityVersion != "" && featureCompatibilityVersion.matches("^\\d+\\.\\d+\$")) {
+                automationConfigDto.processes.each { it.featureCompatibilityVersion = featureCompatibilityVersion }
+            }
             automationConfigDto.processes.each { it.version = mongoDbVersion }
             // enable current MongoDB Ent version on OpsManager project in a unique way
             def versionSet = automationConfigDto.mongoDbVersions.toSet()
             versionSet.add(new MongoDbVersionDto(name: mongoDbVersion))
             automationConfigDto.mongoDbVersions = versionSet.toList()
-        })
+        }
+
+        )
         return true
     }
 
@@ -263,7 +267,7 @@ class OpsManagerFacade {
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,
-                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbEnterpriseConfig.featureCompatibilityVersion,
+                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbVersion.substring(0,mongoDbVersion.lastIndexOf(".")),
                 hostname: hostPort.host,
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),
