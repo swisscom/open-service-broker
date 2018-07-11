@@ -258,6 +258,21 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
 
+    def "async update response does not contain field 'operation' if value would be empty or null"() {
+        setup:
+        def serviceInstanceGuid = requestServiceProvisioning()
+
+        when:
+        def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
+
+        then:
+        response.statusCode == HttpStatus.CREATED
+        response.body.operation == null
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
+
     def "second async parameter update is denied"() {
         setup:
 
