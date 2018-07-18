@@ -134,7 +134,7 @@ class MetricsCache {
         synchronized (planList) {
             if (hasExpired(planListLastModified)) {
                 planList.clear()
-                planList.addAll(planRepository.findAll().findAll { p -> p.service != null })
+                planList.addAll(planRepository.findAll().findAll { p -> p.name && p.service != null && p.service.name })
                 planListLastModified = LocalDateTime.now()
             }
 

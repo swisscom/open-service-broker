@@ -26,7 +26,7 @@ import java.util.function.ToDoubleFunction
 import java.time.Duration
 
 @CompileStatic
-abstract class ServiceBrokerMetricsService implements PlanBasedMetricsService {
+abstract class ServiceBrokerMetricsService {
 
     protected ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
     protected MetricsCache metricsCache
@@ -61,9 +61,5 @@ abstract class ServiceBrokerMetricsService implements PlanBasedMetricsService {
         counterBuilder.register(meterRegistry)
     }
 
-    abstract void bindMetricsPerPlan(Plan plan)
-
-    void bindAll() {
-        metricsCache.listOfPlans.each { p -> bindMetricsPerPlan(p) }
-    }
+    abstract void bindAll()
 }

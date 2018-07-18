@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @CompileStatic
-class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
+class LifecycleTimeMetricsService extends PlanBasedMetricsService {
 
     static String LIFECYCLE_TIME_KEY = "LifecycleTime"
 
@@ -34,8 +34,6 @@ class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
 
     @Override
     void bindMetricsPerPlan(Plan plan) {
-        addMetricsGauge(LIFECYCLE_TIME_KEY,
-                { metricsCache.serviceInstanceList.byPlanId(plan.guid).lifecycleTimeInSeconds() },
-                ["plan": plan.guid, "service": plan.service.guid])
+        addMetricsGauge(plan, LIFECYCLE_TIME_KEY,{ metricsCache.serviceInstanceList.byPlanId(plan.guid).lifecycleTimeInSeconds() })
     }
 }
