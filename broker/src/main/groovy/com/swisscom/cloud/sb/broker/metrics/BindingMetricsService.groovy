@@ -15,148 +15,49 @@
 
 package com.swisscom.cloud.sb.broker.metrics
 
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.Plan
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-import java.util.Map.Entry
-
-@Service
+@Component
 @CompileStatic
 @Slf4j
 class BindingMetricsService extends ServiceBrokerMetricsService {
 
-    final String BINDING = "binding"
-    final String BINDING_REQUEST = "bindingRequest"
+    static String BINDING_SERVICE_KEY = "ServiceBindings"
+    static String NEW_SERVICE_BINDINGS = "NewServiceBindings"
 
-    ServiceBindingRepository serviceBindingRepository
-    MeterRegistry meterRegistry
-
-    HashMap<String, Long> totalBindingRequestsPerService = new HashMap<>()
-    HashMap<String, Long> totalSuccessfulBindingRequestsPerService = new HashMap<>()
-    HashMap<String, Long> totalFailedBindingRequestsPerService = new HashMap<>()
+    private static final Map<String, Counter> succeededCounterByPlanGuid = new HashMap<String, Counter>()
+    private static final Map<String, Counter> failedCounterByPlanGuid = new HashMap<String, Counter>()
 
     @Autowired
-    BindingMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
-        super(lastOperationRepository, metricsCache)
-        addMetricsToMeterRegistry(meterRegistry)
-    }
-
-    long retrieveMetricsForTotalNrOfSuccessfulBindings(List<ServiceBinding> serviceBindingList) {
-        def totalNrOfSuccessfulBindings = serviceBindingList.size()
-        log.info("Total nr of provision requests: ${totalNrOfSuccessfulBindings}")
-        return totalNrOfSuccessfulBindings
-    }
-
-    HashMap<String, Long> retrieveTotalNrOfSuccessfulBindingsPerService(List<ServiceBinding> serviceBindingList) {
-        HashMap<String, Long> totalHm = new HashMap<>()
-        totalHm = harmonizeServicesHashMapsWithServicesInRepository(totalHm)
-
-        serviceBindingList.each { serviceBinding ->
-            def serviceInstance = serviceBinding.serviceInstance
-            if (serviceInstance != null) {
-                def service = serviceInstance.plan.service
-                def serviceName = "someService"
-                if (service) {
-                    serviceName = service.name
-                }
-                totalHm = addOrUpdateEntryOnHashMap(totalHm, serviceName)
-            }
-        }
-        log.info("${tag()} total bindings per service: ${totalHm}")
-        return totalHm
-    }
-
-    void setTotalBindingRequestsPerService(ServiceInstance serviceInstance) {
-        def cfServiceName = getServiceName(serviceInstance)
-        totalBindingRequestsPerService = addOrUpdateEntryOnHashMap(totalBindingRequestsPerService, cfServiceName)
-        calculateFailedBindingRequestsPerService()
-    }
-
-    void setSuccessfulBindingRequestsPerService(ServiceInstance serviceInstance) {
-        def cfServiceName = getServiceName(serviceInstance)
-        totalSuccessfulBindingRequestsPerService = addOrUpdateEntryOnHashMap(totalSuccessfulBindingRequestsPerService, cfServiceName)
-        calculateFailedBindingRequestsPerService()
-    }
-
-    void calculateFailedBindingRequestsPerService() {
-        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService)
-        totalBindingRequestsPerService.each { service ->
-            def key = service.getKey()
-            def totalValue = service.getValue()
-            if (totalValue == null) {
-                totalValue = 0
-            }
-            def successValue = totalSuccessfulBindingRequestsPerService.get(key)
-            if (totalValue == null) {
-                totalValue = 0
-            }
-            if (successValue == null) {
-                successValue = 0
-            }
-            def failureValue = totalValue - successValue
-            totalFailedBindingRequestsPerService.put(key, failureValue)
-        }
-    }
-
-    double getBindingCount() {
-        retrieveMetricsForTotalNrOfSuccessfulBindings(metricsCache.serviceBindingList).toDouble()
-    }
-
-    double getSuccessfulBindingCount(Entry<String, Long> entry) {
-        if (retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).containsKey(entry.getKey())) {
-            return retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList).get(entry.getKey()).toDouble()
-        }
-        0.0
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        addMetricsGauge(meterRegistry, "${BINDING}.${TOTAL}.${TOTAL}", { getBindingCount() }, TOTAL)
-
-        def totalNrOfSuccessfulBindingsPerService = retrieveTotalNrOfSuccessfulBindingsPerService(metricsCache.serviceBindingList)
-        totalNrOfSuccessfulBindingsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                def result = getSuccessfulBindingCount(entry)
-                log.info("${BINDING}.${SERVICE}.${TOTAL}.${entry.getKey()} : result${result}")
-
-                return result
-            }, SERVICE)
-        }
-
-        totalBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalBindingRequestsPerService)
-        totalBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalBindingRequestsPerService, entry)
-            }, SERVICE)
-        }
-
-        totalSuccessfulBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalSuccessfulBindingRequestsPerService)
-        totalSuccessfulBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${SUCCESS}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalSuccessfulBindingRequestsPerService, entry)
-            }, SERVICE)
-        }
-
-        totalFailedBindingRequestsPerService = harmonizeServicesHashMapsWithServicesInRepository(totalFailedBindingRequestsPerService)
-        totalFailedBindingRequestsPerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${BINDING_REQUEST}.${SERVICE}.${FAIL}.${entry.getKey()}", {
-                getCountForEntryFromHashMap(totalFailedBindingRequestsPerService, entry)
-            }, SERVICE)
-        }
+    protected BindingMetricsService(MeterRegistry meterRegistry, MetricsCache metricsCache, ServiceBrokerMetricsConfig serviceBrokerMetricsConfig) {
+        super(meterRegistry, metricsCache, serviceBrokerMetricsConfig)
     }
 
     @Override
-    boolean considerServiceInstance(ServiceInstance serviceInstance) {
-        return false
+    void bindMetricsPerPlan(Plan plan) {
+        addMetricsGauge(BINDING_SERVICE_KEY,
+                { metricsCache.bindingCountByPlanGuid.get(plan.guid, 0.0D) },
+                ["plan": plan.guid, "service": plan.service.guid])
+
+        def succeededCounter = createMetricsCounter(NEW_SERVICE_BINDINGS, ["status": "completed", "plan": plan.guid, "service": plan.service.guid])
+        succeededCounterByPlanGuid.put(plan.guid, succeededCounter)
+
+        def failedCounter = createMetricsCounter(NEW_SERVICE_BINDINGS, ["status": "failed", "plan": plan.guid, "service": plan.service.guid])
+        failedCounterByPlanGuid.put(plan.guid, failedCounter)
     }
 
-    @Override
-    String tag() {
-        return BindingMetricsService.class.getSimpleName()
+    void notifyBinding(String planGuid, boolean succeeded) {
+        def counterMap = succeeded ? succeededCounterByPlanGuid : failedCounterByPlanGuid
+
+        if (counterMap.containsKey(planGuid)) {
+            counterMap.get(planGuid).increment()
+        }
     }
+
 }

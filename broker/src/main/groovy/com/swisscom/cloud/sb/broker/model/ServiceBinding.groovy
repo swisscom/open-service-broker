@@ -45,6 +45,9 @@ class ServiceBinding extends BaseModel {
     @OneToOne
     ServiceContext serviceContext
 
+    @Column(name = 'service_instance_id', updatable = false, insertable = false)
+    Integer serviceInstanceId
+
     @ManyToOne
     @JoinColumn(name = 'service_instance_id')
     @JsonIgnore

@@ -48,6 +48,8 @@ class ServiceInstance extends BaseModel{
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     List<ServiceDetail> details = []
+    @Column(name="plan_id", updatable = false, insertable = false)
+    Integer planId
     @ManyToOne
     @JoinColumn(name="plan_id")
     Plan plan

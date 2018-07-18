@@ -1,10 +1,9 @@
 package com.swisscom.cloud.sb.broker.metrics
 
-import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -19,81 +18,97 @@ import java.time.LocalDateTime
 @CompileStatic
 @Slf4j
 class MetricsCache {
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository
+    @Autowired
+    private ServiceBindingRepository serviceBindingRepository
+    @Autowired
+    private PlanRepository planRepository
+    @Autowired
+    private LastOperationRepository lastOperationRepository
+    @Autowired
+    private ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
 
-    @Autowired
-    ServiceInstanceRepository serviceInstanceRepository
-    @Autowired
-    CFServiceRepository cfServiceRepository
-    @Autowired
-    ServiceBindingRepository serviceBindingRepository
-    @Autowired
-    PlanRepository planRepository
+    private static final ServiceInstanceList serviceInstanceList = new ServiceInstanceList()
+    private static LocalDateTime serviceInstanceListLastModified = LocalDateTime.MIN
 
-    @Autowired
-    ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
+    private static final Map<String, LastOperation> lastOperationMap = new HashMap<String, LastOperation>()
+    private static LocalDateTime lastOperationMapLastModified = LocalDateTime.MIN
 
-    static final List<ServiceInstance> serviceInstanceList = new ArrayList<>()
-    private static LocalDateTime serviceInstanceListLastModified = LocalDateTime.now()
-    static final List<ServiceBinding> serviceBindingList = new ArrayList<>()
-    private static LocalDateTime serviceBindingListLastModified = LocalDateTime.now()
-    static final List<CFService> cfServiceList = new ArrayList<>()
-    private static LocalDateTime cfServiceListLastModified = LocalDateTime.now()
-    static final List<Plan> planList = new ArrayList<>()
-    private static LocalDateTime planListLastModified = LocalDateTime.now()
+    private static final List<Plan> planList = new ArrayList<>()
+    private static LocalDateTime planListLastModified = LocalDateTime.MIN
 
-    List<ServiceInstance> getServiceInstanceList() {
+    private static final Map<String, Double> bindingCountByPlanGuid = new HashMap<String, Double>()
+    private static LocalDateTime bindingCountByPlanGuidLastModified = LocalDateTime.MIN
+
+    ServiceInstanceList getServiceInstanceList() {
         synchronized (serviceInstanceList) {
-            int timeoutInSeconds = Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
-            if (serviceInstanceListLastModified.isBefore(LocalDateTime.now().minusSeconds(timeoutInSeconds))) {
-                serviceInstanceList.clear()
-                log.info("Id of repo: ${java.lang.System.identityHashCode(serviceInstanceRepository)}")
-                if(serviceInstanceRepository.findAll().size()> 0)
-                log.info("Value: ${serviceInstanceRepository.findAll().get(serviceInstanceRepository.findAll().size()-1)}")
-                serviceInstanceList.addAll(serviceInstanceRepository.findAll())
+            if (hasExpired(serviceInstanceListLastModified)) {
+                def allServiceInstances = serviceInstanceRepository.findAll();
+
+                serviceInstanceList.refresh(getLastOperationMap(), allServiceInstances)
                 serviceInstanceListLastModified = LocalDateTime.now()
-                log.info("actualised serviceInstanceList")
             }
 
-            log.info("Id of listInstance: ${java.lang.System.identityHashCode(serviceInstanceList)}")
             return serviceInstanceList
         }
     }
 
-    List<ServiceBinding> getServiceBindingList() {
-        synchronized (serviceBindingList) {
-            int timeoutInSeconds = Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
-            if (serviceBindingListLastModified.isBefore(LocalDateTime.now().minusSeconds(timeoutInSeconds))) {
-                serviceBindingList.clear()
-                serviceBindingList.addAll(serviceBindingRepository.findAll())
-                serviceBindingListLastModified = LocalDateTime.now()
-                log.info("actualised serviceBindingList")
+    Map<String, LastOperation> getLastOperationMap() {
+        synchronized (lastOperationMap) {
+            if (hasExpired(lastOperationMapLastModified)) {
+                lastOperationRepository.findAll().each { lO -> lastOperationMap.put(lO.guid, lO) }
+                lastOperationMapLastModified = LocalDateTime.now()
             }
-            return serviceBindingList
+
+            return lastOperationMap
         }
     }
 
-    List<CFService> getCfServiceList() {
-        synchronized (cfServiceList) {
-            int timeoutInSeconds = Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
-            if (cfServiceListLastModified.isBefore(LocalDateTime.now().minusSeconds(timeoutInSeconds))) {
-                cfServiceList.clear()
-                cfServiceList.addAll(cfServiceRepository.findAll())
-                cfServiceListLastModified = LocalDateTime.now()
-                log.info("actualised cfServiceList")
+    Map<String, Double> getBindingCountByPlanGuid() {
+        synchronized (bindingCountByPlanGuid) {
+            if (hasExpired(bindingCountByPlanGuidLastModified)) {
+                createBindingCountByPlanGuid().each { k, v -> bindingCountByPlanGuid.put(k, v) }
             }
-            return cfServiceList
+
+            return bindingCountByPlanGuid
         }
     }
 
-    List<Plan> getPlanList() {
+    private Map<String, Double> createBindingCountByPlanGuid() {
+        HashMap<String, Double> bindingCountByPlanGuid = new HashMap<>()
+
+        Map<Integer, String> planIdToPlanGuid = new HashMap<>()
+        planList.each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
+
+        Map<Integer, String> serviceInstanceIdToPlanGuid = new HashMap<>()
+        serviceInstanceList.each { sI -> serviceInstanceIdToPlanGuid.put(sI.id, planIdToPlanGuid[sI.planId]) }
+
+        def allBindings = serviceBindingRepository.findAll()
+        allBindings.each { binding ->
+            def planGuid = serviceInstanceIdToPlanGuid[binding.serviceInstanceId]
+            bindingCountByPlanGuid.put(planGuid, bindingCountByPlanGuid.get(planGuid, 0.0D) + 1)
+        }
+
+        return bindingCountByPlanGuid
+    }
+
+    private int getTimeoutInSeconds() {
+        Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
+    }
+
+    private boolean hasExpired(LocalDateTime dateOflastRefresh) {
+        dateOflastRefresh.isBefore(LocalDateTime.now().minusSeconds(getTimeoutInSeconds()))
+    }
+
+    List<Plan> getListOfPlans() {
         synchronized (planList) {
-            int timeoutInSeconds = Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
-            if (planListLastModified.isBefore(LocalDateTime.now().minusSeconds(timeoutInSeconds))) {
+            if (hasExpired(planListLastModified)) {
                 planList.clear()
-                planList.addAll(planRepository.findAll())
+                planList.addAll(planRepository.findAll().findAll { p -> p.service != null })
                 planListLastModified = LocalDateTime.now()
-                log.info("actualised planList")
             }
+
             return planList
         }
     }

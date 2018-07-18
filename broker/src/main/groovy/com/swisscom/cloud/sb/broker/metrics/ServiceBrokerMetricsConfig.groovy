@@ -9,5 +9,11 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = 'management.metrics.export.influx')
 class ServiceBrokerMetricsConfig implements Config{
+    String uri
     String step
+    String userName
+    String password
+    String db
+
+    String env
 }

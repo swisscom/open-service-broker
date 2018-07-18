@@ -68,20 +68,24 @@ class BindingController extends BaseController {
                                 @PathVariable('service_instance') String serviceInstanceId,
                                 @Valid @RequestBody BindRequestDto bindingDto,
                                 Principal principal) {
+
         log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceId}")
-
         ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
-        bindingMetricsService.setTotalBindingRequestsPerService(serviceInstance)
-        verifyServiceInstanceIsReady(serviceInstance) //Don't allow binding if service is not ready
-        CFService service = getAndCheckService(bindingDto)
-        failIfServiceBindingAlreadyExists(bindingId)
+        boolean bindingSucceeded = true
+        try {
+            verifyServiceInstanceIsReady(serviceInstance)
+            CFService service = getAndCheckService(bindingDto)
+            failIfServiceBindingAlreadyExists(bindingId)
+            BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingId, bindingDto, service, serviceInstance))
+            serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
 
-        BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingId, bindingDto, service, serviceInstance))
-
-        serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
-
-        bindingMetricsService.setSuccessfulBindingRequestsPerService(serviceInstance)
-        return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
+            bindingMetricsService.notifyBinding(serviceInstance.plan.guid, bindingSucceeded)
+            return new ResponseEntity<String>(getCredentialsAsJson(bindResponse), bindResponse.isUniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
+        } catch (Exception ex) {
+            bindingSucceeded = false
+            bindingMetricsService.notifyBinding(serviceInstance.plan.guid, bindingSucceeded)
+            throw ex
+        }
     }
 
     private static String getCredentialsAsJson(BindResponse bindResponse) {
