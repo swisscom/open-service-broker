@@ -69,10 +69,6 @@ class ProvisioningService {
     DeprovisionResponse deprovision(DeprovisionRequest deprovisionRequest) {
         log.trace("DeprovisionRequest request:${deprovisionRequest.toString()}")
         handleAsyncClientRequirement(deprovisionRequest.serviceInstance.plan, deprovisionRequest.acceptsIncomplete)
-/*
-        if(backupService.isBackupEnabled(deprovisionRequest.serviceInstance)) {
-            backupService.notifyServiceInstanceDeletion(deprovisionRequest.serviceInstance)
-        }*/
         DeprovisionResponse response = serviceProviderLookup.findServiceProvider(deprovisionRequest.serviceInstance.plan).deprovision(deprovisionRequest)
         if (!response.isAsync) {
             provisioningPersistenceService.markServiceInstanceAsDeleted(deprovisionRequest.serviceInstance)
