@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,6 +42,9 @@ class MetricsCache {
     private static final Map<String, Double> bindingCountByPlanGuid = new HashMap<String, Double>()
     private static LocalDateTime bindingCountByPlanGuidLastModified = LocalDateTime.MIN
 
+    private static final Map<String, Double> failedLastOperationCountByPlanGuid = new HashMap<String, Double>()
+    private static LocalDateTime failedLastOperationCountByPlanGuidLastModified = LocalDateTime.MIN
+
     ServiceInstanceList getServiceInstanceList() {
         synchronized (serviceInstanceList) {
             if (hasExpired(serviceInstanceListLastModified)) {
@@ -67,10 +71,8 @@ class MetricsCache {
 
     Map<String, Double> getBindingCountByPlanGuid() {
         synchronized (bindingCountByPlanGuid) {
-            if (hasExpired(bindingCountByPlanGuidLastModified)) {
+            if (hasExpired(bindingCountByPlanGuidLastModified))
                 createBindingCountByPlanGuid().each { k, v -> bindingCountByPlanGuid.put(k, v) }
-            }
-
             return bindingCountByPlanGuid
         }
     }
@@ -91,6 +93,33 @@ class MetricsCache {
         }
 
         return bindingCountByPlanGuid
+    }
+
+    Double getFailedLastOperationCount(String planGuid) {
+        synchronized (failedLastOperationCountByPlanGuid) {
+            if (hasExpired(failedLastOperationCountByPlanGuidLastModified))
+                createFailedLastOperationMap().each { k, v -> failedLastOperationCountByPlanGuid.put(k, v) }
+            return failedLastOperationCountByPlanGuid.get(planGuid, 0.0D)
+        }
+    }
+
+    private Map<String, Double> createFailedLastOperationMap() {
+        Map<Integer, String> planIdToPlanGuid = new HashMap<>()
+        planList.each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
+
+        Map<String, String> serviceInstanceGuidToPlanGuid = new HashMap<>()
+        serviceInstanceList.each { sI -> serviceInstanceGuidToPlanGuid.put(sI.guid, planIdToPlanGuid[sI.planId]) }
+
+        Map<String, Double> failedCountByPlanId = new HashMap<>()
+
+        lastOperationMap.values().each { lastOperation ->
+            if (lastOperation.status == LastOperationState.FAILED) {
+                def planGuid = serviceInstanceGuidToPlanGuid.get(lastOperation.guid)
+                failedCountByPlanId.put(planGuid, failedCountByPlanId.get(planGuid, 0.0D) + 1)
+            }
+        }
+
+        failedCountByPlanId
     }
 
     private int getTimeoutInSeconds() {
