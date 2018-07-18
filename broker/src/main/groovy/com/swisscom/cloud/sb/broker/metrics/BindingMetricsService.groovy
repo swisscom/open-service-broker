@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component
 @Component
 @CompileStatic
 @Slf4j
-class BindingMetricsService extends ServiceBrokerMetricsService {
+class BindingMetricsService extends PlanBasedMetricsService {
 
     static String BINDING_SERVICE_KEY = "ServiceBindings"
     static String NEW_SERVICE_BINDINGS = "NewServiceBindings"
@@ -41,15 +41,9 @@ class BindingMetricsService extends ServiceBrokerMetricsService {
 
     @Override
     void bindMetricsPerPlan(Plan plan) {
-        addMetricsGauge(BINDING_SERVICE_KEY,
-                { metricsCache.bindingCountByPlanGuid.get(plan.guid, 0.0D) },
-                ["plan": plan.guid, "service": plan.service.guid])
-
-        def succeededCounter = createMetricsCounter(NEW_SERVICE_BINDINGS, ["status": "completed", "plan": plan.guid, "service": plan.service.guid])
-        succeededCounterByPlanGuid.put(plan.guid, succeededCounter)
-
-        def failedCounter = createMetricsCounter(NEW_SERVICE_BINDINGS, ["status": "failed", "plan": plan.guid, "service": plan.service.guid])
-        failedCounterByPlanGuid.put(plan.guid, failedCounter)
+        addMetricsGauge(plan, BINDING_SERVICE_KEY, { metricsCache.bindingCountByPlanGuid.get(plan.guid, 0.0D) })
+        succeededCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS, ["status": "completed"]))
+        failedCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS, ["status": "failed"]))
     }
 
     void notifyBinding(String planGuid, boolean succeeded) {

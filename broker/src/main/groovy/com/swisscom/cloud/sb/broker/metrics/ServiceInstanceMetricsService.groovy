@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service
 
 @Component
 @CompileStatic
-class ServiceInstanceMetricsService extends ServiceBrokerMetricsService {
+class ServiceInstanceMetricsService extends PlanBasedMetricsService {
     static String SERVICE_INSTANCES_KEY = "serviceInstances"
 
     @Autowired
@@ -35,17 +35,25 @@ class ServiceInstanceMetricsService extends ServiceBrokerMetricsService {
 
     @Override
     void bindMetricsPerPlan(Plan plan) {
-        addMetricsGauge(SERVICE_INSTANCES_KEY,
+        addMetricsGauge(
+                plan,
+                SERVICE_INSTANCES_KEY,
                 { metricsCache.serviceInstanceList.byPlanId(plan.guid).completed().size().toDouble() },
-                ["status": "completed", "plan": plan.guid, "service": plan.service.guid])
-        addMetricsGauge(SERVICE_INSTANCES_KEY,
+                ["status": "completed"])
+        addMetricsGauge(
+                plan,
+                SERVICE_INSTANCES_KEY,
                 { metricsCache.serviceInstanceList.byPlanId(plan.guid).failed().size().toDouble() },
-                ["status": "failed", "plan": plan.guid, "service": plan.service.guid])
-        addMetricsGauge(SERVICE_INSTANCES_KEY,
+                ["status": "failed"])
+        addMetricsGauge(
+                plan,
+                SERVICE_INSTANCES_KEY,
                 { metricsCache.serviceInstanceList.byPlanId(plan.guid).inProgress().size().toDouble() },
-                ["status": "inProgress", "plan": plan.guid, "service": plan.service.guid])
-        addMetricsGauge(SERVICE_INSTANCES_KEY,
+                ["status": "inProgress"])
+        addMetricsGauge(
+                plan,
+                SERVICE_INSTANCES_KEY,
                 { metricsCache.serviceInstanceList.byPlanId(plan.guid).deleted().size().toDouble() },
-                ["status": "deleted", "plan": plan.guid, "service": plan.service.guid])
+                ["status": "deleted"])
     }
 }
