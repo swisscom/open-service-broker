@@ -15,103 +15,27 @@
 
 package com.swisscom.cloud.sb.broker.metrics
 
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.Plan
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
+@Component
 @CompileStatic
 class LifecycleTimeMetricsService extends ServiceBrokerMetricsService {
 
-    private final String LIFECYCLE_TIME = "lifecycleTime"
-
-    private HashMap<String, Long> totalLifecycleTimePerService = new HashMap<>()
-    private HashMap<String, Long> totalNrOfDeleteInstancesPerService = new HashMap<>()
+    static String LIFECYCLE_TIME_KEY = "LifecycleTime"
 
     @Autowired
-    LifecycleTimeMetricsService(LastOperationRepository lastOperationRepository, MetricsCache metricsCache, MeterRegistry meterRegistry) {
-        super(lastOperationRepository, metricsCache)
-        addMetricsToMeterRegistry(meterRegistry)
-    }
-
-    HashMap<String, Long> calculateLifecycleTimePerService(List<ServiceInstance> serviceInstanceList) {
-        HashMap<String, Long> total = new HashMap<>()
-        HashMap<String, Long> totalLifecycleTime = new HashMap<>()
-
-        serviceInstanceList.findAll { instance -> instance.deleted }.each {
-            serviceInstance ->
-                def serviceName = getServiceName(serviceInstance)
-                total = addOrUpdateEntryOnHashMap(total, serviceName)
-                totalLifecycleTime = addUpLifecycleTime(totalLifecycleTime, serviceName, serviceInstance)
-        }
-        totalNrOfDeleteInstancesPerService = total
-        totalLifecycleTimePerService = totalLifecycleTime
-        return calculateMeanLifecycleTime(totalNrOfDeleteInstancesPerService)
-    }
-
-    HashMap<String, Long> addUpLifecycleTime(HashMap<String, Long> totalLifecycleTimePerServiceName, String serviceName, ServiceInstance serviceInstance) {
-        def dateCreated = serviceInstance.dateCreated.getTime()
-        def dateDeleted = serviceInstance.dateDeleted.getTime()
-        def lifecycleTime = dateDeleted - dateCreated
-        if (totalLifecycleTimePerServiceName.get(serviceName) == null) {
-            totalLifecycleTimePerServiceName.put(serviceName, lifecycleTime)
-        } else {
-            def currentValue = totalLifecycleTimePerServiceName.get(serviceName)
-            def newValue = currentValue + lifecycleTime
-            totalLifecycleTimePerServiceName.put(serviceName, newValue)
-        }
-        return totalLifecycleTimePerServiceName
-    }
-
-    HashMap<String, Long> calculateMeanLifecycleTime(HashMap<String, Long> totalDeletedServiceInstanceMap) {
-        HashMap<String, Long> meanLifecycleTimePerService = new HashMap<>()
-        meanLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(meanLifecycleTimePerService)
-        totalDeletedServiceInstanceMap.each { service ->
-            def serviceName = service.getKey()
-            def totalNrOfInstances = service.getValue()
-            def totalLifecycleTime = totalLifecycleTimePerService.get(serviceName)
-            def meanLifecycleTime = (totalLifecycleTime / totalNrOfInstances).toLong()
-            meanLifecycleTimePerService.put(serviceName, meanLifecycleTime)
-        }
-        return meanLifecycleTimePerService
-    }
-
-    HashMap<String, Long> prepareMetricsForMetericsCollection() {
-        def list = calculateLifecycleTimePerService(metricsCache.serviceInstanceList)
-        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(list)
-        return totalLifecycleTimePerService
-    }
-
-    double getTotalLifecycleTime(Map.Entry<String, Long> entry) {
-        def totalLifecycleTime = prepareMetricsForMetericsCollection()
-        if (totalLifecycleTime.containsKey(entry.getKey())) {
-            return totalLifecycleTime.get(entry.getKey()).toDouble()
-        }
-        0.0
-    }
-
-    void addMetricsToMeterRegistry(MeterRegistry meterRegistry) {
-        totalLifecycleTimePerService = harmonizeServicesHashMapsWithServicesInRepository(totalLifecycleTimePerService)
-        totalLifecycleTimePerService.each { entry ->
-            addMetricsGauge(meterRegistry, "${LIFECYCLE_TIME}.${SERVICE}.${TOTAL}.${entry.getKey()}", {
-                getTotalLifecycleTime(entry)
-            }, SERVICE)
-        }
+    protected LifecycleTimeMetricsService(MeterRegistry meterRegistry, MetricsCache metricsCache, ServiceBrokerMetricsConfig serviceBrokerMetricsConfig) {
+        super(meterRegistry, metricsCache, serviceBrokerMetricsConfig)
     }
 
     @Override
-    boolean considerServiceInstance(ServiceInstance serviceInstance) {
-        return false
-    }
-
-    @Override
-    String tag() {
-        return LifecycleTimeMetricsService.class.getSimpleName()
+    void bindMetricsPerPlan(Plan plan) {
+        addMetricsGauge(LIFECYCLE_TIME_KEY,
+                { metricsCache.serviceInstanceList.byPlanId(plan.guid).lifecycleTimeInSeconds() },
+                ["plan": plan.guid, "service": plan.service.guid])
     }
 }

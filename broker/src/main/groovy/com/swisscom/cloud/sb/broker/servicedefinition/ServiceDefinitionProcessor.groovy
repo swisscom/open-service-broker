@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
 import com.swisscom.cloud.sb.broker.model.CFServicePermission
@@ -72,6 +73,9 @@ class ServiceDefinitionProcessor {
     private CFServicePermissionRepository servicePermissionRepository
     @Autowired
     private ParameterRepository parameterRepository
+
+    @Autowired
+    private List<PlanBasedMetricsService> planBasedMetricServices
 
     def createOrUpdateServiceDefinition(String content) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(content),"Service Definition can't be empty")
@@ -273,11 +277,13 @@ class ServiceDefinitionProcessor {
                 Plan plan = processPlanBasicDefinition(service, planJson)
                 processPlanParameters(plan, planJson)
                 processPlanMetadata(plan, planJson)
+                planBasedMetricServices.each { mS -> mS.bindMetricsPerPlan(plan) }
         }
     }
 
     private Plan processPlanBasicDefinition(CFService service, planJson) {
         Plan plan = createPlanIfDoesNotExist(planJson, service)
+        plan.service = service
         plan.name = planJson.name
         plan.description = planJson.description
         plan.templateUniqueIdentifier = planJson.templateId

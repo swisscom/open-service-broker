@@ -18,8 +18,7 @@ package com.swisscom.cloud.sb.broker.controller
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionRequestsMetricsService
-import com.swisscom.cloud.sb.broker.metrics.ProvisionedInstancesMetricsService
+import com.swisscom.cloud.sb.broker.metrics.ServiceInstanceMetricsService
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
@@ -43,17 +42,13 @@ class ServiceDefinitionController extends BaseController {
     @Autowired
     CFServiceRepository cfServiceRepository
     @Autowired
-    BindingMetricsService bindingMetricsService
-    @Autowired
     ServiceBindingRepository serviceBindingRepository
+    @Autowired
+    BindingMetricsService bindingMetricsService
     @Autowired
     LifecycleTimeMetricsService lifecycleTimeMetrics
     @Autowired
-    ProvisionedInstancesMetricsService provisionedInstancesMetricsService
-    @Autowired
-    ProvisionRequestsMetricsService provisionRequestsMetricsService
-    @Autowired
-    MeterRegistry meterRegistry
+    ServiceInstanceMetricsService serviceInstanceMetricsService
 
     @ApiOperation(value = "Add/Update service definition", response = ServiceDto)
     @RequestMapping(value = ['/service-definition', //deprecated, prefer the path below
@@ -66,10 +61,9 @@ class ServiceDefinitionController extends BaseController {
     }
 
     void registerNewServiceWithMetricsService(){
-        bindingMetricsService.addMetricsToMeterRegistry(meterRegistry)
-        lifecycleTimeMetrics.addMetricsToMeterRegistry(meterRegistry)
-        provisionedInstancesMetricsService.addMetricsToMeterRegistry(meterRegistry)
-        provisionRequestsMetricsService.addMetricsToMeterRegistry(meterRegistry)
+        bindingMetricsService.bindAll()
+        lifecycleTimeMetrics.bindAll()
+        serviceInstanceMetricsService.bindAll()
     }
 
     @ApiOperation(value = "Get service definition", response = ServiceDto)
