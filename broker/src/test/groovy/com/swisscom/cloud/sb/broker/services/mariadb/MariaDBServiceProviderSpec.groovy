@@ -23,13 +23,14 @@ import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbBindResponseDto
-import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbServiceProvider
+import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbFacade
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import spock.lang.Specification
 
-import static com.swisscom.cloud.sb.broker.error.ErrorCode.*
+import static com.swisscom.cloud.sb.broker.error.ErrorCode.RELATIONAL_DB_NOT_FOUND
+import static com.swisscom.cloud.sb.broker.error.ErrorCode.RELATIONAL_DB_USER_ALREADY_EXISTS
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.create
 import static com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper.assertServiceBrokerException
 
@@ -44,7 +45,7 @@ class MariaDBServiceProviderSpec extends Specification {
 
     private ServiceInstanceRepository serviceInstanceRepository
 
-    private String db_prefix = 'cf_'
+    private String db_prefix = 'cfdb_'
     private String db = (db_prefix + serviceInstanceGuid).toUpperCase()
 
     private ServiceInstance serviceInstance
@@ -111,7 +112,7 @@ class MariaDBServiceProviderSpec extends Specification {
     def "happy path: bind"() {
         given:
         BindRequest request = bindRequest()
-        request.plan.parameters = [new Parameter(name: RelationalDbServiceProvider.MAX_CONNECTIONS, value: '10')]
+        request.plan.parameters = [new Parameter(name: RelationalDbFacade.MAX_CONNECTIONS, value: '10')]
         mariaDBClient.databaseExists(db) >> true
         mariaDBClient.userExists(_) >>> [false, true]
         mariaDBClient.createUserAndGrantRights(db, _, _, _) >> new RelationalDbBindResponseDto()
