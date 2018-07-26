@@ -158,4 +158,16 @@ class BoshClientSpec extends Specification {
         then:
         result
     }
+
+    def "happy path: GetAllVMsInDeployment"() {
+        given:
+        def deploymentId = 'deploymentId'
+        1 * client.boshRestClient.getAllVMsInDeployment(deploymentId) >> Resource.readTestFileContent('/bosh/vms.json')
+
+        when:
+        def result = client.getAllVMsInDeployment(deploymentId)
+
+        then:
+        result
+    }
 }
