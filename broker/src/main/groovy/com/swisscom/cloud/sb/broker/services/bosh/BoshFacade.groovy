@@ -161,7 +161,7 @@ class BoshFacade {
     }
 
     @VisibleForTesting
-    private static String generateDeploymentId(String serviceInstanceGuid) {
+    static String generateDeploymentId(String serviceInstanceGuid) {
         return DEPLOYMENT_PREFIX + serviceInstanceGuid
     }
 
