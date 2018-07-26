@@ -27,6 +27,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbClient
+import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbFacade
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
@@ -47,8 +48,8 @@ class MariaDBServiceProvider extends RelationalDbServiceProvider implements Shie
     ServiceInstanceRepository serviceInstanceRepository
 
     @Autowired
-    MariaDBServiceProvider(MariaDBConfig dbConfig, MariaDBClientFactory dbClientFactory, ServiceInstanceRepository serviceInstanceRepository) {
-        super(dbConfig.default, dbClientFactory)
+    MariaDBServiceProvider(MariaDBConfig dbConfig, MariaDBClientFactory dbClientFactory, ServiceInstanceRepository serviceInstanceRepository, RelationalDbFacade relationalDbFacade) {
+        super(dbConfig.default, dbClientFactory, relationalDbFacade)
         this.mariaDBConfig = dbConfig
         this.serviceInstanceRepository = serviceInstanceRepository
     }

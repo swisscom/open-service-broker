@@ -32,10 +32,10 @@ abstract class RelationalDbServiceProvider implements ServiceProvider {
 
     RelationalDbFacade relationalDbFacade
 
-    RelationalDbServiceProvider(RelationalDbConfig dbConfig, RelationalDbClientFactory dbClientFactory) {
+    RelationalDbServiceProvider(RelationalDbConfig dbConfig, RelationalDbClientFactory dbClientFactory, RelationalDbFacade relationalDbFacade) {
         this.dbConfig = dbConfig
         this.dbClientFactory = dbClientFactory
-        this.relationalDbFacade = new RelationalDbFacade()
+        this.relationalDbFacade = relationalDbFacade
     }
 
     @Override

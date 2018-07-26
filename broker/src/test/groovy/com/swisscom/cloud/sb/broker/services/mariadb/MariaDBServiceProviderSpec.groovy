@@ -42,6 +42,7 @@ class MariaDBServiceProviderSpec extends Specification {
 
     MariaDBClient mariaDBClient
     MariaDBClientFactory mariaDBClientFactory
+    RelationalDbFacade relationalDbFacade
 
     private ServiceInstanceRepository serviceInstanceRepository
 
@@ -69,6 +70,7 @@ class MariaDBServiceProviderSpec extends Specification {
 
         mariaDBClient = Mock(MariaDBClient)
         mariaDBClientFactory = Mock(MariaDBClientFactory)
+        relationalDbFacade = new RelationalDbFacade()
         mariaDBClientFactory.build() >> mariaDBClient
         mariaDBClientFactory.build(_, _, _, _) >> mariaDBClient
         mariaDBServiceProvider = new MariaDBServiceProvider(
@@ -76,7 +78,8 @@ class MariaDBServiceProviderSpec extends Specification {
                         new MariaDBConnectionConfig(name: "default", databasePrefix: db_prefix, host: 'host', port: '1234', adminPassword: 'adminpw', adminUser: 'admin'),
                         new MariaDBConnectionConfig(name: "special", databasePrefix: db_prefix, host: 'special', port: '1234', adminPassword: 'special', adminUser: 'special')]),
                 mariaDBClientFactory,
-                serviceInstanceRepository)
+                serviceInstanceRepository,
+                relationalDbFacade)
     }
 
     def "happy path: provision"() {

@@ -36,20 +36,20 @@ class RelationalDbFacade {
     public static final String MAX_CONNECTIONS = "max_connections"
 
     ProvisionResponse provision(RelationalDbClient client, ProvisionRequest request, String databasePrefix = "CFDB_") {
-        String database = createDatabaseName(request.serviceInstanceGuid, databasePrefix)
+        String databaseName = createDatabaseName(request.serviceInstanceGuid, databasePrefix)
 
-        if (client.databaseExists(database)) {
-            log.warn("Database ${database} already exists!")
+        if (client.databaseExists(databaseName)) {
+            log.warn("Database ${databaseName} already exists!")
             ErrorCode.RELATIONAL_DB_ALREADY_EXISTS.throwNew()
         }
 
-        client.createDatabase(database)
+        client.createDatabase(databaseName)
 
-        if (!client.databaseExists(database)) {
-            log.warn("Database ${database} not created!")
+        if (!client.databaseExists(databaseName)) {
+            log.warn("Database ${databaseName} not created!")
             ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew()
         }
-        new ProvisionResponse(details: ServiceDetailsHelper.create().add(ServiceDetailKey.DATABASE, database).getDetails())
+        new ProvisionResponse(details: ServiceDetailsHelper.create().add(ServiceDetailKey.DATABASE, databaseName).getDetails())
     }
 
     DeprovisionResponse deprovision(RelationalDbClient client, DeprovisionRequest request) {
