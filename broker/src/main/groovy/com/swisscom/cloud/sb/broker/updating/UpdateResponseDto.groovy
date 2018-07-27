@@ -16,8 +16,10 @@
 package com.swisscom.cloud.sb.broker.updating
 
 import groovy.transform.CompileStatic
+import com.fasterxml.jackson.annotation.JsonInclude
 
 @CompileStatic
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class UpdateResponseDto implements Serializable {
     String operation
 }

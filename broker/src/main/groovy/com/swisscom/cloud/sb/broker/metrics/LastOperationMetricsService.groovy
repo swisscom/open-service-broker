@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class LastOperationMetricsService extends PlanBasedMetricsService {
-    static String LAST_OPERATIONS = "LastOperations"
-    static String LAST_OPERATION_EVENTS = "LastOperationEvents"
+    static String LAST_OPERATIONS_KEY = "LastOperations"
+    static String LAST_OPERATION_EVENTS_KEY = "LastOperationEvents"
 
     private static final Map<String, Counter> succeededCounterByPlanGuid = new HashMap<String, Counter>()
     private static final Map<String, Counter> failedWithTimeoutCounterByPlanGuid = new HashMap<String, Counter>()
@@ -45,10 +45,10 @@ class LastOperationMetricsService extends PlanBasedMetricsService {
 
     @Override
     void bindMetricsPerPlan(Plan plan) {
-        succeededCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS, ["status": "completed"]))
-        failedWithTimeoutCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS, ["status": "failed", "failureReason": "timeout"]))
-        failedWithExceptionByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS, ["status": "failed", "failureReason": "exception"]))
-        failedByServiceProvider.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS, ["status": "failed", "failureReason": "serviceprovider"]))
-        addMetricsGauge(plan, LAST_OPERATIONS,{ metricsCache.getFailedLastOperationCount(plan.guid) }, ["status": "failed"])
+        succeededCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS_KEY, ["status": "completed"]))
+        failedWithTimeoutCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS_KEY, ["status": "failed", "failureReason": "timeout"]))
+        failedWithExceptionByPlanGuid.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS_KEY, ["status": "failed", "failureReason": "exception"]))
+        failedByServiceProvider.put(plan.guid, createMetricsCounter(plan, LAST_OPERATION_EVENTS_KEY, ["status": "failed", "failureReason": "serviceprovider"]))
+        addMetricsGauge(plan, LAST_OPERATIONS_KEY,{ metricsCache.getFailedLastOperationCount(plan.guid) }, ["status": "failed"])
     }
 }

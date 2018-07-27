@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component
 class BindingMetricsService extends PlanBasedMetricsService {
 
     static String BINDING_SERVICE_KEY = "ServiceBindings"
-    static String NEW_SERVICE_BINDINGS = "NewServiceBindings"
+    static String NEW_SERVICE_BINDINGS_KEY = "NewServiceBindings"
 
     private static final Map<String, Counter> succeededCounterByPlanGuid = new HashMap<String, Counter>()
     private static final Map<String, Counter> failedCounterByPlanGuid = new HashMap<String, Counter>()
@@ -42,8 +42,8 @@ class BindingMetricsService extends PlanBasedMetricsService {
     @Override
     void bindMetricsPerPlan(Plan plan) {
         addMetricsGauge(plan, BINDING_SERVICE_KEY, { metricsCache.bindingCountByPlanGuid.get(plan.guid, 0.0D) })
-        succeededCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS, ["status": "completed"]))
-        failedCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS, ["status": "failed"]))
+        succeededCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS_KEY, ["status": "completed"]))
+        failedCounterByPlanGuid.put(plan.guid, createMetricsCounter(plan, NEW_SERVICE_BINDINGS_KEY, ["status": "failed"]))
     }
 
     void notifyBinding(String planGuid, boolean succeeded) {
