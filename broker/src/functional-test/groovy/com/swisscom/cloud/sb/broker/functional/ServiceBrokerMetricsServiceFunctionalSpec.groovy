@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
+import spock.lang.Ignore
 
 import static junit.framework.Assert.assertEquals
 
@@ -63,10 +64,15 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/service1.json"))
         Thread.sleep(WAIT_FOR_SERVICE_DEFINITION_TO_BE_DONE_IN_MILLISECONDS)
 
-        influxDB = InfluxDBFactory.connect(
+
+        if (serviceBrokerMetricsConfig.userName && serviceBrokerMetricsConfig.password) {
+            influxDB = InfluxDBFactory.connect(
                 serviceBrokerMetricsConfig.uri,
                 serviceBrokerMetricsConfig.userName,
                 serviceBrokerMetricsConfig.password)
+        } else {
+            influxDB = InfluxDBFactory.connect(serviceBrokerMetricsConfig.uri)
+        }
 
         if (!influxDB.databaseExists(serviceBrokerMetricsConfig.db)) {
            influxDB.createDatabase(serviceBrokerMetricsConfig.db)
@@ -77,6 +83,15 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
     def cleanup() {
         influxDB.close()
+    }
+
+    @Ignore
+    def "delete Database"() {
+        when:
+        influxDB.deleteDatabase(serviceBrokerMetricsConfig.db)
+
+        then:
+        noExceptionThrown()
     }
 
     def "only measurements that are retrievable from the database are recorded when db is empty and initialized with 0"() {
@@ -124,12 +139,15 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
         then:
-        metricsRetrievableFromDB.each { metric ->
-            def query = new Query("select value from ${metric.name} WHERE time >= time() - 1m GROUP BY time(5m)", serviceBrokerMetricsConfig.db)
-            def queryResult = influxDB.query(query)
-            List<GeneralMeasurement> result = influxDBResultMapper.toPOJO(queryResult, metric.measurementPointClass)
 
-            Double value = result.get(result.size() - 1).value
+        for (def metric in metricsRetrievableFromDB) {
+            def query = new Query("select sum(value) from ${metric.name} WHERE time > now() - 1h GROUP BY time(5m) ORDER BY time DESC", serviceBrokerMetricsConfig.db)
+            def queryResult = influxDB.query(query)
+            // List<GeneralMeasurement> result = influxDBResultMapper.toPOJO(queryResult, metric.measurementPointClass)
+
+            def valueList = queryResult.results.last().series.last().values.last()
+            def value = valueList.last()
+            // Double value = result.get(result.size() - 1).value
             println("#### Value is ${value}")
             assert (value >= metric.expectedReturnValue)
         }
@@ -141,73 +159,30 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceInstanceRepository.delete(serviceInstanceRepository.findByGuid(serviceInstanceGuid))
     }
 
-    def "update value for total lifecycle time per service upon deprovisioning a service instance"() {
-        given:
-        def metrics = [
-                new MeasurementPoint("lifecycleTime_service_total_${SERVICE_NAME}", LifecycleTimeServiceTotalServicePoint, LIFECYCLE_TIME_IN_MILLISECONDS)
-        ]
-
-        when:
-        def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(SERVICE_GUID, PLAN_GUID, null, null, null).withServiceInstanceId(serviceInstanceGuid).withAsyncAccepted(true))
-        Thread.sleep(LIFECYCLE_TIME_IN_MILLISECONDS)
-
-        and:
-        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceGuid, SERVICE_GUID, PLAN_GUID, true))
-        Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
-
-        then:
-        metrics.each { metric ->
-            def query = new Query("select value from ${metric.name}", serviceBrokerMetricsConfig.db)
-            def queryResult = influxDB.query(query)
-            List<GeneralMeasurement> result = influxDBResultMapper.toPOJO(queryResult, metric.measurementPointClass)
-            assertEquals(result.get(result.size() - 1).value, metric.expectedReturnValue, 1000)
-        }
-
-        cleanup:
-        serviceInstanceRepository.delete(serviceInstanceRepository.findByGuid(serviceInstanceGuid))
-    }
-
     def "update value for provision requests and provisioned instances including values for services and plans upon provisioning a service instance"() {
         given:
-        def metrics = [
-                new MeasurementPoint("provisionRequest_total_total", ProvisionRequestTotalTotalPoint, 1),
-                new MeasurementPoint("provisionRequest_total_success", ProvisionRequestTotalSuccessPoint, 1),
-                new MeasurementPoint("provisionRequest_total_fail", ProvisionRequestTotalFailPoint, 0),
-                new MeasurementPoint("provisionRequest_success_ratio", ProvisionRequestSuccessRatioPoint, 100),
-                new MeasurementPoint("provisionRequest_fail_ratio", ProvisionRequestFailRatioPoint, 0),
-                new MeasurementPoint("provisionRequest_service_total_${SERVICE_NAME}", ProvisionRequestServiceTotalServicePoint, 1),
-                new MeasurementPoint("provisionRequest_service_success_${SERVICE_NAME}", ProvisionRequestServiceSuccessServicePoint, 1),
-                new MeasurementPoint("provisionRequest_service_fail_${SERVICE_NAME}", ProvisionRequestServiceFailServicePoint, 0),
-                new MeasurementPoint("provisionRequest_plan_total_${PLAN_NAME}", ProvisionRequestPlanTotalPlanPoint, 1),
-                new MeasurementPoint("provisionRequest_plan_success_${PLAN_NAME}", ProvisionRequestPlanSuccessPlanPoint, 1),
-                new MeasurementPoint("provisionRequest_plan_fail_${PLAN_NAME}", ProvisionRequestPlanFailPlanPoint, 0),
-
-                new MeasurementPoint("provisionedInstances_total_total", ProvisionedInstancesTotalTotalPoint, 1),
-                new MeasurementPoint("provisionedInstances_total_success", ProvisionedInstancesTotalSuccessPoint, 1),
-                new MeasurementPoint("provisionedInstances_total_fail", ProvisionedInstancesTotalFailPoint, 0),
-                new MeasurementPoint("provisionedInstances_success_ratio", ProvisionedInstancesSuccessRatioPoint, 100),
-                new MeasurementPoint("provisionedInstances_fail_ratio", ProvisionedInstancesFailRatioPoint, 0),
-                new MeasurementPoint("provisionedInstances_service_total_${SERVICE_NAME}", ProvisionedInstancesServiceTotalServicePoint, 1),
-                new MeasurementPoint("provisionedInstances_service_success_${SERVICE_NAME}", ProvisionedInstancesServiceSuccessServicePoint, 1),
-                new MeasurementPoint("provisionedInstances_service_fail_${SERVICE_NAME}", ProvisionedInstancesServiceFailServicePoint, 0),
-                new MeasurementPoint("provisionedInstances_plan_total_${PLAN_NAME}", ProvisionedInstancesPlanTotalPlanPoint, 1),
-                new MeasurementPoint("provisionedInstances_plan_success_${PLAN_NAME}", ProvisionedInstancesPlanSuccessPlanPoint, 1),
-                new MeasurementPoint("provisionedInstances_plan_fail_${PLAN_NAME}", ProvisionedInstancesPlanFailPlanPoint, 0)
-        ]
+        def metricsName = ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY
+        Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS * 5)
+        def queryText = "select max(value) from ${metricsName} where time > now() - ${5 * TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS/1000}s"
+        def countBefore = influxDB.query(new Query(queryText.toString(), serviceBrokerMetricsConfig.db)).results.last().series.last().values.last().last()
 
         when:
         def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(SERVICE_GUID, PLAN_GUID, null, null, null).withServiceInstanceId(serviceInstanceGuid).withAsyncAccepted(true))
-        Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
+        serviceBrokerClientExtended.createServiceInstance(
+                new CreateServiceInstanceRequest(
+                        SERVICE_GUID,
+                        PLAN_GUID,
+                        null,
+                        null,
+                        null)
+                        .withServiceInstanceId(serviceInstanceGuid)
+                        .withAsyncAccepted(true))
+        Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS * 5)
 
         then:
-        metrics.each { metric ->
-            def query = new Query("select value from ${metric.name}", serviceBrokerMetricsConfig.db)
-            def queryResult = influxDB.query(query)
-            List<GeneralMeasurement> result = influxDBResultMapper.toPOJO(queryResult, metric.measurementPointClass)
-            assert (result.get(result.size() - 1).value == metric.expectedReturnValue)
-        }
+        def values = influxDB.query(new Query(queryText.toString(), serviceBrokerMetricsConfig.db)).results.last().series.last().values
+        def countAfter = values.last().last()
+        assert countAfter > countBefore
 
         cleanup:
         Thread.sleep(10000)
