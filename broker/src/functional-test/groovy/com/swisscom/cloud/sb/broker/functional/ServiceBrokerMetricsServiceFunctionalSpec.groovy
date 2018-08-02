@@ -1,6 +1,24 @@
+/*
+ * Copyright (c) 2018 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
+import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
 import com.swisscom.cloud.sb.broker.metrics.ServiceBrokerMetricsConfig
+import com.swisscom.cloud.sb.broker.metrics.ServiceInstanceMetricsService
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
@@ -74,30 +92,32 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         given:
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
-        def nrOfServiceInstances = getValueFromDB("sum", "serviceInstances")
-        def nrOfServiceBindings = getValueFromDB("sum", "ServiceBindings")
-        def nrOfNewServiceBindings = getValueFromDB("sum", "NewServiceBindings", "", false)
-        def nrOfDeletedServiceInstances = getValueFromDB("sum", "serviceInstances", "status = 'deleted' and")
-        def lifecycleTimeInSeconds = getValueFromDB("max", "LifecycleTime")
+        def nrOfServiceInstances = getValueFromDB("sum", ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY)
+        def nrOfServiceBindings = getValueFromDB("sum", BindingMetricsService.BINDING_SERVICE_KEY)
+        def nrOfNewServiceBindings = getValueFromDB("sum", BindingMetricsService.NEW_SERVICE_BINDINGS_KEY, "", false)
+        def nrOfDeletedServiceInstances = getValueFromDB("sum", ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY, "status = 'deleted' and")
+        def lifecycleTimeInSeconds = getValueFromDB("max", LifecycleTimeMetricsService.LIFECYCLE_TIME_KEY)
 
         when:
         def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(SERVICE_GUID, PLAN_GUID, null, null, null).withServiceInstanceId(serviceInstanceGuid).withAsyncAccepted(true))
+        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(SERVICE_GUID, PLAN_GUID, null, null, null)
+                .withServiceInstanceId(serviceInstanceGuid).withAsyncAccepted(true))
         def instantiationTime = System.currentTimeMillis()
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
-        def newNrOfServiceInstances = getValueFromDB("sum", "serviceInstances")
+        def newNrOfServiceInstances = getValueFromDB("sum", ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY)
         assertEquals(newNrOfServiceInstances - nrOfServiceInstances, 1.0, 0.1)
 
         and:
         def serviceBindingId = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstanceBinding(new CreateServiceInstanceBindingRequest(SERVICE_GUID, PLAN_GUID, null, null).withServiceInstanceId(serviceInstanceGuid).withBindingId(serviceBindingId))
+        serviceBrokerClientExtended.createServiceInstanceBinding(new CreateServiceInstanceBindingRequest(SERVICE_GUID, PLAN_GUID, null, null)
+                .withServiceInstanceId(serviceInstanceGuid).withBindingId(serviceBindingId))
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
-        def newNrOfServiceBindings = getValueFromDB("sum", "ServiceBindings")
+        def newNrOfServiceBindings = getValueFromDB("sum", BindingMetricsService.BINDING_SERVICE_KEY)
         assertEquals(newNrOfServiceBindings - nrOfServiceBindings, 1.0, 0.1)
 
-        def newNrOfNewServiceBindings = getValueFromDB("sum", "NewServiceBindings", "", false)
+        def newNrOfNewServiceBindings = getValueFromDB("sum", BindingMetricsService.NEW_SERVICE_BINDINGS_KEY, "", false)
         assertEquals(newNrOfNewServiceBindings - nrOfNewServiceBindings, 1.0, 0.1)
 
         and:
@@ -105,10 +125,10 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceGuid, SERVICE_GUID, PLAN_GUID, false))
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
-        def newNrOfDeletedServiceInstances = getValueFromDB("sum", "serviceInstances", "status = 'deleted' and")
+        def newNrOfDeletedServiceInstances = getValueFromDB("sum", ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY, "status = 'deleted' and")
         assertEquals(newNrOfDeletedServiceInstances - nrOfDeletedServiceInstances, 1.0, 0.1)
 
-        def newLifecycleTimeInSeconds = getValueFromDB("max", "LifecycleTime")
+        def newLifecycleTimeInSeconds = getValueFromDB("max", LifecycleTimeMetricsService.LIFECYCLE_TIME_KEY)
         assertEquals((deletionTime - instantiationTime) / 1000, newLifecycleTimeInSeconds - lifecycleTimeInSeconds, 1.0)
 
         then:

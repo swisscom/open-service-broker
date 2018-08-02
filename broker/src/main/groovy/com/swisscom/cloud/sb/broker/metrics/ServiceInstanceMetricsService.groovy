@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
 @Component
 @CompileStatic
 class ServiceInstanceMetricsService extends PlanBasedMetricsService {
-    static String SERVICE_INSTANCES_KEY = "serviceInstances"
+    static String SERVICE_INSTANCES_KEY = "ServiceInstances"
 
     @Autowired
     protected ServiceInstanceMetricsService(MeterRegistry meterRegistry, MetricsCache metricsCache, ServiceBrokerMetricsConfig serviceBrokerMetricsConfig) {
