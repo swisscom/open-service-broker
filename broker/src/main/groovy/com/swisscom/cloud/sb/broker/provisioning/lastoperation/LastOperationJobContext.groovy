@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.provisioning.lastoperation
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import groovy.transform.CompileStatic
+import org.quartz.JobExecutionContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -37,6 +38,11 @@ class LastOperationJobContext {
     ProvisionRequest provisionRequest
     DeprovisionRequest deprovisionRequest
     UpdateRequest updateRequest
+
+
+    String getPlanGuidOrUndefined() {
+        return plan ? plan.guid : "undefined"
+    }
 
     void notifySuccess(String message = null) {
         notifyResult(true, message)

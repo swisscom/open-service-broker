@@ -56,16 +56,16 @@ abstract class AbstractLastOperationJob extends AbstractJob {
                 log.warn("Successfully finished job with id:${id}")
                 lastOperationContext.notifySuccess(jobStatus.description)
                 dequeue(lastOperationContext, id)
-                lastOperationMetricsService.notifySucceeded(lastOperationContext.plan.guid)
+                lastOperationMetricsService.notifySucceeded(lastOperationContext.planGuidOrUndefined)
             } else if (jobStatus.status == LastOperation.Status.FAILED) {
                 log.warn("Job with id:${id} failed")
                 dequeueFailed(lastOperationContext, id, jobStatus.description)
-                lastOperationMetricsService.notifyFailedByServiceProvider(lastOperationContext.plan.guid)
+                lastOperationMetricsService.notifyFailedByServiceProvider(lastOperationContext.planGuidOrUndefined)
             } else if (jobStatus.status == LastOperation.Status.IN_PROGRESS) {
                 if (isExecutedForLastTime(jobExecutionContext)) {
                     log.warn("Giving up on job with id:${id}")
                     dequeueFailed(lastOperationContext, id)
-                    lastOperationMetricsService.notifyFailedWithTimeout(lastOperationContext.plan.guid)
+                    lastOperationMetricsService.notifyFailedWithTimeout(lastOperationContext.planGuidOrUndefined)
                 } else {
                     lastOperationContext.notifyProgress(jobStatus.description, jobStatus.internalStatus)
                 }
@@ -73,11 +73,11 @@ abstract class AbstractLastOperationJob extends AbstractJob {
         } catch (ServiceBrokerException sbe) {
             log.warn("Job execution with id:${id} failed", sbe)
             dequeueFailed(lastOperationContext, id, errorDtoConverter.convert(sbe))
-            lastOperationMetricsService.notifyFailedWithException(lastOperationContext.plan.guid)
+            lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
         } catch (Exception e) {
             log.warn("Job execution with id:${id} failed", e)
             dequeueFailed(lastOperationContext, id)
-            lastOperationMetricsService.notifyFailedWithException(lastOperationContext.plan.guid)
+            lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
         }
     }
 
