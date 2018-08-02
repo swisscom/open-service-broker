@@ -113,7 +113,7 @@ class ServiceDefinitionProcessor {
         if (serviceInstances && serviceInstances.size() > 0) {
             ErrorCode.SERVICE_IN_USE.throwNew()
         }
-
+        service.plans.each { plan -> planRepository.delete(plan) }
         cfServiceRepository.delete(service)
     }
 
