@@ -15,15 +15,12 @@
 
 package com.swisscom.cloud.sb.broker.metrics
 
-import com.swisscom.cloud.sb.broker.model.Plan
 import groovy.transform.CompileStatic
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 
 import java.util.function.ToDoubleFunction
-
-import java.time.Duration
 
 @CompileStatic
 abstract class ServiceBrokerMetricsService {

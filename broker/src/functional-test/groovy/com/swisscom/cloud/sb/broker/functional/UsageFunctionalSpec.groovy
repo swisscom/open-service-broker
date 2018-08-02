@@ -21,7 +21,9 @@ import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 class UsageFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('DummySynchronousService', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist(
+                'SynchronousDummy',
+                ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
     }
 
     def cleanupSpec() {

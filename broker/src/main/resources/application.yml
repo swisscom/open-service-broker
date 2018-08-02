@@ -42,7 +42,6 @@ management:
       http: false
       logback: false
 
-
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
   enabled: false
