@@ -29,17 +29,18 @@ management:
     export:
       influx:
         uri: http://localhost:8086
-        db: mydb
-        steps: 5s
-
-#  credhub:
-#    url: https://credhub.service.consul:8844
-#    oauth2-resourceowner:
-#      username:
-#      password:
-#      client-id: credhub_cli
-#      client-secret:
-#      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+        step: 5s
+        userName:
+        db: influxdb
+        env: "local"
+    enable:
+      jvm: false
+      dataSource: false
+      tomcat: false
+      process: false
+      system: false
+      http: false
+      logback: false
 
 endpoints:
   # accessibility of the endpoints is handled in ApplicationUserDetailsService class
@@ -48,10 +49,6 @@ endpoints:
   info:
     enabled: true
     id: version
-  metrics:
-    enabled: true
-  health:
-    enabled: true
 
 server.tomcat.accesslog.enabled: true
 
