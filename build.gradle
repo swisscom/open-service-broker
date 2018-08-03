@@ -32,6 +32,7 @@ nexusStaging {
     username = ossrhUsername
     password = ossrhPassword
     packageGroup = 'com.swisscom.cloud.sb'
+    stagingProfileId = '69aff991058e1e'
 }
 
 def brokerVersion = version
