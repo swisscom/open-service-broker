@@ -41,7 +41,6 @@ git checkout -b releases/$1
 ./scripts/set-version.sh $1
 ./scripts/update-changelog.sh $1
 git commit --no-verify -am "Bump release version to $1"
-git push --set-upstream origin releases/$1
 
 set +x
 echo Created OSB release branch releases/$1

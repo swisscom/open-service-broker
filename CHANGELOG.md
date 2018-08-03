@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Do not push release branch during release process
 
 ## [4.1.1] - 2018-08-03
 - \#90 Improve README service-definition API documentation
