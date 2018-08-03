@@ -129,6 +129,7 @@ Setting the value of serviceDefinitions to an empty list ([]), will bypass the v
 
 ### Example Service Definition
 
+Example Service Definition in application.yml configuration file.
 ```yaml
 serviceDefinitions:
 - guid: 'udn9276f-hod4-5432-vw34-6c33d7359c12'
@@ -166,6 +167,55 @@ serviceDefinitions:
       displayName: 'Small'
 ```
 
+Updating/Creating Service Definitions over the service-definition API (defined below) requires the JSON format like following example.
+```json
+{
+    "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
+    "name": "mongodbent",
+    "description": "MongoDB Enterprise HA v3.2.11",
+    "bindable": true,
+    "asyncRequired": true,
+    "internalName": "mongoDbEnterprise",
+    "displayIndex": 1,
+    "tags": [],
+    "metadata": {
+      "version": "3.2.11",
+      "displayName": "MongoDB Enterprise"
+    },
+    "plans": [
+      {
+        "guid": "jfkos87r-truz-4567-liop-dfrwscvbnmk6",
+        "name": "replicaset",
+        "description": "Replica Set with 3 data bearing nodes with 32 GB memory, 320 GB storage, unlimited concurrent connections",
+        "templateId": "mongodbent-bosh-template",
+        "free": false,
+        "displayIndex": 0,
+        "containerParams": [
+          {
+            "template": "",
+            "name": "plan",
+            "value": "mongoent.small"
+          },
+          {
+            "template": "",
+            "name": "vm_instance_type",
+            "value": "mongoent.small"
+          }
+        ],
+        "metadata": {
+          "storageCapacity": "320GB",
+          "memory": "32GB",
+          "nodes": "3",
+          "maximumConcurrentConnections": "unlimited",
+          "dedicatedService": true,
+          "highAvailability": true,
+          "displayName": "Small"
+        }
+      }
+    ]
+}
+```
+
 **_Following endpoints to be deprecated_**
 ### Get service definition
 
@@ -182,7 +232,7 @@ Service Broker provides a way to update service definitions via HTTP calls.
 Here is an example:
 
 ```bash
-curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file' 'http://localhost:8080/custom/admin/service-definition'
+curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file.json' 'http://localhost:8080/custom/admin/service-definition'
 ```
 
 This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.

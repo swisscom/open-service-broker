@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.1.1] - 2018-08-03
+- \#90 Improve README service-definition API documentation
+
 ## [4.1.0] - 2018-08-03
 - \#97 Add metrics export (influxdb) for service provision,binding,lastoperation and lifecycletime. default activated
     can be deactivated via .yml
