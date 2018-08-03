@@ -15,12 +15,17 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
+import org.springframework.beans.factory.annotation.Autowired
 
 class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
+
+    @Autowired
+    ServiceInstanceRepository serviceInstanceRepository
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyServiceManagerBased', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
@@ -57,5 +62,6 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
         cleanup:
         lifeCycler.deleteServiceInstanceAndAssert(false)
+        serviceInstanceRepository.delete(serviceInstanceRepository.findByGuid(lifeCycler.serviceInstanceId))
     }
 }

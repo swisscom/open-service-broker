@@ -13,10 +13,17 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.metrics
+package com.swisscom.cloud.sb.broker.services.bosh.dto
 
-class MetricsResultMap {
-    HashMap<String, Long> total
-    HashMap<String, Long> totalSuccess
-    HashMap<String, Long> totalFailures
+import groovy.transform.CompileStatic
+
+@CompileStatic
+class BoshVMDto implements Serializable {
+    String cid
+    String job
+    int index
+    String id
+    String az
+    List<String> ips
+    boolean active
 }

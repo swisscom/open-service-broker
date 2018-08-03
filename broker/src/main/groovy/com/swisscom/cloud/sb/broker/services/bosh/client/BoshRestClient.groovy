@@ -119,6 +119,10 @@ class BoshRestClient {
         createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
     }
 
+    String getAllVMsInDeployment(String id) {
+        createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '/vms', HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
+    }
+
     void postCloudConfig(String data) {
         log.trace("Updating cloud config with: ${data}")
         HttpHeaders headers = createAuthHeaders()

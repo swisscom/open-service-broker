@@ -44,6 +44,7 @@ class ServiceDeprovisioningJob extends AbstractLastOperationJob {
         String serviceInstanceGuid = context.lastOperation.guid
         DeprovisionRequest deprovisionRequest = deprovisionRequestRepository.findByServiceInstanceGuid(serviceInstanceGuid)
         context.deprovisionRequest = deprovisionRequest
+        context.plan = deprovisionRequest.serviceInstance.plan
         context.serviceInstance = deprovisionRequest.serviceInstance
         return context
     }

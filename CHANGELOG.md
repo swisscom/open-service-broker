@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.1.0] - 2018-08-03
+- \#97 Add metrics export (influxdb) for service provision,binding,lastoperation and lifecycletime. default activated
+    can be deactivated via .yml
+
 ## [4.0.6] - 2018-07-26
 - Abstract RelationalDb Service Provider for easier reuse
 
