@@ -16,10 +16,14 @@ env:
   - secure: A/ggKvmdESNRHOFaZhb2Gw+UrHyXt1bu+LfXX9EfCMxM3CKff0TVBo5YU5zq3hndBn6RzoGD9D8sE8lyY9GlKn9SpvDtN+yQ1HXJkBDKB0PWKWRM148cYYNzvUQzHYaV18oVWpGllXDiQhpKMrOG14E2VpiXQT+ZiRS1H66aEU78Az7T0ZcSI4W5QqoKUEc3bz1i2XQhBlCRpcZPaNE65IkkoD85hm4oyER/BldXLKLr0WJ3EkViJxsmfQ8PxmN31RijQJscrw5Plx3IQZBxRy91c785dDgrYoAKfVnPEypcO0BoanEcRRFbORJK+BcTK31+0HiIWCta4ou+aAKq8cfPhKcwo6i9suPGcVW4m6Op7qa7ImKxI9d5ErNySxaEGTIL7HkO+ocGlXuROPl8fFFHoYJl9QNobJEEXMNEmAanK6u/JIu0xEfLle8NgIns15OQPEnRr4dtmIgzQcUW4p24anSMTJ/8hXqwGAWO3j7vKk58oVBD8vOZMQ0ECEEVCuBx8bNog53GlxMl0jvM3tHrD1CruFvYPbJ9QaTA4ScSNeD6ZgWjVEdbr7Li3G+33yHl9fHVtwbqH6p/TYPGWS+FVlNPJ3Y+orZRi3uug1UlwjzfKaHqRRMopfrE+5HQuJ3Yq0j7Z4eM9PuaJCjNRIpSDuxxd+0rZ/Ld1CDQaLc=
 addons:
   mariadb: 10.0
+services:
+- docker
 script: "./gradlew clean build -x functionalTest"
 before_install:
 - 'mysql -e "CREATE DATABASE CFBroker;"'
 - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
+- 'docker pull influxdb'
+- 'docker run -d --name influx -p 8086:8086 influxdb'
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/

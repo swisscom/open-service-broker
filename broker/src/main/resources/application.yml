@@ -28,9 +28,9 @@ management:
   metrics:
     export:
       influx:
-        uri: http://influxdb.service.consul:9086
+        uri: http://localhost:8086
         step: 5s
-        userName: admin
+        userName:
         db: influxdb
         env: "local"
     enable:
