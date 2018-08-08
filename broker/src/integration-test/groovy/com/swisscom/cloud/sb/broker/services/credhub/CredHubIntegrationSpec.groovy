@@ -26,11 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.support.CredentialDetails
+import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.json.JsonCredential
-import spock.lang.IgnoreIf
+import org.springframework.credhub.support.rsa.RsaCredential
 import spock.lang.Shared
 
-@IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
+// @IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
 class CredHubIntegrationSpec extends BaseSpecification {
 
     @Autowired
@@ -40,6 +41,8 @@ class CredHubIntegrationSpec extends BaseSpecification {
     private String credentialId
     @Shared
     private String credentialName
+
+    private List<String> testCredentialNames
 
     @Shared
     CredHubService credHubService
@@ -57,6 +60,15 @@ class CredHubIntegrationSpec extends BaseSpecification {
 
     def setup() {
         credHubService = credHubCredentialStoreStrategy.getCredHubService()
+    }
+
+    def cleanup() {
+        if (testCredentialNames != null) {
+            for (testCredentialName in testCredentialNames) {
+                credHubService.deleteCredential(testCredentialName)
+            }
+            testCredentialNames = null
+        }
     }
 
     def "Write CredHub credential"() {
@@ -99,6 +111,60 @@ class CredHubIntegrationSpec extends BaseSpecification {
         then:
         noExceptionThrown()
 
+    }
+
+    def "Generate RSA with CredHub"() {
+        given:
+        testCredentialNames = [StringGenerator.randomUuid()]
+
+        when:
+        CredentialDetails<RsaCredential> credential = credHubService.generateRSA(testCredentialNames[0])
+        assert credential != null
+        credentialId = credential.id
+
+        then:
+        println('RsaCredential: ' + JsonHelper.toJsonString(credential))
+    }
+
+    def "Generate CA Certificate with CredHub"() {
+        given:
+        testCredentialNames = [StringGenerator.randomUuid()]
+        Map<String, String> credentials = new HashMap()
+        credentials.put('commonName', 'testone.service.consul')
+        credentials.put('durationInDays', '7')
+        credentials.put('certificateAuthority', 'true')
+
+        when:
+        CredentialDetails<CertificateCredential> credential = credHubService.generateCACertificate(testCredentialNames[0], credentials)
+        assert credential != null
+        credentialId = credential.id
+
+        then:
+        println('CertificateCredential: ' + JsonHelper.toJsonString(credential))
+    }
+
+    def "Generate Certificate based on generated CA Certificate on CredHub"() {
+        given:
+        testCredentialNames = [StringGenerator.randomUuid(), StringGenerator.randomUuid()]
+        Map<String, String> caCredentials = new HashMap()
+        caCredentials.put('commonName', 'testone.service.consul')
+        caCredentials.put('durationInDays', '7')
+        CredentialDetails<CertificateCredential> caCredential = credHubService.generateCACertificate(testCredentialNames[0], caCredentials)
+
+        Map<String, String> credentials = new HashMap()
+        credentials.put('commonName', 'testone.service.consul')
+        credentials.put('durationInDays', '7')
+        credentials.put('certificateAuthorityCredential', '/' + testCredentialNames[0])
+
+        when:
+        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[1], credentials)
+
+        assert caCredential != null
+        assert credential != null
+        credentialId = credential.id
+
+        then:
+        println('CertificateCredential: ' + JsonHelper.toJsonString(credential))
     }
 
     static boolean checkCredHubConfigSet() {
