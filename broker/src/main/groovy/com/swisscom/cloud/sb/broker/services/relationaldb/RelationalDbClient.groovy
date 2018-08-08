@@ -24,13 +24,13 @@ import java.sql.SQLException
 @Log4j
 @CompileStatic
 abstract class RelationalDbClient {
-    private final String driverClass
-    private final String vendor
-    private final String host
-    private final int port
-    private final String adminUser
-    private final String adminPassword
-    private final String database
+    protected final String driverClass
+    protected final String vendor
+    protected final String host
+    protected final int port
+    protected final String adminUser
+    protected final String adminPassword
+    protected final String database
 
     RelationalDbClient(String driverClass, String vendor, String host, int port, String adminUser, String adminPassword) {
         this(driverClass, vendor, host, port, adminUser, adminPassword, null)
