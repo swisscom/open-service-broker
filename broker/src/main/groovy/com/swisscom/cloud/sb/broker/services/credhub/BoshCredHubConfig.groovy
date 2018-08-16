@@ -22,5 +22,5 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
-class BoshCredHubConfig implements CredHubConfig {
+class BoshCredHubConfig implements CredHubConfig, CertificateConfig  {
 }
