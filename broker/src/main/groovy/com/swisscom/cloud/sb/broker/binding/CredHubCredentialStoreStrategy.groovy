@@ -16,7 +16,6 @@
 package com.swisscom.cloud.sb.broker.binding
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.services.credhub.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import groovy.transform.CompileStatic
@@ -33,9 +32,6 @@ class CredHubCredentialStoreStrategy implements CredentialStoreStrategy {
 
     @Autowired
     private ApplicationContext applicationContext
-
-    @Autowired
-    private BoshCredHubTemplate boshCredHubTemplate
 
     def writeCredential(ServiceBinding serviceBinding, String credentialJson) {
         def credhubService = getCredHubService()
