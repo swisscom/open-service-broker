@@ -24,6 +24,19 @@ spring:
       client-secret:
       access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
 
+com.swisscom.cloud.sb.broker.credhub:
+  keyLength: LENGTH_2048
+  commonName:
+  organization: Swisscom
+  organizationUnit: MPS
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
+
 com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: true
   url: https://credhub.service.consul:8844
@@ -33,6 +46,17 @@ com.swisscom.cloud.sb.broker.bosh.credhub:
     client-id: credhub_cli
     client-secret:
     access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+  keyLength: LENGTH_2048
+  commonName:
+  organization: Swisscom
+  organizationUnit: test
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
 
 management:
   metrics:

@@ -36,6 +36,9 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     @Autowired
     private BoshCredHubTemplate boshCredHubTemplate
 
+    @Autowired
+    private BoshCredHubConfig boshCredHubConfig
+
     @Shared
     private String credentialId
     @Shared
@@ -127,13 +130,11 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     def "Generate CA Certificate with CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid()]
-        Map<String, String> credentials = new HashMap()
-        credentials.put('commonName', 'testone.service.consul')
-        credentials.put('durationInDays', '7')
-        credentials.put('certificateAuthority', 'true')
+        boshCredHubConfig.commonName = 'testone.service.consul'
+        boshCredHubConfig.certificateAuthority = true
 
         when:
-        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCACertificate(testCredentialNames[0], credentials)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
         assert credential != null
         credentialId = credential.id
 
@@ -144,18 +145,15 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     def "Generate Certificate based on generated CA Certificate on CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid(), StringGenerator.randomUuid()]
-        Map<String, String> caCredentials = new HashMap()
-        caCredentials.put('commonName', 'testone.service.consul')
-        caCredentials.put('durationInDays', '7')
-        CredentialDetails<CertificateCredential> caCredential = boshCredHubService.generateCACertificate(testCredentialNames[0], caCredentials)
+        boshCredHubConfig.commonName = 'testone.service.consul'
+        boshCredHubConfig.certificateAuthority = true
+        CredentialDetails<CertificateCredential> caCredential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
 
-        Map<String, String> credentials = new HashMap()
-        credentials.put('commonName', 'testone.service.consul')
-        credentials.put('durationInDays', '7')
-        credentials.put('certificateAuthorityCredential', '/' + testCredentialNames[0])
+        boshCredHubConfig.certificateAuthority = false
+        boshCredHubConfig.certificateAuthorityCredential = '/' + testCredentialNames[0]
 
         when:
-        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[1], credentials)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[1], boshCredHubConfig)
 
         assert caCredential != null
         assert credential != null

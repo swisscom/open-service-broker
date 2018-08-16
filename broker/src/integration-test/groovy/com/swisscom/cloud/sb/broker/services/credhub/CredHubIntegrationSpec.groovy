@@ -38,6 +38,9 @@ class CredHubIntegrationSpec extends BaseSpecification {
     @Autowired
     private CredentialService credentialService
 
+    @Autowired
+    private DefaultCredHubConfig defaultCredHubConfig
+
     @Shared
     private String credentialId
     @Shared
@@ -129,13 +132,11 @@ class CredHubIntegrationSpec extends BaseSpecification {
     def "Generate CA Certificate with CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid()]
-        Map<String, String> credentials = new HashMap()
-        credentials.put('commonName', 'testone.service.consul')
-        credentials.put('durationInDays', '7')
-        credentials.put('certificateAuthority', 'true')
+        defaultCredHubConfig.commonName = "testone.service.consul"
+        defaultCredHubConfig.certificateAuthority = true
 
         when:
-        CredentialDetails<CertificateCredential> credential = credHubService.generateCACertificate(testCredentialNames[0], credentials)
+        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[0], defaultCredHubConfig)
         assert credential != null
         credentialId = credential.id
 
@@ -146,18 +147,16 @@ class CredHubIntegrationSpec extends BaseSpecification {
     def "Generate Certificate based on generated CA Certificate on CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid(), StringGenerator.randomUuid()]
-        Map<String, String> caCredentials = new HashMap()
-        caCredentials.put('commonName', 'testone.service.consul')
-        caCredentials.put('durationInDays', '7')
-        CredentialDetails<CertificateCredential> caCredential = credHubService.generateCACertificate(testCredentialNames[0], caCredentials)
+        defaultCredHubConfig.commonName = "testone.service.consul"
+        defaultCredHubConfig.certificateAuthority = true
+        CredentialDetails<CertificateCredential> caCredential = credHubService.generateCertificate(testCredentialNames[0], defaultCredHubConfig)
 
-        Map<String, String> credentials = new HashMap()
-        credentials.put('commonName', 'testone.service.consul')
-        credentials.put('durationInDays', '7')
-        credentials.put('certificateAuthorityCredential', '/' + testCredentialNames[0])
+        defaultCredHubConfig.commonName = "testone.service.consul"
+        defaultCredHubConfig.certificateAuthority = false
+        defaultCredHubConfig.certificateAuthorityCredential = '/' + testCredentialNames[0]
 
         when:
-        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[1], credentials)
+        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[1], defaultCredHubConfig)
 
         assert caCredential != null
         assert credential != null

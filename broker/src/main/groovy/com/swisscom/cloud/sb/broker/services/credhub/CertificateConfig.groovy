@@ -15,12 +15,21 @@
 
 package com.swisscom.cloud.sb.broker.services.credhub
 
+import com.swisscom.cloud.sb.broker.config.Config
 import groovy.transform.CompileStatic
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.credhub.support.KeyLength
 
 @CompileStatic
-@Configuration
-@ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
-class BoshCredHubConfig implements CredHubConfig, CertificateConfig  {
+trait CertificateConfig implements Config {
+    KeyLength keyLength
+    String commonName
+    String organization
+    String organizationUnit
+    String locality
+    String state
+    String country
+    int duration
+    boolean certificateAuthority
+    String certificateAuthorityCredential
+    boolean selfSign
 }

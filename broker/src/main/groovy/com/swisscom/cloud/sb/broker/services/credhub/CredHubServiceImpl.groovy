@@ -20,7 +20,6 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.support.CredentialDetails
-import org.springframework.credhub.support.KeyLength
 import org.springframework.credhub.support.SimpleCredentialName
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.certificate.CertificateParameters
@@ -88,45 +87,25 @@ class CredHubServiceImpl implements CredHubService {
     }
 
     @Override
-    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, Map<String, String> credentials) {
+    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, CertificateConfig parameters) {
         log.info("Writing new CredHub Credential for name: ${credentialName}")
         def request = CertificateParametersRequest.builder()
                 .name(new SimpleCredentialName('/' + credentialName))
                 .overwrite(true)
                 .parameters(CertificateParameters.builder()
-                .keyLength(KeyLength.LENGTH_2048)
-                .commonName(credentials['commonName'])
-                .locality("Bern")
-                .state("Bern")
-                .country("CH")
-                .duration(credentials['durationInDays'].toInteger())
-                .certificateAuthority(false)
-                .certificateAuthorityCredential(credentials['certificateAuthorityCredential'])
-                .selfSign(false)
+                .keyLength(parameters.keyLength)
+                .commonName(parameters.commonName)
+                .organizationUnit(parameters.organizationUnit)
+                .organization(parameters.organization)
+                .locality(parameters.locality)
+                .state(parameters.state)
+                .country(parameters.country)
+                .duration(parameters.duration)
+                .certificateAuthority(parameters.certificateAuthority)
+                .certificateAuthorityCredential(parameters.certificateAuthorityCredential)
+                .selfSign(parameters.selfSign)
                 .build())
                 .build()
         credHubOperations.generate(request)
     }
-
-
-    @Override
-    CredentialDetails<CertificateCredential> generateCACertificate(String credentialName, Map<String, String> credentials) {
-        log.info("Writing new CredHub Credential for name: ${credentialName}")
-        def request = CertificateParametersRequest.builder()
-                .name(new SimpleCredentialName('/' + credentialName))
-                .overwrite(true)
-                .parameters(CertificateParameters.builder()
-                .keyLength(KeyLength.LENGTH_2048)
-                .commonName(credentials['commonName'])
-                .locality("Bern")
-                .state("Bern")
-                .country("CH")
-                .duration(credentials['durationInDays'].toInteger())
-                .certificateAuthority(true)
-                .selfSign(false)
-                .build())
-                .build()
-        credHubOperations.generate(request)
-    }
-
 }

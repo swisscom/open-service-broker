@@ -30,9 +30,7 @@ interface CredHubService {
 
     CredentialDetails<CertificateCredential> getCertificateCredentialByName(String name)
 
-    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, Map<String, String> credentials)
-
-    CredentialDetails<CertificateCredential> generateCACertificate(String credentialName, Map<String, String> credentials)
+    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, CertificateConfig parameters)
 
     CredentialDetails<RsaCredential> generateRSA(String credentialName)
 
