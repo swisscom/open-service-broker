@@ -28,9 +28,7 @@ import org.springframework.credhub.support.certificate.CertificateParametersRequ
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.json.JsonCredentialRequest
 import org.springframework.credhub.support.password.PasswordCredential
-import org.springframework.credhub.support.permissions.CredentialPermission
 import org.springframework.credhub.support.rsa.RsaCredential
-import org.springframework.credhub.support.rsa.RsaCredentialRequest
 import org.springframework.credhub.support.rsa.RsaParametersRequest
 
 @CompileStatic
@@ -39,6 +37,10 @@ class CredHubServiceImpl implements CredHubService {
 
     @Autowired
     private CredHubOperations credHubOperations
+
+    CredHubServiceImpl(CredHubOperations credHubOperations) {
+        this.credHubOperations = credHubOperations
+    }
 
     @Override
     CredentialDetails<JsonCredential> writeCredential(String credentialName, Map<String, String> credentials) {
