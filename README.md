@@ -2,9 +2,10 @@
 
 ### Status
 
-Master Branch: [![Master branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=master)](https://travis-ci.org/swisscom/open-service-broker)
+Master Branch: [![CircleCI](https://circleci.com/gh/swisscom/open-service-broker/tree/master.svg?style=svg)](https://circleci.com/gh/swisscom/open-service-broker/tree/master)
 
-Develop Branch: [![Develop branch Build Status](https://api.travis-ci.org/swisscom/open-service-broker.svg?branch=develop)](https://travis-ci.org/swisscom/open-service-broker)
+Develop Branch: [![CircleCI](https://circleci.com/gh/swisscom/open-service-broker/tree/develop.svg?style=svg)](https://circleci.com/gh/swisscom/open-service-broker/tree/develop)
+
 
 ## Introduction
 
