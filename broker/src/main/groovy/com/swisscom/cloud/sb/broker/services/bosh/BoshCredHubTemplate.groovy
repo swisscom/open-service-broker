@@ -13,8 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.credhub
+package com.swisscom.cloud.sb.broker.services.bosh
 
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.configuration.ClientHttpRequestFactoryFactory
 import org.springframework.credhub.core.OAuth2CredHubTemplate
@@ -27,5 +29,9 @@ class BoshCredHubTemplate extends OAuth2CredHubTemplate {
     @Autowired
     BoshCredHubTemplate(BoshCredHubConfig config) {
         super(config.oauth2_resourceowner, config.url, new ClientHttpRequestFactoryFactory().create(new ClientOptions()))
+    }
+
+    CredHubService buildCredHubService() {
+        return new CredHubServiceImpl(this)
     }
 }

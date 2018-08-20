@@ -48,7 +48,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
 
     private List<String> testCredentialNames
 
-    @Shared
+    @Autowired
     CredHubService credHubService
 
     @Autowired
@@ -60,10 +60,6 @@ class CredHubIntegrationSpec extends BaseSpecification {
         System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
         System.setProperty('javax.net.ssl.trustStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
-    }
-
-    def setup() {
-        credHubService = credHubCredentialStoreStrategy.getCredHubService()
     }
 
     def cleanup() {

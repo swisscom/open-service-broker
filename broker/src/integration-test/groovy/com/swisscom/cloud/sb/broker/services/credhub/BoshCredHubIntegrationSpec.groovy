@@ -17,6 +17,8 @@ package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
+import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
+import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
@@ -61,7 +63,7 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     }
 
     def setup() {
-        boshCredHubService = new CredHubServiceImpl(boshCredHubTemplate)
+        boshCredHubService = boshCredHubTemplate.buildCredHubService()
     }
 
     def cleanup() {
