@@ -9,10 +9,10 @@ jobs:
     # specify the version you desire here
     - image: circleci/openjdk:8-jdk
     - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_ROOT_PASSWORD: ''
-          MYSQL_DATABASE: CFBroker
+      environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        MYSQL_ROOT_PASSWORD: ''
+        MYSQL_DATABASE: CFBroker
     - image: influxdb
 
     working_directory: ~/repo
