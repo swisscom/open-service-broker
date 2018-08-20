@@ -17,6 +17,9 @@ jobs:
 
     working_directory: ~/repo
 
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx1024m
+
     steps:
     - checkout
     - run: 'if [[ ! -z "$CIRCLE_PULL_REQUEST" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
