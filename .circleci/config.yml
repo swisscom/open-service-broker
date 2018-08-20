@@ -22,6 +22,6 @@ jobs:
 
     steps:
     - checkout
-    - run: 'if [[ ! -z "$CIRCLE_PULL_REQUEST" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
+    - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
     - run: ./gradlew clean build -x functionalTest
     - run: ./circleci-publish.sh
