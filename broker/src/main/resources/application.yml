@@ -62,6 +62,7 @@ management:
   metrics:
     export:
       influx:
+        enabled: false
         uri: http://localhost:8086
         step: 5s
         userName:
