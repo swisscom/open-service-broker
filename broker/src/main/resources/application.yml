@@ -16,13 +16,13 @@ spring:
 
   credhub:
     enable: false
-    url: https://credhub.service.consul:8844
+    url: https://localhost:9000
     oauth2-resourceowner:
-      username:
-      password:
+      username: credhub
+      password: password
       client-id: credhub_cli
       client-secret:
-      access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+      access-token-uri: http://localhost:8081/uaa/oauth/token
 
 com.swisscom.cloud.sb.broker.credhub:
   keyLength: LENGTH_2048
@@ -39,13 +39,13 @@ com.swisscom.cloud.sb.broker.credhub:
 
 com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: true
-  url: https://credhub.service.consul:8844
+  url: https://localhost:9000
   oauth2_resourceowner:
-    username:
-    password:
+    username: credhub
+    password: password
     client-id: credhub_cli
     client-secret:
-    access-token-uri: https://uaa.service.cf.internal:8443/oauth/token
+    access-token-uri: http://localhost:8081/uaa/oauth/token
   keyLength: LENGTH_2048
   commonName:
   organization: Swisscom

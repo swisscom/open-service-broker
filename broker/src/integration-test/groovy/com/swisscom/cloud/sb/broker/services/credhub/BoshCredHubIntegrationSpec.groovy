@@ -33,7 +33,7 @@ import org.springframework.credhub.support.rsa.RsaCredential
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
-@IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
+@IgnoreIf({ !BoshCredHubIntegrationSpec.checkCredHubConfigSet() })
 class BoshCredHubIntegrationSpec extends BaseSpecification {
     @Autowired
     private BoshCredHubTemplate boshCredHubTemplate
@@ -169,7 +169,7 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
         yaml.setResources(new ClassPathResource("application.yml"))
         yaml.afterPropertiesSet()
-        return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
+        return StringUtils.equals(yaml.object.getProperty("com.swisscom.cloud.sb.broker.bosh.credhub.enable"), "true")
     }
 
 }
