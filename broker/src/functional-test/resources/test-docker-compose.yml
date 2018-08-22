@@ -20,3 +20,17 @@ services:
     environment:
       UAA_URL: http://localhost:8081/uaa
       UAA_INTERNAL_URL: http://uaa:8080/uaa
+
+  influxdb:
+    image: influxdb
+    ports:
+    - "8086:8086"
+
+  mariadb:
+    image: mariadb:10
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_DATABASE: CFBroker
