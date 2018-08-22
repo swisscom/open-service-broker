@@ -126,11 +126,11 @@ dependencies {
 
 // Define integration test task
 task integrationTest(type: Test) {
-    System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
-    System.setProperty('javax.net.ssl.keyStore', 'src/functional-test/resources/credhub_client.jks')
-    System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
-    System.setProperty('javax.net.ssl.trustStore', 'src/functional-test/resources/credhub_client.jks')
-    System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
+    systemProperty "http.nonProxyHosts", "localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul"
+    systemProperty "javax.net.ssl.keyStore", "src/functional-test/resources/credhub_client.jks"
+    systemProperty "javax.net.ssl.keyStorePassword", "changeit"
+    systemProperty "javax.net.ssl.trustStore", "src/functional-test/resources/credhub_client.jks"
+    systemProperty "javax.net.ssl.trustStorePassword", "changeit"
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 }
