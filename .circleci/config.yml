@@ -15,6 +15,7 @@ jobs:
 
     steps:
     - checkout
+    - run: sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
     - run: docker-compose -f broker/src/functional-test/resources/test-docker-compose.yml up -d
     - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
     - run: ./gradlew clean build -x functionalTest
