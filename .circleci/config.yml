@@ -22,6 +22,7 @@ jobs:
 
     steps:
     - checkout
+    - setup_remote_docker
     - run: docker-compose -f broker/src/functional-test/resources/credhub-docker-compose.yml up -d
     - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
     - run: ./gradlew clean build -x functionalTest
