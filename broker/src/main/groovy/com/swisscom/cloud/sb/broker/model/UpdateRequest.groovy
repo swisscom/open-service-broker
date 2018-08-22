@@ -22,7 +22,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
-class UpdateRequest extends BaseModel {
+class UpdateRequest extends BaseModel implements RequestWithParameters {
     String serviceInstanceGuid
     @OneToOne
     @JoinColumn(name = "plan_id")
