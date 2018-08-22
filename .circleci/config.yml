@@ -5,9 +5,10 @@
 version: 2
 jobs:
   build:
+    machine:
+      image: circleci/classic:latest
     docker:
     # specify the version you desire here
-    - image: circleci/openjdk:8-jdk
     - image: circleci/mysql:5.7
       environment:
         MYSQL_ALLOW_EMPTY_PASSWORD: yes
