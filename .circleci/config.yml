@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - checkout
-    - run: docker run -e MYSQL_ALLOW_EMPTY_PASSWORD='yes' -e MYSQL_ROOT_PASSWORD='' -e MYSQL_DATABASE='CFBroker' -p 127.0.0.1:3306:3306/tcp -d circleci/mysql:5.7
+    - run: docker run -e MYSQL_ALLOW_EMPTY_PASSWORD='yes' -e MYSQL_ROOT_PASSWORD='' -e MYSQL_DATABASE='CFBroker' -p 127.0.0.1:3306:3306/tcp -d mariadb:10
     - run: docker run -p 127.0.0.1:8086:8086/tcp -d influxdb
     - run: docker-compose -f broker/src/functional-test/resources/credhub-docker-compose.yml up -d
     - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
