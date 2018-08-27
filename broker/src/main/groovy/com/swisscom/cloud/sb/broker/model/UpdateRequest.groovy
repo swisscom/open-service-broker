@@ -24,6 +24,7 @@ import javax.persistence.OneToOne
 @Entity
 class UpdateRequest extends BaseModel implements RequestWithParameters {
     String serviceInstanceGuid
+    ServiceInstance serviceInstance
     @OneToOne
     @JoinColumn(name = "plan_id")
     @JsonIgnore

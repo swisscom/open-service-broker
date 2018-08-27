@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.model
 
 interface RequestWithParameters {
     String serviceInstanceGuid
+    ServiceInstance serviceInstance
     Plan plan
     String parameters
 }

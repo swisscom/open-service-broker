@@ -87,6 +87,7 @@ class UpdatingController extends BaseController {
 
         return new UpdateRequest(
                 serviceInstanceGuid: serviceInstance.guid,
+                serviceInstance: serviceInstance,
                 acceptsIncomplete: acceptsIncomplete,
                 plan: newPlan,
                 previousPlan: previousPlan,

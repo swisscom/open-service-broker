@@ -26,6 +26,7 @@ import javax.persistence.OneToOne
 class ProvisionRequest extends BaseModel implements RequestWithParameters{
     @Column(unique = true)
     String serviceInstanceGuid
+    ServiceInstance serviceInstance
     @OneToOne()
     @JoinColumn(name = "plan_id")
     @JsonIgnore

@@ -66,6 +66,7 @@ class ProvisioningPersistenceService {
 
     ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
         ServiceInstance instance = new ServiceInstance()
+        provisionRequest.serviceInstance = instance
         instance.guid = provisionRequest.serviceInstanceGuid
         instance.plan = provisionRequest.plan
         instance.parameters = provisionRequest.parameters
