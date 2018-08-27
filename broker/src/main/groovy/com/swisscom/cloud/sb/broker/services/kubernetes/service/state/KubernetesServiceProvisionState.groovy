@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.service.state
 
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
@@ -34,7 +35,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
             return new StateChangeActionResult(
                     go2NextState: true,
-                    details: stateContext.kubernetesFacade.provision(stateContext.lastOperationJobContext.provisionRequest))
+                    details: stateContext.kubernetesFacade.provision(getRequest(stateContext)))
         }
     }),
 
@@ -43,7 +44,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         @Override
         StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
             return new StateChangeActionResult(
-                    go2NextState: stateContext.kubernetesFacade.isKubernetesDeploymentSuccessful(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid))
+                    go2NextState: stateContext.kubernetesFacade.isKubernetesDeploymentSuccessful(getRequest(stateContext).serviceInstanceGuid))
         }
     }),
 
@@ -55,10 +56,19 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
                 def facadeWithBackup = stateContext.kubernetesFacade as SystemBackupProvider
                 return new StateChangeActionResult(
                         go2NextState: true,
-                        details: facadeWithBackup.configureSystemBackup(stateContext.lastOperationJobContext.provisionRequest.serviceInstanceGuid))
+                        details: facadeWithBackup.configureSystemBackup(getRequest(stateContext).serviceInstanceGuid))
             } catch (ClassCastException cce) {
                 log.error("Cast to SystemBackupOnShield for ${stateContext.kubernetesFacade.class} failed")
             }
+        }
+    }),
+
+    KUBERNETES_UPDATE_SERVICE(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: stateContext.kubernetesFacade.update(getRequest(stateContext)))
         }
     }),
 
@@ -99,6 +109,10 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
     @Override
     StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext context) {
         return onStateChange.triggerAction(context)
+    }
+
+    static RequestWithParameters getRequest(KubernetesServiceStateMachineContext stateContext){
+        stateContext.lastOperationJobContext.provisionRequest ? stateContext.lastOperationJobContext.provisionRequest : stateContext.lastOperationJobContext.updateRequest
     }
 
 }

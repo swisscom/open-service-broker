@@ -15,7 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters
 
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import groovy.transform.AutoClone
 import groovy.transform.CompileStatic
 
@@ -23,12 +24,11 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class KubernetesConfigUrlParams {
 
-    HashMap<String, String> getParameters(ProvisionRequest context) {
+    HashMap<String, String> getParameters(RequestWithParameters context) {
         return new HashMap<String, String>() {
             {
-                put("serviceInstanceGuid", context.getServiceInstanceGuid())
+                put("serviceInstanceGuid", context.serviceInstanceGuid)
             }
         }
     }
-
 }
