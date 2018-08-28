@@ -31,6 +31,4 @@ trait KubernetesFacade {
 
     abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
 
-    abstract boolean update(RequestWithParameters context)
-
 }
