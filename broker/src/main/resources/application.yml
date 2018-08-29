@@ -27,8 +27,8 @@ spring:
 com.swisscom.cloud.sb.broker.credhub:
   keyLength: LENGTH_2048
   commonName:
-  organization: Swisscom
-  organizationUnit: MPS
+  organization: ServiceBroker
+  organizationUnit: SB
   locality: Bern
   state: Bern
   country: CH
@@ -48,8 +48,8 @@ com.swisscom.cloud.sb.broker.bosh.credhub:
     access-token-uri: http://localhost:8081/uaa/oauth/token
   keyLength: LENGTH_2048
   commonName:
-  organization: Swisscom
-  organizationUnit: test
+  organization: ServiceBroker
+  organizationUnit: SB
   locality: Bern
   state: Bern
   country: CH
