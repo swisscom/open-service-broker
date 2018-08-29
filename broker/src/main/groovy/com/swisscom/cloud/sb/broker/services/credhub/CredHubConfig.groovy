@@ -19,10 +19,12 @@ import com.swisscom.cloud.sb.broker.config.Config
 import groovy.transform.CompileStatic
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails
 
+/*
+Defines the config needed for defining a CredHub datasource
+ */
 @CompileStatic
 trait CredHubConfig implements Config {
     boolean enable
     String url
     ResourceOwnerPasswordResourceDetails oauth2_resourceowner
-
 }
