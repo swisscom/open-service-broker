@@ -131,10 +131,6 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         }
     }
 
-    @Override
-    boolean update(RequestWithParameters context){
-    }
-
     private HttpStatus getNamespaceStatusCode(String serviceInstanceGuid) {
         ResponseEntity namespaceResponse = kubernetesClient.exchange(
                 EndpointMapper.INSTANCE.getEndpointUrlByType('Namespace').getFirst() + '/' + serviceInstanceGuid,
