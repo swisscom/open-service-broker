@@ -319,3 +319,7 @@ eden catalog
 eden provision -s redis -p small -i test_redis
 ```
 Before you are able to run these commands above make sure to have Open Service Broker running and desired service definitions got published.
+
+### Logging
+The logging is based on [Slf4j](https://www.slf4j.org/) with the [Log4J2 Extension](https://logging.apache.org/log4j/2.0/log4j-slf4j-impl/). The log output can be modified with the default [log4j2 configuration](https://logging.apache.org/log4j/2.x/manual/configuration.html) methods (e.g. log4j2.properties, log4j2.yaml ...).
+The default configuration returns a compacts json format with every item on a single line.
