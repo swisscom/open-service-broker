@@ -17,7 +17,8 @@ package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
-import com.swisscom.cloud.sb.broker.binding.CredentialService
+import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
+import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
@@ -32,14 +33,13 @@ import org.springframework.credhub.support.rsa.RsaCredential
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
-@IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
-class CredHubIntegrationSpec extends BaseSpecification {
+@IgnoreIf({ !BoshCredHubIntegrationSpec.checkCredHubConfigSet() })
+class BoshCredHubIntegrationSpec extends BaseSpecification {
+    @Autowired
+    private BoshCredHubTemplate boshCredHubTemplate
 
     @Autowired
-    private CredentialService credentialService
-
-    @Autowired
-    private DefaultCredHubConfig defaultCredHubConfig
+    private BoshCredHubConfig boshCredHubConfig
 
     @Shared
     private String credentialId
@@ -48,8 +48,8 @@ class CredHubIntegrationSpec extends BaseSpecification {
 
     private List<String> testCredentialNames
 
-    @Autowired
-    CredHubService credHubService
+    @Shared
+    CredHubService boshCredHubService
 
     @Autowired
     CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
@@ -62,10 +62,14 @@ class CredHubIntegrationSpec extends BaseSpecification {
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
     }
 
+    def setup() {
+        boshCredHubService = boshCredHubTemplate.buildCredHubService()
+    }
+
     def cleanup() {
         if (testCredentialNames != null) {
             for (testCredentialName in testCredentialNames) {
-                credHubService.deleteCredential(testCredentialName)
+                boshCredHubService.deleteCredential(testCredentialName)
             }
             testCredentialNames = null
         }
@@ -76,7 +80,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         credentialName = StringGenerator.randomUuid()
 
         when:
-        CredentialDetails<JsonCredential> credential = credHubService.writeCredential(credentialName, [username: StringGenerator.randomUuid(), password: StringGenerator.randomUuid()])
+        CredentialDetails<JsonCredential> credential = boshCredHubService.writeCredential(credentialName, [username: StringGenerator.randomUuid(), password: StringGenerator.randomUuid()])
         assert credential != null
         credentialId = credential.id
 
@@ -91,7 +95,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         assert credentialId != null
 
         when:
-        CredentialDetails<JsonCredential> details = credHubService.getCredential(credentialId)
+        CredentialDetails<JsonCredential> details = boshCredHubService.getCredential(credentialId)
 
         then:
         details != null
@@ -106,7 +110,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         String credentialName = credentialName
 
         when:
-        credHubService.deleteCredential(credentialName)
+        boshCredHubService.deleteCredential(credentialName)
 
         then:
         noExceptionThrown()
@@ -117,7 +121,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         testCredentialNames = [StringGenerator.randomUuid()]
 
         when:
-        CredentialDetails<RsaCredential> credential = credHubService.generateRSA(testCredentialNames[0])
+        CredentialDetails<RsaCredential> credential = boshCredHubService.generateRSA(testCredentialNames[0])
         assert credential != null
         credentialId = credential.id
 
@@ -128,11 +132,11 @@ class CredHubIntegrationSpec extends BaseSpecification {
     def "Generate CA Certificate with CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid()]
-        defaultCredHubConfig.commonName = "testone.service.consul"
-        defaultCredHubConfig.certificateAuthority = true
+        boshCredHubConfig.commonName = 'testone.service.consul'
+        boshCredHubConfig.certificateAuthority = true
 
         when:
-        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[0], defaultCredHubConfig)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
         assert credential != null
         credentialId = credential.id
 
@@ -143,16 +147,15 @@ class CredHubIntegrationSpec extends BaseSpecification {
     def "Generate Certificate based on generated CA Certificate on CredHub"() {
         given:
         testCredentialNames = [StringGenerator.randomUuid(), StringGenerator.randomUuid()]
-        defaultCredHubConfig.commonName = "testone.service.consul"
-        defaultCredHubConfig.certificateAuthority = true
-        CredentialDetails<CertificateCredential> caCredential = credHubService.generateCertificate(testCredentialNames[0], defaultCredHubConfig)
+        boshCredHubConfig.commonName = 'testone.service.consul'
+        boshCredHubConfig.certificateAuthority = true
+        CredentialDetails<CertificateCredential> caCredential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
 
-        defaultCredHubConfig.commonName = "testone.service.consul"
-        defaultCredHubConfig.certificateAuthority = false
-        defaultCredHubConfig.certificateAuthorityCredential = '/' + testCredentialNames[0]
+        boshCredHubConfig.certificateAuthority = false
+        boshCredHubConfig.certificateAuthorityCredential = '/' + testCredentialNames[0]
 
         when:
-        CredentialDetails<CertificateCredential> credential = credHubService.generateCertificate(testCredentialNames[1], defaultCredHubConfig)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[1], boshCredHubConfig)
 
         assert caCredential != null
         assert credential != null
@@ -166,7 +169,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
         yaml.setResources(new ClassPathResource("application.yml"))
         yaml.afterPropertiesSet()
-        return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
+        return StringUtils.equals(yaml.object.getProperty("com.swisscom.cloud.sb.broker.bosh.credhub.enable"), "true")
     }
 
 }

@@ -15,11 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
-import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
@@ -29,6 +25,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.Kube
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -64,7 +61,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     protected
     abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses)
 
-    Collection<ServiceDetail> provision(ProvisionRequest context) {
+    Collection<ServiceDetail> provision(RequestWithParameters context) {
         def bindingMap = getBindingMap(context)
         log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
         def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)

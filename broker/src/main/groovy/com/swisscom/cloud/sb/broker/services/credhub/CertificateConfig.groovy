@@ -13,22 +13,23 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.kubernetes.facade
+package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.RequestWithParameters
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.config.Config
 import groovy.transform.CompileStatic
+import org.springframework.credhub.support.KeyLength
 
 @CompileStatic
-trait KubernetesFacade {
-
-    abstract Collection<ServiceDetail> provision(RequestWithParameters context)
-
-    abstract void deprovision(DeprovisionRequest request)
-
-    abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
-
-    abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
-
+trait CertificateConfig implements Config {
+    KeyLength keyLength
+    String commonName
+    String organization
+    String organizationUnit
+    String locality
+    String state
+    String country
+    int duration
+    boolean certificateAuthority
+    String certificateAuthorityCredential
+    boolean selfSign
 }

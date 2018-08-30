@@ -13,22 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters
+package com.swisscom.cloud.sb.broker.model
 
-
-import com.swisscom.cloud.sb.broker.model.RequestWithParameters
-import groovy.transform.AutoClone
-import groovy.transform.CompileStatic
-
-@AutoClone
-@CompileStatic
-class KubernetesConfigUrlParams {
-
-    HashMap<String, String> getParameters(RequestWithParameters context) {
-        return new HashMap<String, String>() {
-            {
-                put("serviceInstanceGuid", context.serviceInstanceGuid)
-            }
-        }
-    }
+interface RequestWithParameters {
+    String serviceInstanceGuid
+    Plan plan
+    String parameters
 }

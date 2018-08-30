@@ -13,22 +13,18 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.kubernetes.facade
+package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.RequestWithParameters
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.config.Config
 import groovy.transform.CompileStatic
+import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails
 
+/*
+Defines the config needed for defining a CredHub datasource
+ */
 @CompileStatic
-trait KubernetesFacade {
-
-    abstract Collection<ServiceDetail> provision(RequestWithParameters context)
-
-    abstract void deprovision(DeprovisionRequest request)
-
-    abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
-
-    abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
-
+trait CredHubConfig implements Config {
+    boolean enable
+    String url
+    ResourceOwnerPasswordResourceDetails oauth2_resourceowner
 }

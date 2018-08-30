@@ -1,0 +1,23 @@
+# Java Gradle CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
+jobs:
+  build:
+    machine:
+      image: circleci/classic:latest
+
+    working_directory: ~/repo
+
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx1024m
+
+    steps:
+    - checkout
+    - run: docker-compose -f broker/src/functional-test/resources/test-docker-compose.yml up -d
+    - run: sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+    - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
+    - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl -md md5 aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
+    - run: ./gradlew clean build -x functionalTest
+    - run: ./circleci-publish.sh

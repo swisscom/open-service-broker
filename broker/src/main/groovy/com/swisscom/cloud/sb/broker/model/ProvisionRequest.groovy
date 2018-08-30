@@ -23,7 +23,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
-class ProvisionRequest extends BaseModel {
+class ProvisionRequest extends BaseModel implements RequestWithParameters{
     @Column(unique = true)
     String serviceInstanceGuid
     @OneToOne()

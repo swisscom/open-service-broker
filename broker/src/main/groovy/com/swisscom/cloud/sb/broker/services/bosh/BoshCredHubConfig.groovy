@@ -13,22 +13,16 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.kubernetes.facade
+package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.RequestWithParameters
-import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.services.credhub.CertificateConfig
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubConfig
 import groovy.transform.CompileStatic
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Configuration
 
 @CompileStatic
-trait KubernetesFacade {
-
-    abstract Collection<ServiceDetail> provision(RequestWithParameters context)
-
-    abstract void deprovision(DeprovisionRequest request)
-
-    abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
-
-    abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
-
+@Configuration
+@ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
+class BoshCredHubConfig implements CredHubConfig, CertificateConfig  {
 }

@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.credhub.autoconfig.CredHubAutoConfiguration.ClientFactoryWrapper
 import org.springframework.credhub.autoconfig.CredHubTemplateAutoConfiguration
 import org.springframework.credhub.autoconfig.security.CredHubCredentialsDetails
@@ -69,6 +70,7 @@ class CredHubOAuth2TemplateAutoConfiguration {
      * @return the {@link CredHubOperations} bean
      */
     @Bean
+    @Primary
     CredHubOperations credHubTemplate(CredHubProperties credHubProperties,
                                       @CredHubCredentialsDetails ResourceOwnerPasswordResourceDetails credHubCredentialsDetails, ClientFactoryWrapper clientFactoryWrapper) {
         return credHubTemplateFactory.credHubTemplate(credHubCredentialsDetails,
