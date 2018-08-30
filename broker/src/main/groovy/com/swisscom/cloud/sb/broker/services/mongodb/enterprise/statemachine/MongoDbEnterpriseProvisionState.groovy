@@ -182,6 +182,13 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
 
 
     }),
+    DELETE_DEFAULT_ALERTS(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
+        @Override
+        StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
+            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            return new StateChangeActionResult(go2NextState: stateContext.opsManagerFacade.deleteDefaultAlerts(groupId))
+        }
+    }),
     PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp())
 
 

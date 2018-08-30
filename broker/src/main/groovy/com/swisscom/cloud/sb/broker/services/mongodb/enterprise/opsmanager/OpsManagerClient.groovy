@@ -20,13 +20,17 @@ import com.google.gson.Gson
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigsDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+import org.apache.http.HttpStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.ResponseEntity
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -51,6 +55,7 @@ class OpsManagerClient {
     public static final String SNAPSHOT_SCHEDULE = '/snapshotSchedule'
     public static final String CLUSTERS = '/clusters'
     public static final String WHITE_LIST = '/whitelist'
+    public static final String ALERT_CONFIGS = '/alertConfigs'
 
     public static final String AUTOMATION = '/AUTOMATION'
     private final RestTemplateBuilder restTemplateBuilder
@@ -88,6 +93,15 @@ class OpsManagerClient {
     //TODO
     GroupDto createGroup(GroupDto groupDto) {
         return createRestTemplate().exchange(groupsUrl(), HttpMethod.POST, new HttpEntity<GroupDto>(groupDto), GroupDto.class).body
+    }
+
+    AlertConfigsDto listAlerts(String groupId) {
+        return createRestTemplate().exchange(groupsUrl(groupId) + ALERT_CONFIGS, HttpMethod.GET, HttpEntity.EMPTY, AlertConfigsDto.class).body
+    }
+
+    boolean deleteAlertConfig(String groupId, String alertId){
+        def result = createRestTemplate().exchange(groupsUrl(groupId) + ALERT_CONFIGS + "/${alertId}", HttpMethod.DELETE, HttpEntity.EMPTY, String.class)
+        return (result.statusCode == ResponseEntity.ok())
     }
 
     GroupDto getGroup(String groupId) {

@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigsDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
@@ -63,5 +64,31 @@ class OpsManagerClientTest extends BaseSpecification {
         println(id)
         then:
         id
+    }
+
+    def "get alertConfigs"() {
+        given:
+        def groupId = '573f1d36e4b070b97d26df01'
+
+        when:
+        def result = opsManagerClient.listAlerts(groupId)
+        println(result)
+
+        then:
+        result.class == AlertConfigsDto
+        result.results != null
+    }
+
+    def "delet alertConfig"() {
+        given:
+        def groupId = '573f1d36e4b070b97d26df01'
+        def id = '5b7e9b8456da750df59a582d'
+
+        when:
+        def result = opsManagerClient.deleteAlertConfig(groupId, id)
+        println(result)
+
+        then:
+        result
     }
 }
