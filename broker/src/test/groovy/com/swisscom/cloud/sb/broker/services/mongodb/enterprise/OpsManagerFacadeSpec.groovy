@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigsDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
@@ -272,7 +274,7 @@ class OpsManagerFacadeSpec extends Specification {
         1 * opsManagerClient.updateAutomationConfig(GROUP_ID, _)
     }
 
-    def "match version regex"(){
+    def "match version regex"() {
         given:
         String regex = "^\\d+\\.\\d+\$"
         String version = "3.5"
@@ -284,7 +286,7 @@ class OpsManagerFacadeSpec extends Specification {
         result
     }
 
-    def "do nat match version regex when starting with a character"(){
+    def "do nat match version regex when starting with a character"() {
         given:
         String regex = "^\\d+\\.\\d+\$"
         String version = "a3.5"
@@ -296,7 +298,7 @@ class OpsManagerFacadeSpec extends Specification {
         !result
     }
 
-    def "match version regex when ending with a character"(){
+    def "match version regex when ending with a character"() {
         given:
         String regex = "^\\d+\\.\\d+\$"
         String version = "3.5a"
@@ -307,5 +309,51 @@ class OpsManagerFacadeSpec extends Specification {
         then:
         !result
     }
+
+    def "delete default alerts functions correctly"() {
+        given:
+        opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
+        opsManagerClient.listAlerts(GROUP_ID) >> new AlertConfigsDto(results: new ArrayList<AlertConfigDto>(), totalCount: 13)
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
+
+        then:
+        res == true
+        0 * opsManagerClient.deleteAlertConfig(GROUP_ID, _)
+    }
+
+    def "delete default alerts functions when results array contains items"() {
+        given:
+        def alertId = "5b7e9b8456da750df59a582d"
+        opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
+        opsManagerClient.listAlerts(GROUP_ID) >>> [
+                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 1),
+                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>(), totalCount: 0)]
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
+
+        then:
+        res == true
+        1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId)
+    }
+
+    def "delete default alerts functions when results array contains items after deletion"() {
+        given:
+        def alertId = "5b7e9b8456da750df59a582d"
+        opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
+        opsManagerClient.listAlerts(GROUP_ID) >>> [
+                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 2),
+                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 1)]
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
+
+        then:
+        res == false
+        1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId)
+    }
+
 }
 
