@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - Replace Logging Output from Slf4j-test to Slf4j-Log4j2
+- \#140 Support multiple CredHubs
+- \#141 Move from Travis to CircleCI
+- Introduce common interface for Provision and Update Requests
 
 ## [4.1.2] - 2018-08-03
 - Do not push release branch during release process
