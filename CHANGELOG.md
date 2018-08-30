@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.2.1] - 2018-08-30
+
+
+
 ## [4.2.0] - 2018-08-30
 - Replace Logging Output from Slf4j-test to Slf4j-Log4j2
 - \#140 Support multiple CredHubs
