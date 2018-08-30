@@ -28,11 +28,10 @@ management:
   metrics:
     export:
       influx:
-        enabled: false
         uri: http://localhost:8086
         step: 5s
         userName:
-        db: influxdb
+        db: osb-metrics
         env: "local"
     enable:
       jvm: false
