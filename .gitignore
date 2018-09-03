@@ -36,3 +36,4 @@ nbdist/
 ### GPG rings ###
 local.*
 
+**log4j2.*
