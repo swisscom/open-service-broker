@@ -33,7 +33,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Shared
 
 @Slf4j
-@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec']) })
+//@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec']) })
 class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
 
     @Shared
@@ -58,7 +58,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createParameter('BACKUP_SCHEDULE_NAME', 'daily', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_POLICY_NAME', 'month', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
-        backupRestoreHelper = new BackupRestoreHelper(appBaseUrl, cfExtUser, cfExtPassword)
+        backupRestoreHelper = new BackupRestoreHelper(appBaseUrl, cfExtUser.username, cfExtUser.password)
     }
 
     @Autowired

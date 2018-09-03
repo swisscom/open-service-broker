@@ -162,12 +162,16 @@ class ShieldClient {
         if (retention == null) {
             throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
         }
-        ScheduleDto schedule = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
-        if (schedule == null) {
-            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
+        String schedule = shieldServiceConfig.scheduleName
+        if (buildClient().getAPIVersion() == 1) {
+            ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
+            if (scheduleDto == null) {
+                throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
+            }
+            schedule = scheduleDto.uuid
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule.uuid, paused)
+        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)
     }
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
@@ -188,6 +192,6 @@ class ShieldClient {
     }
 
     private ShieldRestClient buildClient() {
-        shieldRestClientFactory.build(restTemplateBuilder.withSSLValidationDisabled().build(), shieldConfig.baseUrl, shieldConfig.apiKey)
+        shieldRestClientFactory.build(restTemplateBuilder.withSSLValidationDisabled().build(), shieldConfig)
     }
 }
