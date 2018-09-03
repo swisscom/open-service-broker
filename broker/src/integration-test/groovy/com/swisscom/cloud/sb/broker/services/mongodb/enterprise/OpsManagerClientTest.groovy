@@ -68,21 +68,21 @@ class OpsManagerClientTest extends BaseSpecification {
 
     def "get alertConfigs"() {
         given:
-        def groupId = '573f1d36e4b070b97d26df01'
+        def groupId = '5b86593eb61cea1a95e55405'
 
         when:
         def result = opsManagerClient.listAlerts(groupId)
-        println(result)
+        result.results.each {println(it.id)}
 
         then:
         result.class == AlertConfigsDto
         result.results != null
     }
 
-    def "delet alertConfig"() {
+    def "delete alertConfig"() {
         given:
-        def groupId = '573f1d36e4b070b97d26df01'
-        def id = '5b7e9b8456da750df59a582d'
+        def groupId = '5b86593eb61cea1a95e55405'
+        def id = '5b865af1b61cea1a95e56164'
 
         when:
         def result = opsManagerClient.deleteAlertConfig(groupId, id)
@@ -90,5 +90,18 @@ class OpsManagerClientTest extends BaseSpecification {
 
         then:
         result
+    }
+
+    def "delete non existing alertConfig"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+        def id = 'notExistingId'
+
+        when:
+        def result = opsManagerClient.deleteAlertConfig(groupId, id)
+        println(result)
+
+        then:
+        result == false
     }
 }

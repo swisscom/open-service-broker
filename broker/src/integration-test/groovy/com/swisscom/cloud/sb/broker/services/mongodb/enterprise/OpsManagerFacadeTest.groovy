@@ -20,7 +20,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsMa
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 
-@Ignore
+//@Ignore
 class OpsManagerFacadeTest extends BaseSpecification {
 
     @Autowired
@@ -116,5 +116,15 @@ class OpsManagerFacadeTest extends BaseSpecification {
         opsManagerFacade.undeploy("57467e9ae4b0406c7f41ddb9")
         then:
         noExceptionThrown()
+    }
+
+    def "delete defaultAlerts"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(groupId)
+        then:
+        res == true
     }
 }
