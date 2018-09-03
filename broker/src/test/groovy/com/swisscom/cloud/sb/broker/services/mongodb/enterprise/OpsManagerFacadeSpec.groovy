@@ -310,26 +310,26 @@ class OpsManagerFacadeSpec extends Specification {
         !result
     }
 
-    def "delete default alerts functions correctly"() {
+    def "deleteDefaultAlerts returns true when there are no alerts"() {
         given:
         opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
-        opsManagerClient.listAlerts(GROUP_ID) >> new AlertConfigsDto(results: new ArrayList<AlertConfigDto>(), totalCount: 13)
+        opsManagerClient.listAlerts(GROUP_ID) >> new AlertConfigsDto(results: [], totalCount: 0)
 
         when:
         def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
 
         then:
         res == true
-        0 * opsManagerClient.deleteAlertConfig(GROUP_ID, _)
+        0 * opsManagerClient.deleteAlertConfig(GROUP_ID)
     }
 
-    def "delete default alerts functions when results array contains items"() {
+    def "deleteDefaultAlerts returns true when there is one alert which gets deleted"() {
         given:
         def alertId = "5b7e9b8456da750df59a582d"
         opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
         opsManagerClient.listAlerts(GROUP_ID) >>> [
-                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 1),
-                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>(), totalCount: 0)]
+                new AlertConfigsDto(results: [new AlertConfigDto(id: alertId)], totalCount: 1),
+                new AlertConfigsDto(results: [], totalCount: 0)]
 
         when:
         def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
@@ -339,13 +339,34 @@ class OpsManagerFacadeSpec extends Specification {
         1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId)
     }
 
-    def "delete default alerts functions when results array contains items after deletion"() {
+    def "deleteDefaultAlerts returns false when not all alerts got deleted"() {
         given:
         def alertId = "5b7e9b8456da750df59a582d"
+        def alertId2 = "5b7e9b8456da750df59a582e"
         opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
         opsManagerClient.listAlerts(GROUP_ID) >>> [
-                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 2),
-                new AlertConfigsDto(results: new ArrayList<AlertConfigDto>([new AlertConfigDto(id: alertId)]), totalCount: 1)]
+                new AlertConfigsDto(results: [new AlertConfigDto(id: alertId), new AlertConfigDto(id: alertId2)], totalCount: 2),
+                new AlertConfigsDto(results: [new AlertConfigDto(id: alertId)], totalCount: 1)
+        ]
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
+
+        then:
+        res == false
+        1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId)
+        1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId2)
+    }
+
+    def "deleteDefaultAlerts returns false when no alert got deleted"() {
+        given:
+        def alertId = "5b7e9b8456da750df59a582d"
+        def alertId2 = "5b7e9b8456da750df59a582e"
+        opsManagerClient.deleteAlertConfig(GROUP_ID) >> true
+        opsManagerClient.listAlerts(GROUP_ID) >>> [
+                new AlertConfigsDto(results: [new AlertConfigDto(id: alertId), new AlertConfigDto(id: alertId2)], totalCount: 2),
+                new AlertConfigsDto(results: [new AlertConfigDto(id: alertId), new AlertConfigDto(id: alertId2)], totalCount: 2)
+        ]
 
         when:
         def res = opsManagerFacade.deleteDefaultAlerts(GROUP_ID)
@@ -354,6 +375,4 @@ class OpsManagerFacadeSpec extends Specification {
         res == false
         1 * opsManagerClient.deleteAlertConfig(GROUP_ID, alertId)
     }
-
 }
-

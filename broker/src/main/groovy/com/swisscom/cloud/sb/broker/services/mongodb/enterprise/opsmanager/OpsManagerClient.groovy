@@ -20,20 +20,19 @@ import com.google.gson.Gson
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigsDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.apache.http.HttpStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 import static com.google.common.base.Strings.isNullOrEmpty
@@ -100,8 +99,15 @@ class OpsManagerClient {
     }
 
     boolean deleteAlertConfig(String groupId, String alertId){
-        def result = createRestTemplate().exchange(groupsUrl(groupId) + ALERT_CONFIGS + "/${alertId}", HttpMethod.DELETE, HttpEntity.EMPTY, String.class)
-        return (result.statusCode == ResponseEntity.ok())
+        try {
+            def result = createRestTemplate().exchange(groupsUrl(groupId) + ALERT_CONFIGS + "/${alertId}", HttpMethod.DELETE, HttpEntity.EMPTY, String.class)
+            return (result.statusCode == HttpStatus.OK)
+        } catch (HttpClientErrorException e) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                return false
+            }
+            throw e
+        }
     }
 
     GroupDto getGroup(String groupId) {
