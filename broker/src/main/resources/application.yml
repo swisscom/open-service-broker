@@ -110,7 +110,7 @@ com.swisscom.cloud.sb.broker.service.mariadb:
     discoveryURL: "http://localhost:8080/v2/api-docs"
 
 com.swisscom.cloud.sb.broker.shield:
-  baseUrl: 'https://shield.service.consul:8002'
+  baseUrl: 'https://localhost:8443'
   apiKey:
   agent: '10.244.2.2:5444'
   jobPrefix: 'SB_CF_'
@@ -119,6 +119,9 @@ com.swisscom.cloud.sb.broker.shield:
   retentionName: 'default'
   scheduleName: 'schedu'
   maxRetryBackup: 5
+  defaultTenantName: tenant1
+  username: admin
+  password: shield
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:

@@ -20,20 +20,48 @@ import com.swisscom.cloud.sb.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.http.*
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 
 @Slf4j
 class ShieldRestClient {
     public static final String HEADER_API_KEY = 'X-Shield-Token'
+    public static final String HEADER_API_SESSION = 'X-Shield-Session'
 
+    private ShieldConfig config
     private RestTemplate restTemplate
-    private String baseUrl
-    private String apiKey
+    private int apiVersion = 1
 
-    ShieldRestClient(RestTemplate restTemplate, String baseUrl, String apiKey) {
+    ShieldRestClient(RestTemplate restTemplate, ShieldConfig shieldConfig) {
         this.restTemplate = restTemplate
-        this.baseUrl = baseUrl
-        this.apiKey = apiKey
+        this.config = shieldConfig
+        this.apiVersion = getAPIVersion()
+    }
+
+    int getAPIVersion() {
+        try {
+            this.apiVersion = 1
+            def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
+            String version = new JsonSlurper().parseText(response.body).version
+            if (version != null && version[0..0].toInteger() == 1) return 1
+            else {
+                this.apiVersion = 2
+                response = restTemplate.exchange(infoUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
+                if (new JsonSlurper().parseText(response.body).api == 2) return 2
+            }
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                this.apiVersion = 2
+                def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
+                if (new JsonSlurper().parseText(response.body).api == 2) return 2
+                throw e
+            }
+        }
+    }
+
+    String getTenantUuidByName(String name) {
+        def response = restTemplate.exchange(tenantsUrl() + "?limit=1&name=${name}", HttpMethod.GET, configureRequestEntity(), String.class)
+        return new JsonSlurper().parseText(response.body)[0].uuid
     }
 
     Object getStatus() {
@@ -149,6 +177,9 @@ class ShieldRestClient {
                     schedule : scheduleUuid,
                     paused   : paused]
 
+        if (apiVersion == 2) {
+            body = replaceRetentionWithPolicy(body, retentionUuid)
+        }
         def response = restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
         new JsonSlurper().parseText(response.body).uuid
     }
@@ -166,7 +197,9 @@ class ShieldRestClient {
                     retention: retentionUuid,
                     schedule : scheduleUuid,
                     paused   : paused]
-
+        if (apiVersion == 2) {
+            body = replaceRetentionWithPolicy(body, retentionUuid)
+        }
         restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
         existingJob.uuid
     }
@@ -218,52 +251,89 @@ class ShieldRestClient {
     private <T> HttpEntity<T> configureRequestEntity(T t) {
         HttpHeaders headers = new HttpHeaders()
         headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
-        headers.add(HEADER_API_KEY, apiKey)
+        apiVersion == 2 ? headers.add(HEADER_API_SESSION, getSession()) : headers.add(HEADER_API_KEY, config.apiKey)
         HttpEntity<T> entity = t ? new HttpEntity<T>(t, headers) : new HttpEntity<T>(headers)
         return entity
     }
 
+    protected String getSession() {
+        HttpHeaders headers = new HttpHeaders()
+        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+        def body = [username: config.username,
+                    password: config.password]
+        HttpEntity<Map<String,String>> request = new HttpEntity<Map<String,String>>(body, headers)
+        ResponseEntity<String> response = restTemplate.exchange(loginUrl(), HttpMethod.POST, request, String.class)
+        return response.getHeaders().getValuesAsList(HEADER_API_SESSION)[0]
+    }
+
     protected String storesUrl() {
-        "${baseUrl()}/stores"
+        "${tenantBasedUrl()}/stores"
     }
 
     protected String retentionsUrl() {
-        "${baseUrl()}/retention"
+        apiVersion == 2 ? "${tenantBasedUrl()}/policies" : "${tenantBasedUrl()}/retention"
     }
 
     protected String schedulesUrl() {
-        "${baseUrl()}/schedules"
+        "${tenantBasedUrl()}/schedules"
     }
 
     protected String taskUrl(String uuid) {
-        "${baseUrl()}/task/${uuid}"
+        "${tenantBasedUrl()}/task/${uuid}"
     }
 
     protected String archiveUrl(String uuid) {
-        "${baseUrl()}/archive/${uuid}"
+        "${tenantBasedUrl()}/archive/${uuid}"
     }
 
     protected String targetsUrl() {
-        "${baseUrl()}/targets"
+        "${tenantBasedUrl()}/targets"
     }
 
     protected String targetUrl(String uuid) {
-        "${baseUrl()}/target/${uuid}"
+        "${tenantBasedUrl()}/target/${uuid}"
     }
 
     protected String jobsUrl() {
-        "${baseUrl()}/jobs"
+        "${tenantBasedUrl()}/jobs"
     }
 
     protected String jobUrl(String uuid) {
-        "${baseUrl()}/job/${uuid}"
+        "${tenantBasedUrl()}/job/${uuid}"
     }
 
     protected String statusUrl() {
         "${baseUrl()}/status"
     }
 
+    protected String infoUrl() {
+        "${baseUrl()}/info"
+    }
+
+    protected String tenantsUrl() {
+        "${baseUrl()}/tenants"
+    }
+
+    protected String loginUrl() {
+        "${baseUrl()}/auth/login"
+    }
+
+    private String tenantBasedUrl() {
+        apiVersion == 2 ? "${baseUrl()}/tenants/${getTenantUuidByName(config.defaultTenantName)}" : baseUrl()
+    }
+
     private String baseUrl() {
-        "${baseUrl}/v1"
+        "${config.baseUrl}/v${apiVersion}"
+    }
+
+    private Map<String,String> replaceRetentionWithPolicy(Map<?, ?> body, String retention) {
+        def iterator = body.entrySet().iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().key == "retention") {
+                iterator.remove()
+            }
+        }
+        body.put("policy", retention)
+        return body
     }
 }

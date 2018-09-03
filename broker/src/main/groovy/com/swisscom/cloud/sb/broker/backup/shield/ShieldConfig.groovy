@@ -27,4 +27,7 @@ class ShieldConfig implements Config {
     String jobPrefix
     String targetPrefix
     int maxRetryBackup
+    String defaultTenantName
+    String username
+    String password
 }

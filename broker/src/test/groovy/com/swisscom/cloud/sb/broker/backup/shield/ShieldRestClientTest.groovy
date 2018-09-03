@@ -26,14 +26,13 @@ class ShieldRestClientTest extends Specification {
     ShieldRestClient restClient
 
     void setup() {
-        restClient = new ShieldRestClient(new RestTemplateBuilder().withSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
-    }
-
-    def "obtain status"() {
-        when:
-        def status = restClient.getStatus()
-        then:
-        status
+        ShieldConfig shieldConfig = new ShieldConfig()
+        shieldConfig.baseUrl = "https://localhost:8443"
+        shieldConfig.username = "admin"
+        shieldConfig.password = "shield"
+        shieldConfig.defaultTenantName = "tenant1"
+        shieldConfig.apiKey = "averyhardkey"
+        restClient = new ShieldRestClient(new RestTemplateBuilder().withSSLValidationDisabled().build(), shieldConfig)
     }
 
     def "get store by name"() {
@@ -62,19 +61,5 @@ class ShieldRestClientTest extends Specification {
         def retention = restClient.getRetentionByName("notexisting")
         then:
         retention == null
-    }
-
-    def "get schedule by name"() {
-        when:
-        def schedule = restClient.getScheduleByName("default")
-        then:
-        schedule
-    }
-
-    def "get schedule by name not found"() {
-        when:
-        def schedule = restClient.getScheduleByName("notexisting")
-        then:
-        schedule == null
     }
 }
