@@ -16,6 +16,8 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
+import com.swisscom.cloud.sb.broker.error.ErrorCode
+import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -26,6 +28,7 @@ import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
+import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.beans.factory.annotation.Autowired
 
 class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
@@ -222,5 +225,60 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         then:
         noExceptionThrown()
+    }
+
+    def "Update service definition"() {
+        given:
+        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
+                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
+                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
+                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+
+        and:
+        serviceDefinitionInitializer.init()
+
+        when:
+        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
+                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: false, tags: ["tag"],
+                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
+                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+
+        and:
+        serviceDefinitionInitializer.init()
+
+        then:
+        def cfService = cfServiceRepository.findByGuid("guid")
+        cfService.bindable == false
+    }
+
+    def "Delete service definition throws exception"() {
+        given:
+        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
+                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
+                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
+                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+
+        and:
+        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid2", name: "name2", internalName: "internalName",
+                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
+                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
+                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+
+        and:
+        serviceDefinitionInitializer.init()
+
+        when:
+        serviceDefinitionConfig.serviceDefinitions.remove(serviceDefinitionConfig.serviceDefinitions[0])
+
+        and:
+        serviceDefinitionInitializer.init()
+
+        then:
+        RuntimeException e = thrown()
+        e.message == "Missing service definition configuration exception. Service list - ${cfServiceRepository.findAll().collect{it.guid}}"
     }
 }
