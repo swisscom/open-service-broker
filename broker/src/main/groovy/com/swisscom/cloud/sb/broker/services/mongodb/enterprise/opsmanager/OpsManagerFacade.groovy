@@ -532,11 +532,7 @@ class OpsManagerFacade {
             opsManagerClient.deleteAlertConfig(groupId, alertConfig.id)
         }
 
-        if (opsManagerClient.listAlerts(groupId).results.isEmpty()) {
-            return true
-        } else {
-            return false
-        }
+        return opsManagerClient.listAlerts(groupId).results.isEmpty()
     }
 
 }
