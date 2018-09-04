@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.2.2] - 2018-09-04
+- Add log4j2 files to .gitignore
+- Fixes minor bug in abstract kubernetes provisioning
+
 ## [4.2.1] - 2018-08-30
-
-
 
 ## [4.2.0] - 2018-08-30
 - Replace Logging Output from Slf4j-test to Slf4j-Log4j2

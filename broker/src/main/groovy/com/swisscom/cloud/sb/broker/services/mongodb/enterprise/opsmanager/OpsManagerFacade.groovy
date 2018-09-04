@@ -426,7 +426,7 @@ class OpsManagerFacade {
     }
 
     void deleteAllHosts(String groupId) {
-        def hostIds = opsManagerClient.getHostIds(groupId)
+        String hostIds = opsManagerClient.getHostIds(groupId)
         hostIds.each { String hostId ->
             opsManagerClient.deleteHost(groupId, hostId)
         }

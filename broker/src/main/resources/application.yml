@@ -64,8 +64,8 @@ management:
       influx:
         uri: http://influxdb.service.consul:9086
         step: 5s
-        userName: admin
-        db: influxdb
+        userName:
+        db: osb-metrics
         env: "local"
     enable:
       jvm: false

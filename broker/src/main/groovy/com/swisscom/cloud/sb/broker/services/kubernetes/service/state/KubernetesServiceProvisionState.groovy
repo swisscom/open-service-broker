@@ -103,7 +103,7 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
     }
 
     static RequestWithParameters getRequest(KubernetesServiceStateMachineContext stateContext){
-        stateContext.lastOperationJobContext.provisionRequest ? stateContext.lastOperationJobContext.provisionRequest : stateContext.lastOperationJobContext.updateRequest
+        stateContext.lastOperationJobContext.provisionRequest?.serviceInstanceGuid ? stateContext.lastOperationJobContext.provisionRequest : stateContext.lastOperationJobContext.updateRequest
     }
 
 }
