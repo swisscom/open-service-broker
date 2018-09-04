@@ -20,7 +20,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsMa
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 
-//@Ignore
+@Ignore
 class OpsManagerFacadeTest extends BaseSpecification {
 
     @Autowired
