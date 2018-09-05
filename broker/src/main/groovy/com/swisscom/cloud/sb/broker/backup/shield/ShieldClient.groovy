@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClient
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientFactory
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -162,16 +164,12 @@ class ShieldClient {
         if (retention == null) {
             throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
         }
-        String schedule = shieldServiceConfig.scheduleName
-        if (buildClient().getAPIVersion() == 1) {
-            ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
-            if (scheduleDto == null) {
-                throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
-            }
-            schedule = scheduleDto.uuid
+        ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
+        if (scheduleDto == null) {
+            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)
+        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, scheduleDto.uuid, paused)
     }
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
@@ -192,6 +190,6 @@ class ShieldClient {
     }
 
     private ShieldRestClient buildClient() {
-        shieldRestClientFactory.build(restTemplateBuilder.withSSLValidationDisabled().build(), shieldConfig)
+        shieldRestClientFactory.build()
     }
 }
