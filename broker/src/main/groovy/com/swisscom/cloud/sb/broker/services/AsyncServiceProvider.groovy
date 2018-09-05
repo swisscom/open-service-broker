@@ -87,7 +87,7 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
 
     @Override
     Collection<Endpoint> findEndpoints(ServiceInstance serviceInstance) {
-        return endpointLookup.findEndpoints(serviceInstance, serviceConfig)
+        // return endpointLookup.findEndpoints(serviceInstance, serviceConfig)
     }
 
 }

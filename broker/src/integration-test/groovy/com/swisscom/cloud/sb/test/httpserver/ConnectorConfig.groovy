@@ -18,8 +18,8 @@ package com.swisscom.cloud.sb.test.httpserver
 import org.apache.catalina.connector.Connector
 import org.apache.coyote.http11.Http11NioProtocol
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -34,8 +34,8 @@ class ConnectorConfig {
     }
 
     @Bean
-    EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory()
+    ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory ()
         if (httpServerConfig.httpsPort) {
             tomcat.addAdditionalTomcatConnectors(createSslConnector())
         }

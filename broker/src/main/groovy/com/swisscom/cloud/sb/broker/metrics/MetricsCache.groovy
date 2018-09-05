@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-@CompileStatic
 @Slf4j
 class MetricsCache {
     @Autowired
@@ -45,19 +44,19 @@ class MetricsCache {
     @Autowired
     private ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
 
-    private static final ServiceInstanceList serviceInstanceList = new ServiceInstanceList()
+    private static ServiceInstanceList serviceInstanceList = new ServiceInstanceList()
     private static LocalDateTime serviceInstanceListLastModified = LocalDateTime.MIN
 
-    private static final Map<String, LastOperation> lastOperationMap = new HashMap<String, LastOperation>()
+    private static Map<String, LastOperation> lastOperationMap = new HashMap<String, LastOperation>()
     private static LocalDateTime lastOperationMapLastModified = LocalDateTime.MIN
 
-    private static final List<Plan> planList = new ArrayList<>()
+    private static List<Plan> planList = new ArrayList<>()
     private static LocalDateTime planListLastModified = LocalDateTime.MIN
 
-    private static final Map<String, Double> bindingCountByPlanGuid = new HashMap<String, Double>()
+    private static Map<String, Double> bindingCountByPlanGuid = new HashMap<String, Double>()
     private static LocalDateTime bindingCountByPlanGuidLastModified = LocalDateTime.MIN
 
-    private static final Map<String, Double> failedLastOperationCountByPlanGuid = new HashMap<String, Double>()
+    private static Map<String, Double> failedLastOperationCountByPlanGuid = new HashMap<String, Double>()
     private static LocalDateTime failedLastOperationCountByPlanGuidLastModified = LocalDateTime.MIN
 
     ServiceInstanceList getServiceInstanceList() {
