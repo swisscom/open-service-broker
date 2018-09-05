@@ -13,55 +13,28 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield
+package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
+
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.springframework.http.*
-import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
 @Slf4j
-class ShieldRestClient {
-    public static final String HEADER_API_KEY = 'X-Shield-Token'
-    public static final String HEADER_API_SESSION = 'X-Shield-Session'
+abstract class ShieldRestClientImpl {
+    protected ShieldConfig config
+    protected RestTemplate restTemplate
 
-    private ShieldConfig config
-    private RestTemplate restTemplate
-    private int apiVersion = 1
-
-    ShieldRestClient(RestTemplate restTemplate, ShieldConfig shieldConfig) {
+    ShieldRestClientImpl(ShieldConfig shieldConfig, RestTemplate restTemplate) {
         this.restTemplate = restTemplate
+        this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         this.config = shieldConfig
-        this.apiVersion = getAPIVersion()
-    }
-
-    int getAPIVersion() {
-        try {
-            this.apiVersion = 1
-            def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
-            String version = new JsonSlurper().parseText(response.body).version
-            if (version != null && version[0..0].toInteger() == 1) return 1
-            else {
-                this.apiVersion = 2
-                response = restTemplate.exchange(infoUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
-                if (new JsonSlurper().parseText(response.body).api == 2) return 2
-            }
-        } catch (HttpStatusCodeException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                this.apiVersion = 2
-                def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
-                if (new JsonSlurper().parseText(response.body).api == 2) return 2
-                throw e
-            }
-        }
-    }
-
-    String getTenantUuidByName(String name) {
-        def response = restTemplate.exchange(tenantsUrl() + "?limit=1&name=${name}", HttpMethod.GET, configureRequestEntity(), String.class)
-        return new JsonSlurper().parseText(response.body)[0].uuid
     }
 
     Object getStatus() {
@@ -170,19 +143,12 @@ class ShieldRestClient {
                      String retentionUuid,
                      String scheduleUuid,
                      boolean paused = true) {
-        def body = [name     : jobName,
-                    target   : targetUuid,
-                    store    : storeUuid,
-                    retention: retentionUuid,
-                    schedule : scheduleUuid,
-                    paused   : paused]
-
-        if (apiVersion == 2) {
-            body = replaceRetentionWithPolicy(body, retentionUuid)
-        }
+        def body = getCreateJobBody(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
         def response = restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
         new JsonSlurper().parseText(response.body).uuid
     }
+
+    abstract Map<String, ?> getCreateJobBody(String jobName, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused)
 
     String updateJob(JobDto existingJob,
                      String targetUuid,
@@ -190,19 +156,12 @@ class ShieldRestClient {
                      String retentionUuid,
                      String scheduleUuid,
                      boolean paused = true) {
-        def body = [name     : existingJob.name,
-                    summary  : existingJob.summary,
-                    target   : targetUuid,
-                    store    : storeUuid,
-                    retention: retentionUuid,
-                    schedule : scheduleUuid,
-                    paused   : paused]
-        if (apiVersion == 2) {
-            body = replaceRetentionWithPolicy(body, retentionUuid)
-        }
+        def body = getUpdateJobBody(existingJob, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
         restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
         existingJob.uuid
     }
+
+    abstract Map<String, ?> getUpdateJobBody(JobDto existingJob, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused = true)
 
     String runJob(String uuid) {
         def response = restTemplate.exchange(jobUrl(uuid) + "/run", HttpMethod.POST, configureRequestEntity(), String.class)
@@ -241,65 +200,49 @@ class ShieldRestClient {
         restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
     }
 
-    private <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
+    protected <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
         def response = restTemplate.exchange(endpoint, HttpMethod.GET, configureRequestEntity(), String.class)
         final T[] jsonToObject = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), clazz)
         return Arrays.asList(jsonToObject)
     }
 
 
-    private <T> HttpEntity<T> configureRequestEntity(T t) {
-        HttpHeaders headers = new HttpHeaders()
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
-        apiVersion == 2 ? headers.add(HEADER_API_SESSION, getSession()) : headers.add(HEADER_API_KEY, config.apiKey)
-        HttpEntity<T> entity = t ? new HttpEntity<T>(t, headers) : new HttpEntity<T>(headers)
-        return entity
-    }
-
-    protected String getSession() {
-        HttpHeaders headers = new HttpHeaders()
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
-        def body = [username: config.username,
-                    password: config.password]
-        HttpEntity<Map<String,String>> request = new HttpEntity<Map<String,String>>(body, headers)
-        ResponseEntity<String> response = restTemplate.exchange(loginUrl(), HttpMethod.POST, request, String.class)
-        return response.getHeaders().getValuesAsList(HEADER_API_SESSION)[0]
-    }
+    abstract protected <T> HttpEntity<T> configureRequestEntity(T t)
 
     protected String storesUrl() {
-        "${tenantBasedUrl()}/stores"
+        "${baseUrl()}/stores"
     }
 
     protected String retentionsUrl() {
-        apiVersion == 2 ? "${tenantBasedUrl()}/policies" : "${tenantBasedUrl()}/retention"
+        "${baseUrl()}/retention"
     }
 
     protected String schedulesUrl() {
-        "${tenantBasedUrl()}/schedules"
+        "${baseUrl()}/schedules"
     }
 
     protected String taskUrl(String uuid) {
-        "${tenantBasedUrl()}/task/${uuid}"
+        "${baseUrl()}/task/${uuid}"
     }
 
     protected String archiveUrl(String uuid) {
-        "${tenantBasedUrl()}/archive/${uuid}"
+        "${baseUrl()}/archive/${uuid}"
     }
 
     protected String targetsUrl() {
-        "${tenantBasedUrl()}/targets"
+        "${baseUrl()}/targets"
     }
 
     protected String targetUrl(String uuid) {
-        "${tenantBasedUrl()}/target/${uuid}"
+        "${baseUrl()}/target/${uuid}"
     }
 
     protected String jobsUrl() {
-        "${tenantBasedUrl()}/jobs"
+        "${baseUrl()}/jobs"
     }
 
     protected String jobUrl(String uuid) {
-        "${tenantBasedUrl()}/job/${uuid}"
+        "${baseUrl()}/job/${uuid}"
     }
 
     protected String statusUrl() {
@@ -318,22 +261,6 @@ class ShieldRestClient {
         "${baseUrl()}/auth/login"
     }
 
-    private String tenantBasedUrl() {
-        apiVersion == 2 ? "${baseUrl()}/tenants/${getTenantUuidByName(config.defaultTenantName)}" : baseUrl()
-    }
+    abstract protected String baseUrl()
 
-    private String baseUrl() {
-        "${config.baseUrl}/v${apiVersion}"
-    }
-
-    private Map<String,String> replaceRetentionWithPolicy(Map<?, ?> body, String retention) {
-        def iterator = body.entrySet().iterator()
-        while (iterator.hasNext()) {
-            if (iterator.next().key == "retention") {
-                iterator.remove()
-            }
-        }
-        body.put("policy", retention)
-        return body
-    }
 }
