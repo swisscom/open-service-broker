@@ -37,3 +37,4 @@ nbdist/
 local.*
 
 **log4j2.*
+/lib/groovy*.jar

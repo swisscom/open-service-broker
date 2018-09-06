@@ -29,10 +29,8 @@ ext['tomcat.version'] = '9.0.11'
 ext['flyway.version'] = '5.1.4'
 ext['groovy.version'] = '2.5.2'
 
-
 apply plugin: 'org.springframework.boot'
 apply plugin: "io.spring.dependency-management"
-
 
 repositories {
     mavenCentral()
@@ -51,10 +49,10 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-influx:1.0.4'
     compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:2.0.2.RELEASE'
     compile('org.codehaus.groovy:groovy-all:2.5.2')
+    compile('org.codehaus.gpars:gpars:1.2.1')
     compile('com.google.guava:guava:26.0-jre')
     compile('org.quartz-scheduler:quartz:2.3.0')
     compile('org.springframework:spring-context-support:5.0.8.RELEASE')
-    compile('org.codehaus.gpars:gpars:1.2.1')
     compile('joda-time:joda-time:2.10')
     compile('org.flywaydb:flyway-core:5.1.4')
     compile('com.google.code.gson:gson:2.8.5')
@@ -71,9 +69,12 @@ dependencies {
     compile('org.springframework.credhub:spring-credhub-starter:1.0.1.RELEASE')
     compile('org.springframework.security.oauth:spring-security-oauth2:2.3.3.RELEASE')
 
-    implementation group: 'log4j', name: 'log4j', version: '1.2.17'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.7'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    // compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
+    // compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
 
     compile project(':model')
     compile project(':client')

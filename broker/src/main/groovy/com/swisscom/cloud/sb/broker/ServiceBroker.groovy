@@ -20,11 +20,13 @@ import com.swisscom.cloud.sb.broker.config.WebContainerConfigurationInitializer
 import groovy.transform.CompileStatic
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
-@SpringBootApplication
+@SpringBootApplication(exclude = [
+        org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration,
+		org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,
+		org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration])
 @CompileStatic
-class ServiceBroker extends SpringBootServletInitializer {
+class ServiceBroker extends org.springframework.boot.web.servlet.support.SpringBootServletInitializer {
     static void main(String[] args) {
         new SpringApplicationBuilder(ServiceBroker.class)
                 .initializers(new StandAloneConfigurationInitializer()).run(args)
