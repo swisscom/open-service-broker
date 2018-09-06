@@ -15,22 +15,13 @@
 
 package com.swisscom.cloud.sb.broker.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 
-import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
-class ProvisionRequest extends BaseModel implements RequestWithParameters{
-    @Column(unique = true)
-    String serviceInstanceGuid
-    @OneToOne()
-    @JoinColumn(name = "plan_id")
-    @JsonIgnore
-    Plan plan
-    String parameters
+class ProvisionRequest extends RequestWithParameters {
+
     boolean acceptsIncomplete
     @OneToOne
     ServiceContext serviceContext

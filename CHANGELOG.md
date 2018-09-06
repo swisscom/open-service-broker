@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.2.4] - 2018-09-06
+- Fix inheritance bug of RequestWithParameters
+
+
 ## [4.2.3] - 2018-09-04
 
 

@@ -15,8 +15,19 @@
 
 package com.swisscom.cloud.sb.broker.model
 
-interface RequestWithParameters {
+import com.fasterxml.jackson.annotation.JsonIgnore
+import javax.persistence.Column
+import javax.persistence.JoinColumn
+import javax.persistence.MappedSuperclass
+import javax.persistence.OneToOne
+
+@MappedSuperclass
+abstract class RequestWithParameters extends BaseModel {
+    @Column(unique = true)
     String serviceInstanceGuid
+    @OneToOne()
+    @JoinColumn(name = "plan_id")
+    @JsonIgnore
     Plan plan
     String parameters
 }
