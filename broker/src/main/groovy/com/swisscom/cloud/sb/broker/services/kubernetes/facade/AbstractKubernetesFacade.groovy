@@ -56,7 +56,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         this.kubernetesServiceConfig = abstractKubernetesServiceConfig
     }
 
-    protected abstract Map<String, String> getBindingMap(ProvisionRequest context)
+    protected abstract Map<String, String> getBindingMap(RequestWithParameters context)
 
     protected
     abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses)
@@ -76,7 +76,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         return buildServiceDetailsList(bindingMap, responses)
     }
 
-    protected Map<String, String> getServiceDetailBindingMap(ProvisionRequest request) {
+    protected Map<String, String> getServiceDetailBindingMap(RequestWithParameters request) {
         def context = ServiceContextHelper.convertFrom(request.serviceContext) as CloudFoundryContext
         [
                 (BaseTemplateConstants.SERVICE_ID.getValue()): request.getServiceInstanceGuid(),

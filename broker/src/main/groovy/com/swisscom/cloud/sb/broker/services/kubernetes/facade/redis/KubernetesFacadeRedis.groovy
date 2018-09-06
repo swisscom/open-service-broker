@@ -17,9 +17,8 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
@@ -50,7 +49,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
     }
 
     @Override
-    protected Map<String, String> getBindingMap(ProvisionRequest request) {
+    protected Map<String, String> getBindingMap(RequestWithParameters request) {
         def serviceDetailBindings = getServiceDetailBindingMap(request)
         def planBindings = getPlanParameterBindingMap(request.plan)
         def redisPassword = new StringGenerator().randomAlphaNumeric(30)
@@ -62,7 +61,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
                 (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
         ]
         // Make copy of redisConfigurationDefaults Map for thread safety
-        (new HashMap<String,String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
+        (new HashMap<String, String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
     }
 
     @Override
@@ -110,7 +109,7 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
     }
 
     @Override
-    Collection<Extension> buildExtensions(){
+    Collection<Extension> buildExtensions() {
         return [new Extension(discovery_url: kubernetesServiceConfig.discoveryURL)]
     }
 }

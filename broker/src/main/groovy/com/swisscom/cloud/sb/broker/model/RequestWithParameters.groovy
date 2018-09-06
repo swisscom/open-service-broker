@@ -30,4 +30,6 @@ abstract class RequestWithParameters extends BaseModel {
     @JsonIgnore
     Plan plan
     String parameters
+    @OneToOne
+    ServiceContext serviceContext
 }
