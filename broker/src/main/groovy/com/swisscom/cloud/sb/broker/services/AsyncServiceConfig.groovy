@@ -21,7 +21,7 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 //TODO change this to inherit from Config and *NOT* EndpointConfig
-trait AsyncServiceConfig extends EndpointConfig {
+interface AsyncServiceConfig extends EndpointConfig {
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes
 }

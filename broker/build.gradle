@@ -49,6 +49,7 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-influx:1.0.4'
     compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:2.0.2.RELEASE'
     compile('org.codehaus.groovy:groovy-all:2.5.2')
+    compile('org.codehaus.groovy:groovy-dateutil:2.5.2')
     compile('org.codehaus.gpars:gpars:1.2.1')
     compile('com.google.guava:guava:26.0-jre')
     compile('org.quartz-scheduler:quartz:2.3.0')

@@ -57,7 +57,9 @@ import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemach
 @Component
 @CompileStatic
 @Slf4j
-class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnterpriseConfig> implements BoshTemplateCustomizer {
+class MongoDbEnterpriseServiceProvider
+        extends AsyncServiceProvider<MongoDbEnterpriseConfig>
+        implements BoshTemplateCustomizer {
     public static final String PARAM_MMS_BASE_URL = "mms-base-url"
     public static final String PARAM_MMS_API_KEY = "mms-api-key"
     public static final String MMS_GROUP_ID = "mms-group-id"

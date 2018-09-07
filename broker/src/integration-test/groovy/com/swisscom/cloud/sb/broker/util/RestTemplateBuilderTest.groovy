@@ -24,8 +24,8 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
 class RestTemplateBuilderTest extends Specification {
-    private static final int http_port = 35000
-    private static final int https_port = 35001
+    private static final int http_port = 36000
+    private static final int https_port = 36001
 
 
     def "restTemplate with no features enabled"() {

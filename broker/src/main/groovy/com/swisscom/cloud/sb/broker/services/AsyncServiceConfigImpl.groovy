@@ -13,11 +13,9 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.cfextensions.endpoint
+package com.swisscom.cloud.sb.broker.services
 
-import com.swisscom.cloud.sb.broker.config.Config
-
-interface EndpointConfig extends Config {
-    List<String> ipRanges
-    List<String> protocols
+class AsyncServiceConfigImpl implements AsyncServiceConfig {
+    int retryIntervalInSeconds
+    int maxRetryDurationInMinutes
 }
