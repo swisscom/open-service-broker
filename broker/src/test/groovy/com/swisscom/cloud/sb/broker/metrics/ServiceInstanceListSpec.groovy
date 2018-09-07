@@ -27,7 +27,7 @@ class ServiceInstanceListSpec extends Specification {
         def expectedDifference = 0
 
         and:
-        def date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        def date = Date("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 30)
@@ -35,7 +35,7 @@ class ServiceInstanceListSpec extends Specification {
         expectedDifference += 30 * 24 * 60 * 60
 
         and:
-        date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
+        date = Date("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 5)
@@ -75,7 +75,7 @@ class ServiceInstanceListSpec extends Specification {
         def expectedDifference = 0
 
         and:
-        def date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        def date = Date("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 30)
@@ -83,7 +83,7 @@ class ServiceInstanceListSpec extends Specification {
         expectedDifference += 30 * 24 * 60 * 60
 
         and:
-        date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
+        date = Date("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 5)
