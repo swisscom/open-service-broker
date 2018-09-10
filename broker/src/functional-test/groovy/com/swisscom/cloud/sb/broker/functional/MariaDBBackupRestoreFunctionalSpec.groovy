@@ -33,7 +33,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Shared
 
 @Slf4j
-//@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec']) })
+@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec']) })
 class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
 
     @Shared
