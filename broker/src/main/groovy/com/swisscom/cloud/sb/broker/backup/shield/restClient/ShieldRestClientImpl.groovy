@@ -27,7 +27,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
 @Slf4j
-abstract class ShieldRestClientImpl {
+abstract class ShieldRestClientImpl implements ShieldRestClient {
     protected ShieldConfig config
     protected RestTemplate restTemplate
 

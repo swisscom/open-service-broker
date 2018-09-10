@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component
 
 @Slf4j
 @Component
-class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClient {
+class ShieldRestClientv1 extends ShieldRestClientImpl {
     public static final String HEADER_API_KEY = 'X-Shield-Token'
     private final int apiVersion = 1
 
