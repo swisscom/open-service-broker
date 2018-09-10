@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component
 
 @Slf4j
 @Component
-class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClient {
+class ShieldRestClientv2 extends ShieldRestClientImpl {
     public static final String HEADER_API_SESSION = 'X-Shield-Session'
     private final int apiVersion = 2
 
