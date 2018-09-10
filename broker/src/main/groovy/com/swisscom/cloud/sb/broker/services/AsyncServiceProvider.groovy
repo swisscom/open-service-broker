@@ -40,7 +40,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 
-@CompileStatic
 @Slf4j
 abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
         implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider {

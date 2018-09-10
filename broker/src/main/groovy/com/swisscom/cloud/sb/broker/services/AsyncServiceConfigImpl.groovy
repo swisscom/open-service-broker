@@ -15,7 +15,9 @@
 
 package com.swisscom.cloud.sb.broker.services
 
-class AsyncServiceConfigImpl implements AsyncServiceConfig {
+import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfigImpl
+
+class AsyncServiceConfigImpl extends EndpointConfigImpl implements AsyncServiceConfig {
     int retryIntervalInSeconds
     int maxRetryDurationInMinutes
 }

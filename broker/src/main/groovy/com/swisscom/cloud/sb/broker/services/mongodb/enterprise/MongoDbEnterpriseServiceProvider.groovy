@@ -101,9 +101,6 @@ class MongoDbEnterpriseServiceProvider
         template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
         template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
 
-
-
-
         return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
     }
 
@@ -250,11 +247,11 @@ class MongoDbEnterpriseServiceProvider
         opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
     }
 
-    public static String getMongoDbGroupId(LastOperationJobContext context) {
+    static String getMongoDbGroupId(LastOperationJobContext context) {
         return getMongoDbGroupId(context.serviceInstance)
     }
 
-    public static String getMongoDbGroupId(ServiceInstance serviceInstance) {
+    static String getMongoDbGroupId(ServiceInstance serviceInstance) {
         return ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 
