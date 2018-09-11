@@ -1,0 +1,5 @@
+ALTER TABLE service
+  ADD active BOOL DEFAULT TRUE;
+
+ALTER TABLE plan
+  ADD active BOOL DEFAULT TRUE;

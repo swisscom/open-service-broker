@@ -30,18 +30,20 @@ class SchemasDto {
     @JsonSerialize
     @JsonProperty("service_instance")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ServiceInstanceSchemaDto serviceInstanceSchema = null
+    ServiceInstanceSchemaDto serviceInstanceSchema = null
 
     @JsonSerialize
     @JsonProperty("service_binding")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ServiceBindingSchemaDto serviceBindingSchema = null
+    ServiceBindingSchemaDto serviceBindingSchema = null
 
     SchemasDto(ServiceInstanceSchemaDto serviceInstanceSchema,
                ServiceBindingSchemaDto serviceBindingSchema) {
         this.serviceInstanceSchema = serviceInstanceSchema
         this.serviceBindingSchema = serviceBindingSchema
     }
+
+    SchemasDto() {}
 
     SchemasDto(Plan plan) {
         MethodSchemaDto serviceInstanceCreateSchema = null
