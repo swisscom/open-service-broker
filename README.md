@@ -325,6 +325,19 @@ The logging is based on [Slf4j](https://www.slf4j.org/) with the [Log4J2 Extensi
 The default configuration returns a compacts json format with every item on a single line.
 
 to allow local logging in human readable format the following files have been added to .gitIgnore:
-* src/broker/src/main/resources/log4j2.*
+**log4j2-test*
 
-the file can be added with `git add -f`
+so that a file with log4j2-test.yaml can be added. To have a normal human readable output, use:
+```
+   status = error
+   dest = err
+   name = PropertiesConfig
+   
+   appender.console.type = Console
+   appender.console.name = STDOUT
+   appender.console.layout.type = PatternLayout
+   appender.console.layout.pattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+   
+   rootLogger.level = info
+   rootLogger.appenderRef.stdout.ref = STDOUT
+```
