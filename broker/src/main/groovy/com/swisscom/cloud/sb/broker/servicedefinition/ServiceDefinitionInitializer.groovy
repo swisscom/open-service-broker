@@ -123,69 +123,10 @@ class ServiceDefinitionInitializer {
                     parameterRepository.delete(params)
                     plan.parameters.remove(params)
             }
-
-//            plan.parameters.each {plan.parameters.remove(it)}
             plan.service.plans.remove(plan)
             cfServiceRepository.saveAndFlush(plan.service)
             planRepository.delete(plan)
             return true
-        }
-    }
-
-    void checkForMissingServiceDefinitions(List<CFService> cfServiceList) {
-        def configGuidList = serviceDefinitionConfig.serviceDefinitions.collect { it.guid }
-
-        def guidList = cfServiceList.collect { it.guid }
-
-        if (configGuidList.size() != 0) {
-            if (!configGuidList.containsAll(guidList)) {
-                def listOfMissingServiceDefinitionGuids = getListOfMissingServiceDefinitionGuids(configGuidList, guidList)
-                def missingServices = getMissingServices(listOfMissingServiceDefinitionGuids)
-                deleteServiceDefinitionOrFlagAsInactive(missingServices)
-            }
-        }
-    }
-
-    ArrayList<String> getListOfMissingServiceDefinitionGuids(List<String> configGuidList, List<String> guidList) {
-        def listOfMissingServiceDefinitions = new ArrayList<String>()
-        // TODO: do with hashmap rather than iterating over 2 lists
-        guidList.each { guid ->
-            if (!configGuidList.contains(guid)) {
-                listOfMissingServiceDefinitions.add(guid)
-            }
-        }
-        return listOfMissingServiceDefinitions
-    }
-
-    ArrayList<CFService> getMissingServices(List<String> missingServiceGuids) {
-        def missingServices = new ArrayList<CFService>()
-        missingServiceGuids.each { guid ->
-            missingServices.add(cfServiceRepository.findByGuid(guid))
-        }
-        return missingServices
-    }
-
-    void deleteServiceDefinitionOrFlagAsInactive(List<CFService> missingServices) {
-        missingServices.plans.collectMany{service ->
-            service.each { plan ->
-                if(serviceInstanceRepository.findByPlan(plan)) {
-                    plan.active = false
-                    planRepository.saveAndFlush(plan)
-                } else {
-                    plan.service.plans.remove(plan)
-                    cfServiceRepository.saveAndFlush(plan.service)
-                }
-            }
-        }
-
-        missingServices.each{ service ->
-            if(service.plans.size() == 0) {
-                cfServiceRepository.delete(service);
-            } else if (service.plans.each { plan ->
-                return !plan.active
-            }) {
-                service.active = false
-            }
         }
     }
 }
