@@ -161,7 +161,7 @@ class ServiceDefinitionProcessor {
         if (!service) {
             service = new CFService()
             service.guid = serviceJson.guid
-            return cfServiceRepository.save(service)
+            return cfServiceRepository.saveAndFlush(service)
         }
         return service
     }
