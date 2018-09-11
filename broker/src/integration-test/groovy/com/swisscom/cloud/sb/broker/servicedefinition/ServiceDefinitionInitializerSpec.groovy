@@ -278,7 +278,28 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         serviceDefinitionInitializer.init()
 
         then:
-        RuntimeException e = thrown()
-        e.message == "Missing service definition configuration exception. Service list - ${cfServiceRepository.findAll().collect{it.guid}}"
+        noExceptionThrown()
+    }
+
+    def "delete plans"() {
+        when:
+        def planList = planRepository.findAll()
+        planList.each {
+            planRepository.delete(it)
+        }
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "save plan"() {
+        given:
+        Plan plan = new Plan(guid: "test97543214")
+
+        when:
+        planRepository.saveAndFlush(plan)
+
+        then:
+        noExceptionThrown()
     }
 }

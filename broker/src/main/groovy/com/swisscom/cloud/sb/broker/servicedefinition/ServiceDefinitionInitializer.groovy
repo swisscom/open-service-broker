@@ -17,7 +17,11 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -113,6 +117,38 @@ class ServiceDefinitionInitializer {
             return true
         }
     }
+
+    ArrayList<String> getListOfMissingServiceDefinitionGuids(List<String> configGuidList, List<String> guidList) {
+        def listOfMissingServiceDefinitions = new ArrayList<String>()
+        // TODO: do with hashmap rather than iterating over 2 lists
+        guidList.each { guid ->
+            if (!configGuidList.contains(guid)) {
+                listOfMissingServiceDefinitions.add(guid)
+            }
+        }
+        return listOfMissingServiceDefinitions
+    }
+
+    ArrayList<CFService> getMissingServices(List<String> missingServiceGuids) {
+        def missingServices = new ArrayList<CFService>()
+        missingServiceGuids.each { guid ->
+            missingServices.add(cfServiceRepository.findByGuid(guid))
+        }
+        return missingServices
+    }
+
+    void deleteServiceDefinitionOrFlagAsInactive(List<CFService> missingServices) {
+        missingServices.plans.collectMany{service ->
+            service.each { plan ->
+                if(serviceInstanceRepository.findByPlan(plan)) {
+                    plan.active = false
+                    planRepository.saveAndFlush(plan)
+                } else {
+                    plan.service.plans.remove(plan)
+                    cfServiceRepository.saveAndFlush(plan.service)
+                }
+            }
+        }
 
     void deleteServiceHibernateCacheSavely(CFService service) {
         cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
