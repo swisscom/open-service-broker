@@ -41,7 +41,7 @@ class UpdatingService {
             handleAsyncClientRequirement(updateRequest.plan, acceptsIncomplete)
         updatingPersistenceService.saveUpdateRequest(updateRequest)
         def response = serviceProviderLookup.findServiceProvider(updateRequest.previousPlan).update(updateRequest)
-        updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan)
+        updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan, updateRequest.serviceContext)
         return response
     }
 
