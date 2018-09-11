@@ -8,6 +8,6 @@ Configuration:
         pattern: %d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
   Loggers:
     Root:
-      level: info
+      level: INFO
       AppenderRef:
         ref: STDOUT
