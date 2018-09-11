@@ -90,7 +90,9 @@ enum ErrorCode {
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_GONE("69066", "Service to be deprovisioned not found while deprovisioning using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-GONE", HttpStatus.GONE),
     SERVICEBROKERSERVICEPROVIDER_DEPROVISIONING_UNPROCESSABLE_ENTITY("69067", "Unprocessable entity encountered while deprovisioning a service using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-DEPROVISIONING-UNPROCESSABLE-ENTITY", HttpStatus.UNPROCESSABLE_ENTITY),
     SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR("69068", "Unexpected error occured during a ServiceBrokerServiceProvider operation", "SC-SB-SERVICEBROKERSERVICEPROVIDER-INTERNAL-SERVER-ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
-    SERVICE_NOT_BINDABLE("69069", "Service not bindable", "SC-SB-SERVICE-NOT-BINDABLE", HttpStatus.CONFLICT)
+    SERVICE_NOT_BINDABLE("69069", "Service not bindable", "SC-SB-SERVICE-NOT-BINDABLE", HttpStatus.CONFLICT),
+    SERVICE_NOT_ACTIVE("69070", "Service not active", "SC-SC-SERVICE-NOT-ACTIVE", HttpStatus.CONFLICT),
+    PLAN_NOT_ACTIVE("69071", "Plan not active", "SC-SC-PLAN-NOT-ACTIVE", HttpStatus.CONFLICT)
 
     final String code
     final String errorCode

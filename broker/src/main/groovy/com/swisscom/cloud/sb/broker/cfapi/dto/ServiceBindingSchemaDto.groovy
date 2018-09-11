@@ -28,7 +28,9 @@ class ServiceBindingSchemaDto {
     @JsonSerialize
     @JsonProperty("create")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private MethodSchemaDto createMethodSchema = null
+    MethodSchemaDto createMethodSchema = null
+
+    ServiceBindingSchemaDto() {}
 
     ServiceBindingSchemaDto(MethodSchemaDto createMethodSchema) {
         this.createMethodSchema = createMethodSchema

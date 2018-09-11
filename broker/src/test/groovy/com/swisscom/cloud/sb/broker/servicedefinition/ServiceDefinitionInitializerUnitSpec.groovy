@@ -76,7 +76,7 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
         cfServiceRepository.save(cfService) >> cfService
 
         when:
-        serviceDefinitionInitializer.addServiceDefinitions()
+        serviceDefinitionInitializer.addOrUpdateServiceDefinitions()
 
         then:
         noExceptionThrown()

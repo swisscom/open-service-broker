@@ -13,22 +13,19 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.cfapi.dto
+package com.swisscom.cloud.sb.broker.functional
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
-import groovy.transform.CompileStatic
+class ServiceDefinitionFromServiceManifest {
 
-@CompileStatic
-class PlanDto {
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    String id
-    String name
-    String description
-    boolean free
-    boolean active
-    Map<String, Object> metadata
-    List<ParameterDto> containerParams
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    SchemasDto schemas
+    def "add service definitions from service manifest"() {
+
+    }
+
+    def "update service definition by updating it in the service manifest"() {
+
+    }
+
+    def "delete service definition from service manifest and get exception"() {
+
+    }
 }
