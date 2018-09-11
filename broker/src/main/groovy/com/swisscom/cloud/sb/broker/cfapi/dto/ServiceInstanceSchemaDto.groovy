@@ -28,12 +28,14 @@ class ServiceInstanceSchemaDto {
     @JsonSerialize
     @JsonProperty("create")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private MethodSchemaDto createMethodSchema = null
+    MethodSchemaDto createMethodSchema = null
 
     @JsonSerialize
     @JsonProperty("update")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private MethodSchemaDto updateMethodSchema = null
+    MethodSchemaDto updateMethodSchema = null
+
+    ServiceInstanceSchemaDto() {}
 
     ServiceInstanceSchemaDto(MethodSchemaDto createMethodSchema,
                              MethodSchemaDto updateMethodSchema) {

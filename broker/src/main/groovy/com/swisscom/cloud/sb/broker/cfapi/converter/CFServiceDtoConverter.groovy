@@ -45,6 +45,7 @@ class CFServiceDtoConverter extends AbstractGenericConverter<CFService, CFServic
         prototype.dashboard_client = dashboardClientDtoConverter.convert(source)
 
         prototype.bindable = source.bindable
+        prototype.active = source.active
         prototype.plan_updateable = source.plan_updateable
         prototype.bindingsRetrievable = source.bindingsRetrievable
         prototype.instancesRetrievable = source.instancesRetrievable

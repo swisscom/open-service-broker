@@ -19,11 +19,13 @@ import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
@@ -38,19 +40,22 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
     private CFServiceRepository cfServiceRepository
 
     @Autowired
+    private PlanRepository planRepository
+
+    @Autowired
+    private PlanMetadataRepository planMetadataRepository
+
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository
+
+    @Autowired
     private PlanDtoConverter planDtoConverter
 
     @Autowired
     private CFServiceMetaDataRepository cfServiceMetaDataRepository
 
     @Autowired
-    private PlanRepository planRepository
-
-    @Autowired
     private ParameterRepository parameterRepository
-
-    @Autowired
-    private PlanMetadataRepository planMetadataRepository
 
     @Autowired
     private TagRepository tagRepository
@@ -80,7 +85,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
                 cfServiceMetaDataRepository: cfServiceMetaDataRepository, planRepository: planRepository,
                 parameterRepository: parameterRepository, planMetadataRepository: planMetadataRepository,
                 tagRepository: tagRepository)
-        serviceDefinitionInitializer = new ServiceDefinitionInitializer(cfServiceRepository, serviceDefinitionConfig, serviceDefinitionProcessor)
+        serviceDefinitionInitializer = new ServiceDefinitionInitializer(cfServiceRepository, planRepository, planMetadataRepository, parameterRepository, serviceInstanceRepository, serviceDefinitionConfig, serviceDefinitionProcessor)
     }
 
     def "Match service definitions"() {
@@ -157,7 +162,28 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         serviceDefinitionInitializer.init()
 
         then:
-        RuntimeException e = thrown()
-        e.message == "Missing service definition configuration exception. Service list - ${cfServiceRepository.findAll().collect{it.guid}}"
+        noExceptionThrown()
+    }
+
+    def "delete plans"() {
+        when:
+        def planList = planRepository.findAll()
+        planList.each {
+            planRepository.delete(it)
+        }
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "save plan"() {
+        given:
+        Plan plan = new Plan(guid: "test97543214")
+
+        when:
+        planRepository.saveAndFlush(plan)
+
+        then:
+        noExceptionThrown()
     }
 }
