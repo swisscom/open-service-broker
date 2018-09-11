@@ -250,34 +250,103 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         then:
         def cfService = cfServiceRepository.findByGuid("guid")
-        cfService.bindable == false
+        assert(!cfService.bindable)
     }
 
-    def "Delete service definition throws exception"() {
+    def "Service definition from DB that is missing in config and has no service instances is deleted"() {
         given:
-        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
-                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
-                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
-                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+        def serviceGuid = "serviceWithInstance"
+        CFService cfService = new CFService(guid: serviceGuid)
+        cfServiceRepository.saveAndFlush(cfService)
 
         and:
-        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid2", name: "name2", internalName: "internalName",
-                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
-                        asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
-                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+        def planGuid = "planWithInstance"
+        Plan plan = new Plan(guid: planGuid, service: cfService)
+        planRepository.saveAndFlush(plan)
 
         and:
-        serviceDefinitionInitializer.init()
+        cfService.plans.add(plan)
+        cfServiceRepository.saveAndFlush(cfService)
+
+        and:
+        def service = cfServiceRepository.findByGuid(serviceGuid)
+        assert(service)
 
         when:
-        serviceDefinitionConfig.serviceDefinitions.remove(serviceDefinitionConfig.serviceDefinitions[0])
-
-        and:
         serviceDefinitionInitializer.init()
 
         then:
+        assert(!cfServiceRepository.findByGuid(serviceGuid))
+        assert(!planRepository.findByGuid(planGuid))
+
+        and:
+        noExceptionThrown()
+    }
+
+    def "service definition from DB that is missing from config that has service instance cannot be deleted but is marked as inactive"() {
+        given:
+        def serviceGuid = "serviceWithInstance"
+        CFService cfService = new CFService(guid: serviceGuid)
+        cfServiceRepository.saveAndFlush(cfService)
+
+        and:
+        def planGuid = "planWithInstance"
+        Plan plan = new Plan(guid: planGuid, service: cfService)
+        planRepository.saveAndFlush(plan)
+
+        and:
+        cfService.plans.add(plan)
+        cfServiceRepository.saveAndFlush(cfService)
+
+        and:
+        ServiceInstance serviceInstance = new ServiceInstance(guid: "testServiceInstance", plan: plan)
+        serviceInstanceRepository.saveAndFlush(serviceInstance)
+
+        when:
+        serviceDefinitionInitializer.init()
+
+        then:
+        assert(!cfServiceRepository.findByGuid(serviceGuid).active)
+        assert(!planRepository.findByGuid(planGuid).active)
+
+        and:
+        noExceptionThrown()
+    }
+
+    def "unused plans are deleted from service definition"() {
+        given:
+        def serviceGuid = "serviceWithInstance"
+        CFService cfService = new CFService(guid: serviceGuid)
+        cfServiceRepository.save(cfService)
+
+        and:
+        def plan1Guid = "planWithInstance"
+        Plan plan1 = new Plan(guid: plan1Guid, service: cfService)
+        planRepository.save(plan1)
+
+        and:
+        def plan2Guid = "planWithoutInstance"
+        Plan plan2 = new Plan(guid: plan2Guid, service: cfService)
+        planRepository.saveAndFlush(plan2)
+
+        and:
+        cfService.plans.add(plan1)
+        cfService.plans.add(plan2)
+        cfServiceRepository.saveAndFlush(cfService)
+
+        and:
+        ServiceInstance serviceInstance = new ServiceInstance(guid: "testServiceInstance2", plan: plan1)
+        serviceInstanceRepository.saveAndFlush(serviceInstance)
+
+        when:
+        serviceDefinitionInitializer.init()
+
+        then:
+        assert(!cfServiceRepository.findByGuid(serviceGuid).active)
+        assert(!planRepository.findByGuid(plan1Guid).active)
+        assert(!planRepository.findByGuid(plan2Guid))
+
+        and:
         noExceptionThrown()
     }
 
