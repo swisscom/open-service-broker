@@ -22,6 +22,7 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.Resource
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.beans.factory.annotation.Autowired
@@ -137,6 +138,24 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         def modeDetail = serviceInstance.details.find { d -> d.key == parameterKey }
         assert modeDetail
         modeDetail.value == parameterNewValue
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
+
+    def "update request also updates context"() {
+        given:
+        def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        def updatedContext = new CloudFoundryContext("myorg", "myspace")
+
+        when:
+        parameters.put(parameterKey, parameterNewValue)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, null, parameters, false, updatedContext)
+
+        then:
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance
+        assert ServiceContextHelper.convertFrom(serviceInstance.serviceContext).equals(updatedContext)
 
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)

@@ -15,16 +15,12 @@
 
 package com.swisscom.cloud.sb.broker.model
 
-
 import javax.persistence.Entity
-import javax.persistence.OneToOne
 
 @Entity
 class ProvisionRequest extends RequestWithParameters {
 
     boolean acceptsIncomplete
-    @OneToOne
-    ServiceContext serviceContext
     String applicationUser
 
     @Override

@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.updating
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
@@ -54,9 +55,10 @@ class UpdatingPersistenceService {
         updateRequestRepository.saveAndFlush(updateRequest)
     }
 
-    void updatePlanAndServiceDetails(final ServiceInstance serviceInstance, final String updateParameters, final Collection<ServiceDetail> serviceDetails, Plan plan) {
+    void updatePlanAndServiceDetails(final ServiceInstance serviceInstance, final String updateParameters, final Collection<ServiceDetail> serviceDetails, Plan plan, ServiceContext serviceContext) {
         serviceInstance.plan = plan
         serviceInstance.parameters = mergeServiceInstanceParameter(serviceInstance.parameters, updateParameters)
+        serviceInstance.serviceContext = serviceContext
         serviceInstanceRepository.saveAndFlush(serviceInstance)
         updateServiceDetails(serviceDetails, serviceInstance)
     }

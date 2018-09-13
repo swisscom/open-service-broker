@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.cfapi.dto.UpdateDto
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -43,6 +44,8 @@ class UpdatingController extends BaseController {
     private ServiceInstanceRepository serviceInstanceRepository
     private PlanRepository planRepository
     private UpdatingService updatingService
+    @Autowired
+    private ServiceContextPersistenceService serviceContextService
 
     @Autowired
     UpdatingController(ServiceInstanceRepository serviceInstanceRepository, PlanRepository planRepository, UpdatingService updatingService) {
@@ -90,7 +93,8 @@ class UpdatingController extends BaseController {
                 acceptsIncomplete: acceptsIncomplete,
                 plan: newPlan,
                 previousPlan: previousPlan,
-                parameters: serializeJson(updateDto.parameters))
+                parameters: serializeJson(updateDto.parameters),
+                serviceContext: serviceContextService.findOrCreate(updateDto.context))
     }
 
     private static String serializeJson(Map object) {
