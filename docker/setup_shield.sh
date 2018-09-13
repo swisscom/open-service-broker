@@ -3,6 +3,17 @@
 set -e
 
 HOST='localhost:8443'
+INTERVAL_IN_SECONDS='5'
+MAX_RETRIES='20'
+
+echo "Waiting for shield to startup"
+retries=0
+for ((retries=0; retries<=MAX_RETRIES; retries++)); do
+    if curl -k https://${HOST}/v2/info ; then
+        break
+    fi
+    echo "Trie ${i} failed, retrying in ${INTERVAL_IN_SECONDS}s"
+done
 
 # Login
 X_SHIELD_SESSION=$(curl -i -k -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST https://${HOST}/v2/auth/login -d '{"username":"admin","password":"shield"}' | grep X-Shield-Session | awk '{print $2}')
