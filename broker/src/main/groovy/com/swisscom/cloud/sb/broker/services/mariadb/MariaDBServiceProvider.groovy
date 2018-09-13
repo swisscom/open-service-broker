@@ -76,6 +76,7 @@ class MariaDBServiceProvider extends RelationalDbServiceProvider implements Shie
                 password: config.adminPassword,
                 host: config.host,
                 port: config.port,
+                bindir: config.bindir,
                 database: database)
     }
 

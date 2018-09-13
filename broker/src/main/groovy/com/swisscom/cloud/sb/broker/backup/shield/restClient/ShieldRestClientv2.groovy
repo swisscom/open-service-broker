@@ -16,33 +16,40 @@
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
 import com.swisscom.cloud.sb.broker.backup.shield.dto.ScheduleDto
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+import org.apache.logging.log4j.core.layout.JacksonFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
 
 @Slf4j
 @Component
-class ShieldRestClientv2 extends ShieldRestClientImpl {
+class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClient {
     public static final String HEADER_API_SESSION = 'X-Shield-Session'
     private final int apiVersion = 2
 
     @Autowired
-    ShieldRestClientv2(ShieldConfig shieldConfig, ShieldRestTemplate restTemplate) {
-        super(shieldConfig, restTemplate)
+    ShieldRestClientv2(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
+        super(shieldConfig, restTemplateBuilder)
     }
 
     boolean matchVersion() {
         try {
-            def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
-            return new JsonSlurper().parseText(response.body).api == 2
+            def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, null, String.class)
+            return parseAndCheckVersion(response.body)
         } catch(Exception e) {
-            log.debug("Not shield API version v1")
+            log.debug("Not shield API version v2")
         }
         return false
+    }
+
+    boolean parseAndCheckVersion(String body) {
+        return new JsonSlurper().parseText(body).api == 2
     }
 
     String getTenantUuidByName(String name) {
@@ -50,9 +57,18 @@ class ShieldRestClientv2 extends ShieldRestClientImpl {
         return new JsonSlurper().parseText(response.body)[0].uuid
     }
 
-
     ScheduleDto getScheduleByName(String name) {
-        new ScheduleDto(name: name, uuid: name, when: name, summary: name)
+        null
+    }
+
+    String createTarget(String targetName, ShieldTarget target, String agent) {
+        JsonSlurper jsonSlurper = new JsonSlurper()
+        def body = [name    : targetName,
+                    plugin  : target.pluginName(),
+                    config  : jsonSlurper.parseText(target.endpointJson()),
+                    agent   : agent]
+        def response = restTemplate.exchange(targetsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
+        new JsonSlurper().parseText(response.body).uuid
     }
 
     Map<String, ?> getCreateJobBody(String jobName, String targetUuid, String storeUuid, String policyUuid, String schedule, boolean paused) {
@@ -92,9 +108,24 @@ class ShieldRestClientv2 extends ShieldRestClientImpl {
         return response.getHeaders().getValuesAsList(HEADER_API_SESSION)[0]
     }
 
-
     protected String statusUrl() {
         infoUrl()
+    }
+
+    protected String jobUrl(String uuid) {
+        "${baseUrl()}/jobs/${uuid}"
+    }
+
+    protected String taskUrl(String uuid) {
+        "${baseUrl()}/tasks/${uuid}"
+    }
+
+    protected String archiveUrl(String uuid) {
+        "${baseUrl()}/archives/${uuid}"
+    }
+
+    protected String targetUrl(String uuid) {
+        "${baseUrl()}/targets/${uuid}"
     }
 
     protected String infoUrl() {

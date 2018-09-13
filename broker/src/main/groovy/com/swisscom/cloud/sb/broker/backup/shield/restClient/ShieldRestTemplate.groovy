@@ -11,6 +11,6 @@ import org.springframework.web.client.RestTemplate
 class ShieldRestTemplate extends RestTemplate {
     @Autowired
     ShieldRestTemplate(RestTemplateBuilder restTemplateBuilder) {
-        restTemplateBuilder.build()
+        restTemplateBuilder.build().setErrorHandler(new ShieldRestResponseErrorHandler())
     }
 }

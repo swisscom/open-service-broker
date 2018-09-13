@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
-@CompileStatic
 class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
@@ -164,12 +163,15 @@ class ShieldClient {
         if (retention == null) {
             throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
         }
+        // Either use BACKUP_SCHEDULE parameter or get the schedule UUID from shield v1 BACKUP_SCHEDULE_NAME parameter from service definition
         ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
-        if (scheduleDto == null) {
+        String schedule = scheduleDto != null ? scheduleDto.uuid : shieldServiceConfig.schedule
+
+        if (schedule == null) {
             throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, scheduleDto.uuid, paused)
+        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)
     }
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {

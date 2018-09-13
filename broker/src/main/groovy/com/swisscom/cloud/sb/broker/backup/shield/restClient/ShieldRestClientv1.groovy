@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,13 +29,13 @@ import org.springframework.stereotype.Component
 
 @Slf4j
 @Component
-class ShieldRestClientv1 extends ShieldRestClientImpl {
+class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClient {
     public static final String HEADER_API_KEY = 'X-Shield-Token'
     private final int apiVersion = 1
 
     @Autowired
-    ShieldRestClientv1(ShieldConfig shieldConfig, ShieldRestTemplate restTemplate) {
-        super(shieldConfig, restTemplate)
+    ShieldRestClientv1(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
+        super(shieldConfig, restTemplateBuilder)
     }
 
     boolean matchVersion() {
