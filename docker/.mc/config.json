@@ -1,0 +1,12 @@
+{
+	"version": "9",
+	"hosts": {
+		"s3": {
+			"url": "https://localhost:9001",
+			"accessKey": "minio-access",
+			"secretKey": "minio-secret",
+			"api": "S3v4",
+			"lookup": "auto"
+		}
+	}
+}

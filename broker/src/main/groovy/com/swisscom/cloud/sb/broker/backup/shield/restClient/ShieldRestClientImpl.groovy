@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.http.HttpEntity
@@ -31,8 +32,8 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
     protected ShieldConfig config
     protected RestTemplate restTemplate
 
-    ShieldRestClientImpl(ShieldConfig shieldConfig, RestTemplate restTemplate) {
-        this.restTemplate = restTemplate
+    ShieldRestClientImpl(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.withSSLValidationDisabled().build()
         this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         this.config = shieldConfig
     }

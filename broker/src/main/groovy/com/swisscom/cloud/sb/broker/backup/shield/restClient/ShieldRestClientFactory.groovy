@@ -16,11 +16,13 @@
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
 @CompileStatic
+@Slf4j
 class ShieldRestClientFactory {
 
     private List<ShieldRestClient> shieldRestClients
@@ -34,5 +36,6 @@ class ShieldRestClientFactory {
         for (ShieldRestClient shieldRestClient in shieldRestClients) {
             if (shieldRestClient.matchVersion()) return shieldRestClient
         }
+        throw new Exception("No matching shield implementation found")
     }
 }

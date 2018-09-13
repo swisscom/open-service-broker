@@ -35,4 +35,5 @@ class MariaDBConnectionConfig extends RelationalDbConfig implements ShieldServic
      */
     String overwriteGaleraPortForShieldTesting
     String name
+    String bindir
 }

@@ -38,6 +38,7 @@ class MariaDBShieldTarget implements ShieldTarget {
     String host
     String database
     String port // shield needs a string
+    String bindir
 
     @Override
     String pluginName() {
@@ -51,6 +52,7 @@ class MariaDBShieldTarget implements ShieldTarget {
                 mysql_host: host,
                 mysql_port: port,
                 mysql_database: database,
-                mysql_options: MYSQL_OPTIONS)
+                mysql_options: MYSQL_OPTIONS,
+                mysql_bindir: bindir)
     }
 }

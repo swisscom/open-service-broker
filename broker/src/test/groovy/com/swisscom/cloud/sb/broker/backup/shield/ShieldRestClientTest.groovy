@@ -17,8 +17,7 @@ package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientImpl
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv2
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestTemplate
-import org.springframework.boot.web.client.RestTemplateBuilder
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -35,7 +34,7 @@ class ShieldRestClientTest extends Specification {
         shieldConfig.password = "shield"
         shieldConfig.defaultTenantName = "tenant1"
         shieldConfig.apiKey = "averyhardkey"
-        restClient = new ShieldRestClientv2(shieldConfig, new ShieldRestTemplate(new RestTemplateBuilder()))
+        restClient = new ShieldRestClientv2(shieldConfig, new RestTemplateBuilder())
     }
 
     def "get store by name"() {
