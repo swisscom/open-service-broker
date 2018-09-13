@@ -1,6 +1,6 @@
 #!/bin/bash
 # Configures shield for automated testing
-set -e
+set -x
 
 HOST='localhost:8443'
 INTERVAL_IN_SECONDS='5'
@@ -13,6 +13,7 @@ for ((retries=0; retries<=MAX_RETRIES; retries++)); do
         break
     fi
     echo "Trie ${i} failed, retrying in ${INTERVAL_IN_SECONDS}s"
+    sleep ${INTERVAL_IN_SECONDS}
 done
 
 # Login
