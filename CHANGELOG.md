@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [4.2.5] - 2018-09-13
+- Mongodb Enterprise - Delete default alerts on service creation
+- Adds context object to update request
+- Adapts Kubernetes Provisioning 
+
+
 ## [4.2.4] - 2018-09-06
 - Fix inheritance bug of RequestWithParameters
 

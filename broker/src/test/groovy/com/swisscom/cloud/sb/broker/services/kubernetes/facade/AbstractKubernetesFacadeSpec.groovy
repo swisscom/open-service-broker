@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
@@ -49,7 +49,7 @@ class AbstractKubernetesFacadeSpec extends Specification {
         and:
         kubernetesFacade = new AbstractKubernetesFacade<AbstractKubernetesServiceConfig>(kubernetesClient, kubernetesConfig, kubernetesTemplateManager, endpointMapperParamsDecorated, kubernetesServiceConfig) {
             @Override
-            protected Map<String, String> getBindingMap(ProvisionRequest context) {
+            protected Map<String, String> getBindingMap(RequestWithParameters context) {
                 ["DUMMY_PLACEHOLDER": "dummy_value"]
             }
 

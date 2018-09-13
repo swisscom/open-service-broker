@@ -13,23 +13,18 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.model
+package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import javax.persistence.Column
-import javax.persistence.JoinColumn
-import javax.persistence.MappedSuperclass
-import javax.persistence.OneToOne
+import groovy.transform.CompileStatic
 
-@MappedSuperclass
-abstract class RequestWithParameters extends BaseModel {
-    @Column(unique = true)
-    String serviceInstanceGuid
-    @OneToOne()
-    @JoinColumn(name = "plan_id")
-    @JsonIgnore
-    Plan plan
-    String parameters
-    @OneToOne
-    ServiceContext serviceContext
+@CompileStatic
+class AlertConfigDto implements Serializable {
+    String created
+    boolean enabled
+    String eventTypeName
+    String groupId
+    String id
+    List<String> matchers
+    List<AlertNotification> notifications
+    String updated
 }

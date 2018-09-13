@@ -171,7 +171,7 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
     private StateMachine createProvisionStateMachine(LastOperationJobContext context) {
         StateMachine stateMachine = new StateMachine([CREATE_OPS_MANAGER_GROUP])
         stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow(getBoshFacade().shouldCreateOpenStackServerGroup(context)))
-        stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, ENABLE_BACKUP_IF_CONFIGURED, PROVISION_SUCCESS])
+        stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, DELETE_DEFAULT_ALERTS, ENABLE_BACKUP_IF_CONFIGURED, PROVISION_SUCCESS])
         return stateMachine
     }
 

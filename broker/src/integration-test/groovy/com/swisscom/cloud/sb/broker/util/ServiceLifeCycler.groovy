@@ -427,10 +427,11 @@ class ServiceLifeCycler {
             final String serviceGuid,
             final String planGuid,
             Map<String, Object> parameters = null,
-            final Boolean async = false) {
+            final Boolean async = false,
+            Context context = null) {
 
         createServiceBrokerClientWithCustomErrorHandler()
-                .updateServiceInstance(new UpdateServiceInstanceRequest(serviceGuid, planGuid, parameters)
+                .updateServiceInstance(new UpdateServiceInstanceRequest(serviceGuid, planGuid, parameters, null, context)
                 .withAsyncAccepted(async)
                 .withServiceInstanceId(serviceInstanceId))
     }

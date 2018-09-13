@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigsDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
@@ -63,5 +64,44 @@ class OpsManagerClientTest extends BaseSpecification {
         println(id)
         then:
         id
+    }
+
+    def "get alertConfigs"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+
+        when:
+        def result = opsManagerClient.listAlerts(groupId)
+        result.results.each {println(it.id)}
+
+        then:
+        result.class == AlertConfigsDto
+        result.results != null
+    }
+
+    def "delete alertConfig"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+        def id = '5b865af1b61cea1a95e56164'
+
+        when:
+        def result = opsManagerClient.deleteAlertConfig(groupId, id)
+        println(result)
+
+        then:
+        result
+    }
+
+    def "delete non existing alertConfig"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+        def id = 'notExistingId'
+
+        when:
+        def result = opsManagerClient.deleteAlertConfig(groupId, id)
+        println(result)
+
+        then:
+        result == false
     }
 }

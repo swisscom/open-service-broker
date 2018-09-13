@@ -117,4 +117,14 @@ class OpsManagerFacadeTest extends BaseSpecification {
         then:
         noExceptionThrown()
     }
+
+    def "delete defaultAlerts"() {
+        given:
+        def groupId = '5b86593eb61cea1a95e55405'
+
+        when:
+        def res = opsManagerFacade.deleteDefaultAlerts(groupId)
+        then:
+        res == true
+    }
 }

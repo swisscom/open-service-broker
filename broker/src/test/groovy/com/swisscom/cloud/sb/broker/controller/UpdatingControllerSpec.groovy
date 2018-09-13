@@ -16,8 +16,10 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.swisscom.cloud.sb.broker.cfapi.dto.UpdateDto
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
@@ -28,11 +30,13 @@ class UpdatingControllerSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
     private PlanRepository planRepository
     private UpdatingService updatingService
+    private ServiceContextPersistenceService serviceContextService
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         planRepository = Mock(PlanRepository)
         updatingService = Mock(UpdatingService)
+        serviceContextService = Mock()
     }
 
     def "Throws Exception when ServiceInstance does not exist"() {
@@ -52,10 +56,12 @@ class UpdatingControllerSpec extends Specification {
 
     def "Doesn't throw Exception when ServiceInstance exists"() {
         def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
+        sut.serviceContextService = serviceContextService
         def existingGuid = "DoesExist";
         def updateRequestDto = new UpdateDto()
         def acceptIncomplete = true;
 
+        serviceContextService.findOrCreate(updateRequestDto.context) >> new ServiceContext()
         serviceInstanceRepository.findByGuid(existingGuid) >> new ServiceInstance()
         updatingService.update(*_) >> new UpdateResponse()
 

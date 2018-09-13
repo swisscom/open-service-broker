@@ -5,7 +5,7 @@ Configuration:
     Console:
       name: STDOUT
       JSONLayout:
-        compact: false
+        compact: true
         complete: false
         eventEol: true
         includeStacktrace: true

@@ -23,6 +23,7 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpris
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -267,7 +268,7 @@ class OpsManagerFacade {
                 processType: PROCESS_TYPE_MONGOD,
                 name: name,
                 authSchemaVersion: mongoDbEnterpriseConfig.authSchemaVersion,
-                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbVersion.substring(0,mongoDbVersion.lastIndexOf(".")),
+                featureCompatibilityVersion: featureCompatibilityVersion ? featureCompatibilityVersion : mongoDbVersion.substring(0, mongoDbVersion.lastIndexOf(".")),
                 hostname: hostPort.host,
                 logRotate: createLogRotateDto(),
                 args2_6: new ProcessArgumentsV26Dto(net: new ProcessArgumentsV26Dto.Net(port: hostPort.port),
@@ -522,6 +523,16 @@ class OpsManagerFacade {
         def userId = opsManagerClient.getUserByName(username)
         List<WhiteListDto> whiteList = ipList.collect { new WhiteListDto(ipAddress: it.toString()) }
         opsManagerClient.addUserWhiteList(userId.id, whiteList)
+    }
+
+    boolean deleteDefaultAlerts(String groupId) {
+        def alertConfigs = opsManagerClient.listAlerts(groupId)
+
+        for (AlertConfigDto alertConfig : alertConfigs.results) {
+            opsManagerClient.deleteAlertConfig(groupId, alertConfig.id)
+        }
+
+        return opsManagerClient.listAlerts(groupId).results.isEmpty()
     }
 
 }
