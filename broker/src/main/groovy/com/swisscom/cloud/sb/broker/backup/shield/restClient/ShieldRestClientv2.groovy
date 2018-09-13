@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component
 @Component
 class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClient {
     public static final String HEADER_API_SESSION = 'X-Shield-Session'
-    private final int apiVersion = 2
+    final int apiVersion = 2
 
     @Autowired
     ShieldRestClientv2(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
