@@ -101,7 +101,7 @@ com.swisscom.cloud.sb.broker.service.mariadb:
   nameOfDefault: "default"
   clusters:
   - name: "default"
-    host: mariadb
+    host: 127.0.0.1
     port: 3306
     adminUser: 'root'
     adminPassword:
