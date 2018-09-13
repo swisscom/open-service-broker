@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component
 @Component
 class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClient {
     public static final String HEADER_API_KEY = 'X-Shield-Token'
-    private final int apiVersion = 1
+    final int apiVersion = 1
 
     @Autowired
     ShieldRestClientv1(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
@@ -40,9 +40,8 @@ class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClien
 
     boolean matchVersion() {
         try {
-            def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, null, String.class)
-            String version = new JsonSlurper().parseText(response.body).version
-            return version[0..0].toInteger() == 1
+            def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
+            return new JsonSlurper().parseText(response.body).version =~ /0\.10(.*)/
         } catch(Exception e) {
             log.debug("Not shield API version v1")
         }

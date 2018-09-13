@@ -101,18 +101,18 @@ com.swisscom.cloud.sb.broker.service.mariadb:
   nameOfDefault: "default"
   clusters:
   - name: "default"
-    host: 127.0.0.1
+    host: mariadb
     port: 3306
     adminUser: 'root'
     adminPassword:
     databasePrefix: 'cfdb_'
     shieldAgentUrl: 'shield-agent:5444'
     discoveryURL: "http://localhost:8080/v2/api-docs"
-    bindir: '/usr/bin'
+    bindir: '/var/vcap/packages/shield-mysql/bin'
 
 com.swisscom.cloud.sb.broker.shield:
-  baseUrl: 'https://localhost:8443'
-  apiKey:
+  baseUrl: 'http://localhost:8082'
+  apiKey: TEk22PhD6FeligOf3YvWyaAv
   agent: 'shield-agent:5444'
   jobPrefix: 'SB_CF_'
   targetPrefix: 'SB_CF_'
