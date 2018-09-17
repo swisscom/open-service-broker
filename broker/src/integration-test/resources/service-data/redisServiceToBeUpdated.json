@@ -1,0 +1,54 @@
+{
+  "guid": "metricsServiceFunctionalTest",
+  "name": "metricsServiceName",
+  "description": "service for testing metrics",
+  "bindable": true,
+  "internalName": "dummySynchronous",
+  "displayIndex": 1,
+  "asyncRequired": false,
+  "dashboard_client": {
+    "id": "dashboardId",
+    "secret": "secret",
+    "redirect_uri": "https://dashboard.service.com"
+  },
+  "tags": [
+    "tag1",
+    "tag2"
+  ],
+  "metadata": {
+    "key1": "value1",
+    "key2": true
+  },
+  "requires": [
+    "syslog_drain"
+  ],
+  "plans": [
+    {
+      "guid": "metricsPlanFunctionalTest",
+      "name": "metricsPlan",
+      "description": "plan used for testing metrics",
+      "templateId": "templateV1",
+      "free": false,
+      "displayIndex": 1,
+      "internalName": "dummySynchronous",
+      "asyncRequired": false,
+      "maxBackups": 0,
+      "parameters": [
+        {
+          "template": "template1",
+          "name": "memory",
+          "value": "2g"
+        },
+        {
+          "template": "template2",
+          "name": "cpu",
+          "value": "1"
+        }
+      ],
+      "metadata": {
+        "key1": "value1",
+        "key2": true
+      }
+    }
+  ]
+}
