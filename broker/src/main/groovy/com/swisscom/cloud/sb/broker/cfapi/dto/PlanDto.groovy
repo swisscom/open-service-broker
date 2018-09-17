@@ -26,7 +26,7 @@ class PlanDto {
     String name
     String description
     boolean free
-    boolean active
+    boolean active = true
     Map<String, Object> metadata
     List<ParameterDto> containerParams
     @JsonInclude(JsonInclude.Include.NON_NULL)
