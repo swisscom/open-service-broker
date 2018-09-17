@@ -16,23 +16,14 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceMetaDataRepository
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.model.repository.TagRepository
+import com.swisscom.cloud.sb.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.beans.factory.annotation.Autowired
 
 class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
@@ -44,27 +35,15 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
     private PlanRepository planRepository
 
     @Autowired
-    private PlanMetadataRepository planMetadataRepository
-
-    @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
     @Autowired
     private PlanDtoConverter planDtoConverter
 
     @Autowired
-    private CFServiceMetaDataRepository cfServiceMetaDataRepository
-
-    @Autowired
-    private ParameterRepository parameterRepository
-
-    @Autowired
-    private TagRepository tagRepository
-
-    private ServiceDefinitionProcessor serviceDefinitionProcessor
-
     private ServiceDefinitionInitializer serviceDefinitionInitializer
 
+    @Autowired
     private ServiceDefinitionConfig serviceDefinitionConfig
 
     private List<CFService> cfServiceList
@@ -81,12 +60,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
                     plans: planDtoConverter.convertAll(it.plans), metadata: metadataMap)
         }
 
-        serviceDefinitionConfig = new ServiceDefinitionConfig(serviceDefinitions: serviceDtoList)
-        serviceDefinitionProcessor = new ServiceDefinitionProcessor(cfServiceRepository: cfServiceRepository,
-                cfServiceMetaDataRepository: cfServiceMetaDataRepository, planRepository: planRepository,
-                parameterRepository: parameterRepository, planMetadataRepository: planMetadataRepository,
-                tagRepository: tagRepository)
-        serviceDefinitionInitializer = new ServiceDefinitionInitializer(cfServiceRepository, planRepository, planMetadataRepository, parameterRepository, serviceInstanceRepository, serviceDefinitionConfig, serviceDefinitionProcessor)
+        serviceDefinitionConfig.serviceDefinitions = serviceDtoList
     }
 
     def "Match service definitions"() {
@@ -99,11 +73,13 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
     def "Add service definition"() {
         given:
-        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
+        serviceDefinitionConfig.serviceDefinitions = [
+                new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
                 displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                plans: [new PlanDto(guid: "guid", name: "planName", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
                 asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
                         value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
+            ]
 
         when:
         serviceDefinitionInitializer.init()
@@ -116,7 +92,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         given:
         serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
                 displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                plans: [new PlanDto(guid: "guid", name: "planName", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
                         asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
                         value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
 
@@ -126,7 +102,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         when:
         serviceDefinitionConfig.serviceDefinitions << new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
                 displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: false, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                plans: [new PlanDto(guid: "guid", name: "plaName", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
                         asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
                         value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
 
@@ -235,17 +211,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         noExceptionThrown()
     }
 
-    def "delete plans"() {
-        when:
-        def planList = planRepository.findAll()
-        planList.each {
-            planRepository.delete(it)
-        }
-
-        then:
-        noExceptionThrown()
-    }
-
+    // only to test whether or not te tests write to the database or not
     def "save plan"() {
         given:
         Plan plan = new Plan(guid: "test97543214")
