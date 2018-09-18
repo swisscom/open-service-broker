@@ -19,7 +19,9 @@ import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
@@ -73,13 +75,12 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
     def "Add service definition"() {
         given:
-        serviceDefinitionConfig.serviceDefinitions = [
+        serviceDefinitionConfig.serviceDefinitions <<
                 new ServiceDto(guid: "guid", name: "name", internalName: "internalName",
-                displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
-                plans: [new PlanDto(guid: "guid", name: "planName", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
-                asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
-                        value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
-            ]
+                        displayIndex: 1, asyncRequired: false, id: "id", description: "description", bindable: true, tags: ["tag"],
+                        plans: [new PlanDto(guid: "guid", name: "planName", templateId: "templateId", templateVersion: "templateVersion", internalName: "internalName", displayIndex: 1,
+                                asyncRequired: false, maxBackups: 0, parameters: [new ParameterDto(template: "template", name: "name",
+                                value: "value")])], metadata: [key: "key", value: "value", type: "type", service: new CFService(guid: "guid")])
 
         when:
         serviceDefinitionInitializer.init()
@@ -111,17 +112,17 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         then:
         def cfService = cfServiceRepository.findByGuid("guid")
-        assert(!cfService.bindable)
+        assert (!cfService.bindable)
     }
 
     def "Service definition from DB that is missing in config and has no service instances is deleted"() {
         given:
-        def serviceGuid = "serviceWithInstance"
+        def serviceGuid = "serviceWithoutInstance"
         CFService cfService = new CFService(guid: serviceGuid)
         cfServiceRepository.saveAndFlush(cfService)
 
         and:
-        def planGuid = "planWithInstance"
+        def planGuid = "planWithoutInstance"
         Plan plan = new Plan(guid: planGuid, service: cfService)
         planRepository.saveAndFlush(plan)
 
@@ -131,14 +132,14 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         and:
         def service = cfServiceRepository.findByGuid(serviceGuid)
-        assert(service)
+        assert (service)
 
         when:
         serviceDefinitionInitializer.init()
 
         then:
-        assert(!cfServiceRepository.findByGuid(serviceGuid))
-        assert(!planRepository.findByGuid(planGuid))
+        assert (!cfServiceRepository.findByGuid(serviceGuid))
+        assert (!planRepository.findByGuid(planGuid))
 
         and:
         noExceptionThrown()
@@ -167,8 +168,8 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         serviceDefinitionInitializer.init()
 
         then:
-        assert(!cfServiceRepository.findByGuid(serviceGuid).active)
-        assert(!planRepository.findByGuid(planGuid).active)
+        assert (!cfServiceRepository.findByGuid(serviceGuid).active)
+        assert (!planRepository.findByGuid(planGuid).active)
 
         and:
         noExceptionThrown()
@@ -203,9 +204,9 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         serviceDefinitionInitializer.init()
 
         then:
-        assert(!cfServiceRepository.findByGuid(serviceGuid).active)
-        assert(!planRepository.findByGuid(plan1Guid).active)
-        assert(!planRepository.findByGuid(plan2Guid))
+        assert (!cfServiceRepository.findByGuid(serviceGuid).active)
+        assert (!planRepository.findByGuid(plan1Guid).active)
+        assert (!planRepository.findByGuid(plan2Guid))
 
         and:
         noExceptionThrown()
