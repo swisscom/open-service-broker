@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition
 
+import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
@@ -85,12 +86,13 @@ class ServiceDefinitionInitializer {
 
         toBeDeleted.each{ key, service ->
             def canDeleteService = true
+            // define planList to avoid concurrent modification exception
             def planList = service.plans.toList()
-            planList.each{ plan ->
+            planList.collect{ plan ->
                 canDeleteService = canDeleteService & tryDeletePlan(plan)
             }
             if(canDeleteService) {
-                cfServiceRepository.delete(service)
+                cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
 
                 cfServiceRepository.flush()
             } else {
@@ -112,20 +114,10 @@ class ServiceDefinitionInitializer {
             }
             return false
         } else {
-            ServiceDefinitionProcessor.copyOf(plan.metadata).each {
-                copyMetaData -> def metaData = plan.metadata.find { meta -> meta.id == copyMetaData.id }
-                    planMetadataRepository.delete(metaData)
-                    plan.metadata.remove(metaData)
-            }
-
-            ServiceDefinitionProcessor.copyOf(plan.parameters).each {
-                copyParameter -> def params = plan.parameters.find { meta -> meta.id == copyParameter.id }
-                    parameterRepository.delete(params)
-                    plan.parameters.remove(params)
-            }
             plan.service.plans.remove(plan)
             cfServiceRepository.saveAndFlush(plan.service)
             planRepository.delete(plan)
+            planRepository.flush()
             return true
         }
     }
