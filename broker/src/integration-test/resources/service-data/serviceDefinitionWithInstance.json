@@ -1,8 +1,9 @@
 {
-  "guid": "serviceDefinitionFromServiceManifestUnused",
-  "name": "serviceDefinitionFromServiceManifestUnused",
+  "guid": "serviceDefinitionWithInstance",
+  "name": "serviceDefinitionFromServiceManifestWithInstance",
   "description": "description",
   "bindable": true,
+  "active": true,
   "internalName": "dummySynchronousBackupCapable",
   "displayIndex": 1,
   "asyncRequired": true,
@@ -24,7 +25,7 @@
   ],
   "plans": [
     {
-      "guid": "planForServiceDefinitionFromServiceManifestUnused",
+      "guid": "planForServiceDefinitionFromServiceManifestWithInstance",
       "name": "small",
       "description": "planDescription",
       "templateId": "templateV1",
@@ -32,6 +33,7 @@
       "displayIndex": 1,
       "internalName": "dummySynchronousBackupCapable",
       "asyncRequired": true,
+      "active": true,
       "maxBackups": 5,
       "parameters": [
         {
