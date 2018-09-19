@@ -31,6 +31,7 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
     private final String TEST_GUID = "TEST_GUID"
     private final String TEST_GUID2 = "TEST_GUID2"
     private final String TEST_GUID3 = "TEST_GUID3"
+    private final String PLAN_GUID = "PLAN_GUID"
 
 
 
@@ -104,7 +105,7 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
 
     def "Successfully delete plan"() {
         given:
-        Plan plan = new Plan(guid: "test_plan")
+        Plan plan = new Plan(guid: PLAN_GUID)
         CFService cfService = new CFService(guid: TEST_GUID)
         plan.service = cfService
         cfService.plans.add(plan)
