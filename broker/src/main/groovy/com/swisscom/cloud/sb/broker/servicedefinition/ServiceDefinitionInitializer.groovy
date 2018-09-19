@@ -15,14 +15,9 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition
 
-import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -86,14 +81,11 @@ class ServiceDefinitionInitializer {
 
         toBeDeleted.each{ key, service ->
             def canDeleteService = true
-            // define planList to avoid concurrent modification exception
-            def planList = service.plans.toList()
-            planList.collect{ plan ->
+            service.plans.toList().each{ plan ->
                 canDeleteService = canDeleteService & tryDeletePlan(plan)
             }
             if(canDeleteService) {
-                cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
-
+                deleteServiceHibernateCacheSavely(service)
                 cfServiceRepository.flush()
             } else {
                 service.active = false
@@ -120,5 +112,9 @@ class ServiceDefinitionInitializer {
             planRepository.flush()
             return true
         }
+    }
+
+    void deleteServiceHibernateCacheSavely(CFService service) {
+        cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
     }
 }
