@@ -52,7 +52,8 @@ trait ExtensionProvider{
         getApi(null)
     }
 
-    String getApi(List<String> tags, String url = "http://localhost:${env.getProperty("server.port")}${env.getProperty("server.contextPath")}/v2/api-docs") {
+    String getApi(List<String> tags, String url = "http://localhost:${env.getProperty("local.server.port")}/v2/api-docs") {
+
         OpenAPI openAPI = new OpenAPIV3Parser().read(url)
         if (tags) {
             openAPI.setPaths(filterPathsByTags(openAPI, tags))

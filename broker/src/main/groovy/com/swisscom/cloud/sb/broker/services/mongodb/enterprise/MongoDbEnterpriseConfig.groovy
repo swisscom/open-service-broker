@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
-import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
+import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
 import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceConfig
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.mongodbent")
-class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceConfig {
+class MongoDbEnterpriseConfig extends AsyncServiceConfigImpl implements BoshBasedServiceConfig {
     String opsManagerUrl
     String opsManagerUrlForAutomationAgent
     String opsManagerUser
@@ -45,26 +45,23 @@ class MongoDbEnterpriseConfig implements BoshBasedServiceConfig, AsyncServiceCon
     int weeklySnapshotRetentionWeeks
     int monthlySnapshotRetentionMonths
     int pointInTimeWindowHours
-    int retryIntervalInSeconds
-    int maxRetryDurationInMinutes
     int backupConfigRetryInMilliseconds = 5000
     boolean advancedBinding
-
 
     @Override
     public String toString() {
         return "MongoDbEnterpriseConfig{" +
-                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__retryIntervalInSeconds +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + com_swisscom_cloud_sb_broker_services_AsyncServiceConfig__maxRetryDurationInMinutes +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackTenantName='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackTenantName + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder='" + com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl='" + com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername='" + com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__ipRanges='" + com_swisscom_cloud_sb_broker_cfextensions_endpoint_EndpointConfig__ipRanges + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__protocols='" + com_swisscom_cloud_sb_broker_cfextensions_endpoint_EndpointConfig__protocols + '\'' +
+                "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + this.retryIntervalInSeconds +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + this.maxRetryDurationInMinutes +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange='" + this.portRange + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl='" + this.openstackkUrl + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername='" + this.openstackUsername + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackTenantName='" + this.openstackTenantName + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder='" + this.boshManifestFolder + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl='" + this.boshDirectorBaseUrl + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername='" + this.boshDirectorUsername + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__ipRanges='" + this.ipRanges + '\'' +
+                ", com_swisscom_cloud_sb_broker_services_common_endpoint_EndpointConfig__protocols='" + this.protocols + '\'' +
                 ", opsManagerUrl='" + opsManagerUrl + '\'' +
                 ", opsManagerUrlForAutomationAgent='" + opsManagerUrlForAutomationAgent + '\'' +
                 ", opsManagerUser='" + opsManagerUser + '\'' +

@@ -180,7 +180,6 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
             }
         }
 
-
     }),
     DELETE_DEFAULT_ALERTS(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
@@ -190,7 +189,6 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         }
     }),
     PROVISION_SUCCESS(LastOperation.Status.SUCCESS, new NoOp())
-
 
     public static final String PLAN_PARAMETER_MONGODB_VERSION = "MONGODB_VERSION"
     public static final Map<String, ServiceState> map = new TreeMap<String, ServiceState>()
@@ -223,7 +221,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         return name()
     }
 
-    public static ServiceStateWithAction of(String state) {
+    static ServiceStateWithAction of(String state) {
         return map.get(state)
     }
 
@@ -231,5 +229,4 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
     StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
         return onStateChange.triggerAction(context)
     }
-
 }

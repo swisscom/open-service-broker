@@ -15,9 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.config
 
-import com.swisscom.cloud.sb.broker.config.Config
-import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
+import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
 
-trait AbstractKubernetesServiceConfig implements Config, AsyncServiceConfig {
+class AbstractKubernetesServiceConfig extends AsyncServiceConfigImpl {
     boolean enablePodLabelHealthzFilter
 }

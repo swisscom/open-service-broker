@@ -284,9 +284,15 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     }
 
     private Plan createPlan(CFService service, String planId) {
-        def plan = planRepository.save(new Plan(guid: planId))
-        service.plans.add(plan)
-        cfServiceRepository.save(service)
+        def plan = planRepository.findByGuid(planId)
+        if (plan == null) {
+            plan = planRepository.save(new Plan(guid: planId))
+        }
+        if (!service.plans.any { p -> p.guid == planId }) {
+            service.plans.add(plan)
+            cfServiceRepository.save(service)
+        }
+        
         return plan
     }
 

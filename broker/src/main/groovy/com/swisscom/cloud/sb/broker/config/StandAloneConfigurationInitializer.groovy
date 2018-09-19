@@ -48,8 +48,8 @@ class StandAloneConfigurationInitializer implements ApplicationContextInitialize
 
     static PropertySource loadYamlResource(Resource resource) {
         YamlPropertySourceLoader sourceLoader = new YamlPropertySourceLoader()
-        PropertySource<?> yamlProperties = sourceLoader.load("yamlProperties", resource, null)
-        return yamlProperties
+        List<PropertySource<?>> yamlProperties = sourceLoader.load("yamlProperties", resource)
+        return yamlProperties.first()
     }
 
     static Optional<Resource> loadResource(String filePath) {
