@@ -16,31 +16,52 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import spock.lang.Specification
 
 class ServiceDefinitionInitializerUnitSpec extends Specification {
     private final String TEST_GUID = "TEST_GUID"
+    private final String TEST_GUID2 = "TEST_GUID2"
+    private final String TEST_GUID3 = "TEST_GUID3"
+
+
 
     private ServiceDefinitionConfig serviceDefinitionConfig
     private ServiceDefinitionInitializer serviceDefinitionInitializer
     private CFServiceRepository cfServiceRepository
+    private PlanRepository planRepository
+    private PlanMetadataRepository planMetadataRepository
+    private ServiceInstanceRepository serviceInstanceRepository
+    private ParameterRepository parameterRepository
     private ServiceDefinitionProcessor serviceDefinitionProcessor
 
-    private List<CFService> cfServiceList
+    private List<ServiceDto> cfServiceList
+    private HashMap<String, CFService> cfServiceHashMap = new HashMap<>()
 
     def setup() {
-        cfServiceList = [new CFService(guid: TEST_GUID)]
+        cfServiceList = [new ServiceDto(guid: TEST_GUID)]
+        cfServiceHashMap.put(TEST_GUID, new CFService(guid: TEST_GUID))
         cfServiceRepository = Mock(CFServiceRepository)
+        planRepository = Mock(PlanRepository)
+        planMetadataRepository = Mock(PlanMetadataRepository)
+        serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        parameterRepository = Mock(ParameterRepository)
         serviceDefinitionConfig = new ServiceDefinitionConfig(serviceDefinitions: [new ServiceDto(guid: TEST_GUID)])
-        serviceDefinitionProcessor = new ServiceDefinitionProcessor(cfServiceRepository: cfServiceRepository)
-        serviceDefinitionInitializer = new ServiceDefinitionInitializer(cfServiceRepository, serviceDefinitionConfig, serviceDefinitionProcessor)
+        serviceDefinitionProcessor = Mock(ServiceDefinitionProcessor)
+        serviceDefinitionInitializer = new ServiceDefinitionInitializer(cfServiceRepository, planRepository, planMetadataRepository, parameterRepository, serviceInstanceRepository, serviceDefinitionConfig, serviceDefinitionProcessor)
     }
 
     def "Matching service definitions"() {
         when:
-        serviceDefinitionInitializer.checkForMissingServiceDefinitions(cfServiceList)
+        serviceDefinitionInitializer.synchroniseServiceDefinitions(cfServiceList, cfServiceHashMap)
 
         then:
         noExceptionThrown()
@@ -48,25 +69,24 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
 
     def "Adding service definition from config"() {
         given:
-        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(name: "test3")
+        serviceDefinitionConfig.serviceDefinitions << new ServiceDto(name: TEST_GUID2)
 
         when:
-        serviceDefinitionInitializer.checkForMissingServiceDefinitions(cfServiceList)
+        serviceDefinitionInitializer.init()
 
         then:
         noExceptionThrown()
     }
 
-    def "Missing service definition from config"() {
+    def "Service definition missing from config"() {
         given:
-        cfServiceList << new CFService(guid: "TEST_GUID2")
+        cfServiceHashMap.put(TEST_GUID3, new CFService(guid: TEST_GUID3))
 
         when:
-        serviceDefinitionInitializer.checkForMissingServiceDefinitions(cfServiceList)
+        serviceDefinitionInitializer.synchroniseServiceDefinitions(cfServiceList, cfServiceHashMap)
 
         then:
-        def exception = thrown(Exception)
-        exception.message == "Missing service definition configuration exception. Service list - [TEST_GUID, TEST_GUID2]"
+        noExceptionThrown()
     }
 
     def "Update service definition"() {
@@ -79,6 +99,21 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
         serviceDefinitionInitializer.addOrUpdateServiceDefinitions()
 
         then:
+        noExceptionThrown()
+    }
+
+    def "Successfully delete plan"() {
+        given:
+        Plan plan = new Plan(guid: "test_plan")
+        CFService cfService = new CFService(guid: TEST_GUID)
+        plan.service = cfService
+        cfService.plans.add(plan)
+
+        when:
+        def deleted = serviceDefinitionInitializer.tryDeletePlan(plan)
+
+        then:
+        assert(deleted)
         noExceptionThrown()
     }
 }
