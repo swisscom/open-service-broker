@@ -35,7 +35,7 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
 class OpsManagerClientSpec extends Specification {
-    public static final String URL = 'someurl:1234'
+    public static final String URL = 'http://someurl.com:1234'
     public static final String GROUP_ID = '5196d3628d022db4cbc26d9e'
     public static final String CLUSTER_ID = 'RS_1234'
     public static final String GROUP_NAME = 'pub'

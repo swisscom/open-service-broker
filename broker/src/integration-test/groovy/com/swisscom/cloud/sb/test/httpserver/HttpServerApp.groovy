@@ -29,11 +29,7 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 
-@SpringBootApplication(scanBasePackageClasses = com.swisscom.cloud.sb.test.httpserver.HttpServerApp.class, exclude = [ServiceBrokerAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,
-        JmxAutoConfiguration.class])
+@SpringBootApplication(scanBasePackageClasses = com.swisscom.cloud.sb.test.httpserver.HttpServerApp.class)
 @Configuration
 @Slf4j
 @CompileStatic

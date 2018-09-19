@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.14.RELEASE'
+        springBootVersion = '2.0.4.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -10,16 +10,10 @@ buildscript {
     }
 }
 
-plugins { id "com.github.jk1.dependency-license-report" version "0.9" }
-
-licenseReport {
-    renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
+plugins {
+    id "com.github.jk1.dependency-license-report" version "1.2"
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
 }
-
-ext['tomcat.version'] = '7.0.88'
-ext['flyway.version'] = '5.1.3'
-
-apply plugin: 'org.springframework.boot'
 
 processResources {
     filesMatching(["*.properties", "**/application-info.yml"]) {
@@ -27,76 +21,84 @@ processResources {
     }
 }
 
-bootRepackage.enabled = false
-
-bootRun {
-    main = 'com.swisscom.cloud.sb.broker.ServiceBroker'
+licenseReport {
+    renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
 }
+
+ext['tomcat.version'] = '9.0.11'
+ext['flyway.version'] = '5.1.4'
+ext['groovy.version'] = '2.5.2'
+
+apply plugin: "idea"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
 
 repositories {
     mavenCentral()
 }
 
-configurations {
-    all*.exclude group: 'org.slf4j', module:'log4j-over-slf4j'
-}
-
 dependencies {
-    compile('log4j:log4j:1.2.17')
-    compile('org.springframework.boot:spring-boot-starter-log4j2:2.0.4.RELEASE')
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    compile('org.springframework.boot:spring-boot-starter-jdbc')
-    compile('org.springframework.boot:spring-boot-starter-security')
-    compile('org.springframework.boot:spring-boot-starter-actuator')
-    compile('org.springframework.boot:spring-boot-devtools')
-    compile 'io.micrometer:micrometer-spring-legacy:1.0.4'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-autoconfigure:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-jdbc:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-security:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-devtools:2.0.4.RELEASE'
     compile 'org.influxdb:influxdb-java:2.7'
     compile 'io.micrometer:micrometer-registry-influx:1.0.4'
-    compile('org.springframework.cloud:spring-cloud-cloudfoundry-connector')
-    compile('org.codehaus.groovy:groovy-all:2.4.15')
-    compile('com.google.guava:guava:25.1-jre')
-    compile('org.quartz-scheduler:quartz:2.3.0')
-    compile('org.springframework:spring-context-support')
+    compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:2.0.2.RELEASE'
+    compile('org.codehaus.groovy:groovy-all:2.5.2')
+    compile('org.codehaus.groovy:groovy-dateutil:2.5.2')
     compile('org.codehaus.gpars:gpars:1.2.1')
+    compile('com.google.guava:guava:26.0-jre')
+    compile('org.quartz-scheduler:quartz:2.3.0')
+    compile('org.springframework:spring-context-support:5.0.8.RELEASE')
     compile('joda-time:joda-time:2.10')
-    compile('org.flywaydb:flyway-core:5.1.3')
+    compile('org.flywaydb:flyway-core:5.1.4')
     compile('com.google.code.gson:gson:2.8.5')
-    compile('org.apache.httpcomponents:httpclient:4.5.5')
+    compile('org.apache.httpcomponents:httpclient:4.5.6')
     compile('commons-lang:commons-lang:2.6')
-    compile('io.springfox:springfox-swagger2:2.8.0')
-    compile('io.springfox:springfox-swagger-ui:2.8.0')
     compile('org.pacesys:openstack4j-core:2.20')
     compile('org.pacesys.openstack4j.connectors:openstack4j-httpclient:2.20')
     compile('org.bouncycastle:bcprov-jdk16:1.46')
-    compile('com.networknt:json-schema-validator:0.1.19')
-    compile('io.swagger.parser.v3:swagger-parser:2.0.1')
+    compile('io.springfox:springfox-swagger2:2.9.2')
+    compile('io.springfox:springfox-swagger-ui:2.9.2')
+    compile('com.networknt:json-schema-validator:0.1.21')
+    compile('io.swagger.parser.v3:swagger-parser:2.0.2')
     compile('org.passay:passay:1.3.1')
     compile('org.springframework.credhub:spring-credhub-starter:1.0.1.RELEASE')
-    compile 'org.springframework.security.oauth:spring-security-oauth2:2.3.2.RELEASE'
+    compile('org.springframework.security.oauth:spring-security-oauth2:2.3.3.RELEASE')
+
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.7'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
 
     compile project(':model')
     compile project(':client')
     // The dependency to tomcat 7.x can be removed as soon as deployment onto Tomcat is not required any more.
     compile group: 'org.apache.tomcat', name: 'tomcat-juli', version: property('tomcat.version')
 
-    runtime('mysql:mysql-connector-java')
+    runtime('mysql:mysql-connector-java:8.0.12')
     runtime('javax.el:javax.el-api:3.0.0')
     runtime('org.glassfish:javax.el:3.0.0')
 
     if (project.hasProperty('tomcat')) {
         // Used for production environment
         System.out.println('tomcat')
-        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat:2.0.4.RELEASE')
     } else {
         System.out.println('standalone')
-        runtime('org.springframework.boot:spring-boot-starter-tomcat')
+        runtime('org.springframework.boot:spring-boot-starter-tomcat:2.0.4.RELEASE')
     }
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('org.spockframework:spock-core:1.1-groovy-2.4')
-    testCompile('cglib:cglib-nodep:3.2.6')
-    testCompile('org.spockframework:spock-spring:1.1-groovy-2.4')
+    testCompile group: 'log4j', name: 'log4j', version: '1.2.17'
+    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
+    testCompile('org.spockframework:spock-core:1.2-RC2-groovy-2.5')
+    testCompile('cglib:cglib-nodep:3.2.7')
+    testCompile('org.spockframework:spock-spring:1.2-RC2-groovy-2.5')
 }
 
 // Add integration/functional test source sets

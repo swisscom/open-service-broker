@@ -129,7 +129,7 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
         assertEquals(newNrOfDeletedServiceInstances - nrOfDeletedServiceInstances, 1.0, 0.1)
 
         def newLifecycleTimeInSeconds = getValueFromDB("max", LifecycleTimeMetricsService.LIFECYCLE_TIME_KEY)
-        assertEquals((deletionTime - instantiationTime) / 1000, newLifecycleTimeInSeconds - lifecycleTimeInSeconds, 1.0)
+        assertEquals((deletionTime - instantiationTime) / 1000, newLifecycleTimeInSeconds - lifecycleTimeInSeconds, 50.0)
 
         then:
         noExceptionThrown()

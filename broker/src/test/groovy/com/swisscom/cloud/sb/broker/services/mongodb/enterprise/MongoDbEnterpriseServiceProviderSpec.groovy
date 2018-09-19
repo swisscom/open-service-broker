@@ -30,12 +30,12 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.json.JsonSlurper
 
-import static MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
-import static MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
-import static MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
+import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.PROVISION_SUCCESS
+import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED
+import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG
 import static MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID
-import static ServiceDetail.from
-import static ServiceDetailKey.DATABASE
+import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
+import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey.DATABASE
 
 class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderSpec<MongoDbEnterpriseServiceProvider> {
     private String serviceInstanceGuid = 'serviceInstanceGuid'

@@ -3,13 +3,10 @@ spring:
 ---
 spring:
   profiles: default
-  autoconfigure.exclude:
-  - org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class
-  - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-  - MongoDataAutoConfiguration.class
+  jpa.properties.hibernate.id.new_generator_mappings: false
 
   datasource:
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
     url: 'jdbc:mysql://localhost/CFBroker?autoReconnect=true'
     username: root
     password:

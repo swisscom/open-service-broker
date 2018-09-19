@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.0] - 2018-09-19
+- [MAJOR] Upgrade Dependencies and Refactor Configuration Objects
+    - Spring Boot (1.5.14 -> 2.0.4)
+    - Tomcat (7.0.88 -> 9.0.11)
+    - Groovy (2.4.15 -> 2.5.2)
+    - Spock (1.1-groovy-2.4 -> 1.2-RC2-groovy-2.5)
+    - mysql-connector-java (.. -> 8.0.12)
+    - ...
+
 ## [4.2.5] - 2018-09-13
 - Mongodb Enterprise - Delete default alerts on service creation
 - Adds context object to update request
@@ -19,8 +28,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [4.2.3] - 2018-09-04
-
-
 
 ## [4.2.2] - 2018-09-04
 - Add log4j2 files to .gitignore

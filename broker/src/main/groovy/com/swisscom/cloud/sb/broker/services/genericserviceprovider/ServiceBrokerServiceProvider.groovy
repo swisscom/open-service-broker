@@ -61,7 +61,9 @@ import org.springframework.web.client.RestTemplate
 
 @Component("ServiceBrokerServiceProvider")
 @Slf4j
-class ServiceBrokerServiceProvider extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig> implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
+class ServiceBrokerServiceProvider
+        extends AsyncServiceProvider<ServiceBrokerServiceProviderConfig>
+        implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, ServiceUsageProvider {
 
     @Autowired
     ServiceBrokerServiceProviderFacade sbspFacade

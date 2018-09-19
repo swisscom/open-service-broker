@@ -15,9 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfextensions.endpoint
 
-import com.swisscom.cloud.sb.broker.config.Config
-
-interface EndpointConfig extends Config {
+class EndpointConfigImpl implements EndpointConfig {
     List<String> ipRanges
     List<String> protocols
 }
