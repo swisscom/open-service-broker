@@ -21,9 +21,10 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 import javax.annotation.PostConstruct
-import javax.transaction.Transactional
+
 
 @Component
 @EnableConfigurationProperties
