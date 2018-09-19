@@ -57,7 +57,7 @@ class ServiceDefinitionInitializer {
     }
 
     @PostConstruct
-    void init() throws Exception {
+    void init() {
         List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions
         Map<String, CFService> cfServiceListFromDB = getServicesFromDB()
 
