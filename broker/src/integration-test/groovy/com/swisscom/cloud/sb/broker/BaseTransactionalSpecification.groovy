@@ -15,8 +15,11 @@
 
 package com.swisscom.cloud.sb.broker
 
+import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializerSpec
+import org.springframework.test.annotation.Rollback
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
+@Rollback(true)
 abstract class BaseTransactionalSpecification extends BaseSpecification {
 }

@@ -30,7 +30,9 @@ import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.annotation.Rollback
 
+@Rollback(true)
 class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
     @Autowired
@@ -74,6 +76,9 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         then:
         cfServiceList == cfServiceRepository.findAll()
+
+        and:
+        noExceptionThrown()
     }
 
     def "Add service definition"() {
@@ -90,6 +95,9 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         then:
         cfServiceList != cfServiceRepository.findAll()
+
+        and:
+        noExceptionThrown()
     }
 
     def "Update service definition"() {
@@ -116,6 +124,9 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         then:
         def cfService = cfServiceRepository.findByGuid("guid")
         assert (!cfService.bindable)
+
+        and:
+        noExceptionThrown()
     }
 
     def "Service definition from DB that is missing in config and has no service instances is deleted"() {
@@ -176,6 +187,11 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         and:
         noExceptionThrown()
+
+        cleanup:
+        serviceInstanceRepository.delete(serviceInstance)
+        planRepository.delete(plan)
+        cfServiceRepository.delete(cfService)
     }
 
     def "unused plans are deleted from service definition"() {
@@ -213,18 +229,11 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         and:
         noExceptionThrown()
-    }
 
-    // only to test whether or not te tests write to the database or not
-    def "save plan"() {
-        given:
-        Plan plan = new Plan(guid: "test97543214")
-
-        when:
-        planRepository.saveAndFlush(plan)
-
-        then:
-        noExceptionThrown()
+        cleanup:
+        serviceInstanceRepository.delete(serviceInstance)
+        planRepository.delete(plan1)
+        cfServiceRepository.delete(cfService)
     }
 
     def "Update service definition"() {
