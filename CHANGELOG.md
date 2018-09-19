@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.1] - 2018-09-19
+
+
+
 ## [5.0.0] - 2018-09-19
 - [MAJOR] Upgrade Dependencies and Refactor Configuration Objects
     - Spring Boot (1.5.14 -> 2.0.4)
