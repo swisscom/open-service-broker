@@ -20,8 +20,8 @@ import org.yaml.snakeyaml.Yaml
 import java.util.regex.Pattern
 
 class BoshTemplate {
-    public static final String REGEX_PLACEHOLDER_PREFIX = '\\{\\{'
-    public static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}'
+    public static final String REGEX_PLACEHOLDER_PREFIX = '["]?\\{\\{'
+    public static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}["]?'
     public static final Pattern anyPlaceHolder = createPattern('.*')
 
     private final String template
