@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Use `spring.config.additional-location` instead of `spring.config.location`
 
 ## [5.0.2] - 2018-09-20
 - Remove unnecessary quotes in bosh-manifest
