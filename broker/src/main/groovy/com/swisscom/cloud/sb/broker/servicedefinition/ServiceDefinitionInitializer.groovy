@@ -119,38 +119,6 @@ class ServiceDefinitionInitializer {
         }
     }
 
-    ArrayList<String> getListOfMissingServiceDefinitionGuids(List<String> configGuidList, List<String> guidList) {
-        def listOfMissingServiceDefinitions = new ArrayList<String>()
-        // TODO: do with hashmap rather than iterating over 2 lists
-        guidList.each { guid ->
-            if (!configGuidList.contains(guid)) {
-                listOfMissingServiceDefinitions.add(guid)
-            }
-        }
-        return listOfMissingServiceDefinitions
-    }
-
-    ArrayList<CFService> getMissingServices(List<String> missingServiceGuids) {
-        def missingServices = new ArrayList<CFService>()
-        missingServiceGuids.each { guid ->
-            missingServices.add(cfServiceRepository.findByGuid(guid))
-        }
-        return missingServices
-    }
-
-    void deleteServiceDefinitionOrFlagAsInactive(List<CFService> missingServices) {
-        missingServices.plans.collectMany{service ->
-            service.each { plan ->
-                if(serviceInstanceRepository.findByPlan(plan)) {
-                    plan.active = false
-                    planRepository.saveAndFlush(plan)
-                } else {
-                    plan.service.plans.remove(plan)
-                    cfServiceRepository.saveAndFlush(plan.service)
-                }
-            }
-        }
-
     void deleteServiceHibernateCacheSavely(CFService service) {
         cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
         cfServiceRepository.flush()
