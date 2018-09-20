@@ -17,11 +17,7 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.model.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
