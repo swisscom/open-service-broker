@@ -182,6 +182,8 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         serviceDefinitionInitializer.init()
 
         then:
+        assert(cfServiceRepository.findByGuid(serviceGuid))
+        assert(planRepository.findByGuid(planGuid))
         assert (!cfServiceRepository.findByGuid(serviceGuid).active)
         assert (!planRepository.findByGuid(planGuid).active)
 
