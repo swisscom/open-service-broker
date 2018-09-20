@@ -62,13 +62,7 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
      */
     def "update service definition by updating it in the service manifest"() {
         given:
-        serviceBrokerClientExtended = new ServiceBrokerClientExtended(
-                new RestTemplate(),
-                "http://localhost:8080",
-                serviceLifeCycler.cfAdminUser.username,
-                serviceLifeCycler.cfAdminUser.password,
-                serviceLifeCycler.cfExtUser.username,
-                serviceLifeCycler.cfExtUser.password)
+        serviceBrokerClientExtended = createServiceBrokerClient()
 
         and:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/redisServiceToBeUpdated.json"))
@@ -86,13 +80,7 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
 
     def "delete service definition from db that is not in config and has no service instances"() {
         given:
-        serviceBrokerClientExtended = new ServiceBrokerClientExtended(
-                new RestTemplate(),
-                "http://localhost:8080",
-                serviceLifeCycler.cfAdminUser.username,
-                serviceLifeCycler.cfAdminUser.password,
-                serviceLifeCycler.cfExtUser.username,
-                serviceLifeCycler.cfExtUser.password)
+        serviceBrokerClientExtended = createServiceBrokerClient()
 
         and:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/unusedServiceDefinition.json"))
@@ -108,13 +96,7 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
 
     def "flag service definition that is in DB but not in config and has service instance"() {
         given:
-        serviceBrokerClientExtended = new ServiceBrokerClientExtended(
-                new RestTemplate(),
-                "http://localhost:8080",
-                serviceLifeCycler.cfAdminUser.username,
-                serviceLifeCycler.cfAdminUser.password,
-                serviceLifeCycler.cfExtUser.username,
-                serviceLifeCycler.cfExtUser.password)
+        serviceBrokerClientExtended = createServiceBrokerClient()
 
         and:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/serviceDefinitionWithInstance.json"))
@@ -130,5 +112,15 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
         then:
         assert (!cfServiceRepository.findByGuid("serviceDefinitionWithInstance").active)
         assert (!planRepository.findByGuid("planForServiceDefinitionFromServiceManifestWithInstance").active)
+    }
+
+    private ServiceBrokerClientExtended createServiceBrokerClient() {
+        return new ServiceBrokerClientExtended(
+                new RestTemplate(),
+                "http://localhost:8080",
+                serviceLifeCycler.cfAdminUser.username,
+                serviceLifeCycler.cfAdminUser.password,
+                serviceLifeCycler.cfExtUser.username,
+                serviceLifeCycler.cfExtUser.password)
     }
 }

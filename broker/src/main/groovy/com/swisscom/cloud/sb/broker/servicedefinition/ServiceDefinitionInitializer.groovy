@@ -76,7 +76,9 @@ class ServiceDefinitionInitializer {
     void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
         services.each{ service ->
             addOrUpdateServiceDefinitions(service)
-            toBeDeleted.remove(service.guid)
+            if(toBeDeleted.containsKey(service.guid)) {
+                toBeDeleted.remove(service.guid)
+            }
         }
 
         toBeDeleted.each{ key, service ->
@@ -86,7 +88,6 @@ class ServiceDefinitionInitializer {
             }
             if(canDeleteService) {
                 deleteServiceHibernateCacheSavely(service)
-                cfServiceRepository.flush()
             } else {
                 service.active = false
                 cfServiceRepository.saveAndFlush(service)
@@ -116,5 +117,6 @@ class ServiceDefinitionInitializer {
 
     void deleteServiceHibernateCacheSavely(CFService service) {
         cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
+        cfServiceRepository.flush()
     }
 }
