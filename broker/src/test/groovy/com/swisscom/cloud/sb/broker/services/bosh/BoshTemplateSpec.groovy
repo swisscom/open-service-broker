@@ -47,7 +47,7 @@ class BoshTemplateSpec extends Specification {
                                 databases: {{databases}} #SERVICE-INSTANCE LEVEL
                                 instances: 3
                                 master-name: {{guid}} #SERVICE-INSTANCE LEVEL
-                                maxclients: {{maxclients}} #SERVICE-INSTANCE LEVEL
+                                maxclients: "{{maxclients}}" #SERVICE-INSTANCE LEVEL
                                 port: {{redis-server-port}} #SERVICE-INSTANCE LEVEL
                                 security:
                                   require_pass: {{password}} #SERVICE-TEMPLATE LEVEL
@@ -68,7 +68,10 @@ class BoshTemplateSpec extends Specification {
         template.replace('config-command', 'config-command')
         template.replace('slaveof-command', 'slaveof-command')
         and:
-        def expected = input.replace('{{', '').replace('}}', '')
+
+        def expected = input
+                .replace('"{{', '').replace('}}"', '')
+                .replace('{{', '').replace('}}', '')
 
 
         when:
