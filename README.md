@@ -62,7 +62,7 @@ docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar -Dspring.config.location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar -Dspring.config.additional-location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
 The config file passed can overwrite any default values. Providing an external config file is optional and when no external config file is provided, the default values are dictated by application.yml file(s).
 
