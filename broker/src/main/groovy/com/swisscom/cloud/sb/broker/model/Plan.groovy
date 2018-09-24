@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.validator.constraints.NotBlank
 
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -42,12 +43,14 @@ class Plan extends BaseModel{
     String serviceProviderClass
     @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
+    @Column(columnDefinition='tinyint(1) default 1')
+    Boolean active
     @Column(columnDefinition = 'int default 0')
     Integer maxBackups
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name="plan_id")
     Set<Parameter> parameters = []
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name="plan_id")
     Set<PlanMetadata> metadata = []
 

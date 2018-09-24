@@ -138,6 +138,9 @@ class ProvisioningController extends BaseController {
         if (!cfService) {
             log.debug("Service  with Guid:${serviceGuid} does not exist")
             ErrorCode.SERVICE_NOT_FOUND.throwNew("requested id:${serviceGuid}")
+        } else if(!cfService.active) {
+            log.debug("Service with Guid: ${serviceGuid} is not active")
+            ErrorCode.SERVICE_NOT_ACTIVE.throwNew("requested id: ${serviceGuid}")
         }
         return cfService
     }
@@ -147,6 +150,9 @@ class ProvisioningController extends BaseController {
         if (!plan) {
             log.debug("Plan  with Guid:${planGuid} does not exist")
             ErrorCode.PLAN_NOT_FOUND.throwNew("requested id:${planGuid}")
+        } else if(!plan.active) {
+            log.debug("Plan with Guid: ${planGuid} is not active")
+            ErrorCode.PLAN_NOT_ACTIVE.throwNew("requested id: ${planGuid}")
         }
         return plan
     }

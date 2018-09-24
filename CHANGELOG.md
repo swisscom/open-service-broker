@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Service definitions from application.yml are source of truth, additional service definitions in DB are removed if possible or flagged as inactive if they are still in use.
 
 ## [5.0.3] - 2018-09-20
 - Use `spring.config.additional-location` instead of `spring.config.location`

@@ -15,9 +15,12 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
+import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
+import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
 import com.swisscom.cloud.sb.broker.model.CFService
@@ -132,6 +135,7 @@ class ServiceDefinitionProcessor {
         service.name = serviceJson.name
         service.description = serviceJson.description
         service.bindable = serviceJson.bindable
+        service.active = serviceJson.active
         service.internalName = serviceJson.internalName
         service.serviceProviderClass = serviceJson.serviceProviderClass
         service.displayIndex = serviceJson.displayIndex
@@ -157,7 +161,7 @@ class ServiceDefinitionProcessor {
         if (!service) {
             service = new CFService()
             service.guid = serviceJson.guid
-            return cfServiceRepository.save(service)
+            return cfServiceRepository.saveAndFlush(service)
         }
         return service
     }
@@ -288,6 +292,7 @@ class ServiceDefinitionProcessor {
         plan.description = planJson.description
         plan.templateUniqueIdentifier = planJson.templateId
         plan.templateVersion = planJson.templateVersion
+        plan.active = planJson.active
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
@@ -295,13 +300,18 @@ class ServiceDefinitionProcessor {
         plan.asyncRequired = planJson.asyncRequired
         plan.maxBackups = planJson.maxBackups
 
-        validateJsonSchema(planJson.schemas?.service_instance?.create?.parameters, 'ServiceInstanceCreate')
-        validateJsonSchema(planJson.schemas?.service_instance?.update?.parameters, 'ServiceInstanceUpdate')
-        validateJsonSchema(planJson.schemas?.service_binding?.create?.parameters, 'ServiceBindingCreate')
+        def om = new ObjectMapper()
+        if (planJson.schemas != null) {
+            SchemasDto schemaDto = om.readValue(om.writeValueAsString(planJson.schemas), SchemasDto.class)
 
-        plan.serviceInstanceCreateSchema = JsonHelper.toJsonString(planJson.schemas?.service_instance?.create?.parameters)
-        plan.serviceInstanceUpdateSchema = JsonHelper.toJsonString(planJson.schemas?.service_instance?.update?.parameters)
-        plan.serviceBindingCreateSchema = JsonHelper.toJsonString(planJson.schemas?.service_binding?.create?.parameters)
+            validateJsonSchema(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema, 'ServiceInstanceCreate')
+            validateJsonSchema(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema, 'ServiceInstanceUpdate')
+            validateJsonSchema(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema, 'ServiceBindingCreate')
+
+            plan.serviceInstanceCreateSchema = JsonHelper.toJsonString(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema)
+            plan.serviceInstanceUpdateSchema = JsonHelper.toJsonString(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema)
+            plan.serviceBindingCreateSchema = JsonHelper.toJsonString(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema)
+        }
 
         checkBackupSanity(service, plan)
         return planRepository.save(plan)
