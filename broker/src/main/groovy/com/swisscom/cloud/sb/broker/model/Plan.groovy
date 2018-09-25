@@ -44,7 +44,7 @@ class Plan extends BaseModel{
     @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
     @Column(columnDefinition='tinyint(1) default 1')
-    Boolean active
+    Boolean active = true
     @Column(columnDefinition = 'int default 0')
     Integer maxBackups
     @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)

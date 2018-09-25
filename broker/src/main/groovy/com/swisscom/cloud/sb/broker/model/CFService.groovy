@@ -36,7 +36,7 @@ class CFService extends BaseModel{
     @Column(columnDefinition='tinyint(1) default 0')
     Boolean asyncRequired
     @Column(columnDefinition='tinyint(1) default 1')
-    Boolean active
+    Boolean active = true
 
     String dashboardClientId
     String dashboardClientSecret
