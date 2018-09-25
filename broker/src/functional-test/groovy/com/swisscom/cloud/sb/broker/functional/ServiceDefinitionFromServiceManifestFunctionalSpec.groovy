@@ -18,8 +18,10 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
+import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
@@ -56,6 +58,22 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
         assert (xxlargePlan.active)
     }
 
+    def "adding service definition via endpoint as active"() {
+        given:
+        serviceBrokerClientExtended = createServiceBrokerClient()
+        def serviceId = "serviceDefinitionFromServiceManifestUnused"
+
+        when:
+        serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/unusedServiceDefinition.json"))
+
+        then:
+        assert (cfServiceRepository.findByGuid(serviceId))
+        assert (cfServiceRepository.findByGuid(serviceId).active)
+
+        cleanup:
+        serviceBrokerClientExtended.deleteServiceDefinition(serviceId)
+    }
+
     /* redis service definition in resources for integration tests service-data/redisServiceToBeUpdated is identical to service definition
      * in application.yml except for bindable = false. The service definition is created in the DB and then updated using the definition
      * in the application.yml
@@ -81,37 +99,40 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
     def "delete service definition from db that is not in config and has no service instances"() {
         given:
         serviceBrokerClientExtended = createServiceBrokerClient()
+        def serviceId = "serviceDefinitionFromServiceManifestUnused"
 
         and:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/unusedServiceDefinition.json"))
-        assert (cfServiceRepository.findByGuid("serviceDefinitionFromServiceManifestUnused"))
+        assert (cfServiceRepository.findByGuid(serviceId))
 
         when:
         serviceDefinitionInitializer.init()
 
         then:
-        assert (!cfServiceRepository.findByGuid("serviceDefinitionFromServiceManifestUnused"))
-
+        assert (!cfServiceRepository.findByGuid(serviceId))
     }
 
     def "flag service definition that is in DB but not in config and has service instance"() {
         given:
         serviceBrokerClientExtended = createServiceBrokerClient()
+        def serviceId = "serviceDefinitionWithInstance"
+        def planId = "planForServiceDefinitionFromServiceManifestWithInstance"
 
         and:
         serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/serviceDefinitionWithInstance.json"))
-        assert (cfServiceRepository.findByGuid("serviceDefinitionWithInstance"))
-        assert (planRepository.findByGuid("planForServiceDefinitionFromServiceManifestWithInstance"))
+        assert (cfServiceRepository.findByGuid(serviceId))
+        assert (planRepository.findByGuid(planId))
 
         and:
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest("serviceDefinitionWithInstance", "planForServiceDefinitionFromServiceManifestWithInstance", null, null, null).withServiceInstanceId(UUID.randomUUID().toString()).withAsyncAccepted(true))
+        def serviceInstanceId = UUID.randomUUID().toString()
+        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(serviceId, planId, null, null, null).withServiceInstanceId(serviceInstanceId).withAsyncAccepted(false))
 
         when:
         serviceDefinitionInitializer.init()
 
         then:
-        assert (!cfServiceRepository.findByGuid("serviceDefinitionWithInstance").active)
-        assert (!planRepository.findByGuid("planForServiceDefinitionFromServiceManifestWithInstance").active)
+        assert (!cfServiceRepository.findByGuid(serviceId).active)
+        assert (!planRepository.findByGuid(planId).active)
     }
 
     private ServiceBrokerClientExtended createServiceBrokerClient() {

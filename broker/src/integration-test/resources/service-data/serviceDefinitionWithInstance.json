@@ -6,7 +6,7 @@
   "active": true,
   "internalName": "dummySynchronousBackupCapable",
   "displayIndex": 1,
-  "asyncRequired": true,
+  "asyncRequired": false,
   "dashboard_client": {
     "id": "dashboardId",
     "secret": "secret",
@@ -32,7 +32,7 @@
       "free": false,
       "displayIndex": 1,
       "internalName": "dummySynchronousBackupCapable",
-      "asyncRequired": true,
+      "asyncRequired": false,
       "active": true,
       "maxBackups": 5,
       "parameters": [
