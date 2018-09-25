@@ -72,11 +72,11 @@ class MariaDBServiceProviderSpec extends Specification {
         mariaDBClientFactory = Mock(MariaDBClientFactory)
         relationalDbFacade = new RelationalDbFacade()
         mariaDBClientFactory.build() >> mariaDBClient
-        mariaDBClientFactory.build(_, _, _, _) >> mariaDBClient
+        mariaDBClientFactory.build(_,_,_, _, _, _) >> mariaDBClient
         mariaDBServiceProvider = new MariaDBServiceProvider(
                 new MariaDBConfig(clusters: [
-                        new MariaDBConnectionConfig(name: "default", databasePrefix: db_prefix, host: 'host', port: '1234', adminPassword: 'adminpw', adminUser: 'admin'),
-                        new MariaDBConnectionConfig(name: "special", databasePrefix: db_prefix, host: 'special', port: '1234', adminPassword: 'special', adminUser: 'special')]),
+                        new MariaDBConnectionConfig(name: "default", databasePrefix: db_prefix, host: 'host', port: '1234', adminPassword: 'adminpw', adminUser: 'admin', driver: 'com.mysql.cj.jdbc.Driver', vendor: 'mysql'),
+                        new MariaDBConnectionConfig(name: "special", databasePrefix: db_prefix, host: 'special', port: '1234', adminPassword: 'special', adminUser: 'special', driver: 'com.mysql.cj.jdbc.Driver', vendor: 'mysql')]),
                 mariaDBClientFactory,
                 serviceInstanceRepository,
                 relationalDbFacade)

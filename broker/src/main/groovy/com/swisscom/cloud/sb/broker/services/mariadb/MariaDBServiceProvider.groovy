@@ -91,7 +91,7 @@ class MariaDBServiceProvider extends RelationalDbServiceProvider implements Shie
         Integer port = mariaDBConnectionConfig.overwriteGaleraPortForShieldTesting ?
                 mariaDBConnectionConfig.overwriteGaleraPortForShieldTesting.toInteger() :
                 (mariaDBConnectionConfig.port ? mariaDBConnectionConfig.port.toInteger() : 0)
-        return dbClientFactory.build(mariaDBConnectionConfig.host, port, mariaDBConnectionConfig.adminUser, mariaDBConnectionConfig.adminPassword)
+        return dbClientFactory.build(mariaDBConnectionConfig.driver, mariaDBConnectionConfig.vendor, mariaDBConnectionConfig.host, port, mariaDBConnectionConfig.adminUser, mariaDBConnectionConfig.adminPassword)
     }
 
     @VisibleForTesting

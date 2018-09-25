@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class MariaDBClientFactory extends RelationalDbClientFactory<MariaDBClient> {
 
-    MariaDBClient build(String host, int port, String username, String password) {
-        return new MariaDBClient(host, port, username, password)
+    MariaDBClient build(String driver, String vendor, String host, int port, String username, String password) {
+        return new MariaDBClient(driver, vendor, host, port, username, password)
     }
 }

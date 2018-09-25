@@ -33,7 +33,7 @@ class MariaDBClientSpec extends RelationalDbClientSpec {
 
     def setup() {
         MariaDBConnectionConfig connectionConfig = config.getDefault()
-        dbClient = mariaDBClientFactory.build(connectionConfig.host, connectionConfig.port as int, connectionConfig.adminUser, connectionConfig.adminPassword)
+        dbClient = mariaDBClientFactory.build(connectionConfig.driver, connectionConfig.vendor, connectionConfig.host, connectionConfig.port as int, connectionConfig.adminUser, connectionConfig.adminPassword)
         initValues()
     }
 
