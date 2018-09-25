@@ -22,13 +22,8 @@ import groovy.util.logging.Log4j
 
 @Log4j
 class MariaDBClient extends RelationalDbClient {
-    public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver"
-    public static final String VENDOR_MARIADB = "mysql"
-    public static final String MYSQL_PORT = "3306"
-
-    MariaDBClient(String host, int port, String adminUser, String adminPassword) {
-        //TODO should the vendor be mysql or mariadb?
-        super(MYSQL_DRIVER, VENDOR_MARIADB, host, port, adminUser, adminPassword)
+    MariaDBClient(String driver, String vendor, String host, int port, String adminUser, String adminPassword) {
+        super(driver, vendor, host, port, adminUser, adminPassword)
     }
 
     @Override

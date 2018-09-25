@@ -64,6 +64,6 @@ abstract class RelationalDbServiceProvider implements ServiceProvider {
 
     protected RelationalDbClient buildDbClient(String serviceInstanceGuid) {
         def port = dbConfig.port ? dbConfig.port.toInteger() : 0
-        return dbClientFactory.build(dbConfig.host, port, dbConfig.adminUser, dbConfig.adminPassword)
+        return dbClientFactory.build(dbConfig.driver, dbConfig.vendor, dbConfig.host, port, dbConfig.adminUser, dbConfig.adminPassword)
     }
 }

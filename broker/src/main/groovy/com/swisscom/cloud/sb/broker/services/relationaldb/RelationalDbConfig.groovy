@@ -19,6 +19,8 @@ import com.swisscom.cloud.sb.broker.config.Config
 
 
 class RelationalDbConfig implements Config {
+    String driver
+    String vendor
     String host
     String port
     String adminUser
