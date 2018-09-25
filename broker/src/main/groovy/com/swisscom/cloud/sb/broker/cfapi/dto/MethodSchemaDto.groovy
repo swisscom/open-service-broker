@@ -29,7 +29,9 @@ class MethodSchemaDto {
      */
     @JsonProperty("parameters")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Object> configParametersSchema = null
+    Map<String, Object> configParametersSchema = null
+
+    MethodSchemaDto() {}
 
     MethodSchemaDto(Map<String, Object> configParametersSchema) {
         this.configParametersSchema = configParametersSchema

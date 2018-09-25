@@ -21,5 +21,6 @@ class BackupParameter implements BackupServiceConfig {
     String storeName
     String retentionName
     String scheduleName
+    String schedule
     String agent
 }

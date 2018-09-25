@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClient
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientFactory
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -29,7 +31,6 @@ import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
-@CompileStatic
 class ShieldClient {
     protected ShieldConfig shieldConfig
     protected ShieldRestClientFactory shieldRestClientFactory
@@ -162,12 +163,15 @@ class ShieldClient {
         if (retention == null) {
             throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
         }
-        ScheduleDto schedule = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
+        // Either use BACKUP_SCHEDULE parameter or get the schedule UUID from shield v1 BACKUP_SCHEDULE_NAME parameter from service definition
+        ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
+        String schedule = scheduleDto != null ? scheduleDto.uuid : shieldServiceConfig.schedule
+
         if (schedule == null) {
             throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule.uuid, paused)
+        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)
     }
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
@@ -188,6 +192,6 @@ class ShieldClient {
     }
 
     private ShieldRestClient buildClient() {
-        shieldRestClientFactory.build(restTemplateBuilder.withSSLValidationDisabled().build(), shieldConfig.baseUrl, shieldConfig.apiKey)
+        shieldRestClientFactory.build()
     }
 }

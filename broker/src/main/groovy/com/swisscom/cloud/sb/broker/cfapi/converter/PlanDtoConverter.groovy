@@ -32,6 +32,7 @@ class PlanDtoConverter extends AbstractGenericConverter<Plan, PlanDto> {
     void convert(Plan source, PlanDto prototype) {
         prototype.id = source.guid
         prototype.name = source.name
+        prototype.active = source.active
         prototype.description = source.description
         prototype.free = source.free
         prototype.metadata = convertMetadata(source)

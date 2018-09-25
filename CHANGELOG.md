@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.4] - 2018-09-25
+- Service definitions from application.yml are source of truth, additional service definitions in DB are removed if possible or flagged as inactive if they are still in use.
+- Support Shield v8 (SHield-API v2)
+
 ## [5.0.3] - 2018-09-20
 - Use `spring.config.additional-location` instead of `spring.config.location`
 

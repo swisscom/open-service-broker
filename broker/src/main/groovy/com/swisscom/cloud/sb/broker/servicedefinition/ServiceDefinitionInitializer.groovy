@@ -16,7 +16,9 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -31,40 +33,90 @@ class ServiceDefinitionInitializer {
 
     private CFServiceRepository cfServiceRepository
 
+    private PlanRepository planRepository
+
+    private PlanMetadataRepository planMetadataRepository
+
+    private ParameterRepository parameterRepository
+
+    private ServiceInstanceRepository serviceInstanceRepository
+
     private ServiceDefinitionConfig serviceDefinitionConfig
 
     private ServiceDefinitionProcessor serviceDefinitionProcessor
 
     @Autowired
-    ServiceDefinitionInitializer(CFServiceRepository cfServiceRepository, ServiceDefinitionConfig serviceDefinitionConfig, ServiceDefinitionProcessor serviceDefinitionProcessor) {
+    ServiceDefinitionInitializer(CFServiceRepository cfServiceRepository, PlanRepository planRepository, PlanMetadataRepository planMetadataRepository, ParameterRepository parameterRepository, ServiceInstanceRepository serviceInstanceRepository, ServiceDefinitionConfig serviceDefinitionConfig, ServiceDefinitionProcessor serviceDefinitionProcessor) {
         this.cfServiceRepository = cfServiceRepository
+        this.planRepository = planRepository
+        this.planMetadataRepository = planMetadataRepository
+        this.parameterRepository = parameterRepository
+        this.serviceInstanceRepository = serviceInstanceRepository
         this.serviceDefinitionConfig = serviceDefinitionConfig
         this.serviceDefinitionProcessor = serviceDefinitionProcessor
     }
 
     @PostConstruct
-    void init() throws Exception {
-        List<CFService> cfServiceList = cfServiceRepository.findAll()
+    void init() {
+        List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions
+        Map<String, CFService> cfServiceListFromDB = getServicesFromDB()
 
-        checkForMissingServiceDefinitions(cfServiceList)
-        addServiceDefinitions()
+        synchroniseServiceDefinitions(cfServiceListFromConfig, cfServiceListFromDB)
     }
 
-    void checkForMissingServiceDefinitions(List<CFService> cfServiceList) {
-        def configGuidList = serviceDefinitionConfig.serviceDefinitions.collect {it.guid}
+    HashMap<String, CFService> getServicesFromDB(){
+        HashMap<String, CFService> cfServiceMap = new HashMap<String, CFService>()
+        List<CFService> cfServiceList = cfServiceRepository.findAll()
+        cfServiceList.each { cfService ->
+            cfServiceMap.put(cfService.guid, cfService)
+        }
+        return cfServiceMap
+    }
 
-        def guidList = cfServiceList.collect {it.guid}
+    void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
+        services.each{ service ->
+            addOrUpdateServiceDefinitions(service)
+            if(toBeDeleted.containsKey(service.guid)) {
+                toBeDeleted.remove(service.guid)
+            }
+        }
 
-        if (configGuidList.size() != 0) {
-            if (!configGuidList.containsAll(guidList)) {
-                throw new RuntimeException("Missing service definition configuration exception. Service list - ${guidList}")
+        toBeDeleted.each{ key, service ->
+            def canDeleteService = true
+            service.plans.toList().each{ plan ->
+                canDeleteService = canDeleteService & tryDeletePlan(plan)
+            }
+            if(canDeleteService) {
+                deleteServiceHibernateCacheSavely(service)
+            } else {
+                service.active = false
+                cfServiceRepository.saveAndFlush(service)
             }
         }
     }
 
-    void addServiceDefinitions() {
-        serviceDefinitionConfig.serviceDefinitions.each {
-            serviceDefinitionProcessor.createOrUpdateServiceDefinitionFromYaml(it)
+    void addOrUpdateServiceDefinitions(ServiceDto service) {
+        serviceDefinitionProcessor.createOrUpdateServiceDefinitionFromYaml(service)
+    }
+
+    boolean tryDeletePlan(Plan plan) {
+        if(serviceInstanceRepository.findByPlan(plan)) {
+            if(plan.active) {
+                plan.active = false
+                planRepository.saveAndFlush(plan)
+            }
+            return false
+        } else {
+            plan.service.plans.remove(plan)
+            cfServiceRepository.saveAndFlush(plan.service)
+            planRepository.delete(plan)
+            planRepository.flush()
+            return true
         }
+    }
+
+    void deleteServiceHibernateCacheSavely(CFService service) {
+        cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
+        cfServiceRepository.flush()
     }
 }

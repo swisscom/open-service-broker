@@ -136,7 +136,7 @@ class ServiceLifeCycler {
             def tag = tagRepository.saveAndFlush(new Tag(tag: 'tag1'))
             cfService = cfServiceRepository.saveAndFlush(new CFService(guid: UUID.randomUUID().toString(),
                     name: serviceName, internalName: serviceInternalName,
-                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable))
+                    description: "functional test", bindable: true, tags: Sets.newHashSet(tag), instancesRetrievable: instancesRetrievable, bindingsRetrievable: bindingsRetrievable, active: true))
             serviceCreated = true
             addCFServiceToSet(cfService)
         }
@@ -146,7 +146,8 @@ class ServiceLifeCycler {
                     templateUniqueIdentifier: templateName, templateVersion: templateVersion, maxBackups: maxBackups,
                     serviceInstanceCreateSchema: serviceInstanceCreateSchema,
                     serviceInstanceUpdateSchema: serviceInstanceUpdateSchema,
-                    serviceBindingCreateSchema: serviceBindingCreateSchema
+                    serviceBindingCreateSchema: serviceBindingCreateSchema,
+                    active: true
             ))
             planMetaData = planMetadataRepository.saveAndFlush(new PlanMetadata(key: 'key1', value: 'value1', plan: plan))
             plan.metadata.add(planMetaData)

@@ -13,17 +13,29 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield
+package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
 
 @Component
 @CompileStatic
+@Slf4j
 class ShieldRestClientFactory {
-    ShieldRestClient build(RestTemplate restTemplate, String baseUrl, String apiKey) {
-        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
-        new ShieldRestClient(restTemplate, baseUrl, apiKey)
+
+    private List<ShieldRestClient> shieldRestClients
+
+    @Autowired
+    ShieldRestClientFactory(List<ShieldRestClient> shieldRestClients) {
+        this.shieldRestClients = shieldRestClients
+    }
+
+    ShieldRestClient build() {
+        for (ShieldRestClient shieldRestClient in shieldRestClients) {
+            if (shieldRestClient.matchVersion()) return shieldRestClient
+        }
+        throw new Exception("No matching shield implementation found")
     }
 }

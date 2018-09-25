@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  uaa:
+    image: pcfseceng/uaa
+    container_name: uaa
+    volumes:
+      - ./uaa.yml:/uaa/uaa.yml
+    ports:
+    - 8081:8080
+    restart: always
+
+  credhub:
+    image: ampersand8/credhub
+    container_name: credhub
+    ports:
+      - "9000:9000"
+    links:
+      - uaa:uaa
+    depends_on:
+      - uaa
+    environment:
+      UAA_URL: http://localhost:8081/uaa
+      UAA_INTERNAL_URL: http://uaa:8080/uaa
+
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    ports:
+    - "8086:8086"
+
+  mariadb:
+    image: mariadb:10
+    container_name: mariadb
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_DATABASE: CFBroker
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    volumes:
+    - ./s3data:/data
+    - ./minio_config:/root/.minio
+    ports:
+    - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio-access
+      MINIO_SECRET_KEY: minio-secret
+    command: server /data
+
+  shield-vault:
+    image: swisscomcloud/shield-vault
+    container_name: vault
+    expose:
+    - 8200
+    volumes:
+    - ./vaultstorage:/vault/storage
+
+  shield-core:
+    image: swisscomcloud/shield-core
+    container_name: core
+    expose:
+    - 8080
+    depends_on:
+    - shield-vault
+
+  shield-agent:
+    image: swisscomcloud/shield-agent
+    container_name: shield-agent
+    ports:
+    - 5444:5444
+    depends_on:
+    - shield-core
+
+  shield-nginx:
+    image: swisscomcloud/shield-nginx
+    container_name: shield-nginx
+    ports:
+    - 8443:443
+    depends_on:
+    - shield-core

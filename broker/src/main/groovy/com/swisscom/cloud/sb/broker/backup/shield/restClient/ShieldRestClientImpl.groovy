@@ -13,27 +13,29 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield
+package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
+
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
 @Slf4j
-class ShieldRestClient {
-    public static final String HEADER_API_KEY = 'X-Shield-Token'
+abstract class ShieldRestClientImpl implements ShieldRestClient {
+    protected ShieldConfig config
+    protected RestTemplate restTemplate
 
-    private RestTemplate restTemplate
-    private String baseUrl
-    private String apiKey
-
-    ShieldRestClient(RestTemplate restTemplate, String baseUrl, String apiKey) {
-        this.restTemplate = restTemplate
-        this.baseUrl = baseUrl
-        this.apiKey = apiKey
+    ShieldRestClientImpl(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.withSSLValidationDisabled().build()
+        this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
+        this.config = shieldConfig
     }
 
     Object getStatus() {
@@ -142,16 +144,12 @@ class ShieldRestClient {
                      String retentionUuid,
                      String scheduleUuid,
                      boolean paused = true) {
-        def body = [name     : jobName,
-                    target   : targetUuid,
-                    store    : storeUuid,
-                    retention: retentionUuid,
-                    schedule : scheduleUuid,
-                    paused   : paused]
-
+        def body = getCreateJobBody(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
         def response = restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
         new JsonSlurper().parseText(response.body).uuid
     }
+
+    abstract Map<String, ?> getCreateJobBody(String jobName, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused)
 
     String updateJob(JobDto existingJob,
                      String targetUuid,
@@ -159,17 +157,12 @@ class ShieldRestClient {
                      String retentionUuid,
                      String scheduleUuid,
                      boolean paused = true) {
-        def body = [name     : existingJob.name,
-                    summary  : existingJob.summary,
-                    target   : targetUuid,
-                    store    : storeUuid,
-                    retention: retentionUuid,
-                    schedule : scheduleUuid,
-                    paused   : paused]
-
+        def body = getUpdateJobBody(existingJob, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
         restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
         existingJob.uuid
     }
+
+    abstract Map<String, ?> getUpdateJobBody(JobDto existingJob, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused = true)
 
     String runJob(String uuid) {
         def response = restTemplate.exchange(jobUrl(uuid) + "/run", HttpMethod.POST, configureRequestEntity(), String.class)
@@ -208,20 +201,14 @@ class ShieldRestClient {
         restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
     }
 
-    private <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
+    protected <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
         def response = restTemplate.exchange(endpoint, HttpMethod.GET, configureRequestEntity(), String.class)
         final T[] jsonToObject = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), clazz)
         return Arrays.asList(jsonToObject)
     }
 
 
-    private <T> HttpEntity<T> configureRequestEntity(T t) {
-        HttpHeaders headers = new HttpHeaders()
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
-        headers.add(HEADER_API_KEY, apiKey)
-        HttpEntity<T> entity = t ? new HttpEntity<T>(t, headers) : new HttpEntity<T>(headers)
-        return entity
-    }
+    abstract protected <T> HttpEntity<T> configureRequestEntity(T t)
 
     protected String storesUrl() {
         "${baseUrl()}/stores"
@@ -263,7 +250,18 @@ class ShieldRestClient {
         "${baseUrl()}/status"
     }
 
-    private String baseUrl() {
-        "${baseUrl}/v1"
+    protected String infoUrl() {
+        "${baseUrl()}/info"
     }
+
+    protected String tenantsUrl() {
+        "${baseUrl()}/tenants"
+    }
+
+    protected String loginUrl() {
+        "${baseUrl()}/auth/login"
+    }
+
+    abstract protected String baseUrl()
+
 }
