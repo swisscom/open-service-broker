@@ -135,7 +135,7 @@ class ServiceDefinitionProcessor {
         service.name = serviceJson.name
         service.description = serviceJson.description
         service.bindable = serviceJson.bindable
-        service.active = serviceJson.active
+        service.active = serviceJson.active ?: true
         service.internalName = serviceJson.internalName
         service.serviceProviderClass = serviceJson.serviceProviderClass
         service.displayIndex = serviceJson.displayIndex
@@ -292,7 +292,7 @@ class ServiceDefinitionProcessor {
         plan.description = planJson.description
         plan.templateUniqueIdentifier = planJson.templateId
         plan.templateVersion = planJson.templateVersion
-        plan.active = planJson.active
+        plan.active = planJson.active ?: true
         plan.free = planJson.free
         plan.displayIndex = planJson.displayIndex
         plan.internalName = planJson.internalName
