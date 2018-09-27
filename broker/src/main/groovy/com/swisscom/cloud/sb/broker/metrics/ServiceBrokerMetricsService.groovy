@@ -43,8 +43,9 @@ abstract class ServiceBrokerMetricsService {
         ToDoubleFunction<ServiceBrokerMetricsService> doubleFunction = new ToDoubleFunction<ServiceBrokerMetricsService>() {
             @Override
             double applyAsDouble(ServiceBrokerMetricsService serviceBrokerMetrics) {
-                log.debug("${name}: ${function()}")
-                function()
+                def value = function()
+                log.debug("Logging metrics ${name}(value:${value};tags:${tags})")
+                return value
             }
         }
 
