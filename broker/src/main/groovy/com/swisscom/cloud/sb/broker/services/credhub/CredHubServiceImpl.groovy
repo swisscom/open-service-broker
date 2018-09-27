@@ -29,9 +29,11 @@ import org.springframework.credhub.support.json.JsonCredentialRequest
 import org.springframework.credhub.support.password.PasswordCredential
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
+import org.springframework.stereotype.Component
 
 @CompileStatic
 @Slf4j
+@Component
 class CredHubServiceImpl implements CredHubService {
 
     @Autowired
