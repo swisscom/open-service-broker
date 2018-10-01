@@ -35,7 +35,7 @@ class EndpointService {
 
         def serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
         if (serviceProvider instanceof EndpointProvider) {
-            return (serviceProvider as EndpointProvider).findEndpoints(serviceInstance)
+            return serviceProvider.findEndpoints(serviceInstance)
         } else {
             return []
         }

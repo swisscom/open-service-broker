@@ -39,8 +39,6 @@ import org.yaml.snakeyaml.Yaml
 @Api(value = "cf-extensions", description = "Additional operations for service instances")
 @RestController
 class CFExtensionsController extends BaseController {
-    public static final String PARAM_END_DATE = 'end_date'
-
     @Autowired
     protected ServiceUsageLookup serviceUsageLookup
 
@@ -52,8 +50,6 @@ class CFExtensionsController extends BaseController {
 
     @Autowired
     private ServiceProviderLookup serviceProviderLookup
-
-    private ExtensionProvider extensionProvider
 
     @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
     @RequestMapping(value = ['/v2/cf-ext/{service_instance}/usage', //deprecated, prefer the path below
