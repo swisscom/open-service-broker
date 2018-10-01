@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.6] - 2018-10-01
+- Fix endpoint lookup
+- Use client-id for credhub oauth
+
 ## [5.0.5] - 2018-09-26
 - Fix flyway migration 1.0.23
 
