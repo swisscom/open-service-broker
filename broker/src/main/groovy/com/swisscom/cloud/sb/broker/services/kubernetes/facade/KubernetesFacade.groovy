@@ -25,6 +25,8 @@ trait KubernetesFacade {
 
     abstract Collection<ServiceDetail> provision(RequestWithParameters context)
 
+    abstract Collection<ServiceDetail> update(RequestWithParameters context)
+
     abstract void deprovision(DeprovisionRequest request)
 
     abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
