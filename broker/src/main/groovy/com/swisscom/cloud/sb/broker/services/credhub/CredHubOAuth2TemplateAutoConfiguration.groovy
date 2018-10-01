@@ -36,7 +36,6 @@ import org.springframework.credhub.core.CredHubProperties
 import org.springframework.credhub.core.CredHubTemplate
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails
-import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link CredHubTemplate} with
@@ -45,7 +44,7 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 @Configuration
 @AutoConfigureBefore(CredHubTemplateAutoConfiguration.class)
 @ConditionalOnProperty(name = "spring.credhub.enable", havingValue = "true")
-@ConditionalOnClass(name = "org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails")
+@ConditionalOnClass(name = "org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails")
 class CredHubOAuth2TemplateAutoConfiguration {
     private final OAuth2CredHubTemplateFactory credHubTemplateFactory = new OAuth2CredHubTemplateFactory()
 
@@ -57,8 +56,8 @@ class CredHubOAuth2TemplateAutoConfiguration {
     @Bean
     @CredHubCredentialsDetails
     @ConfigurationProperties("spring.credhub.oauth2-resourceowner")
-    ResourceOwnerPasswordResourceDetails credHubCredentialsDetails() {
-        return new ResourceOwnerPasswordResourceDetails()
+    ClientCredentialsResourceDetails credHubCredentialsDetails() {
+        return new ClientCredentialsResourceDetails()
     }
 
     /**
@@ -72,7 +71,7 @@ class CredHubOAuth2TemplateAutoConfiguration {
     @Bean
     @Primary
     CredHubOperations credHubTemplate(CredHubProperties credHubProperties,
-                                      @CredHubCredentialsDetails ResourceOwnerPasswordResourceDetails credHubCredentialsDetails, ClientFactoryWrapper clientFactoryWrapper) {
+                                      @CredHubCredentialsDetails ClientCredentialsResourceDetails credHubCredentialsDetails, ClientFactoryWrapper clientFactoryWrapper) {
         return credHubTemplateFactory.credHubTemplate(credHubCredentialsDetails,
                 credHubProperties,
                 clientFactoryWrapper.getClientHttpRequestFactory())
