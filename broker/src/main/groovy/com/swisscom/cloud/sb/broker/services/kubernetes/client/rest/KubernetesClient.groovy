@@ -17,7 +17,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonOutput
@@ -54,7 +54,7 @@ class KubernetesClient<RESPONSE> {
                             url, method, new HttpEntity<String>(convertYamlToJson(body), getJsonHeaders()), responseType)
         } catch (HttpClientErrorException e) {
             log.error("HttpStatus: ${e.statusCode}, ${e.statusText}, Body: ${e.responseBodyAsString}")
-            throw new ServiceBrokerException("Call to backend system failed")
+            ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew("Call to backend system failed")
         }
     }
 
