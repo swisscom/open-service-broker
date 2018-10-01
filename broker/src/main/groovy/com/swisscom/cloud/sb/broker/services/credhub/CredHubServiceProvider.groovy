@@ -47,8 +47,12 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Slf4j
 class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider{
 
-    @Autowired
     CredHubServiceImpl credHubServiceImpl
+
+    @Autowired
+    CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl){
+        this.credHubServiceImpl = credHubServiceImpl
+    }
 
     @Override
     ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
