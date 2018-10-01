@@ -24,6 +24,16 @@ if [[ -n $(git status -s) ]]; then
     exit 1
 fi
 
+if [ -z "$GITHUB_USER" ]; then
+    echo "ERROR: Environment variable GITHUB_USER is not set"
+    exit 1
+fi
+
+if [ -z "$GITHUB_PASSWORD" ]; then
+    echo "ERROR: Environment variable GITHUB_PASSWORD is not set"
+    exit 1
+fi
+
 echo Creating OSB release $1
 
 set -x
@@ -84,11 +94,6 @@ echo
 echo releases/$1 has been merged into $branch_to_release_from
 echo
 echo OSB version bumped to $2 on $branch_to_release_from
-
-
-https://www.mvnrepository.com/artifact/com.swisscom.cloud.sb/broker/${1}
-
-
 
 curl -u "${GITHUB_USER}:${GITHUB_PASSWORD}" -XPOST  https://api.github.com/repos/swisscom/open-service-broker/releases -d '{
                                                               "tag_name": "v${1}",
