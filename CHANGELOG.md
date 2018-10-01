@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Fix endpoint lookup
+- Use client-id for credhub oauth
 
 ## [5.0.5] - 2018-09-26
 - Fix flyway migration 1.0.23
