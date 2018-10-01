@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceProvider
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
@@ -55,6 +56,11 @@ class ProvisioningService {
         if (serviceProvider instanceof ExtensionProvider){
             provisionResponse.extensions = serviceProvider.buildExtensions()
         }
+
+        if(serviceProvider instanceof CredHubServiceProvider){
+            instance.parameters = null
+        }
+
         instance = provisioningPersistenceService.updateServiceInstanceCompletion(instance, !provisionResponse.isAsync)
         provisioningPersistenceService.updateServiceDetails(provisionResponse.details, instance)
         return provisionResponse
