@@ -15,8 +15,6 @@ spring:
     enable: false
     url: https://localhost:9000
     oauth2-resourceowner:
-      username: credhub
-      password: password
       client-id: credhub_cli
       client-secret:
       access-token-uri: http://localhost:8081/uaa/oauth/token
@@ -38,8 +36,6 @@ com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: true
   url: https://localhost:9000
   oauth2_resourceowner:
-    username: credhub
-    password: password
     client-id: credhub_cli
     client-secret:
     access-token-uri: http://localhost:8081/uaa/oauth/token
