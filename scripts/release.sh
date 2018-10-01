@@ -28,6 +28,8 @@ echo Creating OSB release $1
 
 set -x
 
+CHANGELOGS=$(cat CHANGELOG.md | sed -n '/^## \[Unreleased\]/,/^## \[/p' | sed '1d;$d;/^$/d')
+
 git checkout $branch_to_release_from
 set +e
 RES=$(git pull origin "$branch_to_release_from")
@@ -82,3 +84,17 @@ echo
 echo releases/$1 has been merged into $branch_to_release_from
 echo
 echo OSB version bumped to $2 on $branch_to_release_from
+
+
+https://www.mvnrepository.com/artifact/com.swisscom.cloud.sb/broker/${1}
+
+
+
+curl -u "${GITHUB_USER}:${GITHUB_PASSWORD}" -XPOST  https://api.github.com/repos/swisscom/open-service-broker/releases -d '{
+                                                              "tag_name": "v${1}",
+                                                              "target_commitish": "master",
+                                                              "name": "v${1}",
+                                                              "body": "${CHANGELOGS}",
+                                                              "draft": false,
+                                                              "prerelease": false
+                                                            }'
