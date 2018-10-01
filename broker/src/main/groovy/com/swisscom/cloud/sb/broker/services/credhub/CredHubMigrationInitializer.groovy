@@ -54,7 +54,7 @@ class CredHubMigrationInitializer {
             it ->
                 def serviceBinding = it
                 credHubCredentialStoreStrategy.writeCredential(serviceBinding, serviceBinding.credentials)
-                serviceBindingRepository.merge(serviceBinding)
+                serviceBindingRepository.save(serviceBinding)
         }
         serviceBindingRepository.flush()
     }
