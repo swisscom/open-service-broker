@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Fix endpoint lookup
 - Use client-id for credhub oauth
+- Fix K8S update-service
 
 ## [5.0.5] - 2018-09-26
 - Fix flyway migration 1.0.23
