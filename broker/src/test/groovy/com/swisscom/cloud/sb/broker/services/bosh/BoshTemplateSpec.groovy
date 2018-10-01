@@ -44,11 +44,11 @@ class BoshTemplateSpec extends Specification {
                           - name: redis
                             properties:
                               redis-server:
-                                databases: {{databases}} #SERVICE-INSTANCE LEVEL
+                                databases: "{{databases}}_test" #SERVICE-INSTANCE LEVEL
                                 instances: 3
                                 master-name: {{guid}} #SERVICE-INSTANCE LEVEL
                                 maxclients: "{{maxclients}}" #SERVICE-INSTANCE LEVEL
-                                port: {{redis-server-port}} #SERVICE-INSTANCE LEVEL
+                                port: "{{redis-server-port}}" #SERVICE-INSTANCE LEVEL
                                 security:
                                   require_pass: {{password}} #SERVICE-TEMPLATE LEVEL
                                 sentinel-port: {{redis-sentinel-port}} #SERVICE-INSTANCE LEVEL
@@ -56,6 +56,28 @@ class BoshTemplateSpec extends Specification {
                                 timeout: 10
                                 config-command: {{config-command}} #SERVICE-INSTANCE LEVEL
                                 slaveof-command: {{slaveof-command}} #SERVICE-INSTANCE LEVEL"""
+        def expected = """ director_uuid: BOSH_UID #STACK LEVEL
+                        name: prefix-guid #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+                        instance_groups:
+                        - azs:
+                          - z1
+                          instances: 3
+                          jobs:
+                          - name: redis
+                            properties:
+                              redis-server:
+                                databases: "databases_test" #SERVICE-INSTANCE LEVEL
+                                instances: 3
+                                master-name: guid #SERVICE-INSTANCE LEVEL
+                                maxclients: maxclients #SERVICE-INSTANCE LEVEL
+                                port: redis-server-port #SERVICE-INSTANCE LEVEL
+                                security:
+                                  require_pass: password #SERVICE-TEMPLATE LEVEL
+                                sentinel-port: redis-sentinel-port #SERVICE-INSTANCE LEVEL
+                                service-name: guid #SERVICE-INSTANCE LEVEL
+                                timeout: 10
+                                config-command: config-command #SERVICE-INSTANCE LEVEL
+                                slaveof-command: slaveof-command #SERVICE-INSTANCE LEVEL"""
         BoshTemplate template = new BoshTemplate(input)
         and:
         template.replace('prefix', 'prefix')
@@ -67,13 +89,6 @@ class BoshTemplateSpec extends Specification {
         template.replace('redis-sentinel-port', 'redis-sentinel-port')
         template.replace('config-command', 'config-command')
         template.replace('slaveof-command', 'slaveof-command')
-        and:
-
-        def expected = input
-                .replace('"{{', '').replace('}}"', '')
-                .replace('{{', '').replace('}}', '')
-
-
         when:
         def output = template.build()
 
