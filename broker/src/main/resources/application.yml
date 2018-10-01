@@ -3,13 +3,10 @@ spring:
 ---
 spring:
   profiles: default
-  autoconfigure.exclude:
-  - org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration.class
-  - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-  - MongoDataAutoConfiguration.class
+  jpa.properties.hibernate.id.new_generator_mappings: false
 
   datasource:
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
     url: 'jdbc:mysql://localhost/CFBroker?autoReconnect=true'
     username: root
     password:
@@ -62,6 +59,7 @@ management:
   metrics:
     export:
       influx:
+        enabled: false
         uri: http://localhost:8086
         step: 5s
         userName:
@@ -104,24 +102,30 @@ com.swisscom.cloud.sb.broker.service.mariadb:
   nameOfDefault: "default"
   clusters:
   - name: "default"
+    driver: com.mysql.cj.jdbc.Driver
+    vendor: mysql
     host: 127.0.0.1
     port: 3306
     adminUser: 'root'
     adminPassword:
     databasePrefix: 'cfdb_'
-    shieldAgentUrl: '127.0.0.1:5444'
+    shieldAgentUrl: 'shield-agent:5444'
     discoveryURL: "http://localhost:8080/v2/api-docs"
+    bindir: '/var/vcap/packages/shield-mysql/bin'
 
 com.swisscom.cloud.sb.broker.shield:
-  baseUrl: 'https://shield.service.consul:8002'
-  apiKey:
-  agent: '10.244.2.2:5444'
+  baseUrl: 'http://localhost:8082'
+  apiKey: TEk22PhD6FeligOf3YvWyaAv
+  agent: 'shield-agent:5444'
   jobPrefix: 'SB_CF_'
   targetPrefix: 'SB_CF_'
   storeName: 'local'
   retentionName: 'default'
   scheduleName: 'schedu'
   maxRetryBackup: 5
+  defaultTenantName: tenant1
+  username: admin
+  password: shield
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:
@@ -201,7 +205,141 @@ com.swisscom.cloud.sb.broker.service.servicebrokerserviceprovider:
   retryIntervalInSeconds: 5
   maxRetryDurationInMinutes: 600
 
-com.swisscom.cloud.sb.broker.serviceDefinitions: []
+com.swisscom.cloud.sb.broker.serviceDefinitions: [
+  {
+    "guid": "781e8f8c-c753-4a93-95eb-17c1f745b229",
+    "name": "redisent",
+    "description": "Redis Enterprise v3.2.3",
+    "bindable": true,
+    "asyncRequired": true,
+    "internalName": "redisEnterprise",
+    "displayIndex": 1,
+    "metadata": {
+      "version": "3.2.3",
+      "displayName": "Redis Enterprise"
+    },
+    "plans": [
+      {
+        "guid": "ea4b1b7d-3060-4ac6-836b-e134de0e7d9b",
+        "name": "large",
+        "description": "Redis Sentinel Cluster with 3 data bearing nodes with 8 GB memory, 8 GB storage, unlimited concurrent connections",
+        "templateId": "redisha-bosh-template-v2",
+        "free": false,
+        "displayIndex": 0,
+        "containerParams": [
+          {
+            "template": "",
+            "name": "plan",
+            "value": "redis.large"
+          },
+          {
+            "template": "",
+            "name": "databases",
+            "value": "32"
+          },
+          {
+            "template": "",
+            "name": "maxclients",
+            "value": "60000"
+          },
+          {
+            "template": "",
+            "name": "vm_instance_type",
+            "value": "redis.large"
+          }
+        ],
+        "metadata": {
+          "storageCapacity": "8GB",
+          "memory": "8GB",
+          "nodes": "3",
+          "maximumConcurrentConnections": "unlimited",
+          "dedicatedService": true,
+          "highAvailability": true,
+          "displayName": "large"
+        }
+      },
+      {
+        "guid": "ebe11e59-5261-4939-ac8f-0a35c3850b4e",
+        "name": "xlarge",
+        "description": "Redis Sentinel Cluster with 3 data bearing nodes with 16 GB memory, 16 GB storage, unlimited concurrent connections",
+        "templateId": "redisha-bosh-template-v2",
+        "free": false,
+        "displayIndex": 1,
+        "containerParams": [
+          {
+            "template": "",
+            "name": "plan",
+            "value": "redis.xlarge"
+          },
+          {
+            "template": "",
+            "name": "databases",
+            "value": "32"
+          },
+          {
+            "template": "",
+            "name": "maxclients",
+            "value": "60000"
+          },
+          {
+            "template": "",
+            "name": "vm_instance_type",
+            "value": "redis.xlarge"
+          }
+        ],
+        "metadata": {
+          "storageCapacity": "16GB",
+          "memory": "16GB",
+          "nodes": "3",
+          "maximumConcurrentConnections": "unlimited",
+          "dedicatedService": true,
+          "highAvailability": true,
+          "displayName": "xlarge"
+        }
+      },
+      {
+        "guid": "7b71cf85-0e50-4509-af04-eafd3a6ad141",
+        "name": "xxlarge",
+        "description": "Redis Sentinel Cluster with 3 data bearing nodes with 32 GB memory, 32 GB storage, unlimited concurrent connections",
+        "templateId": "redisha-bosh-template-v2",
+        "free": false,
+        "displayIndex": 2,
+        "containerParams": [
+          {
+            "template": "",
+            "name": "plan",
+            "value": "redis.xxlarge"
+          },
+          {
+            "template": "",
+            "name": "databases",
+            "value": "32"
+          },
+          {
+            "template": "",
+            "name": "maxclients",
+            "value": "60000"
+          },
+          {
+            "template": "",
+            "name": "vm_instance_type",
+            "value": "redis.xxlarge"
+          }
+        ],
+        "metadata": {
+          "storageCapacity": "32GB",
+          "memory": "32GB",
+          "nodes": "3",
+          "maximumConcurrentConnections": "unlimited",
+          "dedicatedService": true,
+          "highAvailability": true,
+          "displayName": "xxlarge"
+        }
+      }
+    ],
+    "tags": ["redis"]
+  }
+]
 
 com.swisscom.cloud.sb.broker.serviceTemplates:
   - name: redis

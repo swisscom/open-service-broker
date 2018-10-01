@@ -32,9 +32,9 @@ import java.util.function.Consumer
 class StandAloneConfigurationInitializer implements ApplicationContextInitializer {
 
     void initialize(ConfigurableApplicationContext applicationContext) {
-        String filePath = System.getProperty(ConfigFileApplicationListener.CONFIG_LOCATION_PROPERTY)
+        String filePath = System.getProperty(ConfigFileApplicationListener.CONFIG_ADDITIONAL_LOCATION_PROPERTY)
         if (!filePath) {
-            log.warn("'spring.config.location' is not configured. If service broker is running with the embedded tomcat for overriding configuration please specify a configuration yml path e.g. java -Dspring.config.location=file:/tmp/test.yml -jar servicebroker.jar")
+            log.warn("'spring.config.additional-location' is not configured. If service broker is running with the embedded tomcat for overriding configuration please specify a configuration yml path e.g. java -Dspring.config.additional-location=file:/tmp/test.yml -jar servicebroker.jar")
             return
         }
 
@@ -48,8 +48,8 @@ class StandAloneConfigurationInitializer implements ApplicationContextInitialize
 
     static PropertySource loadYamlResource(Resource resource) {
         YamlPropertySourceLoader sourceLoader = new YamlPropertySourceLoader()
-        PropertySource<?> yamlProperties = sourceLoader.load("yamlProperties", resource, null)
-        return yamlProperties
+        List<PropertySource<?>> yamlProperties = sourceLoader.load("yamlProperties", resource)
+        return yamlProperties.first()
     }
 
     static Optional<Resource> loadResource(String filePath) {

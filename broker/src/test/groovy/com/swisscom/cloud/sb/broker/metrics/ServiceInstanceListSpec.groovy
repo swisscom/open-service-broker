@@ -19,6 +19,8 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import org.apache.commons.lang.time.DateUtils
 import spock.lang.Specification
 
+import java.text.SimpleDateFormat
+
 class ServiceInstanceListSpec extends Specification {
 
     void "Average Lifetime returns the correct value (all dates set)"() {
@@ -26,8 +28,10 @@ class ServiceInstanceListSpec extends Specification {
         def serviceInstanceList = new ServiceInstanceList()
         def expectedDifference = 0
 
+
         and:
-        def date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2018-05-16 11:00:00")
+
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 30)
@@ -35,7 +39,8 @@ class ServiceInstanceListSpec extends Specification {
         expectedDifference += 30 * 24 * 60 * 60
 
         and:
-        date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
+        date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2018-05-05 11:00:00")
+
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 5)
@@ -75,7 +80,8 @@ class ServiceInstanceListSpec extends Specification {
         def expectedDifference = 0
 
         and:
-        def date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-16 11:00:00")
+        Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2018-05-16 11:00:00")
+
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 30)
@@ -83,7 +89,8 @@ class ServiceInstanceListSpec extends Specification {
         expectedDifference += 30 * 24 * 60 * 60
 
         and:
-        date = Date.parse("yyyy-MM-dd hh:mm:ss", "2018-05-05 11:00:00")
+        date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2018-05-05 11:00:00")
+
         serviceInstanceList.add(new ServiceInstance(
                 dateCreated: date,
                 dateDeleted: DateUtils.addDays(date, 5)

@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.metrics
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
@@ -23,6 +24,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import java.util.function.ToDoubleFunction
 
 @CompileStatic
+@Slf4j
 abstract class ServiceBrokerMetricsService {
 
     protected ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
@@ -41,7 +43,9 @@ abstract class ServiceBrokerMetricsService {
         ToDoubleFunction<ServiceBrokerMetricsService> doubleFunction = new ToDoubleFunction<ServiceBrokerMetricsService>() {
             @Override
             double applyAsDouble(ServiceBrokerMetricsService serviceBrokerMetrics) {
-                function()
+                def value = function()
+                log.debug("Logging metrics ${name}(value:${value};tags:${tags})")
+                return value
             }
         }
 

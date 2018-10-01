@@ -51,7 +51,9 @@ import org.springframework.stereotype.Component
 @Component
 @Log4j
 @CompileStatic
-class KubernetesRedisServiceProvider extends AsyncServiceProvider<KubernetesRedisConfig> implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
+class KubernetesRedisServiceProvider
+        extends AsyncServiceProvider<KubernetesRedisConfig>
+        implements ShieldBackupRestoreProvider, CloudFoundryContextRestrictedOnly {
 
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 

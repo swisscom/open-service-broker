@@ -16,9 +16,11 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.config.Config
+import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
+@CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.shield")
 class ShieldConfig implements Config {
@@ -27,4 +29,7 @@ class ShieldConfig implements Config {
     String jobPrefix
     String targetPrefix
     int maxRetryBackup
+    String defaultTenantName
+    String username
+    String password
 }

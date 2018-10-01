@@ -57,7 +57,9 @@ import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemach
 @Component
 @CompileStatic
 @Slf4j
-class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnterpriseConfig> implements BoshTemplateCustomizer {
+class MongoDbEnterpriseServiceProvider
+        extends AsyncServiceProvider<MongoDbEnterpriseConfig>
+        implements BoshTemplateCustomizer {
     public static final String PARAM_MMS_BASE_URL = "mms-base-url"
     public static final String PARAM_MMS_API_KEY = "mms-api-key"
     public static final String MMS_GROUP_ID = "mms-group-id"
@@ -98,9 +100,6 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
         template.replace(MONGODB_BINARY_PATH, getMongoDbBinaryPath())
         template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
         template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
-
-
-
 
         return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
     }
@@ -248,11 +247,11 @@ class MongoDbEnterpriseServiceProvider extends AsyncServiceProvider<MongoDbEnter
         opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
     }
 
-    public static String getMongoDbGroupId(LastOperationJobContext context) {
+    static String getMongoDbGroupId(LastOperationJobContext context) {
         return getMongoDbGroupId(context.serviceInstance)
     }
 
-    public static String getMongoDbGroupId(ServiceInstance serviceInstance) {
+    static String getMongoDbGroupId(ServiceInstance serviceInstance) {
         return ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 

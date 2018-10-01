@@ -62,7 +62,7 @@ docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar -Dspring.config.location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar -Dspring.config.additional-location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
 The config file passed can overwrite any default values. Providing an external config file is optional and when no external config file is provided, the default values are dictated by application.yml file(s).
 
@@ -325,6 +325,19 @@ The logging is based on [Slf4j](https://www.slf4j.org/) with the [Log4J2 Extensi
 The default configuration returns a compacts json format with every item on a single line.
 
 to allow local logging in human readable format the following files have been added to .gitIgnore:
-* src/broker/src/main/resources/log4j2.*
+**log4j2-test*
 
-the file can be added with `git add -f`
+so that a file with log4j2-test.yaml can be added. To have a normal human readable output, use:
+```
+   status = error
+   dest = err
+   name = PropertiesConfig
+   
+   appender.console.type = Console
+   appender.console.name = STDOUT
+   appender.console.layout.type = PatternLayout
+   appender.console.layout.pattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+   
+   rootLogger.level = info
+   rootLogger.appenderRef.stdout.ref = STDOUT
+```

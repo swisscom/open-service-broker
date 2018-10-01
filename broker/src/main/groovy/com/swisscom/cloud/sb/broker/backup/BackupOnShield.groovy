@@ -59,6 +59,9 @@ trait BackupOnShield extends ExtensionProvider {
         def planParamtersForBackup = parameters.findAll {
             it.getName().startsWith(PLAN_PARAMETER_BACKUP_PREFIX)
         }
+        String schedule = planParamtersForBackup.find {
+            it.getName().equals("BACKUP_SCHEDULE")
+        }?.getValue()
         String scheduleName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_SCHEDULE_NAME")
         }?.getValue()
@@ -68,6 +71,6 @@ trait BackupOnShield extends ExtensionProvider {
         String storageName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_STORAGE_NAME")
         }?.getValue()
-        new BackupParameter(scheduleName: scheduleName, retentionName: policyName, storeName: storageName)
+        new BackupParameter(scheduleName: scheduleName, retentionName: policyName, storeName: storageName, schedule: schedule)
     }
 }

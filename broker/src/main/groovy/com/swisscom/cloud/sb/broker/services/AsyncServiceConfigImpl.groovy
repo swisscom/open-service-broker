@@ -13,17 +13,11 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield
+package com.swisscom.cloud.sb.broker.services
 
-import groovy.transform.CompileStatic
-import org.springframework.stereotype.Component
-import org.springframework.web.client.RestTemplate
+import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfigImpl
 
-@Component
-@CompileStatic
-class ShieldRestClientFactory {
-    ShieldRestClient build(RestTemplate restTemplate, String baseUrl, String apiKey) {
-        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
-        new ShieldRestClient(restTemplate, baseUrl, apiKey)
-    }
+class AsyncServiceConfigImpl extends EndpointConfigImpl implements AsyncServiceConfig {
+    int retryIntervalInSeconds
+    int maxRetryDurationInMinutes
 }

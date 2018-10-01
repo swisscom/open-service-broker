@@ -55,10 +55,10 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
 
     def setup(){
         serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderLookup.findInternalName(MariaDBServiceProvider), null, null, null, 5)
-        serviceLifeCycler.createParameter('BACKUP_SCHEDULE_NAME', 'daily', serviceLifeCycler.plan)
+        serviceLifeCycler.createParameter('BACKUP_SCHEDULE', 'daily 4am', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_POLICY_NAME', 'month', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
-        backupRestoreHelper = new BackupRestoreHelper(appBaseUrl, cfExtUser, cfExtPassword)
+        backupRestoreHelper = new BackupRestoreHelper(appBaseUrl, cfExtUser.username, cfExtUser.password)
     }
 
     @Autowired

@@ -22,7 +22,7 @@ class GetVersionFunctionalSpec extends BaseFunctionalSpec {
 
     def "version controller returns 200 and valid version"() {
         when:
-        def response = new RestTemplate().getForEntity(appBaseUrl + '/version', String.class)
+        def response = new RestTemplate().getForEntity(appBaseUrl + '/actuator/info', String.class)
 
         then:
         response.statusCode == HttpStatus.OK

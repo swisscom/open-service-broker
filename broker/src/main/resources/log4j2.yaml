@@ -11,6 +11,6 @@ Configuration:
         includeStacktrace: true
   Loggers:
     Root:
-      level: info
+      level: INFO
       AppenderRef:
         ref: STDOUT

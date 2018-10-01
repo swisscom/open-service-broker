@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-@CompileStatic
 @Slf4j
 class MetricsCache {
     @Autowired
@@ -45,50 +44,51 @@ class MetricsCache {
     @Autowired
     private ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
 
-    private static final ServiceInstanceList serviceInstanceList = new ServiceInstanceList()
+    private static ServiceInstanceList _serviceInstanceList = new ServiceInstanceList()
     private static LocalDateTime serviceInstanceListLastModified = LocalDateTime.MIN
 
-    private static final Map<String, LastOperation> lastOperationMap = new HashMap<String, LastOperation>()
+    private static Map<String, LastOperation> _lastOperationMap = new HashMap<String, LastOperation>()
     private static LocalDateTime lastOperationMapLastModified = LocalDateTime.MIN
 
-    private static final List<Plan> planList = new ArrayList<>()
+    private static List<Plan> _planList = new ArrayList<>()
     private static LocalDateTime planListLastModified = LocalDateTime.MIN
 
-    private static final Map<String, Double> bindingCountByPlanGuid = new HashMap<String, Double>()
+    private static Map<String, Double> _bindingCountByPlanGuid = new HashMap<String, Double>()
     private static LocalDateTime bindingCountByPlanGuidLastModified = LocalDateTime.MIN
 
-    private static final Map<String, Double> failedLastOperationCountByPlanGuid = new HashMap<String, Double>()
+    private static Map<String, Double> _failedLastOperationCountByPlanGuid = new HashMap<String, Double>()
     private static LocalDateTime failedLastOperationCountByPlanGuidLastModified = LocalDateTime.MIN
 
     ServiceInstanceList getServiceInstanceList() {
-        synchronized (serviceInstanceList) {
+        synchronized (_serviceInstanceList) {
             if (hasExpired(serviceInstanceListLastModified)) {
                 def allServiceInstances = serviceInstanceRepository.findAll();
 
-                serviceInstanceList.refresh(getLastOperationMap(), allServiceInstances)
+                _serviceInstanceList.refresh(getLastOperationMap(), allServiceInstances)
                 serviceInstanceListLastModified = LocalDateTime.now()
             }
 
-            return serviceInstanceList
+            return _serviceInstanceList
         }
     }
 
     Map<String, LastOperation> getLastOperationMap() {
-        synchronized (lastOperationMap) {
+        synchronized (_lastOperationMap) {
             if (hasExpired(lastOperationMapLastModified)) {
-                lastOperationRepository.findAll().each { lO -> lastOperationMap.put(lO.guid, lO) }
+                def allLastOperations = lastOperationRepository.findAll()
+                allLastOperations.each { lO -> _lastOperationMap.put(lO.guid, lO) }
                 lastOperationMapLastModified = LocalDateTime.now()
             }
 
-            return lastOperationMap
+            return _lastOperationMap
         }
     }
 
     Map<String, Double> getBindingCountByPlanGuid() {
-        synchronized (bindingCountByPlanGuid) {
+        synchronized (_bindingCountByPlanGuid) {
             if (hasExpired(bindingCountByPlanGuidLastModified))
-                createBindingCountByPlanGuid().each { k, v -> bindingCountByPlanGuid.put(k, v) }
-            return bindingCountByPlanGuid
+                createBindingCountByPlanGuid().each { k, v -> _bindingCountByPlanGuid.put(k, v) }
+            return _bindingCountByPlanGuid
         }
     }
 
@@ -96,10 +96,10 @@ class MetricsCache {
         HashMap<String, Double> bindingCountByPlanGuid = new HashMap<>()
 
         Map<Integer, String> planIdToPlanGuid = new HashMap<>()
-        planList.each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
+        getListOfPlans().each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
 
         Map<Integer, String> serviceInstanceIdToPlanGuid = new HashMap<>()
-        serviceInstanceList.each { sI -> serviceInstanceIdToPlanGuid.put(sI.id, planIdToPlanGuid[sI.planId]) }
+        getServiceInstanceList().each { sI -> serviceInstanceIdToPlanGuid.put(sI.id, planIdToPlanGuid[sI.planId]) }
 
         def allBindings = serviceBindingRepository.findAll()
         allBindings.each { binding ->
@@ -111,22 +111,21 @@ class MetricsCache {
     }
 
     Double getFailedLastOperationCount(String planGuid) {
-        synchronized (failedLastOperationCountByPlanGuid) {
+        synchronized (_failedLastOperationCountByPlanGuid) {
             if (hasExpired(failedLastOperationCountByPlanGuidLastModified))
-                createFailedLastOperationMap().each { k, v -> failedLastOperationCountByPlanGuid.put(k, v) }
-            return failedLastOperationCountByPlanGuid.get(planGuid, 0.0D)
+                createFailedLastOperationMap().each { k, v -> _failedLastOperationCountByPlanGuid.put(k, v) }
+            return _failedLastOperationCountByPlanGuid.get(planGuid, 0.0D)
         }
     }
 
     private Map<String, Double> createFailedLastOperationMap() {
         Map<Integer, String> planIdToPlanGuid = new HashMap<>()
-        planList.each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
+        getListOfPlans().each { plan -> planIdToPlanGuid.put(plan.id, plan.guid) }
 
         Map<String, String> serviceInstanceGuidToPlanGuid = new HashMap<>()
-        serviceInstanceList.each { sI -> serviceInstanceGuidToPlanGuid.put(sI.guid, planIdToPlanGuid[sI.planId]) }
+        getServiceInstanceList().each { sI -> serviceInstanceGuidToPlanGuid.put(sI.guid, planIdToPlanGuid[sI.planId]) }
 
         Map<String, Double> failedCountByPlanId = new HashMap<>()
-
         lastOperationMap.values().each { lastOperation ->
             if (lastOperation.status == LastOperationState.FAILED) {
                 def planGuid = serviceInstanceGuidToPlanGuid.get(lastOperation.guid)
@@ -146,14 +145,14 @@ class MetricsCache {
     }
 
     List<Plan> getListOfPlans() {
-        synchronized (planList) {
+        synchronized (_planList) {
             if (hasExpired(planListLastModified)) {
-                planList.clear()
-                planList.addAll(planRepository.findAll().findAll { p -> p.name && p.service != null && p.service.name })
+                _planList.clear()
+                _planList.addAll(planRepository.findAll().findAll { p -> p.name && p.service != null && p.service.name })
                 planListLastModified = LocalDateTime.now()
             }
 
-            return planList
+            return _planList
         }
     }
 }

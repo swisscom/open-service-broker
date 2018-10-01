@@ -36,4 +36,10 @@ nbdist/
 ### GPG rings ###
 local.*
 
-**log4j2.*
+**log4j2-test*
+/lib/groovy*.jar
+
+### Docker Setup ###
+docker/minio_config
+docker/s3data
+docker/vaultstorage

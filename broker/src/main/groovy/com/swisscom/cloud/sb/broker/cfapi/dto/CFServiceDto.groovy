@@ -25,6 +25,7 @@ class CFServiceDto implements Serializable {
     String name
     String description
     boolean bindable
+    boolean active = true
     List<PlanDto> plans
     List<String> tags
     List<String> requires

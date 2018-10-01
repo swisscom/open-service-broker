@@ -15,6 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientImpl
+import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv2
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -23,17 +25,16 @@ import spock.lang.Stepwise
 @Stepwise
 @Ignore
 class ShieldRestClientTest extends Specification {
-    ShieldRestClient restClient
+    ShieldRestClientImpl restClient
 
     void setup() {
-        restClient = new ShieldRestClient(new RestTemplateBuilder().withSSLValidationDisabled(), "https://localhost:18002", "averyhardkey")
-    }
-
-    def "obtain status"() {
-        when:
-        def status = restClient.getStatus()
-        then:
-        status
+        ShieldConfig shieldConfig = new ShieldConfig()
+        shieldConfig.baseUrl = "https://localhost:8443"
+        shieldConfig.username = "admin"
+        shieldConfig.password = "shield"
+        shieldConfig.defaultTenantName = "tenant1"
+        shieldConfig.apiKey = "averyhardkey"
+        restClient = new ShieldRestClientv2(shieldConfig, new RestTemplateBuilder())
     }
 
     def "get store by name"() {
@@ -62,19 +63,5 @@ class ShieldRestClientTest extends Specification {
         def retention = restClient.getRetentionByName("notexisting")
         then:
         retention == null
-    }
-
-    def "get schedule by name"() {
-        when:
-        def schedule = restClient.getScheduleByName("default")
-        then:
-        schedule
-    }
-
-    def "get schedule by name not found"() {
-        when:
-        def schedule = restClient.getScheduleByName("notexisting")
-        then:
-        schedule == null
     }
 }
