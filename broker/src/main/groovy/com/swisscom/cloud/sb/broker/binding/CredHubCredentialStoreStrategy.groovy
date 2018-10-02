@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
@@ -46,12 +47,19 @@ class CredHubCredentialStoreStrategy implements CredentialStoreStrategy {
         credHubService.deleteCredential(serviceBinding.guid)
     }
 
+    CredHubService getCredHubService() {
+        try {
+            return applicationContext.getBean("credHubService", CredHubService)
+        } catch (NoSuchBeanDefinitionException e) {
+            return null
+        }
+    }
+
     String getCredential(ServiceBinding serviceBinding) {
         JsonHelper.toJsonString(credHubService.getCredential(serviceBinding.credhubCredentialId).value)
     }
 
     boolean isCredHubServiceAvailable() {
-        return credHubService != null
+        return getCredHubService() != null
     }
-
 }
