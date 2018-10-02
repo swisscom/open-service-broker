@@ -33,7 +33,7 @@ com.swisscom.cloud.sb.broker.credhub:
   selfSign: false
 
 com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: true
+  enable: false
   url: https://localhost:9000
   oauth2_resourceowner:
     client-id: credhub_client

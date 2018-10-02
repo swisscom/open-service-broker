@@ -18,12 +18,14 @@ package com.swisscom.cloud.sb.broker.services.bosh
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.credhub.configuration.ClientHttpRequestFactoryFactory
 import org.springframework.credhub.core.OAuth2CredHubTemplate
 import org.springframework.credhub.support.ClientOptions
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnProperty(name = "com.swisscom.cloud.sb.broker.bosh.credhub.enable", havingValue = "true")
 class BoshCredHubTemplate extends OAuth2CredHubTemplate {
 
     @Autowired
