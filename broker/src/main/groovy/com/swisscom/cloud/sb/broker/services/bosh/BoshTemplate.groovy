@@ -20,12 +20,16 @@ import org.yaml.snakeyaml.Yaml
 import java.util.regex.Pattern
 
 class BoshTemplate {
-    public static final String REGEX_PLACEHOLDER_PREFIX = '["]?\\{\\{'
-    public static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}["]?'
+    public static final String REGEX_PLACEHOLDER_PREFIX = '\\{\\{'
+    public static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}'
     public static final Pattern anyPlaceHolder = createPattern('.*')
 
     private final String template
     private String processed
+
+    private static Pattern createPatternWithQuotes(String placeholder) {
+        return ~('\\"' + REGEX_PLACEHOLDER_PREFIX + placeholder + REGEX_PLACEHOLDER_POSTFIX + '\\"')
+    }
 
     private static Pattern createPattern(String placeholder) {
         return ~(REGEX_PLACEHOLDER_PREFIX + placeholder + REGEX_PLACEHOLDER_POSTFIX)
@@ -37,6 +41,7 @@ class BoshTemplate {
     }
 
     void replace(String key, String value) {
+        processed = processed.replaceAll(createPatternWithQuotes(key), value)
         processed = processed.replaceAll(createPattern(key), value)
     }
 

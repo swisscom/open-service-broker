@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.7] - 2018-10-02
+- Fix K8S update-service
+- Fix Error in CredHub Migration
+- Implement special Template parsing in BOSH Templates (replace "{{key}}" with value instead of "value")
+
 ## [5.0.6] - 2018-10-01
 - Fix endpoint lookup
 - Use client-id for credhub oauth
@@ -27,8 +32,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [5.0.1] - 2018-09-19
 
-
-
 ## [5.0.0] - 2018-09-19
 - [MAJOR] Upgrade Dependencies and Refactor Configuration Objects
     - Spring Boot (1.5.14 -> 2.0.4)
@@ -43,10 +46,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Adds context object to update request
 - Adapts Kubernetes Provisioning 
 
-
 ## [4.2.4] - 2018-09-06
 - Fix inheritance bug of RequestWithParameters
-
 
 ## [4.2.3] - 2018-09-04
 

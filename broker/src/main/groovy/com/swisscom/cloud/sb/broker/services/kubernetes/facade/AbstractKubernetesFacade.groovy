@@ -15,7 +15,10 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 
-import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
+import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
@@ -26,6 +29,7 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemp
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -68,13 +72,41 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         def templateEngine = new groovy.text.SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
         for (KubernetesTemplate kubernetesTemplate : templates) {
-            def bindedTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
-            log.trace("Request this template for k8s provision: ${bindedTemplate}")
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(bindedTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
-            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, bindedTemplate, urlReturn.getSecond().class))
+            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+            log.trace("Request this template for k8s provision: ${boundTemplate}")
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, boundTemplate, urlReturn.getSecond().class))
         }
         return buildServiceDetailsList(bindingMap, responses)
     }
+
+    Collection<ServiceDetail> update(RequestWithParameters context) {
+        def bindingMap = getBindingMap(context)
+        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
+        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
+        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        List<ResponseEntity> responses = new LinkedList()
+        for (KubernetesTemplate kubernetesTemplate : templates) {
+            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+            log.trace("Request this template for k8s provision: ${boundTemplate}")
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Service") {
+                def apiInformation = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)))
+                def apiInformationMap = new groovy.json.JsonSlurper().parseText(apiInformation) as Map
+                String value = apiInformationMap.find {it.key == 'spec'}.value.find {it.key == 'clusterIP'}.value
+                def newMap = ["spec": ["clusterIP":value.toString()]]
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
+            } else {
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
+            }
+        }
+        return buildServiceDetailsList(bindingMap, responses)
+    }
+
+    String getTemplate(String endpoint) {
+        kubernetesClient.exchange(endpoint, HttpMethod.GET, null, String.class).body
+    }
+
 
     protected Map<String, String> getServiceDetailBindingMap(RequestWithParameters request) {
         def context = ServiceContextHelper.convertFrom(request.serviceContext) as CloudFoundryContext
@@ -149,9 +181,9 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         return podList.items
     }
 
-    /**
-     * healthz is an internally defined label in our kubernetes service deployments.
-     */
+/**
+ * healthz is an internally defined label in our kubernetes service deployments.
+ */
     @TypeChecked(SKIP)
     private List getPodsConsideredForReadiness(List pods) {
         if (kubernetesServiceConfig.enablePodLabelHealthzFilter) {
@@ -170,13 +202,14 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         return (hasConditionsReadyAndStatusFalse.size() == 0 && !pods.empty)
     }
 
-    /**
-     * If a k8s templates contains bash scripts some literals must be escaped additionally because otherwise
-     * `SimpleTemplateEngine` will strugle because everything with `$` would be a template expression.
-     */
+/**
+ * If a k8s templates contains bash scripts some literals must be escaped additionally because otherwise
+ * `SimpleTemplateEngine` will strugle because everything with `$` would be a template expression.
+ */
     protected String fixTemplateEscaping(KubernetesTemplate kubernetesTemplate) {
         def escapedTemplate = kubernetesTemplate.template.replace('$(', '\\$(').
                 replace('$"', '\\$"')
         escapedTemplate
     }
+
 }

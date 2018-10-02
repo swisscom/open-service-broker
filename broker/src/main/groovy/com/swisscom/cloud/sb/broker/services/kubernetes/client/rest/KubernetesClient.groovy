@@ -17,13 +17,16 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 
 @CompileStatic
 @Component
@@ -45,9 +48,39 @@ class KubernetesClient<RESPONSE> {
         def restTemplate = restTemplateBuilder.withSSLValidationDisabled().
                 withClientSideCertificate(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
         log.info(url + " - " + convertYamlToJson(body))
-        return restTemplate.exchange(
-                "https://" + kubernetesConfig.getKubernetesHost() + ":" + kubernetesConfig.getKubernetesPort() + "/" +
-                        url, method, new HttpEntity<String>(convertYamlToJson(body), getJsonHeaders()), responseType)
+        try {
+            return restTemplate.exchange(
+                    "https://" + kubernetesConfig.getKubernetesHost() + ":" + kubernetesConfig.getKubernetesPort() + "/" +
+                            url, method, new HttpEntity<String>(convertYamlToJson(body), getJsonHeaders()), responseType)
+        } catch (HttpClientErrorException e) {
+            log.error("HttpStatus: ${e.statusCode}, ${e.statusText}, Body: ${e.responseBodyAsString}")
+            ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew("Call to backend system failed")
+        }
+    }
+
+    ResponseEntity<RESPONSE> exchange(String url, HttpMethod method,
+                                      String body, String override, Class<RESPONSE> responseType) {
+        String overrideJson = convertYamlToJson(override)
+        def slurper = new groovy.json.JsonSlurper()
+        def json1 = slurper.parseText(body) as Map
+        def json2 = slurper.parseText(overrideJson) as Map
+        def finalBody = merge(json1, json2)
+        this.exchange(url, method, JsonOutput.toJson(finalBody), responseType)
+    }
+
+    Map merge(Map onto, Map... overrides) {
+        if (!overrides)
+            return onto
+        else if (overrides.length == 1) {
+            overrides[0]?.each { k, v ->
+                if (v instanceof Map && onto[k] instanceof Map)
+                    merge((Map) onto[k], (Map) v)
+                else
+                    onto[k] = v
+            }
+            return onto
+        }
+        overrides.inject(onto, { acc, override -> merge(acc, override ?: [:]) }) as Map
     }
 
     private HttpHeaders getJsonHeaders() {
