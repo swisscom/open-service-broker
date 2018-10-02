@@ -30,6 +30,7 @@ import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
+import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
@@ -45,7 +46,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Component
 @CompileStatic
 @Slf4j
-class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider{
+class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, SensitiveParameterProvider{
 
     CredHubServiceImpl credHubServiceImpl
 
