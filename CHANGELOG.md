@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.8] - 2018-10-02
+- Add feature writeCertificate to allow writing exising certificate to CredHub
+
 ## [5.0.7] - 2018-10-02
 - Fix K8S update-service
 - Fix Error in CredHub Migration

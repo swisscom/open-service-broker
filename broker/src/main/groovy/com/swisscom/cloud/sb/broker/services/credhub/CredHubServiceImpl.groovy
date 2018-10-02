@@ -20,8 +20,10 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.support.CredentialDetails
+import org.springframework.credhub.support.CredentialRequest
 import org.springframework.credhub.support.SimpleCredentialName
 import org.springframework.credhub.support.certificate.CertificateCredential
+import org.springframework.credhub.support.certificate.CertificateCredentialRequest
 import org.springframework.credhub.support.certificate.CertificateParameters
 import org.springframework.credhub.support.certificate.CertificateParametersRequest
 import org.springframework.credhub.support.json.JsonCredential
@@ -44,13 +46,13 @@ class CredHubServiceImpl implements CredHubService {
     }
 
     @Override
-    CredentialDetails<JsonCredential> writeCredential(String credentialName, Map<String, String> credentials) {
-        log.info("Writing new CredHub Credential for name: ${credentialName}")
+    CredentialDetails<JsonCredential> writeCredential(String name, Map<String, String> credentials) {
+        log.info("Writing new CredHub Credential for name: ${name}")
         JsonCredential jsonCredential = new JsonCredential(credentials)
         JsonCredentialRequest request =
                 JsonCredentialRequest.builder()
                         .overwrite(true)
-                        .name(new SimpleCredentialName('/' + credentialName))
+                        .name(new SimpleCredentialName('/' + name))
                         .value(jsonCredential)
                         .build()
         credHubOperations.write(request)
@@ -75,24 +77,24 @@ class CredHubServiceImpl implements CredHubService {
     }
 
     @Override
-    void deleteCredential(String credentialName) {
-        log.info("Delete CredHub credentials for name: ${credentialName}")
-        credHubOperations.deleteByName(new SimpleCredentialName('/' + credentialName))
+    void deleteCredential(String name) {
+        log.info("Delete CredHub credentials for name: ${name}")
+        credHubOperations.deleteByName(new SimpleCredentialName('/' + name))
     }
 
     @Override
-    CredentialDetails<RsaCredential> generateRSA(String credentialName) {
+    CredentialDetails<RsaCredential> generateRSA(String name) {
         def request = RsaParametersRequest.builder()
-            .name(new SimpleCredentialName('/' + credentialName))
-            .build()
+                .name(new SimpleCredentialName('/' + name))
+                .build()
         credHubOperations.generate(request)
     }
 
     @Override
-    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, CertificateConfig parameters) {
-        log.info("Writing new CredHub Credential for name: ${credentialName}")
+    CredentialDetails<CertificateCredential> generateCertificate(String name, CertificateConfig parameters) {
+        log.info("Writing new CredHub Credential for name: ${name}")
         def request = CertificateParametersRequest.builder()
-                .name(new SimpleCredentialName('/' + credentialName))
+                .name(new SimpleCredentialName('/' + name))
                 .overwrite(true)
                 .parameters(CertificateParameters.builder()
                 .keyLength(parameters.keyLength)
@@ -109,5 +111,14 @@ class CredHubServiceImpl implements CredHubService {
                 .build())
                 .build()
         credHubOperations.generate(request)
+    }
+
+    @Override
+    CredentialDetails<CertificateCredential> writeCertificate(String name, String certificate, String certificateAuthority, String privateKey) {
+        CertificateCredential certificateCredential = new CertificateCredential(certificate, certificateAuthority, privateKey)
+        CertificateCredentialRequest request = CertificateCredentialRequest.builder()
+                .name(new SimpleCredentialName('/' + name))
+                .value(certificateCredential).build()
+        credHubOperations.write(request)
     }
 }

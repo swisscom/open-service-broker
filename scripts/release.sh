@@ -96,9 +96,9 @@ echo
 echo OSB version bumped to $2 on $branch_to_release_from
 
 curl -u "${GITHUB_USER}:${GITHUB_PASSWORD}" -XPOST  https://api.github.com/repos/swisscom/open-service-broker/releases -d "{
-                                                              \"tag_name\": \"v${VERSION}\",
+                                                              \"tag_name\": \"v${1}\",
                                                               \"target_commitish\": \"master\",
-                                                              \"name\": \"v${VERSION}\",
+                                                              \"name\": \"v${1}\",
                                                               \"body\": \"${CHANGELOGS}\",
                                                               \"draft\": false,
                                                               \"prerelease\": false

@@ -22,7 +22,7 @@ import org.springframework.credhub.support.password.PasswordCredential
 import org.springframework.credhub.support.rsa.RsaCredential
 
 interface CredHubService {
-    CredentialDetails<JsonCredential> writeCredential(String credentialName, Map<String, String> credentials)
+    CredentialDetails<JsonCredential> writeCredential(String name, Map<String, String> credentials)
 
     CredentialDetails<JsonCredential> getCredential(String id)
 
@@ -30,9 +30,11 @@ interface CredHubService {
 
     CredentialDetails<CertificateCredential> getCertificateCredentialByName(String name)
 
-    CredentialDetails<CertificateCredential> generateCertificate(String credentialName, CertificateConfig parameters)
+    CredentialDetails<CertificateCredential> generateCertificate(String name, CertificateConfig parameters)
 
-    CredentialDetails<RsaCredential> generateRSA(String credentialName)
+    CredentialDetails<RsaCredential> generateRSA(String name)
 
-    void deleteCredential(String credentialName)
+    CredentialDetails<CertificateCredential> writeCertificate(String name, String certificate, String certificateAuthority, String privateKey)
+
+    void deleteCredential(String name)
 }
