@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.services.credhub
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.CredentialRequest
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service
 @CompileStatic
 @Service
 @Slf4j
+@ConditionalOnProperty(name = "spring.credhub.enable", havingValue = "true")
 class CredHubServiceImpl implements CredHubService {
 
     @Autowired
