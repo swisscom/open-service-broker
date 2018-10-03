@@ -93,8 +93,14 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Service") {
                 def apiInformation = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)))
                 def apiInformationMap = new groovy.json.JsonSlurper().parseText(apiInformation) as Map
-                String value = apiInformationMap.find {it.key == 'spec'}.value.find {it.key == 'clusterIP'}.value
-                def newMap = ["spec": ["clusterIP":value.toString()]]
+                String clusterIP = apiInformationMap.find {it.key == 'spec'}.value.find {it.key == 'clusterIP'}.value
+                String resourceVersion = apiInformationMap.find {it.key == 'metadata'}.value.find{it.key == 'resourceVersion'}.value
+                def newMap = [
+                        "spec":
+                                ["clusterIP":clusterIP.toString()],
+                        "metadata":
+                                ["resourceVersion":resourceVersion.toString()]
+                ]
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
             } else {
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))

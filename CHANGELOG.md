@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.9] - 2018-10-03
+- Add resourceVersion field to K8S update
+- Use boshCredHub config enable field
+
 ## [5.0.8] - 2018-10-02
 - Add feature writeCertificate to allow writing exising certificate to CredHub
 
