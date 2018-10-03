@@ -13,11 +13,6 @@ spring:
 
   credhub:
     enable: false
-    url: https://localhost:9000
-    oauth2-resourceowner:
-      client-id: credhub_cli
-      client-secret:
-      access-token-uri: http://localhost:8081/uaa/oauth/token
 
 com.swisscom.cloud.sb.broker.credhub:
   keyLength: LENGTH_2048
@@ -34,11 +29,6 @@ com.swisscom.cloud.sb.broker.credhub:
 
 com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: false
-  url: https://localhost:9000
-  oauth2_resourceowner:
-    client-id: credhub_client
-    client-secret: secret
-    access-token-uri: http://localhost:8081/uaa/oauth/token
   keyLength: LENGTH_2048
   commonName:
   organization: ServiceBroker

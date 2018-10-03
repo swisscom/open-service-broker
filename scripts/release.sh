@@ -38,7 +38,7 @@ echo Creating OSB release $1
 
 set -x
 
-CHANGELOGS=$(cat CHANGELOG.md | sed -n '/^## \[Unreleased\]/,/^## \[/p' | sed '1d;$d;/^$/d')
+CHANGELOGS=$(cat CHANGELOG.md | sed -n '/^## \[Unreleased\]/,/^## \[/p' | sed '1d;$d;/^$/d' | sed ':a;N;$!ba;s/\n/<br\/>/g')
 
 git checkout $branch_to_release_from
 set +e
