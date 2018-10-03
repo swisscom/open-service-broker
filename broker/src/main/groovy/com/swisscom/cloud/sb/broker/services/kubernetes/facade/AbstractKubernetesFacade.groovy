@@ -22,6 +22,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesConfigUrlParams
@@ -91,15 +92,13 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             log.trace("Request this template for k8s provision: ${boundTemplate}")
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
             if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Service") {
-                def apiInformation = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)))
-                def apiInformationMap = new groovy.json.JsonSlurper().parseText(apiInformation) as Map
-                String clusterIP = apiInformationMap.find {it.key == 'spec'}.value.find {it.key == 'clusterIP'}.value
-                String resourceVersion = apiInformationMap.find {it.key == 'metadata'}.value.find{it.key == 'resourceVersion'}.value
+                def service = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate))).asType(ServiceResponse.class)
                 def newMap = [
                         "spec":
-                                ["clusterIP":clusterIP.toString()],
+                                ["clusterIP": service.spec.clusterIP,
+                                 "ports" : service.spec.ports],
                         "metadata":
-                                ["resourceVersion":resourceVersion.toString()]
+                                ["resourceVersion": service.metadata.resourceVersion]
                 ]
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
             } else {
