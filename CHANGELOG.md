@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.12] - 2018-10-03
+- Fix conversion of K8S Service Response entity
+
+
 ## [5.0.11] - 2018-10-03
 - Fix issue [#175](https://github.com/swisscom/open-service-broker/issues/175)
 
