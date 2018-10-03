@@ -92,11 +92,11 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             log.trace("Request this template for k8s provision: ${boundTemplate}")
             Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
             if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Service") {
-                def service = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate))).asType(ServiceResponse.class)
+                def service = getTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), ServiceResponse.class)
                 def newMap = [
-                        "spec":
+                        "spec"    :
                                 ["clusterIP": service.spec.clusterIP,
-                                 "ports" : service.spec.ports],
+                                 "ports"    : service.spec.ports],
                         "metadata":
                                 ["resourceVersion": service.metadata.resourceVersion]
                 ]
@@ -108,8 +108,8 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
         return buildServiceDetailsList(bindingMap, responses)
     }
 
-    String getTemplate(String endpoint) {
-        kubernetesClient.exchange(endpoint, HttpMethod.GET, null, String.class).body
+    String getTemplate(String endpoint, Class responseType) {
+        kubernetesClient.exchange(endpoint, HttpMethod.GET, null, responseType).body
     }
 
 
