@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.11] - 2018-10-03
+- Fix issue [#175](https://github.com/swisscom/open-service-broker/issues/175)
+
+
 ## [5.0.10] - 2018-10-03
 - Remove unnecessary CredHub config in application.yml
 
