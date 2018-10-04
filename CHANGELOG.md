@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.13] - 2018-10-04
+- Fix casting error in K8S update
+
+
 ## [5.0.12] - 2018-10-03
 - Fix conversion of K8S Service Response entity
 
