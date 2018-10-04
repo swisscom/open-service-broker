@@ -27,6 +27,9 @@ import org.springframework.credhub.support.certificate.CertificateParametersRequ
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.json.JsonCredentialRequest
 import org.springframework.credhub.support.password.PasswordCredential
+import org.springframework.credhub.support.permissions.Actor
+import org.springframework.credhub.support.permissions.CredentialPermission
+import org.springframework.credhub.support.permissions.Operation
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
 import org.springframework.stereotype.Component
@@ -38,6 +41,9 @@ class CredHubServiceImpl implements CredHubService {
 
     @Autowired
     private CredHubOperations credHubOperations
+
+//    @Autowired
+//    private CredentialPermissionBuilder permissionBuilder
 
     CredHubServiceImpl(CredHubOperations credHubOperations) {
         this.credHubOperations = credHubOperations
@@ -109,5 +115,20 @@ class CredHubServiceImpl implements CredHubService {
                 .build())
                 .build()
         credHubOperations.generate(request)
+    }
+
+    List<CredentialPermission> getPermissions(String credentialName){
+        log.info("Retrieving permissions for CredHub Credential: ${credentialName}")
+        return credHubOperations.getPermissions(new SimpleCredentialName("/" + credentialName))
+    }
+
+    List<CredentialPermission> addReadPermission(String credentialName, String appGUID){
+        log.info("Adding read permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
+        return credHubOperations.addPermissions(new SimpleCredentialName("/" + credentialName), CredentialPermission.builder().app(appGUID).operation(Operation.READ).build())
+    }
+
+    void deletePermissions(String credentialName, String appGUID){
+        log.info("Deleting permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
+        credHubOperations.deletePermission(new SimpleCredentialName("/" + credentialName), Actor.app(appGUID))
     }
 }
