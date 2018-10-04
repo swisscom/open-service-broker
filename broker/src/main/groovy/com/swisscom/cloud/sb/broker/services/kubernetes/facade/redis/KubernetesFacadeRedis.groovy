@@ -65,6 +65,23 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
     }
 
     @Override
+    protected Map<String, String> getUpdateBindingMap(RequestWithParameters request) {
+        def serviceDetailBindings = getServiceDetailBindingMap(request)
+        def planBindings = getPlanParameterBindingMap(request.plan)
+        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(request.serviceInstanceGuid)
+        def redisPassword = ServiceDetailsHelper.from(serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD)
+        def slaveofCommand = new StringGenerator().randomAlphaNumeric(30)
+        def configCommand = new StringGenerator().randomAlphaNumeric(30)
+        def otherBindings = [
+                (KubernetesRedisTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
+                (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
+                (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
+        ]
+        // Make copy of redisConfigurationDefaults Map for thread safety
+        (new HashMap<String, String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
+    }
+
+    @Override
     protected Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses) {
         def serviceResponses = responses.findAll { it?.getBody() instanceof ServiceResponse }.collect {
             it.getBody().asType(ServiceResponse.class)

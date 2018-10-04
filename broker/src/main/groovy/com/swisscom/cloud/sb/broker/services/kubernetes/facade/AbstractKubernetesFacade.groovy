@@ -22,6 +22,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentList
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -63,6 +64,8 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
 
     protected abstract Map<String, String> getBindingMap(RequestWithParameters context)
 
+    protected abstract Map<String, String> getUpdateBindingMap(RequestWithParameters context)
+
     protected
     abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses)
 
@@ -82,7 +85,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     }
 
     Collection<ServiceDetail> update(RequestWithParameters context) {
-        def bindingMap = getBindingMap(context)
+        def bindingMap = getUpdateBindingMap(context)
         log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
         def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
         def templateEngine = new groovy.text.SimpleTemplateEngine()
@@ -138,6 +141,29 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             else {
                 log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
             }
+        }
+    }
+
+    @Override
+    boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid) {
+        try {
+            DeploymentList deploymentList = kubernetesClient.exchange(
+                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('Deployment', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
+                    HttpMethod.GET,
+                    "",
+                    DeploymentList.class
+            ).body
+            int numberOfDeployments = deploymentList.items.size()
+            int updatedDeployments = 0
+            deploymentList.items.each { deployment ->
+                if (deployment.status.updatedReplicas == deployment.status.replicas)
+                    updatedDeployments = updatedDeployments + 1
+            }
+            return (numberOfDeployments == updatedDeployments)
+        } catch (HttpStatusCodeException e) {
+            log.error("Readiness check for kubernetes service with instance guid " + serviceInstanceGuid
+                    + " failed, got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+            return false
         }
     }
 
