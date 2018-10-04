@@ -44,6 +44,8 @@ class MariaDBServiceProvider extends RelationalDbServiceProvider implements Shie
     private MariaDBConfig mariaDBConfig
 
     public static final String CLUSTER_METADATA_KEY = "clusterName"
+    public static final String DEFAULT_VENDOR = "mysql"
+    public static final String DEFAULT_DRIVER = "com.mysql.cj.jdbc.Driver"
 
     ServiceInstanceRepository serviceInstanceRepository
 
@@ -91,6 +93,8 @@ class MariaDBServiceProvider extends RelationalDbServiceProvider implements Shie
         Integer port = mariaDBConnectionConfig.overwriteGaleraPortForShieldTesting ?
                 mariaDBConnectionConfig.overwriteGaleraPortForShieldTesting.toInteger() :
                 (mariaDBConnectionConfig.port ? mariaDBConnectionConfig.port.toInteger() : 0)
+        mariaDBConnectionConfig.vendor = mariaDBConnectionConfig.vendor ?: DEFAULT_VENDOR
+        mariaDBConnectionConfig.driver = mariaDBConnectionConfig.driver ?: DEFAULT_DRIVER
         return dbClientFactory.build(mariaDBConnectionConfig.driver, mariaDBConnectionConfig.vendor, mariaDBConnectionConfig.host, port, mariaDBConnectionConfig.adminUser, mariaDBConnectionConfig.adminPassword)
     }
 
