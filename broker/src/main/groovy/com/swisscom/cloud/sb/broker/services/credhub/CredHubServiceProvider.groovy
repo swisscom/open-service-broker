@@ -26,11 +26,13 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
+import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
@@ -38,6 +40,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.support.CredentialDetails
+import org.springframework.credhub.support.permissions.CredentialPermission
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
@@ -48,11 +51,13 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Slf4j
 class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, SensitiveParameterProvider{
 
-    CredHubServiceImpl credHubServiceImpl
+    private final CredHubServiceImpl credHubServiceImpl
+    private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl){
+    CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl, ServiceBindingRepository serviceBindingRepository){
         this.credHubServiceImpl = credHubServiceImpl
+        this.serviceBindingRepository = serviceBindingRepository
     }
 
     @Override
@@ -109,12 +114,36 @@ class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, S
 
     @Override
     BindResponse bind(BindRequest request) {
-        return null
+        try {
+            credHubServiceImpl.addReadPermission(constructKey(request.serviceInstance.guid), request.app_guid)
+        } catch(Exception ex) {
+            log.error("Exception = " + ex.toString())
+        }
+
+        List<CredentialPermission> res = credHubServiceImpl.getPermissions(constructKey(request.serviceInstance.guid))
+
+        Boolean flag = false
+        for (item in res) {
+            if (item.actor.primaryIdentifier == request.app_guid){
+                flag = true
+                break
+            }
+        }
+
+        if(!flag) {
+            log.error("Permission not added.")
+            ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_BAD_REQUEST.throwNew("Permission not added. Service instance not bound.")
+        }
+
+        return new BindResponse(details: [from(CREDHUB_CREDENTIAL_NAME, "/" + constructKey(request.serviceInstance.guid)),
+                                          from(request.binding_guid, request.app_guid)],
+                credentials: new CredHubResponseDto(credhubName: "/" + constructKey(request.serviceInstance.guid))
+        )
     }
 
     @Override
     void unbind(UnbindRequest request) {
-
+        credHubServiceImpl.deletePermissions(constructKey(request.serviceInstance.guid), ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(request.binding.guid).details).getValue(request.binding.guid))
     }
 
     @Override
