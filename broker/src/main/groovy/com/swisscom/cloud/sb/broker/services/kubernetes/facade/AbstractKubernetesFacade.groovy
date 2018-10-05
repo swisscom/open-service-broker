@@ -22,7 +22,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentList
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentListDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -147,11 +147,11 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     @Override
     boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid) {
         try {
-            DeploymentList deploymentList = kubernetesClient.exchange(
-                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('Deployment', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
+            DeploymentListDto deploymentList = kubernetesClient.exchange(
+                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('DeploymentDto', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
                     HttpMethod.GET,
                     "",
-                    DeploymentList.class
+                    DeploymentListDto.class
             ).body
             int numberOfDeployments = deploymentList.items.size()
             int updatedDeployments = deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()

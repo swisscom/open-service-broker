@@ -22,9 +22,9 @@ class Spec implements Serializable {
 
     String type
     List<Port> ports = null
-    Selector selector
+    SelectorDto selector
     String clusterIP
     Map<String, Object> additionalProperties = new HashMap<String, Object>()
-    Template template
-    List<Container> initContainers
+    TemplateDto template
+    List<ContainerDto> initContainers
 }
