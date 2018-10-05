@@ -21,7 +21,7 @@ import groovy.transform.ToString
 class DeploymentResponse implements Serializable {
     String kind
     String apiVersion
-    Object spec
+    Spec spec
     Object status
     Object metadata
 }

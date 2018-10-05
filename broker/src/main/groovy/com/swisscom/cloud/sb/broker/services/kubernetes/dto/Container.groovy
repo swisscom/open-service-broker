@@ -18,7 +18,12 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.dto
 import groovy.transform.ToString
 
 @ToString
-class Metadata implements Serializable {
-    String resourceVersion
+class Container implements Serializable {
     String name
+    List<Env> env
+}
+
+class Env implements Serializable{
+    String name
+    String value
 }

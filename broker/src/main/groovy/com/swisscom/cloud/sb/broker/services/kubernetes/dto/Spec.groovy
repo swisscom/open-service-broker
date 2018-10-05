@@ -25,4 +25,6 @@ class Spec implements Serializable {
     Selector selector
     String clusterIP
     Map<String, Object> additionalProperties = new HashMap<String, Object>()
+    Template template
+    List<Container> initContainers
 }
