@@ -15,11 +15,11 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ConfigMapResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RolesResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ConfigMapResponseDto
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentResponseDto
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponseDto
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RolesResponseDto
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
@@ -37,13 +37,13 @@ enum EndpointMapper {
     }
 
     static {
-        mapper.put("Namespace", Pair.of("/api/v1/namespaces", new NamespaceResponse()))
-        mapper.put("ServiceAccount", Pair.of("/api/v1/namespaces/serviceInstanceGuid/serviceaccounts", new ServiceAccountsResponse()))
-        mapper.put("Role", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/roles", new RolesResponse()))
+        mapper.put("Namespace", Pair.of("/api/v1/namespaces", new NamespaceResponseDto()))
+        mapper.put("ServiceAccount", Pair.of("/api/v1/namespaces/serviceInstanceGuid/serviceaccounts", new ServiceAccountsResponseDto()))
+        mapper.put("Role", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/roles", new RolesResponseDto()))
         mapper.put("RoleBinding", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/rolebindings", new Object()))
-        mapper.put("ConfigMap", Pair.of("/api/v1/namespaces/serviceInstanceGuid/configmaps", new ConfigMapResponse()))
+        mapper.put("ConfigMap", Pair.of("/api/v1/namespaces/serviceInstanceGuid/configmaps", new ConfigMapResponseDto()))
         mapper.put("Service", Pair.of("/api/v1/namespaces/serviceInstanceGuid/services", new ServiceResponse()))
-        mapper.put("Deployment", Pair.of("/apis/apps/v1beta1/namespaces/serviceInstanceGuid/deployments", new DeploymentResponse()))
+        mapper.put("DeploymentDto", Pair.of("/apis/apps/v1beta1/namespaces/serviceInstanceGuid/deployments", new DeploymentResponseDto()))
     }
 
 

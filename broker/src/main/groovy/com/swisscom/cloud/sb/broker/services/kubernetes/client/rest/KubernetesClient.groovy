@@ -67,6 +67,10 @@ class KubernetesClient<RESPONSE> {
         this.exchange(url, method, JsonOutput.toJson(finalBody), responseType)
     }
 
+    /* This method provides a simple way to perform a deep merge of Map objects.
+     * Additionally it provides a very specific way to merge array elements.
+     */
+
     Map merge(Map onto, Map... overrides) {
         if (!overrides)
             return onto
@@ -81,7 +85,8 @@ class KubernetesClient<RESPONSE> {
             }
             return onto
         }
-        overrides.inject(onto, { acc, override -> //noinspection GroovyAssignabilityCheck
+        overrides.inject(onto, { acc, override ->
+            //noinspection GroovyAssignabilityCheck
             merge(acc, override ?: [:])
         }) as Map
     }

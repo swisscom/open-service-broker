@@ -70,7 +70,7 @@ metadata:
         kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
         kubernetesRedisConfig.redisConfigurationDefaults >> ["testing":"test"]
         KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
-        endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponse())
+        endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponseDto())
         kubernetesTemplateManager = Mock()
         kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
             {
@@ -88,7 +88,7 @@ metadata:
         when:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        2 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, _, NamespaceResponse.class)
+        2 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, _, NamespaceResponseDto.class)
     }
 
     def "provision creating a namespace with replacing the organization"() {
@@ -99,7 +99,7 @@ kind: Namespace""")
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "org: \"ORG\"\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "org: \"ORG\"\nkind: Namespace", NamespaceResponseDto.class)
     }
 
     def "provision creating a namespace with replacing the space id"() {
@@ -109,7 +109,7 @@ kind: Namespace""")
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "space: \"SPACE\"\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "space: \"SPACE\"\nkind: Namespace", NamespaceResponseDto.class)
     }
 
     def "provision creating a namespace with replacing the Service Instance Guid id"() {
@@ -119,7 +119,7 @@ kind: Namespace""")
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "name: \"ID\"\nkind: Namespace", NamespaceResponse.class)
+        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "name: \"ID\"\nkind: Namespace", NamespaceResponseDto.class)
     }
 
     def "return correct port to the client from k8s"() {
@@ -208,7 +208,7 @@ kind: Namespace""")
     private ServiceResponse mockServiceResponse() {
         ServiceResponse serviceResponse = Stub()
         Spec spec = Stub()
-        Selector selector = Stub()
+        SelectorDto selector = Stub()
         selector.role >> "master"
         spec.selector >> selector
         mockPorts(spec)

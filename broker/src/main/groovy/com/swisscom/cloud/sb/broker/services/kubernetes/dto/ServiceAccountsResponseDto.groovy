@@ -18,27 +18,9 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.dto
 import groovy.transform.ToString
 
 @ToString
-class DeploymentList implements Serializable {
+class ServiceAccountsResponseDto implements Serializable {
     String kind
     String apiVersion
-    List<Deployment> items
     Object metadata
-}
-
-@ToString
-class Deployment implements Serializable {
-    Metadata metadata
-    Spec spec
-    Status status
-}
-
-@ToString
-class Status implements Serializable {
-    int observedGeneration
-    int replicas
-    int updatedReplicas
-    int readyReplicas
-    int availableReplicas
-    int unavailableReplicas
-    Object conditions
+    Map<String, Object> additionalProperties = new HashMap<String, Object>()
 }
