@@ -154,15 +154,16 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                     DeploymentList.class
             ).body
             int numberOfDeployments = deploymentList.items.size()
-            int updatedDeployments = 0
+            int updatedDeployments = deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
+            deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
             deploymentList.items.each { deployment ->
                 if (deployment.status.updatedReplicas == deployment.status.replicas)
                     updatedDeployments = updatedDeployments + 1
             }
             return (numberOfDeployments == updatedDeployments)
         } catch (HttpStatusCodeException e) {
-            log.error("Readiness check for kubernetes service with instance guid " + serviceInstanceGuid
-                    + " failed, got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+            log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
+                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
             return false
         }
     }
@@ -174,8 +175,9 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             def consideredPods = getPodsConsideredForReadiness(pods)
             return checkPodsReadinessState(consideredPods)
         } catch (HttpStatusCodeException e) {
-            log.error("Readiness check for kubernetes service with instance guid " + serviceInstanceGuid
-                    + " failed, got HTTP status code: " + e.getStatusCode().toString())
+            log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
+                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+
             return false
         }
     }
