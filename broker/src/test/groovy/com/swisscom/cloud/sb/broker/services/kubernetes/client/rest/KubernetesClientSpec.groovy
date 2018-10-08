@@ -67,4 +67,37 @@ class KubernetesClientSpec extends Specification {
         "" == result
     }
 
+    def "merge merges Maps correctly"() {
+        given:
+        Map onto = ['key1': 'value1',
+                    'key2': 'value2']
+        Map overwrite = ['key2': 'overwrite']
+        when:
+        def result = kubernetesClient.merge(onto, overwrite)
+        then:
+        result.key1 == 'value1'
+        result.key2 == 'overwrite'
+        result.key2 != 'value2'
+    }
+
+    def "merge merges Maps with Arrays correctly"() {
+        given:
+        ArrayList<Object> array1 = new ArrayList<Object>()
+        array1.add(['name': 'one'])
+        Map onto = ['key1' : 'value1',
+                    'key2' : 'value2',
+                    'items': array1]
+        ArrayList<Object> array2 = new ArrayList<Object>()
+        array2.add(['name': 'two'])
+        Map overwrite = ['key2' : 'overwrite',
+                         'items': array2]
+        when:
+        def result = kubernetesClient.merge(onto, overwrite)
+        then:
+        result.key1 == 'value1'
+        result.key2 == 'overwrite'
+        result.items.first()
+        result.items.first().name == 'two'
+    }
+
 }
