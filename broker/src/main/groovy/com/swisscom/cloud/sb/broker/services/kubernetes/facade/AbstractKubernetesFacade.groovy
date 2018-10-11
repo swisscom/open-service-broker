@@ -22,6 +22,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentListDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
@@ -63,6 +64,8 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
 
     protected abstract Map<String, String> getBindingMap(RequestWithParameters context)
 
+    protected abstract Map<String, String> getUpdateBindingMap(RequestWithParameters context)
+
     protected
     abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses)
 
@@ -82,7 +85,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     }
 
     Collection<ServiceDetail> update(RequestWithParameters context) {
-        def bindingMap = getBindingMap(context)
+        def bindingMap = getUpdateBindingMap(context)
         log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
         def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
         def templateEngine = new groovy.text.SimpleTemplateEngine()
@@ -142,14 +145,39 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     }
 
     @Override
+    boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid) {
+        try {
+            DeploymentListDto deploymentList = kubernetesClient.exchange(
+                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('DeploymentDto', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
+                    HttpMethod.GET,
+                    "",
+                    DeploymentListDto.class
+            ).body
+            int numberOfDeployments = deploymentList.items.size()
+            int updatedDeployments = deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
+            deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
+            deploymentList.items.each { deployment ->
+                if (deployment.status.updatedReplicas == deployment.status.replicas)
+                    updatedDeployments = updatedDeployments + 1
+            }
+            return (numberOfDeployments == updatedDeployments)
+        } catch (HttpStatusCodeException e) {
+            log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
+                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+            return false
+        }
+    }
+
+    @Override
     boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid) {
         try {
             def pods = getPodList(serviceInstanceGuid)
             def consideredPods = getPodsConsideredForReadiness(pods)
             return checkPodsReadinessState(consideredPods)
         } catch (HttpStatusCodeException e) {
-            log.error("Readiness check for kubernetes service with instance guid " + serviceInstanceGuid
-                    + " failed, got HTTP status code: " + e.getStatusCode().toString())
+            log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
+                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+
             return false
         }
     }

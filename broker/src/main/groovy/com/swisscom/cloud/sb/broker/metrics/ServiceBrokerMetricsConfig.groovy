@@ -29,6 +29,5 @@ class ServiceBrokerMetricsConfig implements Config{
     String userName
     String password
     String db
-
     String env
 }

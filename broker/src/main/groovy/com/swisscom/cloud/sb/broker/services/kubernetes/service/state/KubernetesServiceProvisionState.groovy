@@ -49,6 +49,15 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         }
     }),
 
+    CHECK_SERVICE_UPDATE_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: stateContext.kubernetesFacade.isKubernetesUpdateSuccessful(getRequest(stateContext).serviceInstanceGuid))
+        }
+    }),
+
     CHECK_SERVICE_DEPLOYMENT_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
     () {
         @Override

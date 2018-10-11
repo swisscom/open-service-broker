@@ -15,8 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponse
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponseDto
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponseDto
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import org.springframework.data.util.Pair
 import spock.lang.Specification
@@ -32,14 +32,14 @@ class EndpointMapperParamsDecoratedSpec extends Specification {
 
     def "exchange returns the right endpoint url for Namespace type"() {
         given:
-        Pair<String, NamespaceResponse> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("Namespace", Collections.emptyMap())
+        Pair<String, NamespaceResponseDto> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("Namespace", Collections.emptyMap())
         expect:
         result.getFirst() == "/api/v1/namespaces"
     }
 
     def "exchange returns the right endpoint url for ServiceAccount type"() {
         given:
-        Pair<String, ServiceAccountsResponse> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("ServiceAccount", Collections.emptyMap())
+        Pair<String, ServiceAccountsResponseDto> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("ServiceAccount", Collections.emptyMap())
         expect:
         result.getFirst() == "/api/v1/namespaces/serviceInstanceGuid/serviceaccounts"
     }
@@ -47,7 +47,7 @@ class EndpointMapperParamsDecoratedSpec extends Specification {
     def "exchange returns the right endpoint url for ServiceAccount type with parameter"() {
         given:
 
-        Pair<String, ServiceAccountsResponse> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("ServiceAccount", getParams())
+        Pair<String, ServiceAccountsResponseDto> result = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams("ServiceAccount", getParams())
         expect:
         result.getFirst() == "/api/v1/namespaces/ID/serviceaccounts"
     }

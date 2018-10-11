@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -62,6 +63,31 @@ class KubernetesFacadeRedis extends AbstractKubernetesFacade<KubernetesRedisConf
         ]
         // Make copy of redisConfigurationDefaults Map for thread safety
         (new HashMap<String, String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
+    }
+
+    @Override
+    protected Map<String, String> getUpdateBindingMap(RequestWithParameters request) {
+        def serviceDetailBindings = getServiceDetailBindingMap(request)
+        def planBindings = getPlanParameterBindingMap(request.plan)
+        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(request.serviceInstanceGuid)
+        def redisPassword = ServiceDetailsHelper.from(serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD)
+        def slaveofCommand = getSlavofCommandFromAPI(serviceInstance.guid)
+        def configCommand = getConfigCommandFromAPI(serviceInstance.guid)
+        def otherBindings = [
+                (KubernetesRedisTemplateConstants.REDIS_PASS.getValue())     : redisPassword,
+                (KubernetesRedisTemplateConstants.SLAVEOF_COMMAND.getValue()): slaveofCommand,
+                (KubernetesRedisTemplateConstants.CONFIG_COMMAND.getValue()) : configCommand
+        ]
+        // Make copy of redisConfigurationDefaults Map for thread safety
+        (new HashMap<String, String>(kubernetesServiceConfig.redisConfigurationDefaults)) << planBindings << serviceDetailBindings << otherBindings
+    }
+
+    String getSlavofCommandFromAPI(String serviceInstanceId){
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
+    }
+
+    String getConfigCommandFromAPI(String serviceInstanceId){
+        ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
     }
 
     @Override

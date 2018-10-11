@@ -17,7 +17,6 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.client.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonOutput
@@ -47,14 +46,14 @@ class KubernetesClient<RESPONSE> {
         //TODO get rid of SSL validation disabling, trust the server side certificate instead
         def restTemplate = restTemplateBuilder.withSSLValidationDisabled().
                 withClientSideCertificate(kubernetesConfig.kubernetesClientCertificate, kubernetesConfig.kubernetesClientKey).build()
-        log.info(url + " - " + convertYamlToJson(body))
+        log.info(url + " - " + method.toString() + " - " + convertYamlToJson(body))
         try {
             return restTemplate.exchange(
                     "https://" + kubernetesConfig.getKubernetesHost() + ":" + kubernetesConfig.getKubernetesPort() + "/" +
                             url, method, new HttpEntity<String>(convertYamlToJson(body), getJsonHeaders()), responseType)
         } catch (HttpClientErrorException e) {
             log.error("HttpStatus: ${e.statusCode}, ${e.statusText}, Body: ${e.responseBodyAsString}")
-            ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew("Call to backend system failed")
+            throw e
         }
     }
 
@@ -68,6 +67,10 @@ class KubernetesClient<RESPONSE> {
         this.exchange(url, method, JsonOutput.toJson(finalBody), responseType)
     }
 
+    /* This method provides a simple way to perform a deep merge of Map objects.
+     * Additionally it provides a very specific way to merge array elements.
+     */
+
     Map merge(Map onto, Map... overrides) {
         if (!overrides)
             return onto
@@ -75,12 +78,17 @@ class KubernetesClient<RESPONSE> {
             overrides[0]?.each { k, v ->
                 if (v instanceof Map && onto[k] instanceof Map)
                     merge((Map) onto[k], (Map) v)
+                else if (v instanceof List && onto[k] instanceof List)
+                    merge(((onto[k] as List).first() as Map), v.first() as Map)
                 else
                     onto[k] = v
             }
             return onto
         }
-        overrides.inject(onto, { acc, override -> merge(acc, override ?: [:]) }) as Map
+        overrides.inject(onto, { acc, override ->
+            //noinspection GroovyAssignabilityCheck
+            merge(acc, override ?: [:])
+        }) as Map
     }
 
     private HttpHeaders getJsonHeaders() {

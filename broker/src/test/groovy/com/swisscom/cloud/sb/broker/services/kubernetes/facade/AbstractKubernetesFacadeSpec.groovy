@@ -54,6 +54,11 @@ class AbstractKubernetesFacadeSpec extends Specification {
             }
 
             @Override
+            protected Map<String, String> getUpdateBindingMap(RequestWithParameters context) {
+                ["DUMMY_PLACEHOLDER": "dummy_value"]
+            }
+
+            @Override
             protected Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses) {
                 return null
             }

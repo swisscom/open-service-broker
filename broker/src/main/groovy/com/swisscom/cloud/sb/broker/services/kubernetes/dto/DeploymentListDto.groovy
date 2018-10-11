@@ -18,11 +18,10 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.dto
 import groovy.transform.ToString
 
 @ToString
-class NamespaceResponse implements Serializable {
+class DeploymentListDto implements Serializable {
     String kind
     String apiVersion
+    List<DeploymentDto> items
     Object metadata
-    Object spec
-    Object status
-    Map<String, Object> additionalProperties = new HashMap<String, Object>()
 }
+

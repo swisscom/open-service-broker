@@ -31,6 +31,8 @@ trait KubernetesFacade {
 
     abstract boolean isKubernetesDeploymentSuccessful(String serviceInstanceGuid)
 
+    abstract boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid)
+
     abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
 
 }
