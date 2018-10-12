@@ -43,7 +43,7 @@ enum EndpointMapper {
         mapper.put("RoleBinding", Pair.of("/apis/rbac.authorization.k8s.io/v1beta1/namespaces/serviceInstanceGuid/rolebindings", new Object()))
         mapper.put("ConfigMap", Pair.of("/api/v1/namespaces/serviceInstanceGuid/configmaps", new ConfigMapResponseDto()))
         mapper.put("Service", Pair.of("/api/v1/namespaces/serviceInstanceGuid/services", new ServiceResponse()))
-        mapper.put("DeploymentDto", Pair.of("/apis/apps/v1beta1/namespaces/serviceInstanceGuid/deployments", new DeploymentResponseDto()))
+        mapper.put("Deployment", Pair.of("/apis/apps/v1beta1/namespaces/serviceInstanceGuid/deployments", new DeploymentResponseDto()))
     }
 
 
