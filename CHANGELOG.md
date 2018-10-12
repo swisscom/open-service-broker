@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.16] - 2018-10-12
+- Fix Kubernetes Endpointmapper string renaming in update case
+
+
 ## [5.0.15] - 2018-10-12
 - Fix Kubernetes Endpointmapper string renaming
 
