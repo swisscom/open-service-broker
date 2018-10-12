@@ -148,7 +148,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid) {
         try {
             DeploymentListDto deploymentList = kubernetesClient.exchange(
-                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('DeploymentDto', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
+                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('Deployment', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
                     HttpMethod.GET,
                     "",
                     DeploymentListDto.class
