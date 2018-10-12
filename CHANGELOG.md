@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.15] - 2018-10-12
+- Fix Kubernetes Endpointmapper string renaming
+
+
 ## [5.0.14] - 2018-10-11
 - Add proper update versioning logic dor K8S update service
 - Fix update service for mongnodb-2
