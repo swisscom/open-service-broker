@@ -155,11 +155,6 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             ).body
             int numberOfDeployments = deploymentList.items.size()
             int updatedDeployments = deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
-            deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
-            deploymentList.items.each { deployment ->
-                if (deployment.status.updatedReplicas == deployment.status.replicas)
-                    updatedDeployments = updatedDeployments + 1
-            }
             return (numberOfDeployments == updatedDeployments)
         } catch (HttpStatusCodeException e) {
             log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
