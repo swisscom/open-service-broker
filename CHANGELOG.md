@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.17] - 2018-10-15
+- Fix bug that prevented isKubernetesUpdateSuccessful to return true
+
+
 ## [5.0.16] - 2018-10-12
 - Fix Kubernetes Endpointmapper string renaming in update case
 
