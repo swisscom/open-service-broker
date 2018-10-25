@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.support.CredentialDetails
-import org.springframework.credhub.support.CredentialRequest
 import org.springframework.credhub.support.SimpleCredentialName
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.certificate.CertificateCredentialRequest
@@ -46,9 +45,6 @@ class CredHubServiceImpl implements CredHubService {
     @Autowired
     private CredHubOperations credHubOperations
 
-//    @Autowired
-//    private CredentialPermissionBuilder permissionBuilder
-
     CredHubServiceImpl(CredHubOperations credHubOperations) {
         this.credHubOperations = credHubOperations
     }
@@ -59,35 +55,34 @@ class CredHubServiceImpl implements CredHubService {
         JsonCredential jsonCredential = new JsonCredential(credentials)
         JsonCredentialRequest request =
                 JsonCredentialRequest.builder()
-                        .overwrite(true)
                         .name(new SimpleCredentialName('/' + name))
                         .value(jsonCredential)
                         .build()
-        credHubOperations.write(request)
+        credHubOperations.credentials().write(request)
     }
 
     @Override
     CredentialDetails<JsonCredential> getCredential(String id) {
         log.info("Get CredHub credentials for id: ${id}")
-        credHubOperations.getById(id, JsonCredential)
+        credHubOperations.credentials().getById(id, JsonCredential)
     }
 
     @Override
     CredentialDetails<PasswordCredential> getPasswordCredentialByName(String name) {
         log.info("Get CredHub credentials for name: ${name}")
-        credHubOperations.getByName(new SimpleCredentialName(name), PasswordCredential)
+        credHubOperations.credentials().getByName(new SimpleCredentialName(name), PasswordCredential)
     }
 
     @Override
     CredentialDetails<CertificateCredential> getCertificateCredentialByName(String name) {
         log.info("Get CredHub credentials for name: ${name}")
-        credHubOperations.getByName(new SimpleCredentialName(name), CertificateCredential)
+        credHubOperations.credentials().getByName(new SimpleCredentialName(name), CertificateCredential)
     }
 
     @Override
     void deleteCredential(String name) {
         log.info("Delete CredHub credentials for name: ${name}")
-        credHubOperations.deleteByName(new SimpleCredentialName('/' + name))
+        credHubOperations.credentials().deleteByName(new SimpleCredentialName('/' + name))
     }
 
     @Override
@@ -95,7 +90,7 @@ class CredHubServiceImpl implements CredHubService {
         def request = RsaParametersRequest.builder()
                 .name(new SimpleCredentialName('/' + name))
                 .build()
-        credHubOperations.generate(request)
+        credHubOperations.credentials().generate(request)
     }
 
     @Override
@@ -103,7 +98,6 @@ class CredHubServiceImpl implements CredHubService {
         log.info("Writing new CredHub Credential for name: ${name}")
         def request = CertificateParametersRequest.builder()
                 .name(new SimpleCredentialName('/' + name))
-                .overwrite(true)
                 .parameters(CertificateParameters.builder()
                 .keyLength(parameters.keyLength)
                 .commonName(parameters.commonName)
@@ -118,7 +112,7 @@ class CredHubServiceImpl implements CredHubService {
                 .selfSign(parameters.selfSign)
                 .build())
                 .build()
-        credHubOperations.generate(request)
+        credHubOperations.credentials().generate(request)
     }
 
     @Override
@@ -127,21 +121,27 @@ class CredHubServiceImpl implements CredHubService {
         CertificateCredentialRequest request = CertificateCredentialRequest.builder()
                 .name(new SimpleCredentialName('/' + name))
                 .value(certificateCredential).build()
-        credHubOperations.write(request)
+        credHubOperations.credentials().write(request)
     }
 
     List<CredentialPermission> getPermissions(String credentialName){
         log.info("Retrieving permissions for CredHub Credential: ${credentialName}")
-        return credHubOperations.getPermissions(new SimpleCredentialName("/" + credentialName))
+        return credHubOperations.permissions().getPermissions(new SimpleCredentialName("/" + credentialName))
     }
 
-    List<CredentialPermission> addReadPermission(String credentialName, String appGUID){
+    void addReadPermission(String credentialName, String appGUID){
         log.info("Adding read permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
-        return credHubOperations.addPermissions(new SimpleCredentialName("/" + credentialName), CredentialPermission.builder().app(appGUID).operation(Operation.READ).build())
+        credHubOperations.permissions().addPermissions(new SimpleCredentialName("/" + credentialName), CredentialPermission.builder().app(appGUID).operation(Operation.READ).build())
     }
 
     void deletePermissions(String credentialName, String appGUID){
         log.info("Deleting permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
-        credHubOperations.deletePermission(new SimpleCredentialName("/" + credentialName), Actor.app(appGUID))
+        credHubOperations.permissions().deletePermission(new SimpleCredentialName("/" + credentialName), Actor.app(appGUID))
+    }
+
+    String getVersion(){
+        def version = credHubOperations.info().version().version
+        log.info("Version = " + version)
+        return version
     }
 }
