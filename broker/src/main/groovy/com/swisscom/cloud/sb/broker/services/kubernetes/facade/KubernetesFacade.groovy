@@ -35,4 +35,5 @@ trait KubernetesFacade {
 
     abstract boolean isKubernetesNamespaceDeleted(String serviceInstanceGuid)
 
+    abstract Collection<ServiceDetail> removeAffinity(RequestWithParameters context)
 }

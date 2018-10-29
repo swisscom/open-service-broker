@@ -104,6 +104,48 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                                 ["resourceVersion": service.metadata.resourceVersion]
                 ]
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
+            } else if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Deployment") {
+                def pods = getPodList(context.serviceInstanceGuid).findAll {it.metadata.labels.pod_type != 'meta'}
+                def nodes = pods.collect { it.spec.nodeName }
+                def newMap = [
+                        'spec': [
+                                'template': [
+                                        'spec': [
+                                                'affinity': [
+                                                        'nodeAffinity': [
+                                                                'requiredDuringSchedulingIgnoredDuringExecution': [
+                                                                        'nodeSelectorTerms': [[
+                                                                                'matchExpressions': [[
+                                                                                        key     : 'kubernetes.io/hostname',
+                                                                                        operator: 'In',
+                                                                                        values  : [
+                                                                                                nodes[0],
+                                                                                                nodes[1],
+                                                                                                nodes[2]
+                                                                                        ]
+                                                                                ]]
+                                                                        ]]]]]]]]
+                ]
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
+            } else {
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
+            }
+        }
+        return buildServiceDetailsList(bindingMap, responses)
+    }
+
+    Collection<ServiceDetail> removeAffinity(RequestWithParameters context) {
+        def bindingMap = getUpdateBindingMap(context)
+        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
+        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
+        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        List<ResponseEntity> responses = new LinkedList()
+        for (KubernetesTemplate kubernetesTemplate : templates) {
+            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+            log.trace("Request this template for k8s provision: ${boundTemplate}")
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            if (KubernetesTemplate.getKindForTemplate(boundTemplate) != "Deployment") {
+                continue
             } else {
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
             }
@@ -154,7 +196,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                     DeploymentListDto.class
             ).body
             int numberOfDeployments = deploymentList.items.size()
-            int updatedDeployments = deploymentList.items.findAll(){ deployment -> deployment.status.updatedReplicas == deployment.status.replicas}.size()
+            int updatedDeployments = deploymentList.items.findAll() { deployment -> deployment.status.updatedReplicas == deployment.status.replicas }.size()
             return (numberOfDeployments == updatedDeployments)
         } catch (HttpStatusCodeException e) {
             log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
