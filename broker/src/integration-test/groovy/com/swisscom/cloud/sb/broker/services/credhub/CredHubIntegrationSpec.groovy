@@ -164,7 +164,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
 
     static boolean checkCredHubConfigSet() {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
-        yaml.setResources(new ClassPathResource("application.yml"))
+        yaml.setResources(new ClassPathResource("application-secrets.yml"))
         yaml.afterPropertiesSet()
         return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
     }
