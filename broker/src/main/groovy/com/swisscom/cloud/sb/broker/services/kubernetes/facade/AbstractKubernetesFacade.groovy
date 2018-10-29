@@ -105,7 +105,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                 ]
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
             } else if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Deployment") {
-                def pods = getPodList(context.serviceInstanceGuid).findAll {it.metadata.labels.pod_type != 'meta'}
+                def pods = getPodList(context.serviceInstanceGuid).findAll { it.metadata.labels.pod_type != 'meta' }
                 def nodes = pods.collect { it.spec.nodeName }
                 def newMap = [
                         'spec': [
@@ -115,16 +115,18 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                                                         'nodeAffinity': [
                                                                 'requiredDuringSchedulingIgnoredDuringExecution': [
                                                                         'nodeSelectorTerms': [[
-                                                                                'matchExpressions': [[
-                                                                                        key     : 'kubernetes.io/hostname',
-                                                                                        operator: 'In',
-                                                                                        values  : [
-                                                                                                nodes[0],
-                                                                                                nodes[1],
-                                                                                                nodes[2]
-                                                                                        ]
-                                                                                ]]
-                                                                        ]]]]]]]]
+                                                                                        'matchExpressions': [[
+                                                                                                       key     : 'kubernetes.io/hostname',
+                                                                                                       operator: 'In',
+                                                                                                       values  : nodes as ArrayList
+                                                                                                       ]]
+                                                                                              ]]
+                                                                ]
+                                                        ]
+                                                ]
+                                        ]
+                                ]
+                        ]
                 ]
                 responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
             } else {
