@@ -15,16 +15,12 @@
 
 package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
-import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
-import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
@@ -33,7 +29,6 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
-import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -49,7 +44,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Component
 @CompileStatic
 @Slf4j
-class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, SensitiveParameterProvider{
+class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider{
 
     private final CredHubServiceImpl credHubServiceImpl
     private final ServiceBindingRepository serviceBindingRepository
@@ -58,11 +53,6 @@ class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, S
     CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl, ServiceBindingRepository serviceBindingRepository){
         this.credHubServiceImpl = credHubServiceImpl
         this.serviceBindingRepository = serviceBindingRepository
-    }
-
-    @Override
-    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        return null
     }
 
     @Override
@@ -168,10 +158,5 @@ class CredHubServiceProvider implements ServiceProvider, ServiceUsageProvider, S
                                             from(CREDHUB_CREDENTIAL_NAME, val.name.getName()),
                                             from(CREDHUB_CREDENTIAL_TYPE, val.credentialType.getValueType()),
                                             from(CREDHUB_CREDENTIAL_TIMESTAMP, val.versionCreatedAt.toString())], isAsync: false)
-    }
-
-    @Override
-    Collection<Extension> buildExtensions() {
-        return null
     }
 }
