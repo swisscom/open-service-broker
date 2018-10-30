@@ -36,9 +36,6 @@ import spock.lang.Shared
 class CredHubIntegrationSpec extends BaseSpecification {
 
     @Autowired
-    private CredentialService credentialService
-
-    @Autowired
     private DefaultCredHubConfig defaultCredHubConfig
 
     @Shared
