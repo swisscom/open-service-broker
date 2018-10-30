@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.19] - 2018-10-30
+- Make Service Broker compatible with CredHub 2.0
+- Use `TEXT` for service_detail values to support longer values
+- Update Spring Boot to 2.0.6
+- Introduce application-test.yml for test configuration with docker-compose
+
+## [5.0.18] - 2018-10-29
+- Add session affinity for K8S update to ensure pods are scheduled properly
+
+
 ## [5.0.17] - 2018-10-15
 - Fix bug that prevented isKubernetesUpdateSuccessful to return true
 

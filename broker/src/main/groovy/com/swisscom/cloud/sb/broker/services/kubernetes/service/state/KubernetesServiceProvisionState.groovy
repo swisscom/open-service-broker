@@ -49,6 +49,34 @@ enum KubernetesServiceProvisionState implements ServiceStateWithAction<Kubernete
         }
     }),
 
+    KUBERNETES_SERVICE_REMOVE_AFFINITY(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: true,
+                    details: stateContext.kubernetesFacade.removeAffinity(getRequest(stateContext)))
+        }
+    }),
+
+    CHECK_SERVICE_REMOVE_AFFINITY_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: stateContext.kubernetesFacade.isKubernetesUpdateSuccessful(getRequest(stateContext).serviceInstanceGuid))
+        }
+    }),
+
+    CHECK_SERVICE_DEPLOYMENT_REMOVE_AFFINITY_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
+    () {
+        @Override
+        StateChangeActionResult triggerAction(KubernetesServiceStateMachineContext stateContext) {
+            return new StateChangeActionResult(
+                    go2NextState: stateContext.kubernetesFacade.isKubernetesDeploymentSuccessful(getRequest(stateContext).serviceInstanceGuid))
+        }
+    }),
+
     CHECK_SERVICE_UPDATE_SUCCESSFUL(LastOperation.Status.IN_PROGRESS, new OnStateChange<KubernetesServiceStateMachineContext>
     () {
         @Override
