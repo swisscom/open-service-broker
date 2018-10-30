@@ -1,0 +1,21 @@
+spring:
+  profiles.active: info,default,extensions,secrets,test
+---
+# Configurations used for tests with local docker-compose setup
+# Activate this profile with @ActiveProfiles("test") annotation
+spring:
+  profiles: test
+
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: 'jdbc:mysql://localhost/CFBroker?autoReconnect=true'
+    username: root
+    password:
+
+  credhub:
+    enable: true
+    url: https://localhost:9000
+    oauth2-resourceowner:
+      client-id: credhub_client
+      client-secret: secret
+      access-token-uri: http://localhost:8081/uaa/oauth/token

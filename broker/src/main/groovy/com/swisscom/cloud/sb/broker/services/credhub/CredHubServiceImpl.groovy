@@ -46,7 +46,6 @@ class CredHubServiceImpl implements CredHubService {
     private CredHubCredentialOperations credHubCredentialOperations
 
     CredHubServiceImpl(CredHubOperations credHubOperations) {
-        this.credHubCredentialOperations = new CredHubCredentialTemplate(credHubOperations)
         this.credHubOperations = credHubOperations
     }
 

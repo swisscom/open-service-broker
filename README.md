@@ -47,16 +47,20 @@ Command below gives you a self executable jar
 $ ./gradlew clean build -x test -x integrationTest -x functionalTest 
 ```
 
+### Environment
 
-### Database
+To execute tests or run the Service Broker locally, docker-compose can be used to spin up all required systems.
+```bash
+$ cd docker
+$ docker-compose up -d
+``` 
+
+Configurations for test purposes with the docker-compose environment can be but into [broker/src/main/resources/application-test.yml](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/resources/application-test.yml). The profile can be activated by annotating the test class with `@ActiveProfiles("test")`.
+
+#### Database
 
 To run the service broker locally a mariadb or mysql database with name _CFbroker_ is required.
 The database tables will be generated automatically by the application. See the configuration section for more details.
-
-#### Use Docker for MariaDB setup
-```bash
-docker run --name appc-cf-service-broker-db -e MYSQL_DATABASE=CFBroker -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mariadb
-```
 
 ### Run
 
@@ -217,7 +221,7 @@ Updating/Creating Service Definitions over the service-definition API (defined b
 }
 ```
 
-**_Following endpoints to be deprecated_**
+**_Following endpoints are deprecated_**
 ### Get service definition
 
 Via the example call below, service definitions for a given service id can be retrieved.
