@@ -130,6 +130,7 @@ com.swisscom.cloud.sb.broker.service.mongodbent:
   opsManagerUrlForAutomationAgent: '' #This parameter is optional
   opsManagerUser:
   opsManagerApiKey:
+  opsManagerUserRoles: 'GROUP_MONITORING_ADMIN,GROUP_DATA_ACCESS_ADMIN'
   portRange: '27000-40000'
   dbFolder: '/var/vcap/store/mongodb-data'
   libFolder: '/var/vcap/store/mongodb-mms-automation'
