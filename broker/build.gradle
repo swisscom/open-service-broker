@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.4.RELEASE'
+        springBootVersion = '2.0.6.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -51,14 +51,14 @@ configurations {
 }
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-log4j2:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-autoconfigure:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-jdbc:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-security:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.4.RELEASE'
-    compile 'org.springframework.boot:spring-boot-devtools:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-autoconfigure:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-jdbc:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-security:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-devtools:2.0.6.RELEASE'
     compile 'org.influxdb:influxdb-java:2.7'
     compile 'io.micrometer:micrometer-registry-influx:1.0.4'
     compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:2.0.2.RELEASE'
@@ -104,17 +104,17 @@ dependencies {
     if (project.hasProperty('tomcat')) {
         // Used for production environment
         System.out.println('tomcat')
-        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat:2.0.4.RELEASE')
+        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat:2.0.6.RELEASE')
     } else {
         System.out.println('standalone')
-        runtime('org.springframework.boot:spring-boot-starter-tomcat:2.0.4.RELEASE')
+        runtime('org.springframework.boot:spring-boot-starter-tomcat:2.0.6.RELEASE')
     }
 
     testCompile group: 'org.codehaus.groovy', name: 'groovy', version: '2.5.2'
     testCompile group: 'org.codehaus.groovy', name: 'groovy-test', version: '2.5.2'
 
     testCompile group: 'log4j', name: 'log4j', version: '1.2.17'
-    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
+    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE')
     testCompile('org.spockframework:spock-core:1.2-groovy-2.5')
     testCompile('org.spockframework:spock-spring:1.2-groovy-2.5')
     testCompile('cglib:cglib-nodep:3.2.7')

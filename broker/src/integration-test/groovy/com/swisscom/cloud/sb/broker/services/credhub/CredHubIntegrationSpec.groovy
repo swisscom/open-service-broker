@@ -34,7 +34,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Shared
 
 @IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
-@ActiveProfiles("test")
+@ActiveProfiles("info,default,extensions,secrets,test")
 class CredHubIntegrationSpec extends BaseSpecification {
 
     @Autowired
