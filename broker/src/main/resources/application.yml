@@ -49,7 +49,7 @@ management:
         uri: http://localhost:8086
         step: 5s
         userName:
-        db: osb-metrics
+        db: osb_metrics
         env: "local"
     enable:
       jvm: false
