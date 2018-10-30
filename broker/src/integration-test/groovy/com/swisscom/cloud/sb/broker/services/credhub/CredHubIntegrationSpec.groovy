@@ -29,10 +29,12 @@ import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.rsa.RsaCredential
+import org.springframework.test.context.ActiveProfiles
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
 @IgnoreIf({ !CredHubIntegrationSpec.checkCredHubConfigSet() })
+@ActiveProfiles("test")
 class CredHubIntegrationSpec extends BaseSpecification {
 
     @Autowired
@@ -161,7 +163,7 @@ class CredHubIntegrationSpec extends BaseSpecification {
 
     static boolean checkCredHubConfigSet() {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
-        yaml.setResources(new ClassPathResource("application.yml"))
+        yaml.setResources(new ClassPathResource("application-test.yml"))
         yaml.afterPropertiesSet()
         return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
     }
