@@ -55,7 +55,7 @@ $ cd docker
 $ docker-compose up -d
 ``` 
 
-Configurations for test purposes with the docker-compose environment can be but into [broker/src/main/resources/application-test.yml](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/resources/application-test.yml). The profile can be activated by annotating the test class with `@ActiveProfiles("test")`.
+Configurations for test purposes with the docker-compose environment can be but into [broker/src/main/resources/application-test.yml](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/resources/application-test.yml). The profile can be activated by annotating the test class with `@ActiveProfiles("info,default,extensions,secrets,test")`.
 
 #### Database
 

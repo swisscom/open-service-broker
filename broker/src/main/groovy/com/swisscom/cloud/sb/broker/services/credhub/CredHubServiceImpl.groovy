@@ -33,7 +33,6 @@ import org.springframework.credhub.support.password.PasswordCredential
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
 import org.springframework.stereotype.Service
-import javax.annotation.PostConstruct
 
 @Service
 @Slf4j
@@ -49,9 +48,8 @@ class CredHubServiceImpl implements CredHubService {
         this.credHubOperations = credHubOperations
     }
 
-    @PostConstruct
-    populateCredHubOperations() {
-        this.credHubCredentialOperations = new CredHubCredentialTemplate(this.credHubOperations)
+    CredHubCredentialOperations getCredHubCredentialOperations() {
+        return credHubCredentialOperations ? credHubCredentialOperations : new CredHubCredentialTemplate(credHubOperations)
     }
 
     @Override
@@ -63,31 +61,31 @@ class CredHubServiceImpl implements CredHubService {
                         .name(new SimpleCredentialName('/' + name))
                         .value(jsonCredential)
                         .build()
-        credHubCredentialOperations.write(request)
+        getCredHubCredentialOperations().write(request)
     }
 
     @Override
     CredentialDetails<JsonCredential> getCredential(String id) {
         log.info("Get CredHub credentials for id: ${id}")
-        credHubCredentialOperations.getById(id, JsonCredential)
+        getCredHubCredentialOperations().getById(id, JsonCredential)
     }
 
     @Override
     CredentialDetails<PasswordCredential> getPasswordCredentialByName(String name) {
         log.info("Get CredHub credentials for name: ${name}")
-        credHubCredentialOperations.getByName(new SimpleCredentialName(name), PasswordCredential)
+        getCredHubCredentialOperations().getByName(new SimpleCredentialName(name), PasswordCredential)
     }
 
     @Override
     CredentialDetails<CertificateCredential> getCertificateCredentialByName(String name) {
         log.info("Get CredHub credentials for name: ${name}")
-        credHubCredentialOperations.getByName(new SimpleCredentialName(name), CertificateCredential)
+        getCredHubCredentialOperations().getByName(new SimpleCredentialName(name), CertificateCredential)
     }
 
     @Override
     void deleteCredential(String name) {
         log.info("Delete CredHub credentials for name: ${name}")
-        credHubCredentialOperations.deleteByName(new SimpleCredentialName('/' + name))
+        getCredHubCredentialOperations().deleteByName(new SimpleCredentialName('/' + name))
     }
 
     @Override
@@ -95,7 +93,7 @@ class CredHubServiceImpl implements CredHubService {
         def request = RsaParametersRequest.builder()
                 .name(new SimpleCredentialName('/' + name))
                 .build()
-        credHubCredentialOperations.generate(request)
+        getCredHubCredentialOperations().generate(request)
     }
 
     @Override
@@ -117,7 +115,7 @@ class CredHubServiceImpl implements CredHubService {
                 .selfSign(parameters.selfSign)
                 .build())
                 .build()
-        credHubCredentialOperations.generate(request)
+        getCredHubCredentialOperations().generate(request)
     }
 
     @Override
@@ -126,6 +124,6 @@ class CredHubServiceImpl implements CredHubService {
         CertificateCredentialRequest request = CertificateCredentialRequest.builder()
                 .name(new SimpleCredentialName('/' + name))
                 .value(certificateCredential).build()
-        credHubCredentialOperations.write(request)
+        getCredHubCredentialOperations().write(request)
     }
 }
