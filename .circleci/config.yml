@@ -21,3 +21,23 @@ jobs:
     - run: pushd docker && ./setup_docker.sh ; popd
     - run: ./gradlew clean build -x functionalTest
     - run: ./circleci-publish.sh
+
+  release:
+    docker:
+    - image: circleci/buildpack-deps
+
+    steps:
+    - checkout
+    - run: ./scripts/bump_and_create_release.sh
+
+workflows:
+  version: 2
+  build_and_release:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              only: develop
