@@ -22,6 +22,8 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
+import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
+import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
@@ -38,6 +40,9 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
 
     @Autowired
     ServiceDefinitionInitializer serviceDefinitionInitializer
+
+    @Autowired
+    TestHelperService testHelperService
 
     def "set all services and plans to active"() {
         given:
@@ -62,11 +67,14 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
         assert (!planRepository.findByGuid(planId).active)
 
         when:
-        activateAllServicesAndPlans()
+        testHelperService.setAllServicesAndPlansToActive()
 
         then:
         assert (cfServiceRepository.findByGuid(serviceId).active)
         assert (planRepository.findByGuid(planId).active)
+
+        cleanup:
+        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId, serviceId, planId, true))
     }
 
     def "set selected services and plans to active"() {
@@ -96,11 +104,14 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
         cfServices.add(cfServiceRepository.findByGuid(serviceId))
         ArrayList<Plan> plans = new ArrayList<>()
         plans.add(planRepository.findByGuid(planId))
-        activateServicesAndPlans(cfServices, plans)
+        testHelperService.setServicesAndPlansToActive(cfServices, plans)
 
         then:
         assert (cfServiceRepository.findByGuid(serviceId).active)
         assert (planRepository.findByGuid(planId).active)
+
+        cleanup:
+        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId, serviceId, planId, true))
     }
 
     private ServiceBrokerClientExtended createServiceBrokerClient() {

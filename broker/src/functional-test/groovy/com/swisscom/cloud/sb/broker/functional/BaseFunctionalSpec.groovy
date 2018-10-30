@@ -46,7 +46,7 @@ abstract class BaseFunctionalSpec extends Specification {
     protected WebApplicationContext applicationContext
 
     @Autowired
-    TestHelperService testHelperService
+    protected TestHelperService testHelperService
 
     @Shared
     protected ServiceLifeCycler serviceLifeCycler
@@ -77,14 +77,6 @@ abstract class BaseFunctionalSpec extends Specification {
             serviceBrokerClient = new ServiceBrokerClientExtended(new RestTemplate(), appBaseUrl, cfAdminUser.username, cfAdminUser.password, cfExtUser.username, cfExtUser.password)
             initialized = true
         }
-    }
-
-    void activateServicesAndPlans(List<CFService> cfServices, List<Plan> plans) {
-        testHelperService.setServicesAndPlansToActive(cfServices, plans)
-    }
-
-    void activateAllServicesAndPlans() {
-        testHelperService.setAllServicesAndPlansToActive()
     }
 
     /**
