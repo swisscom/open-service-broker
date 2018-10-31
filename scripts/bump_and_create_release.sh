@@ -12,12 +12,16 @@ if [ -z "$GITHUB_PASSWORD" ]; then
     exit 1
 fi
 
-echo "default login ${GITHUB_USERNAME} password ${GITHUB_PASSWORD}" > ${HOME}/.netrc
+if [ -z "$INCREASE" ]; then
+    INCREASE="dynamic"
+fi
+
+echo "default login ${GITHUB_USER} password ${GITHUB_PASSWORD}" > ${HOME}/.netrc
 # trace shell
 set -x
 
-git config --global user.email "cicd@concourse.ci"
-git config --global user.name "${GITHUB_USERNAME}"
+git config --global user.email "swisscom-ci@github.com"
+git config --global user.name "${GITHUB_USER}"
 
 export WORKING_DIR=${PWD}
 export VERSION=$(awk -F'=' '/^version\=/ { print $2 }' gradle.properties)
@@ -25,7 +29,8 @@ export VERSION_ARR=( ${VERSION//./ } )
 
 # Checks CHANGELOG.md for type of release (major, minor or patch)
 if [ "${INCREASE}" == "dynamic" ]; then
-CHANGELOGS=$(cat $(pwd)/CHANGELOG.md | awk '{print toupper($0)}' | sed -n '/^## \[UNRELEASED\]/,/^## \[/p' | sed '1d;$d;/^$/d')
+    CHANGELOGS=$(cat $(pwd)/CHANGELOG.md | awk '{print toupper($0)}' | sed -n '/^## \[UNRELEASED\]/,/^## \[/p' | sed '1d;$d;/^$/d')
+    echo $CHANGELOGS
     if echo "$CHANGELOGS" | egrep -q "^\- \[MAJOR\] "; then
         INCREASE="major"
     elif echo "$CHANGELOGS" | egrep -q "^\- \[MINOR\] "; then
