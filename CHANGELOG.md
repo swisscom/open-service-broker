@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.20] - 2018-10-31
+- Use springs SNAPSHOT repository for spring-credhub-starter
+
 ## [5.0.19] - 2018-10-30
 - Make Service Broker compatible with CredHub 2.0
 - Use `TEXT` for service_detail values to support longer values
