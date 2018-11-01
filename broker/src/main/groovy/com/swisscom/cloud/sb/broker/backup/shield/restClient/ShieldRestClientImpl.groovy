@@ -15,8 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
-
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldResourceNotFoundException
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
@@ -25,6 +25,7 @@ import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 
 @Slf4j
@@ -198,7 +199,12 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
     }
 
     void deleteArchive(String uuid) {
-        restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
+        try{
+            restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
+        } catch (HttpStatusCodeException e) {
+            log.error "HTTP Code: ${e.statusCode}, Message: ${e.message}, Body: ${e.responseBodyAsString}"
+            throw new ShieldResourceNotFoundException()
+        }
     }
 
     protected <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
