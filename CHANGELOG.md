@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Automate release process
+- Add helper to activate services and plans for testing
 
 ## [5.0.21] - 2018-11-01
 - Fixes bug where shield backups could not be deleted when shield returns HTTP status code 404.
