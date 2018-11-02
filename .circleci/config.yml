@@ -27,6 +27,9 @@ jobs:
     - image: circleci/buildpack-deps
 
     steps:
+    - add_ssh_keys:
+        fingerprints:
+          - "13:ae:c4:7f:fb:c1:ea:41:9d:36:8f:07:9d:e6:0e:66"
     - checkout
     - run: ./scripts/bump_and_create_release.sh
 
