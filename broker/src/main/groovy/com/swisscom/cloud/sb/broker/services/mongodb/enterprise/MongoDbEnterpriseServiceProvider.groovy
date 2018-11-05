@@ -46,11 +46,13 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 
 import javax.annotation.PostConstruct
 
-import static ServiceDetail.from
+import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.google.common.base.Strings.isNullOrEmpty
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
 
@@ -241,10 +243,18 @@ class MongoDbEnterpriseServiceProvider
 
     @Override
     void unbind(UnbindRequest request) {
-        opsManagerFacade.deleteDbUser(getMongoDbGroupId(request.serviceInstance),
-                ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
-                ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
-        opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+        try {
+            opsManagerFacade.deleteDbUser(getMongoDbGroupId(request.serviceInstance),
+                    ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
+                    ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
+            opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+        } catch (HttpClientErrorException e) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")
+            } else {
+                throw e
+            }
+        }
     }
 
     static String getMongoDbGroupId(LastOperationJobContext context) {
