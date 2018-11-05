@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Automate release process
 - Add helper to activate services and plans for testing
+- Fix issue where error messages are not correctly returned on last operations
 
 ## [5.0.21] - 2018-11-01
 - Fixes bug where shield backups could not be deleted when shield returns HTTP status code 404.
-
 
 ## [5.0.20] - 2018-10-31
 - Use springs SNAPSHOT repository for spring-credhub-starter
