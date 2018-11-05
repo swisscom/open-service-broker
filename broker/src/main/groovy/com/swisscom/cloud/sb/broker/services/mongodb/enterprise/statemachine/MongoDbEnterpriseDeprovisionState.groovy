@@ -35,7 +35,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            try {
+            ignore404 {
                 String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
                 Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
                 if (optionalReplicaSet.present) {
@@ -43,12 +43,6 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
                 } else {
                     log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
                             "the previous provisioning attempt must have failed.")
-                }
-            } catch (HttpClientErrorException e) {
-                if (e.statusCode == HttpStatus.NOT_FOUND) {
-                    log.info(this.getClass().getSimpleName() + ": Ignore 404 from opsmanager error during deprovision")
-                } else {
-                    throw e
                 }
             }
             return new StateChangeActionResult(go2NextState: true)
