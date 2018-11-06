@@ -229,8 +229,8 @@ class ServiceLifeCycler {
     }
 
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                                         boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
-        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, null, context)
+                                                         boolean asyncRequest = false, boolean asyncResponse = false, Context context = null, Map<String, Object> provisionParameters = null) {
+        createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, provisionParameters, context)
         bindServiceInstanceAndAssert(null, null, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }

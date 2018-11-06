@@ -19,6 +19,7 @@ import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.password.PasswordCredential
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 
 interface CredHubService {
@@ -37,4 +38,10 @@ interface CredHubService {
     CredentialDetails<CertificateCredential> writeCertificate(String name, String certificate, String certificateAuthority, String privateKey)
 
     void deleteCredential(String name)
+
+    List<Permission> getPermissions(String name)
+
+    void addReadPermission(String name, String appGUID)
+
+    void deletePermission(String name, String appGUID)
 }

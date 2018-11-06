@@ -34,8 +34,8 @@ import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.json.JsonCredentialRequest
 import org.springframework.credhub.support.password.PasswordCredential
 import org.springframework.credhub.support.permissions.Actor
-import org.springframework.credhub.support.permissions.CredentialPermission
 import org.springframework.credhub.support.permissions.Operation
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
 import org.springframework.stereotype.Service
@@ -140,19 +140,19 @@ class CredHubServiceImpl implements CredHubService {
         getCredHubCredentialOperations().write(request)
     }
 
-    List<CredentialPermission> getPermissions(String credentialName){
-        log.info("Retrieving permissions for CredHub Credential: ${credentialName}")
-        getCredHubPermissionOperations().getPermissions(new SimpleCredentialName("/" + credentialName))
+    List<Permission> getPermissions(String name){
+        log.info("Retrieving permissions for CredHub Credential: ${name}")
+        getCredHubPermissionOperations().getPermissions(new SimpleCredentialName("/" + name))
     }
 
-    void addReadPermission(String credentialName, String appGUID){
-        log.info("Adding read permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
-        getCredHubPermissionOperations().addPermissions(new SimpleCredentialName("/" + credentialName), CredentialPermission.builder().app(appGUID).operation(Operation.READ).build())
+    void addReadPermission(String name, String appGUID){
+        log.info("Adding read permission for CredHub Credential: ${name} to app: ${appGUID}")
+        getCredHubPermissionOperations().addPermissions(new SimpleCredentialName("/" + name), Permission.builder().app(appGUID).operation(Operation.READ).build())
     }
 
-    void deletePermissions(String credentialName, String appGUID){
-        log.info("Deleting permission for CredHub Credential: ${credentialName} to app: ${appGUID}")
-        getCredHubPermissionOperations().deletePermission(new SimpleCredentialName("/" + credentialName), Actor.app(appGUID))
+    void deletePermission(String name, String appGUID){
+        log.info("Deleting permission for CredHub Credential: ${name} to app: ${appGUID}")
+        getCredHubPermissionOperations().deletePermission(new SimpleCredentialName("/" + name), Actor.app(appGUID))
     }
 
     String getVersion(){

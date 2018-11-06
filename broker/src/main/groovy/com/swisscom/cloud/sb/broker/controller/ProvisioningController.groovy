@@ -31,6 +31,8 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStat
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceInstanceProvider
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstanceResponseDto
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
@@ -70,6 +72,8 @@ class ProvisioningController extends BaseController {
     private PlanRepository planRepository
     @Autowired
     private ServiceInstanceDtoConverter serviceInstanceDtoConverter
+    @Autowired
+    protected ServiceProviderLookup serviceProviderLookup
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
@@ -78,10 +82,16 @@ class ProvisioningController extends BaseController {
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
 
-        log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
-
         failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
-        log.trace("ProvisioningDto:${provisioningDto.toString()}")
+
+        def serviceProvider = serviceProviderLookup.findServiceProvider(getAndCheckPlan(provisioningDto.plan_id))
+
+        if(serviceProvider instanceof SensitiveParameterProvider){
+            log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}}")
+        } else {
+            log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
+            log.trace("ProvisioningDto:${provisioningDto.toString()}")
+        }
 
         def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
         if (StringUtils.contains(request.parameters, "parent_reference") &&

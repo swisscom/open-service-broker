@@ -1,12 +1,17 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
+import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
+import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import groovy.json.JsonSlurper
 import org.springframework.credhub.support.password.PasswordCredential
+import org.springframework.credhub.support.permissions.Operation
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.http.HttpStatus
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.CredentialType
@@ -23,10 +28,12 @@ class CredHubServiceProviderSpec extends Specification{
 
     private CredHubServiceProvider credHubServiceProvider
     private CredHubServiceImpl credHubServiceImpl
+    private ServiceBindingRepository serviceBindingRepository
 
     def setup() {
         credHubServiceImpl = Mock(CredHubServiceImpl)
-        credHubServiceProvider = new CredHubServiceProvider(credHubServiceImpl)
+        serviceBindingRepository = Mock(ServiceBindingRepository)
+        credHubServiceProvider = new CredHubServiceProvider(credHubServiceImpl, serviceBindingRepository)
     }
 
     def "get credential name non-existing"(){
@@ -37,20 +44,20 @@ class CredHubServiceProviderSpec extends Specification{
         credHubServiceImpl.getPasswordCredentialByName(name) >> null
 
         then:
-        credHubServiceProvider.getCredential(name) == null
+        assert credHubServiceProvider.getCredential(name) == null
         noExceptionThrown()
     }
 
     def "get credential name existing"(){
         given:
         def name = credHubServiceProvider.constructKey(SERVICE_INSTANCE)
-        def cred = new CredentialDetails<PasswordCredential>(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
+        def cred = new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
 
         when:
         credHubServiceImpl.getPasswordCredentialByName(name) >> cred
 
         then:
-        credHubServiceProvider.getCredential(name) == cred
+        assert credHubServiceProvider.getCredential(name) == cred
         noExceptionThrown()
     }
 
@@ -64,10 +71,10 @@ class CredHubServiceProviderSpec extends Specification{
 
         when:
         credHubServiceImpl.getPasswordCredentialByName(name) >> null
-        credHubServiceImpl.writeCredential(name, object) >> new CredentialDetails(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
+        credHubServiceImpl.writeCredential(name, object) >> new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
 
         then:
-        from(credHubServiceProvider.provision(provisionRequest).details).getValue(CREDHUB_CREDENTIAL_NAME) == "swisscom-service-broker/credhub/" + SERVICE_INSTANCE + "/credentials"
+        assert from(credHubServiceProvider.provision(provisionRequest).details).getValue(CREDHUB_CREDENTIAL_NAME) == "swisscom-service-broker/credhub/" + SERVICE_INSTANCE + "/credentials"
         noExceptionThrown()
     }
 
@@ -78,7 +85,7 @@ class CredHubServiceProviderSpec extends Specification{
         ProvisionRequest provisionRequest = new ProvisionRequest(serviceInstanceGuid: SERVICE_INSTANCE, plan: new Plan(), parameters: cred)
 
         when:
-        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails<PasswordCredential>(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
+        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
         credHubServiceProvider.provision(provisionRequest)
 
         then:
@@ -120,11 +127,11 @@ class CredHubServiceProviderSpec extends Specification{
         UpdateRequest updateRequest = new UpdateRequest(serviceInstanceGuid: SERVICE_INSTANCE, parameters: cred)
 
         when:
-        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails<PasswordCredential>(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
-        credHubServiceImpl.writeCredential(name, object) >> new CredentialDetails(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
+        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
+        credHubServiceImpl.writeCredential(name, object) >> new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
 
         then:
-        from(credHubServiceProvider.update(updateRequest).details).getValue(CREDHUB_CREDENTIAL_NAME) == "swisscom-service-broker/credhub/" + SERVICE_INSTANCE + "/credentials"
+        assert from(credHubServiceProvider.update(updateRequest).details).getValue(CREDHUB_CREDENTIAL_NAME) == "swisscom-service-broker/credhub/" + SERVICE_INSTANCE + "/credentials"
         noExceptionThrown()
     }
 
@@ -150,11 +157,56 @@ class CredHubServiceProviderSpec extends Specification{
         UpdateRequest updateRequest = new UpdateRequest(serviceInstanceGuid: SERVICE_INSTANCE, parameters: cred)
 
         when:
-        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails<PasswordCredential>(name: new SimpleCredentialName(name), id: "id", credentialType: CredentialType.JSON, value: "value", versionCreatedAt: new Date())
+        credHubServiceImpl.getPasswordCredentialByName(name) >> new CredentialDetails("id", new SimpleCredentialName(name), CredentialType.JSON, PasswordCredential)
         credHubServiceProvider.update(updateRequest)
 
         then:
         def exception = thrown(ServiceBrokerException)
         exception.httpStatus == HttpStatus.BAD_REQUEST
     }
+
+    def "create credential key"(){
+        given:
+        def name = "cred-key"
+
+        when:
+        def key = credHubServiceProvider.constructKey(name)
+
+        then:
+        assert key ==  "swisscom-service-broker/credhub/cred-key/credentials"
+        noExceptionThrown()
+    }
+
+    def "bind credential"(){
+        given:
+        def app_guid = "app-guid"
+        def service_guid = "service-instance"
+        BindRequest bindRequest = new BindRequest(serviceInstance: new ServiceInstance(guid: service_guid), app_guid: app_guid)
+        List<Permission> permissions = [Permission.builder().app(app_guid).operation(Operation.READ).build()]
+
+        when:
+        credHubServiceImpl.getPermissions(credHubServiceProvider.constructKey(service_guid)) >> permissions
+        credHubServiceProvider.bind(bindRequest)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "unsuccessful bind credential"(){
+        given:
+        def app_guid = "app-guid"
+        def service_guid = "service-instance"
+        BindRequest bindRequest = new BindRequest(serviceInstance: new ServiceInstance(guid: service_guid), app_guid: app_guid)
+        List<Permission> permissions = [Permission.builder().app("something").operation(Operation.READ).build()]
+
+        when:
+        credHubServiceImpl.getPermissions(credHubServiceProvider.constructKey(service_guid)) >> permissions
+        credHubServiceProvider.bind(bindRequest)
+
+        then:
+        def exception = thrown(ServiceBrokerException)
+        exception.httpStatus == HttpStatus.BAD_REQUEST
+    }
+
+
 }

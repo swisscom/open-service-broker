@@ -35,7 +35,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.support.CredentialDetails
-import org.springframework.credhub.support.permissions.CredentialPermission
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
@@ -110,7 +110,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
             log.error("Exception = " + ex.toString())
         }
 
-        List<CredentialPermission> res = credHubServiceImpl.getPermissions(constructKey(request.serviceInstance.guid))
+        List<Permission> res = credHubServiceImpl.getPermissions(constructKey(request.serviceInstance.guid))
 
         Boolean flag = false
         for (item in res) {
@@ -133,7 +133,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
 
     @Override
     void unbind(UnbindRequest request) {
-        credHubServiceImpl.deletePermissions(constructKey(request.serviceInstance.guid), ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(request.binding.guid).details).getValue(request.binding.guid))
+        credHubServiceImpl.deletePermission(constructKey(request.serviceInstance.guid), ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(request.binding.guid).details).getValue(request.binding.guid))
     }
 
     @Override
