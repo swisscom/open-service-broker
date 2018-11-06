@@ -20,7 +20,7 @@ import spock.lang.Specification
 
 
 class MariaDBShieldTargetSpec extends Specification {
-    def "generates an endpoint json for mysql"() {
+    def "generates an endpoint json without optional bindir for mysql"() {
         given:
         def target = new MariaDBShieldTarget(
                 user: 'user1',
@@ -28,15 +28,22 @@ class MariaDBShieldTargetSpec extends Specification {
                 host: 'host1',
                 database: 'db1')
         and:
-        String expected = """{
-                            "mysql_user": "user1",
-                            "mysql_password": "pw1",
-                            "mysql_host": "host1",
-                            "mysql_database": "db1",
-                            "mysql_options": "${MariaDBShieldTarget.MYSQL_OPTIONS}"
-                        }"""
+        String expected = """{"mysql_user": "user1","mysql_password": "pw1","mysql_host": "host1","mysql_database": "db1","mysql_options": "${MariaDBShieldTarget.MYSQL_OPTIONS}"}"""
         expect:
-        JSONAssert.assertEquals(expected, target.endpointJson(), false)
+        JSONAssert.assertEquals(expected, target.endpointJson(), true)
     }
 
+    def "generates an endpoint json for mysql"() {
+        given:
+        def target = new MariaDBShieldTarget(
+                user: 'user1',
+                password: 'pw1',
+                host: 'host1',
+                database: 'db1',
+                bindir: '/var/lib/mysql/bin')
+        and:
+        String expected = """{"mysql_user": "user1","mysql_password": "pw1","mysql_host": "host1","mysql_database": "db1","mysql_options": "${MariaDBShieldTarget.MYSQL_OPTIONS}","mysql_bindir": "/var/lib/mysql/bin"}"""
+        expect:
+        JSONAssert.assertEquals(expected, target.endpointJson(), true)
+    }
 }

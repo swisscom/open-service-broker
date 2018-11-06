@@ -16,18 +16,28 @@
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
 import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
-import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
+import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import groovy.transform.CompileStatic
-import org.springframework.stereotype.Component
+import spock.lang.Specification
 
-@CompileStatic
-@Component
-class ErrorDtoConverter extends AbstractGenericConverter<ServiceBrokerException, ErrorDto> {
-    @Override
-    protected void convert(ServiceBrokerException source, ErrorDto prototype) {
-        prototype.code = source.code
-        prototype.description = source.message
-        prototype.error_code = source.error_code
+
+class ErrorDtoConverterSpec extends Specification {
+
+    def 'Can convert ServiceBrokerException correctly'() {
+        given:
+        def testee = new ErrorDtoConverter()
+
+        when:
+        ErrorDto result
+        try {
+            ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("CUSTOM ERROR MESSAGE")
+        } catch (ServiceBrokerException ex) {
+            result = testee.convert(ex)
+        }
+
+        then:
+        result.description == "Serviceprovider for the selected Plan encountered an Error " + "CUSTOM ERROR MESSAGE"
+        result.code == ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.code
+        result.error_code == ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.errorCode
     }
 }

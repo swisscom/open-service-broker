@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.mariadb
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import groovy.json.JsonBuilder
+import groovy.json.JsonGenerator
 
 /*
  Example:
@@ -47,12 +47,13 @@ class MariaDBShieldTarget implements ShieldTarget {
 
     @Override
     String endpointJson() {
-        new JsonBuilder(mysql_user: user,
-                mysql_password: password,
-                mysql_host: host,
-                mysql_port: port,
-                mysql_database: database,
-                mysql_options: MYSQL_OPTIONS,
-                mysql_bindir: bindir)
+        new JsonGenerator.Options().excludeNulls().build().toJson(
+                [mysql_user    : user,
+                 mysql_password: password,
+                 mysql_host    : host,
+                 mysql_port    : port,
+                 mysql_database: database,
+                 mysql_options : MYSQL_OPTIONS,
+                 mysql_bindir  : bindir])
     }
 }
