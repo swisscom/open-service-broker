@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
-
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*

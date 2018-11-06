@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import com.swisscom.cloud.sb.client.model.LastOperationState
@@ -42,6 +44,9 @@ abstract class BaseFunctionalSpec extends Specification {
 
     @Autowired
     protected WebApplicationContext applicationContext
+
+    @Autowired
+    protected TestHelperService testHelperService
 
     @Shared
     protected ServiceLifeCycler serviceLifeCycler

@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+## [5.0.22] - 2018-11-06
+- Automate release process
+- Add helper to activate services and plans for testing
+- Fix issue where error messages are not correctly returned on last operations
+- Fix bug where shield backups could not be deleted when shield returns HTTP status code 404.
+- Fix bug with 404 during MongoDB unbind
+- Fix bug with MariaDB ShieldTargets without bindir
+
+## [5.0.21] - 2018-11-01
+- Fixes bug where shield backups could not be deleted when shield returns HTTP status code 404.
+
+## [5.0.20] - 2018-10-31
+- Use springs SNAPSHOT repository for spring-credhub-starter
+
 ## [5.0.19] - 2018-10-30
 - Make Service Broker compatible with CredHub 2.0
 - Use `TEXT` for service_detail values to support longer values
