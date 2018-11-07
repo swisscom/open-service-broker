@@ -262,7 +262,8 @@ class ServiceDefinitionProcessor {
             cfServiceRepository.save(service)
             planRepository.delete(plan)
         } else {
-            ErrorCode.PLAN_IN_USE.throwNew()
+            plan.active = false
+            planRepository.save(plan)
         }
     }
 
