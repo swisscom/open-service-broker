@@ -30,23 +30,24 @@ import javax.annotation.PostConstruct
 @EnableConfigurationProperties
 @Slf4j
 class ServiceDefinitionInitializer {
-
     private CFServiceRepository cfServiceRepository
-
     private PlanRepository planRepository
-
     private PlanMetadataRepository planMetadataRepository
-
     private ParameterRepository parameterRepository
-
     private ServiceInstanceRepository serviceInstanceRepository
-
     private ServiceDefinitionConfig serviceDefinitionConfig
-
     private ServiceDefinitionProcessor serviceDefinitionProcessor
 
     @Autowired
-    ServiceDefinitionInitializer(CFServiceRepository cfServiceRepository, PlanRepository planRepository, PlanMetadataRepository planMetadataRepository, ParameterRepository parameterRepository, ServiceInstanceRepository serviceInstanceRepository, ServiceDefinitionConfig serviceDefinitionConfig, ServiceDefinitionProcessor serviceDefinitionProcessor) {
+    ServiceDefinitionInitializer(
+            CFServiceRepository cfServiceRepository,
+            PlanRepository planRepository,
+            PlanMetadataRepository planMetadataRepository,
+            ParameterRepository parameterRepository,
+            ServiceInstanceRepository serviceInstanceRepository,
+            ServiceDefinitionConfig serviceDefinitionConfig,
+            ServiceDefinitionProcessor serviceDefinitionProcessor)
+    {
         this.cfServiceRepository = cfServiceRepository
         this.planRepository = planRepository
         this.planMetadataRepository = planMetadataRepository
@@ -74,7 +75,9 @@ class ServiceDefinitionInitializer {
     }
 
     void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
+        log.info("Start ServiceDefinition Synchronization (Is:${toBeDeleted.size()},Should:${services.size()}")
         services.each{ service ->
+            log.info("Add or Update (name:${service.name}).")
             addOrUpdateServiceDefinitions(service)
             if(toBeDeleted.containsKey(service.guid)) {
                 toBeDeleted.remove(service.guid)
@@ -82,13 +85,18 @@ class ServiceDefinitionInitializer {
         }
 
         toBeDeleted.each{ key, service ->
+            log.info("Delete/Disable Service (name:${service.name})")
             def canDeleteService = true
             service.plans.toList().each{ plan ->
+                log.info("+ Delete/Disable Plan (name:${plan.name},id:${plan.id})")
                 canDeleteService = canDeleteService & tryDeletePlan(plan)
             }
+
             if(canDeleteService) {
+                log.info("DELETE Service (name:${service.name})")
                 deleteServiceHibernateCacheSavely(service)
             } else {
+                log.info("DISABLE Service (name:${service.name})")
                 service.active = false
                 cfServiceRepository.saveAndFlush(service)
             }
@@ -102,13 +110,13 @@ class ServiceDefinitionInitializer {
     boolean tryDeletePlan(Plan plan) {
         if(serviceInstanceRepository.findByPlan(plan)) {
             if(plan.active) {
+                log.info("+ DISABLE Plan (name:${plan.name},id:${plan.id})")
                 plan.active = false
                 planRepository.saveAndFlush(plan)
             }
             return false
         } else {
-            plan.service.plans.remove(plan)
-            cfServiceRepository.saveAndFlush(plan.service)
+            log.info("+ DELETE Plan (name:${plan.name},id:${plan.id})")
             planRepository.delete(plan)
             planRepository.flush()
             return true
