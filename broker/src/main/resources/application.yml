@@ -12,7 +12,7 @@ spring:
     password:
 
   credhub:
-    enable: false
+    enable:
 
 com.swisscom.cloud.sb.broker.credhub:
   keyLength: LENGTH_2048

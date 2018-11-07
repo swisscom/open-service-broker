@@ -47,8 +47,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider{
 
     private final CredHubServiceImpl credHubServiceImpl
-//    @Autowired
-//    CredHubService credHubService
+
     private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
