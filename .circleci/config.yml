@@ -30,7 +30,7 @@ jobs:
     - checkout
     - add_ssh_keys:
         fingerprints:
-          - "13:ae:c4:7f:fb:c1:ea:41:9d:36:8f:07:9d:e6:0e:66"
+          - "c7:88:38:13:95:28:53:68:f3:2e:73:ee:e4:c9:5d:66"
     - run: ./scripts/bump_and_create_release.sh
 
 workflows:
