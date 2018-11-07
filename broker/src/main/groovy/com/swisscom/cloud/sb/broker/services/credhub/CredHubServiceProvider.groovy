@@ -46,12 +46,14 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Slf4j
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider{
 
-    private final CredHubServiceImpl credHubServiceImpl
+    private final CredHubService credHubService
+//    @Autowired
+//    CredHubService credHubService
     private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl, ServiceBindingRepository serviceBindingRepository){
-        this.credHubServiceImpl = credHubServiceImpl
+    CredHubServiceProvider(CredHubService credHubService, ServiceBindingRepository serviceBindingRepository){
+        this.credHubService = credHubService
         this.serviceBindingRepository = serviceBindingRepository
     }
 
@@ -72,7 +74,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
         def jsonSlurper = new JsonSlurper()
         Map object = (Map)jsonSlurper.parseText(request.parameters)
 
-        def val = credHubServiceImpl.writeCredential(constructKey(request.serviceInstanceGuid), object)
+        def val = credHubService.writeCredential(constructKey(request.serviceInstanceGuid), object)
 
         return new ProvisionResponse(details: [from(CREDHUB_CREDENTIAL_ID, val.id),
                                                from(CREDHUB_CREDENTIAL_NAME, val.name.getName()),
@@ -88,7 +90,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
     CredentialDetails getCredential(String name){
 
         try {
-            return credHubServiceImpl.getPasswordCredentialByName(name)
+            return credHubService.getPasswordCredentialByName(name)
         } catch (CredHubException ex) {
             log.info("CredHubException error exception = ${ex}")
             log.info("Credential does not exist")
@@ -98,19 +100,19 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
-        credHubServiceImpl.deleteCredential(constructKey(request.serviceInstanceGuid))
+        credHubService.deleteCredential(constructKey(request.serviceInstanceGuid))
         return new DeprovisionResponse(isAsync: false)
     }
 
     @Override
     BindResponse bind(BindRequest request) {
         try {
-            credHubServiceImpl.addReadPermission(constructKey(request.serviceInstance.guid), request.app_guid)
+            credHubService.addReadPermission(constructKey(request.serviceInstance.guid), request.app_guid)
         } catch(Exception ex) {
             log.error("Exception = " + ex.toString())
         }
 
-        List<Permission> res = credHubServiceImpl.getPermissions(constructKey(request.serviceInstance.guid))
+        List<Permission> res = credHubService.getPermissions(constructKey(request.serviceInstance.guid))
 
         Boolean flag = false
         for (item in res) {
@@ -133,7 +135,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
 
     @Override
     void unbind(UnbindRequest request) {
-        credHubServiceImpl.deletePermission(constructKey(request.serviceInstance.guid), ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(request.binding.guid).details).getValue(request.binding.guid))
+        credHubService.deletePermission(constructKey(request.serviceInstance.guid), ServiceDetailsHelper.from(serviceBindingRepository.findByGuid(request.binding.guid).details).getValue(request.binding.guid))
     }
 
     @Override
@@ -152,7 +154,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
         def jsonSlurper = new JsonSlurper()
         Map object = (Map)jsonSlurper.parseText(request.parameters)
 
-        def val = credHubServiceImpl.writeCredential(constructKey(request.serviceInstanceGuid), object)
+        def val = credHubService.writeCredential(constructKey(request.serviceInstanceGuid), object)
 
         return new UpdateResponse(details: [from(CREDHUB_CREDENTIAL_ID, val.id),
                                             from(CREDHUB_CREDENTIAL_NAME, val.name.getName()),
