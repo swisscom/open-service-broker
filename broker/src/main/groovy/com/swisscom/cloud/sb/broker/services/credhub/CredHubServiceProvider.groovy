@@ -33,6 +33,7 @@ import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.permissions.Permission
@@ -44,6 +45,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Component
 @CompileStatic
 @Slf4j
+@ConditionalOnProperty(name = "spring.credhub.enable", havingValue = "true")
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider{
 
     private final CredHubServiceImpl credHubServiceImpl
