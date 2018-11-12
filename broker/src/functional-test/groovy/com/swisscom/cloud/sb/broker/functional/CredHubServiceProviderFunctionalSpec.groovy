@@ -21,7 +21,7 @@ import spock.lang.Stepwise
 @IgnoreIf({ !CredHubServiceProviderFunctionalSpec.checkCredHubConfigSet() })
 @ActiveProfiles("info,default,extensions,secrets,test")
 @Stepwise
-class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec implements CloudFoundryContextRestrictedOnly {
+class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
     private CredHubOperations credHubOperations

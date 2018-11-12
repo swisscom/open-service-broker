@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.services.credhub
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -46,7 +47,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @CompileStatic
 @Slf4j
 @ConditionalOnProperty(name = "spring.credhub.enable", havingValue = "true")
-class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider{
+class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider, CloudFoundryContextRestrictedOnly {
 
     private final CredHubServiceImpl credHubServiceImpl
 
