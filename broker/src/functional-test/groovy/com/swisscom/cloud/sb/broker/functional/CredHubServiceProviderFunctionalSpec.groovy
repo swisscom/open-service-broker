@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceProvider
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
@@ -24,6 +25,9 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
     private CredHubOperations credHubOperations
+
+    @Autowired
+    CredHubService credHubService
 
     @Shared
     Map<String, Object> creds
@@ -87,6 +91,36 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     def "deprovision chaas service instance"() {
         when:
         serviceLifeCycler.deleteServiceBindingAndAssert()
+        serviceLifeCycler.deleteServiceInstanceAndAssert()
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "unbind already removed permission"() {
+        when:
+        serviceLifeCycler.serviceInstanceId = UUID.randomUUID().toString()
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false,false, null, ["password":"pass"])
+        credHubService.deletePermission("/swisscom-service-broker/credhub/" + serviceLifeCycler.serviceInstanceId + "/credentials", "app-id")
+
+        serviceLifeCycler.deleteServiceBindingAndAssert(serviceLifeCycler.serviceBindingId)
+
+        then:
+        noExceptionThrown()
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert()
+    }
+
+    def "deprovision chaas service instance not existing in credhub"() {
+        when:
+        serviceLifeCycler.serviceInstanceId = UUID.randomUUID().toString()
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false,false, ["password":"pass"])
+        creds = serviceLifeCycler.getCredentials()
+        println("Credentials: ${creds.get("credhub-ref")}")
+
+        credHubService.deleteCredential("swisscom-service-broker/credhub/" + serviceLifeCycler.serviceInstanceId + "/credentials")
+
         serviceLifeCycler.deleteServiceInstanceAndAssert()
 
         then:
