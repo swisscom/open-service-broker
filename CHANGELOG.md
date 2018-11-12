@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- [MINOR] Add CredHubServiceProvider
+- Add Audit log functionality
 
 ## [5.0.23] - 2018-11-08
 - Improve automated release
