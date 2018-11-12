@@ -15,10 +15,12 @@ import org.springframework.credhub.support.ServicesData
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.IgnoreIf
 import spock.lang.Shared
+import spock.lang.Stepwise
 
-@IgnoreIf({ !CredHubServiceProviderFunctionSpec.checkCredHubConfigSet() })
+@IgnoreIf({ !CredHubServiceProviderFunctionalSpec.checkCredHubConfigSet() })
 @ActiveProfiles("info,default,extensions,secrets,test")
-class CredHubServiceProviderFunctionSpec extends BaseFunctionalSpec {
+@Stepwise
+class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
     @Autowired
     private CredHubOperations credHubOperations
@@ -46,7 +48,6 @@ class CredHubServiceProviderFunctionSpec extends BaseFunctionalSpec {
 
         then:
         noExceptionThrown()
-
     }
 
     def "interpolate credhub ref"() {
@@ -61,17 +62,35 @@ class CredHubServiceProviderFunctionSpec extends BaseFunctionalSpec {
         assert newData.get("chaas").get(0).get("credentials") == ["password":"pass"]
     }
 
-    def "deprovision openwhisk service instance"() {
+    def "update chaas service instance"() {
+        when:
+        serviceLifeCycler.requestUpdateServiceInstance(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.cfService.guid, serviceLifeCycler.cfService.plans.first().guid, ["password":"anotherpass"])
+        creds = serviceLifeCycler.getCredentials()
+        println("Credentials: ${creds.get("credhub-ref")}")
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "interpolate updated credhub ref"() {
+        when:
+        def jsonSlurper = new JsonSlurper()
+        def object = jsonSlurper.parseText("""{"chaas": [{ "credentials": { "credhub-ref": "${creds.get("credhub-ref")}" }, "instance_name": "creds", "label": "chaas", "name": "creds", "plan": "basic", "tags": [] }]}""")
+        ServicesData data = new ServicesData(object as HashMap)
+        CredHubInterpolationOperations credHubInterpolationOperations = new CredHubInterpolationTemplate(credHubOperations)
+
+        then:
+        ServicesData newData = credHubInterpolationOperations.interpolateServiceData(data)
+        assert newData.get("chaas").get(0).get("credentials") == ["password":"anotherpass"]
+    }
+
+    def "deprovision chaas service instance"() {
         when:
         serviceLifeCycler.deleteServiceBindingAndAssert()
         serviceLifeCycler.deleteServiceInstanceAndAssert()
 
         then:
         noExceptionThrown()
-    }
-
-    def cleanupSpec() {
-        serviceLifeCycler.cleanup()
     }
 
     static boolean checkCredHubConfigSet() {

@@ -27,3 +27,31 @@ com.swisscom.cloud.sb.broker.bosh.credhub:
     client-id: credhub_client
     client-secret: secret
     access-token-uri: http://localhost:8081/uaa/oauth/token
+
+
+com.swisscom.cloud.sb.broker.serviceDefinitions: [
+{
+  "guid": "7a495d86-73dc-4903-9b0b-140c9b011610",
+  "name": "credHubTest",
+  "description": "CredHub 2.0.0 Test",
+  "bindable": true,
+  "asyncRequired": false,
+  "internalName": "credHub",
+  "displayIndex": 1,
+  "metadata": {
+    "version": "2.0.0",
+    "displayName": "CredHub"
+  },
+  "plans": [
+  {
+    "guid": "0ef19631-1212-47cc-9c77-22d78ddaae3a",
+    "name": "test",
+    "description": "CredHub 2.0.0 Test",
+    "free": false,
+    "displayIndex": 0,
+    "metadata": {
+      "displayName": "test"
+    }
+  }
+  ]
+}]

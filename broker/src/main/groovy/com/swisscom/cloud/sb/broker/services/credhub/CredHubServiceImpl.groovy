@@ -26,6 +26,7 @@ import org.springframework.credhub.core.credential.CredHubCredentialOperations
 import org.springframework.credhub.core.credential.CredHubCredentialTemplate
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.SimpleCredentialName
+import org.springframework.credhub.support.WriteMode
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.certificate.CertificateCredentialRequest
 import org.springframework.credhub.support.certificate.CertificateParameters
@@ -73,6 +74,7 @@ class CredHubServiceImpl implements CredHubService {
                 JsonCredentialRequest.builder()
                         .name(new SimpleCredentialName('/' + name))
                         .value(jsonCredential)
+                        .mode(WriteMode.CONVERGE)
                         .build()
         getCredHubCredentialOperations().write(request)
     }
