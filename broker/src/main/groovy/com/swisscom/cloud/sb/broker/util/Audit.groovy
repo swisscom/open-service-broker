@@ -17,15 +17,20 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
 @Slf4j
+@CompileStatic
 class Audit {
-    static log(String message, Map parameters = null) {
+    static log(String message) {
+        log(message, null)
+    }
+
+    static log(String message, Map parameters) {
         if (parameters != null) {
             message += " (${stringifyParameters(parameters)}"
         }
-
         ensureLog(message)
     }
 
@@ -33,7 +38,7 @@ class Audit {
         ArrayList<String> kvpList = new ArrayList<String>()
         def objectMapper = new ObjectMapper()
 
-        parameters.each { k,v -> kvpList.add("$k:${objectMapper.writeValueAsString(v)}")}
+        parameters.each { k,v -> kvpList.add("$k:${objectMapper.writeValueAsString(v)}".toString())}
 
         String.join(",", kvpList)
     }

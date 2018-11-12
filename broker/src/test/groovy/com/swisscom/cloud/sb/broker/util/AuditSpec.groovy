@@ -20,6 +20,25 @@ import spock.lang.Specification
 
 class AuditSpec extends Specification {
 
+    def "Log with message and parameters"() {
+        when:
+        String message = "This is a test"
+
+        then:
+        null == Audit.log(message)
+        noExceptionThrown()
+    }
+
+    def "Log with simple message"() {
+        when:
+        String message = "This is a test"
+        def parameters = [key: "value", obj: [well: [well: 'well']]]
+
+        then:
+        null == Audit.log(message, parameters)
+        noExceptionThrown()
+    }
+
     def 'Can serialize Parameters correctly'() {
         given:
         def parameters = [key: "value", obj: [well: [well: 'well']]]
