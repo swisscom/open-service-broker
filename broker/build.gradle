@@ -44,6 +44,13 @@ bootJar {
     enabled = false
 }
 
+repositories {
+    mavenCentral()
+    maven {
+        url "http://repo.spring.io/libs-milestone-local"
+    }
+}
+
 configurations {
     all*.exclude group: 'org.slf4j', module:'log4j-over-slf4j'
     all*.exclude group: 'ch.qos.logback', module:'logback-classic'
