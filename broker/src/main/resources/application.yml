@@ -47,7 +47,7 @@ management:
       influx:
         enabled: false
         uri: http://localhost:8086
-        step: 5s
+        step: 60s
         userName:
         db: osb_metrics
         env: "local"

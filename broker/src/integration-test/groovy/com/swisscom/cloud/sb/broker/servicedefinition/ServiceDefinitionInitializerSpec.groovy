@@ -16,8 +16,6 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -28,7 +26,6 @@ import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
 
@@ -60,11 +57,15 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         List<ServiceDto> serviceDtoList = new ArrayList<>()
         cfServiceList.each {
-            def metadataMap = [key: it.metadata[0].key, value: it.metadata[0].value, type: it.metadata[0].type, service: it.metadata[0].service]
+
+            def metaData = new HashMap<String, Object>()
+            if (it.metadata)
+                it.metadata.each { md -> metaData.put(md.key, md.value) }
+
             serviceDtoList << new ServiceDto(guid: it.guid, name: it.name, internalName: it.internalName,
                     displayIndex: it.displayIndex, asyncRequired: it.asyncRequired, id: it.id,
                     description: it.description, bindable: it.bindable, tags: new ArrayList<>(it.tags),
-                    plans: planDtoConverter.convertAll(it.plans), metadata: metadataMap)
+                    plans: planDtoConverter.convertAll(it.plans), metadata: metaData)
         }
 
         serviceDefinitionConfig.serviceDefinitions = serviceDtoList
@@ -196,26 +197,27 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
         cfServiceRepository.delete(cfService)
     }
 
+
     def "unused plans are deleted from service definition"() {
         given:
         def serviceGuid = "serviceWithInstance"
-        CFService cfService = new CFService(guid: serviceGuid)
-        cfServiceRepository.save(cfService)
+        CFService cfService = new CFService(name: serviceGuid, guid: serviceGuid)
+        cfService = cfServiceRepository.save(cfService)
 
         and:
         def plan1Guid = "planWithInstance"
-        Plan plan1 = new Plan(guid: plan1Guid, service: cfService)
-        planRepository.save(plan1)
+        Plan plan1 = new Plan(name: plan1Guid, guid: plan1Guid, service: cfService)
+        plan1 = planRepository.saveAndFlush(plan1)
 
         and:
         def plan2Guid = "planWithoutInstance"
-        Plan plan2 = new Plan(guid: plan2Guid, service: cfService)
-        planRepository.saveAndFlush(plan2)
+        Plan plan2 = new Plan(name: plan2Guid, guid: plan2Guid, service: cfService)
+        plan2 = planRepository.saveAndFlush(plan2)
 
         and:
         cfService.plans.add(plan1)
         cfService.plans.add(plan2)
-        cfServiceRepository.saveAndFlush(cfService)
+        cfService = cfServiceRepository.saveAndFlush(cfService)
 
         and:
         ServiceInstance serviceInstance = new ServiceInstance(guid: "testServiceInstance2", plan: plan1)
@@ -223,18 +225,14 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
         when:
         serviceDefinitionInitializer.init()
+        cfService = cfServiceRepository.findByGuid(serviceGuid)
+        plan1 = planRepository.findByGuid(plan1Guid)
+        plan2 = null
 
         then:
+        assert (cfService)
         assert (!cfServiceRepository.findByGuid(serviceGuid).active)
+        assert (plan1)
         assert (!planRepository.findByGuid(plan1Guid).active)
-        assert (!planRepository.findByGuid(plan2Guid))
-
-        and:
-        noExceptionThrown()
-
-        cleanup:
-        serviceInstanceRepository.delete(serviceInstance)
-        planRepository.delete(plan1)
-        cfServiceRepository.delete(cfService)
     }
 }
