@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -40,7 +41,14 @@ class UpdatingService {
         if (isPlanChanging(updateRequest))
             handleAsyncClientRequirement(updateRequest.plan, acceptsIncomplete)
         updatingPersistenceService.saveUpdateRequest(updateRequest)
-        def response = serviceProviderLookup.findServiceProvider(updateRequest.previousPlan).update(updateRequest)
+        def serviceProvider = serviceProviderLookup.findServiceProvider(updateRequest.previousPlan)
+
+        def response = serviceProvider.update(updateRequest)
+
+        if(serviceProvider instanceof SensitiveParameterProvider){
+            updateRequest.parameters = null
+        }
+
         updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan, updateRequest.serviceContext)
         return response
     }

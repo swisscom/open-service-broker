@@ -19,11 +19,15 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.core.credential.CredHubCredentialOperations
 import org.springframework.credhub.core.credential.CredHubCredentialTemplate
+import org.springframework.credhub.core.permission.CredHubPermissionOperations
+import org.springframework.credhub.core.permission.CredHubPermissionTemplate
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.SimpleCredentialName
+import org.springframework.credhub.support.WriteMode
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.certificate.CertificateCredentialRequest
 import org.springframework.credhub.support.certificate.CertificateParameters
@@ -31,6 +35,9 @@ import org.springframework.credhub.support.certificate.CertificateParametersRequ
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.json.JsonCredentialRequest
 import org.springframework.credhub.support.password.PasswordCredential
+import org.springframework.credhub.support.permissions.Actor
+import org.springframework.credhub.support.permissions.Operation
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
 import org.springframework.stereotype.Service
@@ -44,10 +51,16 @@ class CredHubServiceImpl implements CredHubService {
     @Autowired
     private CredHubOperations credHubOperations
 
+    private CredHubPermissionOperations credHubPermissionOperations
+
     private CredHubCredentialOperations credHubCredentialOperations
 
     CredHubServiceImpl(CredHubOperations credHubOperations) {
         this.credHubOperations = credHubOperations
+    }
+
+    CredHubPermissionOperations getCredHubPermissionOperations() {
+        return credHubPermissionOperations ? credHubPermissionOperations : new CredHubPermissionTemplate(credHubOperations)
     }
 
     CredHubCredentialOperations getCredHubCredentialOperations() {
@@ -62,6 +75,7 @@ class CredHubServiceImpl implements CredHubService {
                 JsonCredentialRequest.builder()
                         .name(new SimpleCredentialName('/' + name))
                         .value(jsonCredential)
+                        .mode(WriteMode.CONVERGE)
                         .build()
         getCredHubCredentialOperations().write(request)
     }
@@ -87,7 +101,9 @@ class CredHubServiceImpl implements CredHubService {
     @Override
     void deleteCredential(String name) {
         log.info("Delete CredHub credentials for name: ${name}")
-        getCredHubCredentialOperations().deleteByName(new SimpleCredentialName('/' + name))
+        ignore404 {
+            getCredHubCredentialOperations().deleteByName(new SimpleCredentialName('/' + name))
+        }
     }
 
     @Override
@@ -127,5 +143,41 @@ class CredHubServiceImpl implements CredHubService {
                 .name(new SimpleCredentialName('/' + name))
                 .value(certificateCredential).build()
         getCredHubCredentialOperations().write(request)
+    }
+
+    List<Permission> getPermissions(String name) {
+        log.info("Retrieving permissions for CredHub Credential: ${name}")
+        getCredHubPermissionOperations().getPermissions(new SimpleCredentialName("/" + name))
+    }
+
+    void addReadPermission(String name, String appGUID) {
+        log.info("Adding read permission for CredHub Credential: ${name} to app: ${appGUID}")
+        getCredHubPermissionOperations().addPermissions(new SimpleCredentialName("/" + name), Permission.builder().app(appGUID).operation(Operation.READ).build())
+    }
+
+    void deletePermission(String name, String appGUID) {
+        log.info("Deleting permission for CredHub Credential: ${name} to app: ${appGUID}")
+        ignore404 {
+            getCredHubPermissionOperations().deletePermission(new SimpleCredentialName("/" + name), Actor.app(appGUID))
+        }
+    }
+
+    String getVersion() {
+        def version = credHubOperations.info().version().version
+        log.info("Version = " + version)
+        version
+    }
+
+    static void ignore404(Closure c) {
+        try {
+            c()
+        } catch (CredHubException ex) {
+            // Currently CredHubExceptions can not be differentiated, workaround with message parsing
+            if (ex.getMessage() =~ /^Error calling CredHub: 404/) {
+                log.info("CredHubException, ignoring 404 error.")
+            } else {
+                throw ex
+            }
+        }
     }
 }

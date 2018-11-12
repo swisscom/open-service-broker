@@ -16,8 +16,6 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
-import com.swisscom.cloud.sb.broker.binding.CredentialService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
@@ -28,6 +26,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.json.JsonCredential
+import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.IgnoreIf
@@ -44,14 +43,13 @@ class CredHubIntegrationSpec extends BaseSpecification {
     private String credentialId
     @Shared
     private String credentialName
+    @Shared
+    private String appGuid
 
     private List<String> testCredentialNames
 
     @Autowired
     CredHubService credHubService
-
-    @Autowired
-    CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
@@ -97,6 +95,47 @@ class CredHubIntegrationSpec extends BaseSpecification {
         println('UserCredential: ' + JsonHelper.toJsonString(details))
         println('CredentialName: ' + JsonHelper.toJsonString(details.name))
         println('UserCredentials value' + JsonHelper.toJsonString(details.value))
+    }
+
+    def "Add Permission"(){
+        given:
+        assert credentialName != null
+        appGuid = "appGUID"
+
+        when:
+        credHubService.addReadPermission(credentialName, appGuid)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "Get Permissions"(){
+        given:
+        assert credentialName != null
+
+        when:
+        List<Permission> permissions = credHubService.getPermissions(credentialName)
+        Boolean flag = false
+        for (item in permissions) {
+            if (item.actor.primaryIdentifier == appGuid){
+                flag = true
+                break
+            }
+        }
+
+        then:
+        assert flag
+    }
+
+    def "Delete Permission"(){
+        given:
+        assert credentialName != null
+
+        when:
+        credHubService.deletePermission(credentialName, appGuid)
+
+        then:
+        noExceptionThrown()
     }
 
     def "Delete Credential by name"() {

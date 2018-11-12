@@ -5,7 +5,7 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url "http://repo.spring.io/snapshot"
+            url "http://repo.spring.io/libs-milestone-local"
         }
     }
     dependencies {
@@ -47,7 +47,7 @@ bootJar {
 repositories {
     mavenCentral()
     maven {
-        url "http://repo.spring.io/snapshot"
+        url "http://repo.spring.io/libs-milestone-local"
     }
 }
 
@@ -90,7 +90,7 @@ dependencies {
 
     // TODO: when spring-credhub-starter 1.1.0-RELEASE is available remove spring snapshot repository
     //compile('org.springframework.credhub:spring-credhub-starter:1.0.1.RELEASE')
-    compile('org.springframework.credhub:spring-credhub-starter:1.1.0.BUILD-SNAPSHOT')
+    compile('org.springframework.credhub:spring-credhub-starter:2.0.0.M1')
     compile('org.springframework.security.oauth:spring-security-oauth2:2.3.3.RELEASE')
 
 
