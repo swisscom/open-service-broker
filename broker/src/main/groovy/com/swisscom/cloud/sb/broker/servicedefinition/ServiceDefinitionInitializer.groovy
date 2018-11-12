@@ -75,10 +75,11 @@ class ServiceDefinitionInitializer {
     }
 
     void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
-        log.info("Start ServiceDefinition Synchronization (Is:${toBeDeleted.size()},Should:${services.size()}")
+        log.info("Start ServiceDefinition Synchronization (Is:${toBeDeleted.size()},Should:${services.size()})")
         services.each{ service ->
             log.info("Add or Update (name:${service.name}).")
             addOrUpdateServiceDefinitions(service)
+
             if(toBeDeleted.containsKey(service.guid)) {
                 toBeDeleted.remove(service.guid)
             }
@@ -87,18 +88,20 @@ class ServiceDefinitionInitializer {
         toBeDeleted.each{ key, service ->
             log.info("Delete/Disable Service (name:${service.name})")
             def canDeleteService = true
+
             service.plans.toList().each{ plan ->
-                log.info("+ Delete/Disable Plan (name:${plan.name},id:${plan.id})")
+                log.info("+ Delete/Disable Plan (serviceName:${service.name},name:${plan.name},id:${plan.id})")
                 canDeleteService = canDeleteService & tryDeletePlan(plan)
             }
 
+            def currentService = cfServiceRepository.getOne(service.id)
             if(canDeleteService) {
-                log.info("DELETE Service (name:${service.name})")
-                deleteServiceHibernateCacheSavely(service)
+                log.info("DELETE Service (name:${currentService.name})")
+                deleteServiceHibernateCacheSavely(currentService)
             } else {
-                log.info("DISABLE Service (name:${service.name})")
-                service.active = false
-                cfServiceRepository.saveAndFlush(service)
+                log.info("DISABLE Service (name:${currentService.name})")
+                currentService.active = false
+                cfServiceRepository.saveAndFlush(currentService)
             }
         }
     }
@@ -110,15 +113,20 @@ class ServiceDefinitionInitializer {
     boolean tryDeletePlan(Plan plan) {
         if(serviceInstanceRepository.findByPlan(plan)) {
             if(plan.active) {
-                log.info("+ DISABLE Plan (name:${plan.name},id:${plan.id})")
+                log.info("+ DISABLE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
                 plan.active = false
                 planRepository.saveAndFlush(plan)
             }
             return false
         } else {
-            log.info("+ DELETE Plan (name:${plan.name},id:${plan.id})")
+            log.info("+ DELETE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
             planRepository.delete(plan)
             planRepository.flush()
+
+            def currentService = cfServiceRepository.getOne(plan.service.id)
+            currentService.plans.remove(plan)
+            cfServiceRepository.saveAndFlush(currentService)
+
             return true
         }
     }
