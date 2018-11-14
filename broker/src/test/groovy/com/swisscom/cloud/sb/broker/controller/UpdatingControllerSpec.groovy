@@ -26,27 +26,33 @@ import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.updating.UpdatingService
 import spock.lang.Specification
 
+import java.security.Principal
+
 class UpdatingControllerSpec extends Specification {
     private ServiceInstanceRepository serviceInstanceRepository
     private PlanRepository planRepository
     private UpdatingService updatingService
     private ServiceContextPersistenceService serviceContextService
+    private Principal principal
 
     def setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         planRepository = Mock(PlanRepository)
         updatingService = Mock(UpdatingService)
         serviceContextService = Mock()
+        principal = Mock(Principal)
+        principal.name >> "Hannes"
     }
 
     def "Throws Exception when ServiceInstance does not exist"() {
         def sut = new UpdatingController( serviceInstanceRepository, planRepository, updatingService)
         def notExisitingGuid = "DoesNotExist";
         def updateRequestDto = new UpdateDto()
-        def acceptIncomplete = true;
+        def acceptIncomplete = true
+
 
         when:
-            sut.update(notExisitingGuid, acceptIncomplete, updateRequestDto)
+            sut.update(notExisitingGuid, acceptIncomplete, updateRequestDto, principal)
 
         then:
             def exception = thrown(Exception)
@@ -66,7 +72,7 @@ class UpdatingControllerSpec extends Specification {
         updatingService.update(*_) >> new UpdateResponse()
 
         when:
-            sut.update(existingGuid, acceptIncomplete, updateRequestDto)
+            sut.update(existingGuid, acceptIncomplete, updateRequestDto, principal)
 
         then:
             noExceptionThrown()
