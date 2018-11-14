@@ -19,6 +19,7 @@ import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
+import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.joda.time.LocalDateTime
@@ -50,6 +51,13 @@ class ServiceInstanceCleanup {
         oprhanedServiceInstances.each { ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
             lastOperationPersistenceService.deleteLastOperation(si.guid)
+
+            Audit.log("Delete service instance",
+                    [
+                            serviceInstanceGuid: si.guid,
+                            action: Audit.AuditAction.Delete
+                    ]
+            )
         }
         return candidateCount
     }

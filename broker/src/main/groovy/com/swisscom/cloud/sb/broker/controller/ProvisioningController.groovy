@@ -32,6 +32,7 @@ import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceIns
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstanceResponseDto
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.Audit
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -81,32 +82,47 @@ class ProvisioningController extends BaseController {
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
+        def failed = false;
+        try {
+            failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
 
-        failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
+            def serviceProvider = serviceProviderLookup.findServiceProvider(getAndCheckPlan(provisioningDto.plan_id))
 
-        def serviceProvider = serviceProviderLookup.findServiceProvider(getAndCheckPlan(provisioningDto.plan_id))
+            if(serviceProvider instanceof SensitiveParameterProvider){
+                log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}}")
+            } else {
+                log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
+                log.trace("ProvisioningDto:${provisioningDto.toString()}")
+            }
 
-        if(serviceProvider instanceof SensitiveParameterProvider){
-            log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}}")
-        } else {
-            log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
-            log.trace("ProvisioningDto:${provisioningDto.toString()}")
-        }
+            def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
+            if (StringUtils.contains(request.parameters, "parent_reference") &&
+                    !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
+                ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
+            }
 
-        def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
-        if (StringUtils.contains(request.parameters, "parent_reference") &&
-                !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
-            ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
-        }
+            ProvisionResponse provisionResponse = provisioningService.provision(request)
 
-        ProvisionResponse provisionResponse = provisioningService.provision(request)
-
-        if(provisionResponse.extensions){
-            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),
-                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
-        }else{
-            return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
-                    provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+            if(provisionResponse.extensions){
+                return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL, extension_apis: provisionResponse.extensions),
+                        provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+            }else{
+                return new ResponseEntity<ProvisionResponseDto>(new ProvisionResponseDto(dashboard_url: provisionResponse.dashboardURL),
+                        provisionResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+            }
+        } catch (Exception ex) {
+            failed = true
+            throw ex
+        } finally {
+            Audit.log("Provision new service instance",
+            [
+                    serviceInstanceGuid: serviceInstanceGuid,
+                    action: Audit.AuditAction.Provision,
+                    principal: principal.name,
+                    async: acceptsIncomplete,
+                    parameters: provisioningDto.parameters,
+                    failed: failed
+            ])
         }
     }
 
@@ -170,10 +186,26 @@ class ProvisioningController extends BaseController {
     @ApiOperation(value = "Deprovision a service instance")
     @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.DELETE)
     ResponseEntity<String> deprovision(@PathVariable("instanceId") String serviceInstanceGuid,
-                                       @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete) {
-        log.info("Deprovision request for ServiceInstanceGuid: ${serviceInstanceGuid}")
-        DeprovisionResponse response = provisioningService.deprovision(createDeprovisionRequest(serviceInstanceGuid, acceptsIncomplete))
-        return new ResponseEntity<String>("{}", response.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
+                                       @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete,
+                                       Principal principal) {
+        def failed = false
+        try{
+            log.info("Deprovision request for ServiceInstanceGuid: ${serviceInstanceGuid}")
+            DeprovisionResponse response = provisioningService.deprovision(createDeprovisionRequest(serviceInstanceGuid, acceptsIncomplete))
+            return new ResponseEntity<String>("{}", response.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
+        } catch (Exception ex) {
+            failed = true
+            throw ex
+        } finally {
+            Audit.log("Deprovision service instance",
+                    [
+                            serviceInstanceGuid: serviceInstanceGuid,
+                            action: Audit.AuditAction.Deprovision,
+                            principal: principal.name,
+                            async: acceptsIncomplete,
+                            failed: failed
+                    ])
+        }
     }
 
     private DeprovisionRequest createDeprovisionRequest(String serviceInstanceGuid, boolean acceptsIncomplete) {
