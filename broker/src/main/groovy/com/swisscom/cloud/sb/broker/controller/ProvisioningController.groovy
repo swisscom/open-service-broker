@@ -82,14 +82,16 @@ class ProvisioningController extends BaseController {
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
-        def failed = false;
+        def failed = false
+        def hasSensitiveData = false 
+        
         try {
             failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
 
             def serviceProvider = serviceProviderLookup.findServiceProvider(getAndCheckPlan(provisioningDto.plan_id))
-
             if(serviceProvider instanceof SensitiveParameterProvider){
                 log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}}")
+                hasSensitiveData = true
             } else {
                 log.info("Provision request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${provisioningDto?.service_id}, Params: ${provisioningDto.parameters}")
                 log.trace("ProvisioningDto:${provisioningDto.toString()}")
@@ -120,7 +122,7 @@ class ProvisioningController extends BaseController {
                     action: Audit.AuditAction.Provision,
                     principal: principal.name,
                     async: acceptsIncomplete,
-                    parameters: provisioningDto.parameters,
+                    parameters: hasSensitiveData ? null : provisioningDto.parameters,
                     failed: failed
             ])
         }

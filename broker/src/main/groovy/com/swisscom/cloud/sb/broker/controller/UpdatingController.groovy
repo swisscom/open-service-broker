@@ -62,11 +62,12 @@ class UpdatingController extends BaseController {
                                              @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                              @Valid @RequestBody UpdateDto updateDto,
                                              Principal principal) {
-        def failed = false;
+        def failed = false
+        def hasSensitiveData = false
         try{
             log.info("Update request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto.parameters}")
             ServiceInstance serviceInstance = getServiceInstanceOrFail(serviceInstanceGuid)
-
+            hasSensitiveData = updatingService.hasSensitiveParameters(serviceInstance.plan)
             def updatingResponse = updatingService.update(
                     serviceInstance,
                     createUpdateRequest(serviceInstance, updateDto, acceptsIncomplete),
@@ -84,7 +85,7 @@ class UpdatingController extends BaseController {
                             principal: principal.name,
                             async: acceptsIncomplete,
                             failed: failed,
-                            parameters: updateDto.parameters
+                            parameters: hasSensitiveData ? null : updateDto.parameters
                     ])
         }
           }

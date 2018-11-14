@@ -31,6 +31,12 @@ class UpdatingService {
     protected ServiceProviderLookup serviceProviderLookup
     protected UpdatingPersistenceService updatingPersistenceService
 
+    boolean hasSensitiveParameters(Plan plan){
+        def serviceProvider = serviceProviderLookup.findServiceProvider(plan)
+
+        return serviceProvider != null && serviceProvider instanceof SensitiveParameterProvider
+    }
+
     @Autowired
     public UpdatingService(ServiceProviderLookup serviceProviderLookup, UpdatingPersistenceService updatingPersistenceService) {
         this.serviceProviderLookup = serviceProviderLookup
