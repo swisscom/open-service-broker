@@ -23,6 +23,17 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @CompileStatic
 class Audit {
+
+    enum AuditAction {
+        Provision,
+        Update,
+        Bind,
+        Unbind,
+        Deprovision,
+        Delete,
+        Scheduler
+    }
+
     static log(String message) {
         log(message, null)
     }

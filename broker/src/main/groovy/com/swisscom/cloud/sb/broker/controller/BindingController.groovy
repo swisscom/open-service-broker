@@ -31,6 +31,7 @@ import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
@@ -85,6 +86,16 @@ class BindingController extends BaseController {
             bindingSucceeded = false
             bindingMetricsService.notifyBinding(serviceInstance.plan.guid, bindingSucceeded)
             throw ex
+        } finally {
+            Audit.log("Binding service instance",
+                    [
+                            serviceInstanceGuid: serviceInstanceId,
+                            bindingGuid: bindingId,
+                            action: Audit.AuditAction.Bind,
+                            principal: principal.name,
+                            parameters: bindingDto.parameters,
+                            failed: !bindingSucceeded
+                    ])
         }
     }
 
@@ -139,25 +150,42 @@ class BindingController extends BaseController {
     @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
     def unbind(@PathVariable('service_instance') String serviceInstanceId,
                @PathVariable('id') String bindingGuid,
-               UnbindingDto unbindingDto) {
-        log.info("Unbind request for BindingId: ${bindingGuid} and ServiceInstanceid: ${serviceInstanceId}")
-        ServiceBinding serviceBinding
+               UnbindingDto unbindingDto,
+               Principal principal) {
+        def failed = false
         try {
-            serviceBinding = checkServiceBinding(bindingGuid)
-        } catch (ServiceBrokerException e) {
-            if (e.code == ErrorCode.SERVICE_BINDING_NOT_FOUND.code) ErrorCode.SERVICE_BINDING_GONE.throwNew()
-            else throw e
+            log.info("Unbind request for BindingId: ${bindingGuid} and ServiceInstanceid: ${serviceInstanceId}")
+            ServiceBinding serviceBinding
+            try {
+                serviceBinding = checkServiceBinding(bindingGuid)
+            } catch (ServiceBrokerException e) {
+                if (e.code == ErrorCode.SERVICE_BINDING_NOT_FOUND.code) ErrorCode.SERVICE_BINDING_GONE.throwNew()
+                else throw e
+            }
+            ServiceInstance serviceInstance = serviceBinding.serviceInstance
+            CFService service = serviceInstance.plan.service
+
+
+            UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, service: service, serviceInstance: serviceInstance)
+            findServiceProvider(serviceInstance.plan).unbind(unbindRequest)
+
+            serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
+            log.info("Servicebinding ${serviceBinding.guid} deleted")
+            return new ResponseEntity<String>('{}', HttpStatus.OK)
         }
-        ServiceInstance serviceInstance = serviceBinding.serviceInstance
-        CFService service = serviceInstance.plan.service
-
-
-        UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, service: service, serviceInstance: serviceInstance)
-        findServiceProvider(serviceInstance.plan).unbind(unbindRequest)
-
-        serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
-        log.info("Servicebinding ${serviceBinding.guid} deleted")
-        return new ResponseEntity<String>('{}', HttpStatus.OK)
+        catch (Exception ex) {
+            failed = true
+            throw ex
+        } finally {
+            Audit.log("Unbinding service instance",
+                    [
+                            serviceInstanceGuid: serviceInstanceId,
+                            bindingGuid: bindingGuid,
+                            action: Audit.AuditAction.Unbind,
+                            principal: principal.name,
+                            failed: failed
+                    ])
+        }
     }
 
     @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)

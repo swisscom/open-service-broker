@@ -24,6 +24,7 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContextService
+import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.quartz.JobExecutionContext
@@ -47,8 +48,11 @@ abstract class AbstractLastOperationJob extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
+        def failed = false
+        def completed = true
         log.info("Executing job with id:${id}")
         LastOperationJobContext lastOperationContext = null
+
         try {
             lastOperationContext = enrichContext(lastOperationContextService.loadContext(id))
             AsyncOperationResult jobStatus = handleJob(lastOperationContext)
@@ -60,24 +64,47 @@ abstract class AbstractLastOperationJob extends AbstractJob {
             } else if (jobStatus.status == LastOperation.Status.FAILED) {
                 log.warn("Job with id:${id} failed")
                 dequeueFailed(lastOperationContext, id, jobStatus.description)
+                failed = true
                 lastOperationMetricsService.notifyFailedByServiceProvider(lastOperationContext.planGuidOrUndefined)
             } else if (jobStatus.status == LastOperation.Status.IN_PROGRESS) {
                 if (isExecutedForLastTime(jobExecutionContext)) {
                     log.warn("Giving up on job with id:${id}")
                     dequeueFailed(lastOperationContext, id)
                     lastOperationMetricsService.notifyFailedWithTimeout(lastOperationContext.planGuidOrUndefined)
+                    failed = true
                 } else {
                     lastOperationContext.notifyProgress(jobStatus.description, jobStatus.internalStatus)
+                    completed = false
                 }
             }
         } catch (ServiceBrokerException sbe) {
             log.warn("Job execution with id:${id} failed", sbe)
             dequeueFailed(lastOperationContext, id, errorDtoConverter.convert(sbe))
             lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
+            failed = true
         } catch (Exception e) {
             log.warn("Job execution with id:${id} failed", e)
             dequeueFailed(lastOperationContext, id)
             lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
+            failed = true
+        }
+        finally {
+            if (failed) {
+                Audit.log("Async action failed",
+                        [
+                                serviceInstanceGuid: lastOperationContext.serviceInstance.guid,
+                                action: Audit.AuditAction.Scheduler,
+                                failed: failed
+                        ])
+            } else if (completed) {
+                Audit.log("Async action completed",
+                        [
+                                serviceInstanceGuid: lastOperationContext.serviceInstance.guid,
+                                action: Audit.AuditAction.Scheduler,
+                                failed: false,
+                                completed: true
+                        ])
+            }
         }
     }
 
