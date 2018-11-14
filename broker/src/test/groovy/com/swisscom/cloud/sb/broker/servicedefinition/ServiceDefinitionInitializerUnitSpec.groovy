@@ -51,6 +51,8 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
         cfServiceList = [new ServiceDto(guid: TEST_GUID)]
         cfServiceHashMap.put(TEST_GUID, new CFService(guid: TEST_GUID))
         cfServiceRepository = Mock(CFServiceRepository)
+        cfServiceRepository.getOne(_) >> new CFService(guid: TEST_GUID)
+
         planRepository = Mock(PlanRepository)
         planMetadataRepository = Mock(PlanMetadataRepository)
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
@@ -81,7 +83,7 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
 
     def "Service definition missing from config"() {
         given:
-        cfServiceHashMap.put(TEST_GUID3, new CFService(guid: TEST_GUID3))
+        cfServiceHashMap.put(TEST_GUID3, new CFService(guid: TEST_GUID3, id: 100))
 
         when:
         serviceDefinitionInitializer.synchroniseServiceDefinitions(cfServiceList, cfServiceHashMap)
@@ -92,7 +94,7 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
 
     def "Update service definition"() {
         given:
-        CFService cfService = new CFService(guid: TEST_GUID)
+        CFService cfService = new CFService(guid: TEST_GUID, id: 100)
         cfServiceRepository.findByGuid(serviceDefinitionConfig.serviceDefinitions[0].guid) >> cfService
         cfServiceRepository.save(cfService) >> cfService
 
