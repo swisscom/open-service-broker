@@ -35,6 +35,7 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.TagRepository
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
@@ -296,7 +297,7 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         return plan
     }
 
-    def "old service plans which are in use are **not** removed and exception is thrown"() {
+    def "old service plans which are in use are **not** removed but set inactive"() {
         given:
         CFService service = createService()
         def plan = createPlan(service, 'newPlanGuid1234')
@@ -305,9 +306,9 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         when:
         processServiceDefinition()
         then:
-        def ex = thrown(ServiceBrokerException)
-        ErrorCodeHelper.assertServiceBrokerException(ex, ErrorCode.PLAN_IN_USE)
         planRepository.findByGuid(plan.guid)
+        plan.active == false
+
         cleanup:
         serviceInstanceRepository.delete(serviceInstance)
     }
@@ -491,8 +492,6 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         then:
         def ex = thrown(ServiceBrokerException)
         ErrorCodeHelper.assertServiceBrokerException(ex, ErrorCode.SERVICE_IN_USE)
-        cleanup:
-        serviceInstanceRepository.delete(serviceInstance)
     }
 
     def "service plans that have >0 maxBackups should cause an exception when configured service provider is not backup capable"() {
