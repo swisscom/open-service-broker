@@ -38,16 +38,6 @@ workflows:
   build:
     jobs:
       - build
-
-  build_and_release_nightly:
-    triggers:
-      - schedule:
-          cron: "0 1 * * *"
-          filters:
-            branches:
-              only: develop
-    jobs:
-      - build
       - release:
           requires:
             - build
