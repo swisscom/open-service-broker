@@ -111,13 +111,17 @@ class ServiceDefinitionProcessor {
         if (!service) {
             ErrorCode.SERVICE_NOT_FOUND.throwNew()
         }
+        def plans = service.plans
 
-        def serviceInstances = serviceInstanceRepository.findByPlanIdIn(service.plans.collect { it.id })
+        def serviceInstances = serviceInstanceRepository.findByPlanIdIn(plans.collect { it.id })
         if (serviceInstances && serviceInstances.size() > 0) {
             ErrorCode.SERVICE_IN_USE.throwNew()
         }
-        service.plans.each { plan -> planRepository.delete(plan) }
+        plans.each { plan -> planRepository.delete(plan) }
+        planRepository.flush()
+        service.plans = null
         cfServiceRepository.delete(service)
+        cfServiceRepository.flush()
     }
 
     ServiceDto getServiceDefinition(String id) {
@@ -153,7 +157,7 @@ class ServiceDefinitionProcessor {
             service.dashboardClientSecret = null
             service.dashboardClientRedirectUri = null
         }
-        return cfServiceRepository.save(service)
+        return cfServiceRepository.saveAndFlush(service)
     }
 
     private CFService findOrCreateService(serviceJson) {
@@ -186,7 +190,7 @@ class ServiceDefinitionProcessor {
                 service.tags.remove(it)
                 tagRepository.delete(it)
             }
-            cfServiceRepository.save(service)
+            cfServiceRepository.saveAndFlush(service)
         }
     }
 
@@ -201,7 +205,7 @@ class ServiceDefinitionProcessor {
                 service.metadata.remove(it)
                 cfServiceMetaDataRepository.delete(it)
             }
-            cfServiceRepository.save(service)
+            cfServiceRepository.saveAndFlush(service)
         }
     }
 
@@ -209,9 +213,9 @@ class ServiceDefinitionProcessor {
         serviceJson.metadata.each {
             k, v ->
                 def serviceMetadata = new CFServiceMetadata(key: k, value: v, type: v.class.simpleName)
-                cfServiceMetaDataRepository.save(serviceMetadata)
+                cfServiceMetaDataRepository.saveAndFlush(serviceMetadata)
                 service.metadata.add(serviceMetadata)
-                cfServiceRepository.save(service)
+                cfServiceRepository.saveAndFlush(service)
         }
     }
 
@@ -226,17 +230,17 @@ class ServiceDefinitionProcessor {
                 service.permissions.remove(it)
                 servicePermissionRepository.delete(it)
             }
-            cfServiceRepository.save(service)
+            cfServiceRepository.saveAndFlush(service)
         }
     }
 
     private void addNewServicePermissionsFromJson(serviceJson, CFService service) {
         serviceJson.requires.each {
             def permission = new CFServicePermission(permission: it)
-            servicePermissionRepository.save(permission)
+            servicePermissionRepository.saveAndFlush(permission)
             service.permissions.add(permission)
         }
-        cfServiceRepository.save(service)
+        cfServiceRepository.saveAndFlush(service)
     }
 
     private void processPlans(CFService service, serviceJson) {
@@ -259,11 +263,11 @@ class ServiceDefinitionProcessor {
         if (!isPlanInUse(plan)) {
             log.warn("Plan:${plan.guid} will be removed(there are no service instances with this plan.")
             service.plans.remove(plan)
-            cfServiceRepository.save(service)
+            cfServiceRepository.saveAndFlush(service)
             planRepository.delete(plan)
         } else {
             plan.active = false
-            planRepository.save(plan)
+            planRepository.saveAndFlush(plan)
         }
     }
 
@@ -315,7 +319,7 @@ class ServiceDefinitionProcessor {
         }
 
         checkBackupSanity(service, plan)
-        return planRepository.save(plan)
+        return planRepository.saveAndFlush(plan)
     }
 
     private def validateJsonSchema(Object o, String schemaName) {
@@ -343,9 +347,9 @@ class ServiceDefinitionProcessor {
         Plan plan = planRepository.findByGuid(planJson.guid)
         if (!plan) {
             plan = new Plan(guid: planJson.guid)
-            planRepository.save(plan)
+            planRepository.saveAndFlush(plan)
             service.plans.add(plan)
-            cfServiceRepository.save(service)
+            cfServiceRepository.saveAndFlush(service)
         }
         return plan
     }
@@ -359,7 +363,7 @@ class ServiceDefinitionProcessor {
         if (plan.parameters) {
             copyOf(plan.parameters).each {
                 plan.parameters.remove(it)
-                planRepository.save(plan)
+                planRepository.saveAndFlush(plan)
                 parameterRepository.delete(it)
             }
         }
@@ -379,10 +383,10 @@ class ServiceDefinitionProcessor {
                 Parameter parameter = new Parameter(template: param.template,
                         name: param.name,
                         value: param.value)
-                parameterRepository.save(parameter)
+                parameterRepository.saveAndFlush(parameter)
                 plan.parameters.add(parameter)
         }
-        planRepository.save(plan)
+        planRepository.saveAndFlush(plan)
     }
 
     def processPlanMetadata(Plan plan, planJson) {
@@ -394,7 +398,7 @@ class ServiceDefinitionProcessor {
         if (plan.metadata) {
             copyOf(plan.metadata).each {
                 plan.metadata.remove(it)
-                planRepository.save(plan)
+                planRepository.saveAndFlush(plan)
                 planMetadataRepository.delete(it)
             }
         }
@@ -404,10 +408,10 @@ class ServiceDefinitionProcessor {
         planJson.metadata.each {
             k, v ->
                 def planMetadata = new PlanMetadata(key: k, value: v, type: v.class.simpleName)
-                planMetadataRepository.save(planMetadata)
+                planMetadataRepository.saveAndFlush(planMetadata)
                 plan.metadata.add(planMetadata)
         }
-        planRepository.save(plan)
+        planRepository.saveAndFlush(plan)
     }
 
 
