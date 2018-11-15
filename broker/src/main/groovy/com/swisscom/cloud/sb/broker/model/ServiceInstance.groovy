@@ -43,24 +43,24 @@ class ServiceInstance extends BaseModel{
     @OneToMany
     @JoinColumn(name="service_instance_id")
     List<ServiceBinding> bindings = []
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "service_instance_service_detail",
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     List<ServiceDetail> details = []
     @Column(name="plan_id", updatable = false, insertable = false)
     Integer planId
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="plan_id")
     Plan plan
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_service_instance_id")
     ServiceInstance parentServiceInstance
-    @OneToMany(mappedBy = "parentServiceInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parentServiceInstance", fetch = FetchType.LAZY)
     Set<ServiceInstance> childs = []
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     ServiceContext serviceContext
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
 

@@ -1,9 +1,12 @@
 spring:
   profiles.active: info,default,extensions,secrets
 ---
+
 spring:
   profiles: default
   jpa.properties.hibernate.id.new_generator_mappings: false
+  jpa.hibernate.enable_lazy_load_no_trans: true
+  jpa.properties.hibernate.enable_lazy_load_no_trans: true
 
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver

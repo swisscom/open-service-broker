@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
@@ -32,7 +33,7 @@ class PlanMetadata extends BaseModel{
     @Column(name = '_type',columnDefinition="varchar(255) default 'String'")
     String type
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="plan_id")
     @JsonIgnore
     Plan plan

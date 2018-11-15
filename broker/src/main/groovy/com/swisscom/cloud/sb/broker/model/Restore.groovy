@@ -31,7 +31,7 @@ class Restore extends BaseModel{
     @Enumerated(EnumType.STRING)
     Backup.Status status
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="backup_id")
     Backup backup
 

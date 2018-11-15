@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.model
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
@@ -27,7 +28,7 @@ class DeprovisionRequest extends BaseModel{
     @Column(unique = true)
     String serviceInstanceGuid
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="service_instance_id")
     ServiceInstance serviceInstance
 
