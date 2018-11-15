@@ -47,14 +47,14 @@ class Plan extends BaseModel{
     Boolean active = true
     @Column(columnDefinition = 'int default 0')
     Integer maxBackups
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name="plan_id")
     Set<Parameter> parameters = []
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name="plan_id")
     Set<PlanMetadata> metadata = []
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="service_id")
     @JsonIgnore
     CFService service

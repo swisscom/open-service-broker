@@ -36,24 +36,24 @@ class ServiceBinding extends BaseModel {
     @Column(columnDefinition = 'text')
     String credentials //Credential in JSON format
     String parameters
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "service_binding_service_detail",
             joinColumns = @JoinColumn(name = "service_binding_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
     Set<ServiceDetail> details = []
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     ServiceContext serviceContext
 
     @Column(name = 'service_instance_id', updatable = false, insertable = false)
     Integer serviceInstanceId
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = 'service_instance_id')
     @JsonIgnore
     ServiceInstance serviceInstance
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
 

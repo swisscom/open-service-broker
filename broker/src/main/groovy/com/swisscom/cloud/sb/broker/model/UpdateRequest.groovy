@@ -17,13 +17,14 @@ package com.swisscom.cloud.sb.broker.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne
 
 @Entity
 class UpdateRequest extends RequestWithParameters {
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "previous_plan_id")
     @JsonIgnore
     Plan previousPlan

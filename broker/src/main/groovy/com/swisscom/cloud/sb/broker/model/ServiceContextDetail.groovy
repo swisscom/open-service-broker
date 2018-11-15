@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 
@@ -30,7 +31,7 @@ class ServiceContextDetail extends BaseModel {
     @Column(name = '_value')
     String value
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_context_id")
     @JsonIgnore
     ServiceContext serviceContext

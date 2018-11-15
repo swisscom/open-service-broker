@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.Column
+import javax.persistence.FetchType
 import javax.persistence.JoinColumn
 import javax.persistence.MappedSuperclass
 import javax.persistence.OneToOne
@@ -25,11 +26,11 @@ import javax.persistence.OneToOne
 abstract class RequestWithParameters extends BaseModel {
     @Column(unique = true)
     String serviceInstanceGuid
-    @OneToOne()
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     @JsonIgnore
     Plan plan
     String parameters
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     ServiceContext serviceContext
 }

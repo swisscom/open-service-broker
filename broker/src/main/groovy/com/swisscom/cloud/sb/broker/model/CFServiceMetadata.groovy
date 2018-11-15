@@ -29,7 +29,7 @@ class CFServiceMetadata extends BaseModel{
     String value
     @Column(name = '_type',columnDefinition="varchar(255) default 'String'")
     String type
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="service_id")
     @JsonIgnore
     CFService service
