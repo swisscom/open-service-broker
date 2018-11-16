@@ -30,6 +30,7 @@ import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.BasicAuthCache
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.ProxyAuthenticationStrategy
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
 import org.apache.http.ssl.SSLContexts
@@ -135,6 +136,20 @@ class RestTemplateBuilder {
 
     RestTemplateBuilder withClientSideCertificate(String cert, String key) {
         keyStore = createKeyStore(cert, key)
+        this
+    }
+
+    RestTemplateBuilder withProxy(String proxyHost, String proxyPort, String proxyProtocol) {
+        httpClientBuilder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort), proxyProtocol))
+        this
+    }
+
+    RestTemplateBuilder withAuthenticatedProxy(String proxyHost, String proxyPort, String proxyProtocol, String proxyUser, String proxyPassword) {
+        withProxy(proxyHost, proxyPort, proxyProtocol)
+        CredentialsProvider credsProvider = new BasicCredentialsProvider()
+        credsProvider.setCredentials(new AuthScope(proxyHost, Integer.parseInt(proxyPort)), new UsernamePasswordCredentials(proxyUser, proxyPassword))
+        httpClientBuilder.setDefaultCredentialsProvider(credsProvider)
+        httpClientBuilder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy())
         this
     }
 
