@@ -36,7 +36,10 @@ import org.apache.http.ssl.SSLContexts
 import org.bouncycastle.openssl.PEMReader
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpRequest
+import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
+import org.springframework.http.client.ClientHttpResponse
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.client.support.BasicAuthorizationInterceptor
 import org.springframework.stereotype.Component
@@ -123,6 +126,18 @@ class RestTemplateBuilder {
         this
     }
 
+    RestTemplateBuilder withBearerAuthentication(String bearerToken) {
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
+        if (interceptors == null) {
+            interceptors = Collections.emptyList()
+        } else {
+            interceptors.removeAll{ it instanceof HeaderRequestInterceptor && it.headerName == "Authorization" }
+        }
+        interceptors.add(new HeaderRequestInterceptor("Authorization", "Bearer ${bearerToken}"))
+        restTemplate.setInterceptors(interceptors)
+        this
+    }
+
     RestTemplateBuilder withSSLValidationDisabled() {
         trustStrategy = TrustAnyCertificateStrategy.INSTANCE
         this
@@ -155,6 +170,24 @@ class RestTemplateBuilder {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password)
         provider.setCredentials(AuthScope.ANY, credentials)
         return provider
+    }
+
+    private
+    static class HeaderRequestInterceptor implements ClientHttpRequestInterceptor {
+
+        private final String headerName
+        private final String headerValue
+
+        HeaderRequestInterceptor(String headerName, String headerValue) {
+            this.headerName = headerName
+            this.headerValue = headerValue
+        }
+
+        @Override
+        ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+            request.getHeaders().set(headerName, headerValue)
+            return execution.execute(request, body)
+        }
     }
 
     private

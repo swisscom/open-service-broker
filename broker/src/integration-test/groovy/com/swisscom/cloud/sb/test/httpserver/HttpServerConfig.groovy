@@ -27,10 +27,11 @@ class HttpServerConfig {
     private String keyStoreAlias
     private String trustStorePath
     private String trustStorePassword
+    private String bearerToken
 
 
     static enum AuthenticationType {
-        NONE, SIMPLE, DIGEST, MUTUAL
+        NONE, SIMPLE, DIGEST, BEARER, MUTUAL
     }
 
     private HttpServerConfig(int httpPort) { this.httpPort = httpPort }
@@ -70,6 +71,12 @@ class HttpServerConfig {
         this.authenticationType = authenticationType.MUTUAL
         this.trustStorePath = trustStorePath
         this.trustStorePassword = trustStorePassword
+        return this
+    }
+
+    HttpServerConfig withBearerAuthentication(String token) {
+        this.authenticationType = authenticationType.BEARER
+        this.bearerToken = token
         return this
     }
 
