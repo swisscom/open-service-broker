@@ -65,6 +65,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-security:2.0.6.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.6.RELEASE'
     compile 'org.springframework.boot:spring-boot-devtools:2.0.6.RELEASE'
+    compile 'org.springframework.cloud:spring-cloud-starter-config:2.0.2.RELEASE'
     compile 'org.influxdb:influxdb-java:2.7'
     compile 'io.micrometer:micrometer-registry-influx:1.0.4'
     compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:2.0.2.RELEASE'
