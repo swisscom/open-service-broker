@@ -70,40 +70,6 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
-    def "restTemplate with proxy"() {
-        given:
-        String proxyHost = 'localhost'
-        String proxyPort = '3128'
-        String proxyProtocol = 'http'
-        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port))
-        //TODO(mkowalski) Implement proxy server here
-        when:
-        def response = makeGetRequest(new RestTemplateBuilder().withProxy(proxyHost, proxyPort, proxyProtocol).build())
-        then:
-        response.statusCode == HttpStatus.OK
-        response.body.equalsIgnoreCase('hello')
-        cleanup:
-        httpServer?.stop()
-    }
-
-    def "restTemplate with authenticated proxy"() {
-        given:
-        String proxyHost = 'localhost'
-        String proxyPort = '3128'
-        String proxyProtocol = 'http'
-        String proxyUser = 'aUsername'
-        String proxyPassword = 'aPassword'
-        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port))
-        //TODO(mkowalski) Implement proxy server here
-        when:
-        def response = makeGetRequest(new RestTemplateBuilder().withAuthenticatedProxy(proxyHost, proxyPort, proxyProtocol, proxyUser, proxyPassword).build())
-        then:
-        response.statusCode == HttpStatus.OK
-        response.body.equalsIgnoreCase('hello')
-        cleanup:
-        httpServer?.stop()
-    }
-
     def 'GET request over https to self signed certificate endpoint throws exception'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
