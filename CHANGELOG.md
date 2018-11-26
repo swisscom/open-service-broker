@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [5.1.4] - 2018-11-26
 - ServiceInstance.children will not contain deleted elements anymore
 - Improve ServiceDefinitionInitializer (logging)
 - When deleting a Plan which is still in use, Plan will be deactivated instead of delete denied
