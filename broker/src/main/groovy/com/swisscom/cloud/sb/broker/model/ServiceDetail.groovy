@@ -19,6 +19,11 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 
 @Entity
 class ServiceDetail extends BaseModel{
@@ -32,10 +37,18 @@ class ServiceDetail extends BaseModel{
     @Column(columnDefinition='tinyint(1) default 0')
     boolean uniqueKey
 
-    static ServiceDetail from(String key, String value) { return new ServiceDetail(key: key, value: value) }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "service_instance_service_detail",
+            joinColumns = @JoinColumn(name = "service_detail_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_instance_details_id"))
+    ServiceInstance serviceInstance
 
-    static ServiceDetail from(AbstractServiceDetailKey detailKey, String value) {
-        return new ServiceDetail(key: detailKey.key, value: value, type: detailKey.detailType().type)
+    static ServiceDetail from(String key, String value, boolean unique = false) {
+        return new ServiceDetail(key: key, value: value, uniqueKey: unique)
+    }
+
+    static ServiceDetail from(AbstractServiceDetailKey detailKey, String value, boolean unique = false) {
+        return new ServiceDetail(key: detailKey.key, value: value, type: detailKey.detailType().type, uniqueKey: unique)
     }
 
     @Override
