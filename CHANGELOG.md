@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- ServiceInstance.children will not contain deleted elements anymore
+- Improve ServiceDefinitionInitializer (logging)
+- When deleting a Plan which is still in use, Plan will be deactivated instead of delete denied
+- Relational Properties have been changed to lazy loading instead of eager
+- ServiceDetails now have a relational property linking to serviceInstance
+- ServiceDetailRepository allows finding ServiceDetails by key and value
+- Provision/Deprovision/Update/Bind/Unbind are producing audit marked log entries.
 
 ## [5.1.3] - 2018-11-22
 - Add proxy support for RestTemplateBuilder
