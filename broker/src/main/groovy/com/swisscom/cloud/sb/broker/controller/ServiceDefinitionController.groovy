@@ -67,19 +67,19 @@ class ServiceDefinitionController extends BaseController {
     }
 
     @ApiOperation(value = "Get service definition", response = ServiceDto)
-    @RequestMapping(value = ['/service-definition/{service_id}', //deprecated, prefer the path below
-                             '/custom/admin/service-definition/{service_id}'],
+    @RequestMapping(value = ['/service-definition/{serviceInstanceGuid}', //deprecated, prefer the path below
+                             '/custom/admin/service-definition/{serviceInstanceGuid}'],
             method = RequestMethod.GET)
-    ServiceDto get(@PathVariable('service_id') String serviceId) {
+    ServiceDto get(@PathVariable('serviceInstanceGuid') String serviceId) {
         return serviceDefinitionProcessor.getServiceDefinition(serviceId)
     }
 
 
     @ApiOperation(value = "Delete service definition", response = ServiceDto)
-    @RequestMapping(value = ['/service-definition/{service_id}', //deprecated, prefer the path below
-            '/custom/admin/service-definition/{service_id}'],
+    @RequestMapping(value = ['/service-definition/{serviceInstanceGuid}', //deprecated, prefer the path below
+            '/custom/admin/service-definition/{serviceInstanceGuid}'],
             method = RequestMethod.DELETE)
-    void delete(@PathVariable('service_id') String serviceId) {
+    void delete(@PathVariable('serviceInstanceGuid') String serviceId) {
         serviceDefinitionProcessor.deleteServiceDefinition(serviceId)
     }
 }

@@ -49,53 +49,53 @@ class BackupController extends BaseController {
 
     @ApiOperation(value = "List Backups", response = BackupDto.class,
             notes = "List all the backups for the given service instance", responseContainer = "List")
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups", method = GET)
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups", method = GET)
     @ResponseBody
     List<BackupDto> listBackups(
-            @ApiParam(value = 'serviceInstanceGuid', required = true) @PathVariable('service_instance') String serviceInstanceGuid) {
+            @ApiParam(value = 'serviceInstanceGuid', required = true) @PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
         def backups = backupService.listBackups(getAndCheckServiceInstance(serviceInstanceGuid))
         return backupDtoConverter.convertAll(backups)
     }
 
     @ApiOperation(value = "Get Backup", response = BackupDto.class)
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups/{backup_id}", method = GET)
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups/{backup_id}", method = GET)
     @ResponseBody
     BackupDto getBackup(
-            @PathVariable('service_instance') String serviceInstanceGuid,
+            @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
         return backupDtoConverter.convert(backupService.getBackup(getAndCheckServiceInstance(serviceInstanceGuid), backupId))
     }
 
     @ApiOperation(value = "Create Backup", response = BackupDto.class)
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups", method = POST)
-    ResponseEntity<BackupDto> createBackup(@PathVariable('service_instance') String serviceInstanceGuid) {
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups", method = POST)
+    ResponseEntity<BackupDto> createBackup(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
         def backup = backupService.requestBackupCreation(getAndCheckServiceInstance(serviceInstanceGuid))
         return new ResponseEntity<BackupDto>(backupDtoConverter.convert(backup), ACCEPTED)
     }
 
     @ApiOperation(value = "Delete Backup")
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups/{backup_id}", method = DELETE)
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups/{backup_id}", method = DELETE)
     ResponseEntity<String> deleteBackup(
-            @PathVariable('service_instance') String serviceInstanceGuid,
+            @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
         backupService.requestBackupDeletion(getAndCheckServiceInstance(serviceInstanceGuid), backupId)
         return new ResponseEntity<String>("{}", ACCEPTED)
     }
 
     @ApiOperation(value = "Restore Backup", response = RestoreDto.class)
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups/{backup_id}/restores", method = POST)
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups/{backup_id}/restores", method = POST)
     ResponseEntity<RestoreDto> restoreBackup(
-            @PathVariable('service_instance') String serviceInstanceGuid,
+            @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
         def restore = backupService.requestBackupRestoration(getAndCheckServiceInstance(serviceInstanceGuid), backupId)
         return new ResponseEntity<RestoreDto>(restoreDtoConverter.convert(restore), ACCEPTED)
     }
 
     @ApiOperation(value = "Get restore status", response = RestoreDto.class)
-    @RequestMapping(value = "/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}", method = GET)
+    @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups/{backup_id}/restores/{restore_id}", method = GET)
     @ResponseBody
     RestoreDto getRestore(
-            @PathVariable('service_instance') String serviceInstanceGuid,
+            @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId,
             @PathVariable('restore_id') String restoreId) {
         def restore = backupService.getRestore(getAndCheckServiceInstance(serviceInstanceGuid), backupId, restoreId)

@@ -21,8 +21,8 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoCon
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
@@ -64,14 +64,13 @@ class BindingController extends BaseController {
     private BindingMetricsService bindingMetricsService
 
     @ApiOperation(value = "Bind service")
-    @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.PUT)
+    @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}/service_bindings/{id}', method = RequestMethod.PUT)
     ResponseEntity<String> bind(@PathVariable('id') String bindingId,
-                                @PathVariable('service_instance') String serviceInstanceId,
+                                @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
                                 @Valid @RequestBody BindRequestDto bindingDto,
                                 Principal principal) {
-
-        log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceId}")
-        ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceId)
+        log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceGuid}")
+        ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceGuid)
         boolean bindingSucceeded = true
         try {
             verifyServiceInstanceIsReady(serviceInstance)
@@ -89,7 +88,7 @@ class BindingController extends BaseController {
         } finally {
             Audit.log("Binding service instance",
                     [
-                            serviceInstanceGuid: serviceInstanceId,
+                            serviceInstanceGuid: serviceInstanceGuid,
                             bindingGuid: bindingId,
                             action: Audit.AuditAction.Bind,
                             principal: principal.name,
@@ -147,14 +146,14 @@ class BindingController extends BaseController {
     }
 
     @ApiOperation(value = "Delete service binding")
-    @RequestMapping(value = '/v2/service_instances/{service_instance}/service_bindings/{id}', method = RequestMethod.DELETE)
-    def unbind(@PathVariable('service_instance') String serviceInstanceId,
+    @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}/service_bindings/{id}', method = RequestMethod.DELETE)
+    def unbind(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
                @PathVariable('id') String bindingGuid,
                UnbindingDto unbindingDto,
                Principal principal) {
         def failed = false
         try {
-            log.info("Unbind request for BindingId: ${bindingGuid} and ServiceInstanceid: ${serviceInstanceId}")
+            log.info("Unbind request for BindingId: ${bindingGuid} and ServiceInstanceid: ${serviceInstanceGuid}")
             ServiceBinding serviceBinding
             try {
                 serviceBinding = checkServiceBinding(bindingGuid)
@@ -179,7 +178,7 @@ class BindingController extends BaseController {
         } finally {
             Audit.log("Unbinding service instance",
                     [
-                            serviceInstanceGuid: serviceInstanceId,
+                            serviceInstanceGuid: serviceInstanceGuid,
                             bindingGuid: bindingGuid,
                             action: Audit.AuditAction.Unbind,
                             principal: principal.name,
@@ -189,8 +188,8 @@ class BindingController extends BaseController {
     }
 
     @ApiOperation(value = "Fetch service instance's binding", response = ServiceInstanceBindingResponseDto.class)
-    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.GET)
-    ServiceInstanceBindingResponseDto getServiceInstanceBinding(@PathVariable("instanceId") String serviceInstanceGuid,
+    @RequestMapping(value = "/v2/service_instances/{serviceInstanceGuid}/service_bindings/{bindingId}", method = RequestMethod.GET)
+    ServiceInstanceBindingResponseDto getServiceInstanceBinding(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid,
                                                                 @PathVariable("bindingId") String bindingGuid) {
         checkServiceBinding(bindingGuid)
         def serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
@@ -209,6 +208,7 @@ class BindingController extends BaseController {
     private ServiceBinding checkServiceBinding(String bindingGuid) {
         ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
         if (!serviceBinding) {
+            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
             ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
         }
         return serviceBinding

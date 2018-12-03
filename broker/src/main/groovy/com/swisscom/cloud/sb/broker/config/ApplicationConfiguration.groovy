@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.config
 
 import com.swisscom.cloud.sb.broker.model.repository.BaseRepositoryImpl
+import com.swisscom.cloud.sb.broker.util.LogContextEnrichInterceptor
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
 import org.springframework.context.annotation.Bean
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.ImportResource
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.spi.DocumentationType
@@ -35,10 +38,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @ImportResource(value = 'classpath:beans.xml')
 @EnableSwagger2
 @EnableTransactionManagement
-class ApplicationConfiguration {
+class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
-    public Docket api() {
+    Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api))
@@ -46,6 +49,10 @@ class ApplicationConfiguration {
                 .build()
     }
 
+    @Override
+    void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LogContextEnrichInterceptor())
+    }
 }
 
 

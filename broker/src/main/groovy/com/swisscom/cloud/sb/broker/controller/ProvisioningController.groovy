@@ -77,11 +77,12 @@ class ProvisioningController extends BaseController {
     protected ServiceProviderLookup serviceProviderLookup
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
-    @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PUT)
-    ResponseEntity<ProvisionResponseDto> provision(@PathVariable("instanceId") String serviceInstanceGuid,
+    @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}', method = RequestMethod.PUT)
+    ResponseEntity<ProvisionResponseDto> provision(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid,
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
+        log.error("provisioning request")
         def failed = false
         def hasSensitiveData = false 
         
@@ -186,8 +187,8 @@ class ProvisioningController extends BaseController {
     }
 
     @ApiOperation(value = "Deprovision a service instance")
-    @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.DELETE)
-    ResponseEntity<String> deprovision(@PathVariable("instanceId") String serviceInstanceGuid,
+    @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}', method = RequestMethod.DELETE)
+    ResponseEntity<String> deprovision(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid,
                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete,
                                        Principal principal) {
         def failed = false
@@ -216,16 +217,16 @@ class ProvisioningController extends BaseController {
 
     @ApiOperation(value = "Get the last operation status", response = LastOperationResponseDto.class,
             notes = "Returns the last operation status for the given service instance")
-    @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
+    @RequestMapping(value = "/v2/service_instances/{serviceInstanceGuid}/last_operation", method = RequestMethod.GET)
     LastOperationResponseDto lastOperation(
-            @PathVariable("instanceId") String serviceInstanceGuid,
+            @PathVariable("serviceInstanceGuid") String serviceInstanceGuid,
             @RequestParam(value = "operation", required = false) String operationId) {
         return lastOperationStatusService.pollJobStatus(serviceInstanceGuid)
     }
 
     @ApiOperation(value = "Fetch service instance", response = ServiceInstanceResponseDto.class)
-    @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.GET)
-    ServiceInstanceResponseDto getServiceInstance(@PathVariable("instanceId") String serviceInstanceGuid) {
+    @RequestMapping(value = "/v2/service_instances/{serviceInstanceGuid}", method = RequestMethod.GET)
+    ServiceInstanceResponseDto getServiceInstance(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (serviceInstance == null || !serviceInstance.completed || !serviceInstance.plan.service.instancesRetrievable) {
             ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
