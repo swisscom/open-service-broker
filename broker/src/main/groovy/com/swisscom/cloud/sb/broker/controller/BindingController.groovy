@@ -209,7 +209,6 @@ class BindingController extends BaseController {
         ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
         if (!serviceBinding) {
             ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
-            ErrorCode.SERVICE_BINDING_NOT_FOUND.throwNew()
         }
         return serviceBinding
     }
