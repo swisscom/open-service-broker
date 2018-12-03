@@ -49,7 +49,7 @@ abstract class AbstractLastOperationJob extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
-        MDC.put("serviceInstanceId", id)
+        MDC.put("serviceInstanceGuid", id)
         def failed = false
         def completed = true
         log.info("Executing job with id:${id}")

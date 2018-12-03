@@ -41,7 +41,7 @@ abstract class AbstractBackupRestoreJob<T> extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
-        MDC.put("serviceInstanceId", id)
+        MDC.put("serviceInstanceGuid", id)
         log.info("Executing job with class:${this.class.getSimpleName()} with id:${id}")
         T targetEntity = null
         try {
