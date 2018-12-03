@@ -82,7 +82,6 @@ class ProvisioningController extends BaseController {
                                                    @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
-        log.error("provisioning request")
         def failed = false
         def hasSensitiveData = false 
         
