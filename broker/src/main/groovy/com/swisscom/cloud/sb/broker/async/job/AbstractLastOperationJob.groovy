@@ -29,6 +29,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 
@@ -48,6 +49,7 @@ abstract class AbstractLastOperationJob extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
+        MDC.put("serviceInstanceId", id)
         def failed = false
         def completed = true
         log.info("Executing job with id:${id}")

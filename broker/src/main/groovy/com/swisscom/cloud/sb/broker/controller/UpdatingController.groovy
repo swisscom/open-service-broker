@@ -57,8 +57,8 @@ class UpdatingController extends BaseController {
     }
 
     @ApiOperation(value = "Updates an existing service instance.", response = UpdateResponseDto.class)
-    @RequestMapping(value = '/v2/service_instances/{instanceId}', method = RequestMethod.PATCH)
-    ResponseEntity<UpdateResponseDto> update(@PathVariable("instanceId") String serviceInstanceGuid,
+    @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}', method = RequestMethod.PATCH)
+    ResponseEntity<UpdateResponseDto> update(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid,
                                              @RequestParam(value = 'accepts_incomplete', required = false) boolean acceptsIncomplete,
                                              @Valid @RequestBody UpdateDto updateDto,
                                              Principal principal) {

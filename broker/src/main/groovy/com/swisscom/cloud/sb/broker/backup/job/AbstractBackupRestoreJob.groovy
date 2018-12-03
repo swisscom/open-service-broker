@@ -24,6 +24,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 
@@ -40,6 +41,7 @@ abstract class AbstractBackupRestoreJob<T> extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
+        MDC.put("serviceInstanceId", id)
         log.info("Executing job with class:${this.class.getSimpleName()} with id:${id}")
         T targetEntity = null
         try {

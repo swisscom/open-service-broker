@@ -41,8 +41,8 @@ class HealthController extends BaseController {
     }
 
     @ApiOperation(value = "Get ServiceHealth for a service instance ", response = ServiceHealth.class)
-    @RequestMapping(value = "/v2/service_instances/{instanceId}/health", method = RequestMethod.GET)
-    ServiceHealth health(@PathVariable("instanceId") String serviceInstanceGuid) {
+    @RequestMapping(value = "/v2/service_instances/{serviceInstanceGuid}/health", method = RequestMethod.GET)
+    ServiceHealth health(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid) {
         return serviceHealthProviderLookup.getHealthForServiceInstance(serviceInstanceGuid)
     }
 }

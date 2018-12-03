@@ -52,15 +52,15 @@ class CFExtensionsController extends BaseController {
     private ServiceProviderLookup serviceProviderLookup
 
     @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
-    @RequestMapping(value = ['/v2/cf-ext/{service_instance}/usage', //deprecated, prefer the path below
+    @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/usage', //deprecated, prefer the path below
                             '/custom/service_instances/{service_instance}/usage'],
             method = RequestMethod.GET)
     def usage(
-            @PathVariable('service_instance') String serviceInstanceId,
+            @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @RequestParam(value = 'end_date', required = false) String enddate) {
-        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (!serviceInstance) {
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("ID = ${serviceInstanceId}")
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("ID = ${serviceInstanceGuid}")
         }
         return serviceUsageLookup.usage(serviceInstance, parseEnddate(enddate))
     }
@@ -75,19 +75,19 @@ class CFExtensionsController extends BaseController {
 
     @ApiOperation(value = "Get endpoint information about a service", response = Endpoint.class,
             notes = "provides information to create security groups for a given service instance", responseContainer = "List")
-    @RequestMapping(value = ['/v2/cf-ext/{service_instance}/endpoint',//deprecated, prefer the path below
+    @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/endpoint',//deprecated, prefer the path below
                             '/custom/service_instances/{service_instance}/endpoint'],
                     method = RequestMethod.GET)
-    def endpoint(@PathVariable('service_instance') String serviceInstanceId) {
-        endpointLookup.lookup(getAndCheckServiceInstance(serviceInstanceId))
+    def endpoint(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
+        endpointLookup.lookup(getAndCheckServiceInstance(serviceInstanceGuid))
     }
 
     @ApiOperation(value = "Get extension information", response = Yaml.class,
             notes = "provides openapi 3.0 yaml")
-    @RequestMapping(value = ['/custom/service_instances/{service_instance}/api-docs'],
+    @RequestMapping(value = ['/custom/service_instances/{serviceInstanceGuid}/api-docs'],
             method = RequestMethod.GET)
-    def getApi(@PathVariable('service_instance') String serviceInstanceId) {
-        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
+    def getApi(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         if (serviceInstance) {
             ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
             if (!(serviceProvider instanceof ExtensionProvider)) {
