@@ -41,7 +41,7 @@ abstract class AbstractBackupRestoreJob<T> extends AbstractJob {
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String id = getJobId(jobExecutionContext)
-        MDC.put("serviceInstanceGuid", id)
+        MDC.put("serviceInstanceGuid", getServiceInstanceGuid(id))
         log.info("Executing job with class:${this.class.getSimpleName()} with id:${id}")
         T targetEntity = null
         try {
@@ -49,6 +49,7 @@ abstract class AbstractBackupRestoreJob<T> extends AbstractJob {
             if (targetEntity == null) {
                 throw new RuntimeException("Could not load object of type:${T.class.simpleName} with ID:${id}")
             }
+
             Backup.Status status = handleJob(targetEntity)
             if (status == Backup.Status.SUCCESS) {
                 handleSucess(targetEntity, id)
@@ -85,6 +86,8 @@ abstract class AbstractBackupRestoreJob<T> extends AbstractJob {
     abstract protected Backup.Status handleJob(T t)
 
     abstract protected <T> T getTargetEntity(String id)
+
+    abstract protected String getServiceInstanceGuid(String id)
 
     protected BackupRestoreProvider findBackupProvider(Backup backup) {
         backupRestoreProviderLookup.findBackupProvider(backup.plan)

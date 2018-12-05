@@ -53,4 +53,14 @@ class RestoreJob extends AbstractBackupRestoreJob<Restore> {
     protected Restore getTargetEntity(String id) {
         return backupPersistenceService.findRestoreByGuid(id)
     }
+
+    @Override
+    protected String getServiceInstanceGuid(String id) {
+        try {
+            return getTargetEntity(id).backup.serviceInstanceGuid
+        } catch (NullPointerException e) {
+            log.error("Could not get backup for restore guid " + id)
+            return null
+        }
+    }
 }
