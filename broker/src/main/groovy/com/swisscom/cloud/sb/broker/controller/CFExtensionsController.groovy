@@ -53,7 +53,7 @@ class CFExtensionsController extends BaseController {
 
     @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
     @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/usage', //deprecated, prefer the path below
-                            '/custom/service_instances/{service_instance}/usage'],
+                            '/custom/service_instances/{serviceInstanceGuid}/usage'],
             method = RequestMethod.GET)
     def usage(
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
