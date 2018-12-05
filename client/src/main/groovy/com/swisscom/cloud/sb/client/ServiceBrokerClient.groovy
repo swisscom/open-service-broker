@@ -66,112 +66,111 @@ class ServiceBrokerClient implements IServiceBrokerClient {
 
     @Override
     def <T> ResponseEntity<T> exchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             ParameterizedTypeReference<T> responseType,
             Object... uriVariables) {
-        return restTemplate.exchange(url, method, createHttpEntity(), responseType, uriVariables)
+        return exchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
     }
 
     @Override
     def <T> ResponseEntity<T> exchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             HttpEntity<?> requestEntity,
             ParameterizedTypeReference<T> responseType,
             Object... uriVariables) {
-        return restTemplate.exchange(url, method, requestEntity, responseType, uriVariables)
+        return restTemplate.exchange(appendPath(relativePath), method, requestEntity, responseType, uriVariables)
     }
 
     @Override
     def <T> ResponseEntity<T> exchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             Class<T> responseType,
             Object... uriVariables) {
-        return restTemplate.exchange(url, method, createHttpEntity(), responseType, uriVariables)
+        return exchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
     }
 
     @Override
     def <T> ResponseEntity<T> exchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             HttpEntity<?> requestEntity,
             Class<T> responseType,
             Object... uriVariables) {
-        return restTemplate.exchange(url, method, requestEntity, responseType, uriVariables)
+        return restTemplate.exchange(appendPath(relativePath), method, requestEntity, responseType, uriVariables)
     }
 
     @Override
     ResponseEntity<Catalog> getCatalog() {
-        return exchange(appendPath('/v2/catalog'), HttpMethod.GET, Catalog.class)
+        return exchange('/v2/catalog', HttpMethod.GET, Catalog.class)
     }
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?service_id={serviceId}&plan_id={planId}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}/last_operation?service_id={serviceId}&plan_id={planId}",
                 HttpMethod.GET, LastOperationResponse.class,
                 serviceInstanceId, "serviceId", "planId")
     }
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId, String operationId) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?operation={operationId}&service_id={serviceId}&plan_id={planId}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}/last_operation?operation={operationId}&service_id={serviceId}&plan_id={planId}",
                 HttpMethod.GET, LastOperationResponse.class,
                 serviceInstanceId, operationId, "serviceId", "planId")
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}",
                 HttpMethod.PUT, createHttpEntity(request),
                 CreateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}",
                 HttpMethod.PUT, createHttpEntity(request),
                 ProvisionResponseDto.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}",
                 HttpMethod.PATCH, createHttpEntity(request),
                 UpdateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}",
                 HttpMethod.DELETE,
                 Void.class, request.serviceInstanceId, request.serviceId, request.planId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceAppBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}",
                 HttpMethod.PUT, createHttpEntity(request),
                 CreateServiceInstanceAppBindingResponse.class, request.serviceInstanceId, request.bindingId)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
+        return exchange("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}",
                 HttpMethod.DELETE, createHttpEntity(request),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
 
     @Override
     ResponseEntity<ServiceInstanceResponse> getServiceInstance(String serviceInstanceId) {
-        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}"),
-                HttpMethod.GET, ServiceInstanceResponse.class, serviceInstanceId)
+        return exchange("/v2/service_instances/{serviceInstanceId}", HttpMethod.GET, ServiceInstanceResponse.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceInstanceBindingResponse> getServiceInstanceBinding(String serviceInstanceId, String bindingId) {
-        return exchange(appendPath("/v2/service_instances/{instanceId}/service_bindings/{bindingId}"),
+        return exchange("/v2/service_instances/{instanceId}/service_bindings/{bindingId}",
                 HttpMethod.GET, ServiceInstanceBindingResponse.class, serviceInstanceId, bindingId)
     }
 

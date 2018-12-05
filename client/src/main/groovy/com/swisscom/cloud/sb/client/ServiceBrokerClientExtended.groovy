@@ -58,135 +58,116 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         return new HttpEntity(addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)))
     }
 
+    @Override
     def <T> ResponseEntity<T> extendedExchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             ParameterizedTypeReference<T> responseType,
             Object... uriVariables) {
-
-        return extendedExchange(
-                url,
-                method,
-                createHttpEntity(),
-                responseType,
-                uriVariables)
+        return extendedExchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
     }
 
+    @Override
     def <T> ResponseEntity<T> extendedExchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             HttpEntity<?> requestEntity,
             ParameterizedTypeReference<T> responseType,
             Object... uriVariables) {
-
-        return restTemplate.exchange(
-                url,
-                method,
-                requestEntity,
-                responseType,
-                uriVariables)
+        return restTemplate.exchange(appendPath(relativePath), method, requestEntity, responseType, uriVariables)
     }
+
+    @Override
     def <T> ResponseEntity<T> extendedExchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             Class<T> responseType,
             Object... uriVariables) {
-
-        return extendedExchange(
-                url,
-                method,
-                createHttpEntity(),
-                responseType,
-                uriVariables)
+        return extendedExchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
     }
 
+    @Override
     def <T> ResponseEntity<T> extendedExchange(
-            String url,
+            String relativePath,
             HttpMethod method,
             HttpEntity<?> requestEntity,
             Class<T> responseType,
             Object... uriVariables) {
-
-        return restTemplate.exchange(
-                url,
-                method,
-                requestEntity,
-                responseType,
-                uriVariables)
+        return restTemplate.exchange(appendPath(relativePath), method, requestEntity, responseType, uriVariables)
     }
 
     @Override
     ResponseEntity<List<Endpoint>> getEndpoint(String serviceInstanceId) {
-        return extendedExchange(appendPath('/custom/service_instances/{service_instance_id}/endpoint'),HttpMethod.GET,
+        return extendedExchange('/custom/service_instances/{service_instance_id}/endpoint', HttpMethod.GET,
                 new ParameterizedTypeReference<List<Endpoint>>(){},serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId) {
-        return extendedExchange(appendPath('/custom/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
+        return extendedExchange('/custom/service_instances/{service_instance_id}/usage',HttpMethod.GET,
                 ServiceUsage.class,serviceInstanceId)
     }
 
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
-        return extendedExchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
+        return extendedExchange('/v2/service_instances/{service_instance_id}/usage',HttpMethod.GET,
                 Set.class,serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId) {
-        return extendedExchange(appendPath('/v2/service_instances/{service_instance_id}/health'),HttpMethod.GET,
+        return extendedExchange('/v2/service_instances/{service_instance_id}/health',HttpMethod.GET,
                 ServiceHealth.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
-        return extendedExchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
+        return extendedExchange('/custom/admin/service-definition',HttpMethod.POST,
                 createHttpEntity(definition),Void.class)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceDefinition(String id){
-        return extendedExchange(appendPath('/custom/admin/service-definition/{id}'),HttpMethod.DELETE,Void.class,id)
+        return extendedExchange('/custom/admin/service-definition/{id}',HttpMethod.DELETE,Void.class,id)
     }
 
     @Override
     ResponseEntity<BackupDto> createBackup(String serviceInstanceId){
-        return extendedExchange(appendPath('/custom/service_instances/{service_instance}/backups'), HttpMethod.POST, BackupDto.class, serviceInstanceId)
+        return extendedExchange('/custom/service_instances/{service_instance}/backups', HttpMethod.POST, BackupDto.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<String> deleteBackup(String serviceInstanceId, String backupId){
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.DELETE, String.class, serviceInstanceId, backupId)
+        return extendedExchange("/custom/service_instances/{service_instance}/backups/{backup_id}", HttpMethod.DELETE, String.class, serviceInstanceId, backupId)
     }
 
     @Override
     ResponseEntity<BackupDto> getBackup(String serviceInstanceId, String backupId){
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.GET, BackupDto.class, serviceInstanceId, backupId)
+        return extendedExchange("/custom/service_instances/{service_instance}/backups/{backup_id}", HttpMethod.GET, BackupDto.class, serviceInstanceId, backupId)
     }
 
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<List<BackupDto>> listBackups(String serviceInstanceId){
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups"), HttpMethod.GET, List.class, serviceInstanceId)
+        return extendedExchange("/custom/service_instances/{service_instance}/backups", HttpMethod.GET, List.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<RestoreDto> restoreBackup(String serviceInstanceId, String backupId) {
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores"),
+        return extendedExchange("/custom/service_instances/{service_instance}/backups/{backup_id}/restores",
                 HttpMethod.POST, RestoreDto.class, serviceInstanceId, backupId)
     }
 
     @Override
     ResponseEntity<RestoreDto> getRestoreStatus(String serviceInstanceId, String backupId, String restoreId){
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}"),
+        return extendedExchange("/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}",
                 HttpMethod.GET, RestoreDto.class, serviceInstanceId, backupId, restoreId)
     }
 
     @Override
     ResponseEntity<String> getApi(String serviceInstanceId){
-        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/api-docs"),
+        return extendedExchange("/custom/service_instances/{service_instance}/api-docs",
                 HttpMethod.GET, String.class, serviceInstanceId)
     }
 }
