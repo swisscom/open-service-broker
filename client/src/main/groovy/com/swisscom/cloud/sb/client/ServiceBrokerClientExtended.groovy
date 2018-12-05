@@ -99,7 +99,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     @Override
     ResponseEntity<List<Endpoint>> getEndpoint(String serviceInstanceId) {
         return extendedExchange('/custom/service_instances/{service_instance_id}/endpoint', HttpMethod.GET,
-                new ParameterizedTypeReference<List<Endpoint>>(){},serviceInstanceId)
+                new ParameterizedTypeReference<List<Endpoint>>(){}, serviceInstanceId)
     }
 
     @Override
@@ -111,13 +111,13 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
-        return extendedExchange('/v2/service_instances/{service_instance_id}/usage',HttpMethod.GET,
+        return exchange('/v2/service_instances/{service_instance_id}/usage',HttpMethod.GET,
                 Set.class,serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId) {
-        return extendedExchange('/v2/service_instances/{service_instance_id}/health',HttpMethod.GET,
+        return exchange('/v2/service_instances/{service_instance_id}/health',HttpMethod.GET,
                 ServiceHealth.class, serviceInstanceId)
     }
 
