@@ -28,6 +28,7 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindin
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceResponse
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -55,80 +56,126 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         this(new RestTemplate(new HttpComponentsClientHttpRequestFactory()), baseUrl, username, password)
     }
 
+    private <T> HttpEntity<T>createHttpEntity(T request) {
+        return new HttpEntity<T>(request, createSimpleAuthHeaders(username, password))
+    }
+
+    private HttpEntity createHttpEntity() {
+        return new HttpEntity(createSimpleAuthHeaders(username, password))
+    }
+
+    @Override
+    def <T> ResponseEntity<T> exchange(
+            String url,
+            HttpMethod method,
+            ParameterizedTypeReference<T> responseType,
+            Object... uriVariables) {
+        return restTemplate.exchange(url, method, createHttpEntity(), responseType, uriVariables)
+    }
+
+    @Override
+    def <T> ResponseEntity<T> exchange(
+            String url,
+            HttpMethod method,
+            HttpEntity<?> requestEntity,
+            ParameterizedTypeReference<T> responseType,
+            Object... uriVariables) {
+        return restTemplate.exchange(url, method, requestEntity, responseType, uriVariables)
+    }
+
+    @Override
+    def <T> ResponseEntity<T> exchange(
+            String url,
+            HttpMethod method,
+            Class<T> responseType,
+            Object... uriVariables) {
+        return restTemplate.exchange(url, method, createHttpEntity(), responseType, uriVariables)
+    }
+
+    @Override
+    def <T> ResponseEntity<T> exchange(
+            String url,
+            HttpMethod method,
+            HttpEntity<?> requestEntity,
+            Class<T> responseType,
+            Object... uriVariables) {
+        return restTemplate.exchange(url, method, requestEntity, responseType, uriVariables)
+    }
+
     @Override
     ResponseEntity<Catalog> getCatalog() {
-        return restTemplate.exchange(appendPath('/v2/catalog'), HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), Catalog.class)
+        return exchange(appendPath('/v2/catalog'), HttpMethod.GET, Catalog.class)
     }
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?service_id={serviceId}&plan_id={planId}"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), LastOperationResponse.class,
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?service_id={serviceId}&plan_id={planId}"),
+                HttpMethod.GET, LastOperationResponse.class,
                 serviceInstanceId, "serviceId", "planId")
     }
 
     @Override
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId, String operationId) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?operation={operationId}&service_id={serviceId}&plan_id={planId}"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), LastOperationResponse.class,
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/last_operation?operation={operationId}&service_id={serviceId}&plan_id={planId}"),
+                HttpMethod.GET, LastOperationResponse.class,
                 serviceInstanceId, operationId, "serviceId", "planId")
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
-                HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+                HttpMethod.PUT, createHttpEntity(request),
                 CreateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
-                HttpMethod.PUT, new HttpEntity<CreateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+                HttpMethod.PUT, createHttpEntity(request),
                 ProvisionResponseDto.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
-                HttpMethod.PATCH, new HttpEntity<UpdateServiceInstanceRequest>(request, createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?accepts_incomplete={asyncAccepted}"),
+                HttpMethod.PATCH, createHttpEntity(request),
                 UpdateServiceInstanceResponse.class, request.serviceInstanceId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
-                HttpMethod.DELETE, new HttpEntity<?>(createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}"),
+                HttpMethod.DELETE,
                 Void.class, request.serviceInstanceId, request.serviceId, request.planId, request.asyncAccepted)
     }
 
     @Override
     ResponseEntity<CreateServiceInstanceAppBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}"),
-                HttpMethod.PUT, new HttpEntity<CreateServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}"),
+                HttpMethod.PUT, createHttpEntity(request),
                 CreateServiceInstanceAppBindingResponse.class, request.serviceInstanceId, request.bindingId)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
-                HttpMethod.DELETE, new HttpEntity<com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest>(request, createSimpleAuthHeaders(username, password)),
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}"),
+                HttpMethod.DELETE, createHttpEntity(request),
                 Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
     }
 
     @Override
     ResponseEntity<ServiceInstanceResponse> getServiceInstance(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{serviceInstanceId}"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceInstanceResponse.class, serviceInstanceId)
+        return exchange(appendPath("/v2/service_instances/{serviceInstanceId}"),
+                HttpMethod.GET, ServiceInstanceResponse.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceInstanceBindingResponse> getServiceInstanceBinding(String serviceInstanceId, String bindingId) {
-        return restTemplate.exchange(appendPath("/v2/service_instances/{instanceId}/service_bindings/{bindingId}"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(username, password)), ServiceInstanceBindingResponse.class, serviceInstanceId, bindingId)
+        return exchange(appendPath("/v2/service_instances/{instanceId}/service_bindings/{bindingId}"),
+                HttpMethod.GET, ServiceInstanceBindingResponse.class, serviceInstanceId, bindingId)
     }
 
-    static HttpHeaders createSimpleAuthHeaders(String username, String password) {
+    static protected HttpHeaders createSimpleAuthHeaders(String username, String password) {
         def result = new HttpHeaders()
         if (password) {
             String auth = username + ":" + password
@@ -137,6 +184,12 @@ class ServiceBrokerClient implements IServiceBrokerClient {
             result.set("Authorization", authHeader)
         }
         return result
+    }
+
+    static protected HttpHeaders addJsonContentTypeHeader(HttpHeaders headers) {
+        headers.add("Content-Type", "application/json")
+
+        return headers
     }
 
     protected String appendPath(String path) {

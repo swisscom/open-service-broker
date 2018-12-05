@@ -47,20 +47,4 @@ class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
         then:
         noExceptionThrown()
     }
-
-    def "Execute async extension"(){
-        when:
-        def res = serviceBrokerClient.unlockUser(serviceLifeCycler.serviceInstanceId)
-        println("res = " + res)
-        then:
-        noExceptionThrown()
-    }
-
-    def "Execute sync extension"(){
-        when:
-        def res = serviceBrokerClient.lockUser(serviceLifeCycler.serviceInstanceId)
-        println("res = " + res)
-        then:
-        noExceptionThrown()
-    }
 }

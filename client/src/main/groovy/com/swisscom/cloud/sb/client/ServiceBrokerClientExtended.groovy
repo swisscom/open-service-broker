@@ -50,107 +50,143 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         this.cfPassword = cfPassword
     }
 
+    private <T> HttpEntity<T>createHttpEntity(T request) {
+        return new HttpEntity<T>(request, addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)))
+    }
+
+    private HttpEntity createHttpEntity() {
+        return new HttpEntity(addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)))
+    }
+
+    def <T> ResponseEntity<T> extendedExchange(
+            String url,
+            HttpMethod method,
+            ParameterizedTypeReference<T> responseType,
+            Object... uriVariables) {
+
+        return extendedExchange(
+                url,
+                method,
+                createHttpEntity(),
+                responseType,
+                uriVariables)
+    }
+
+    def <T> ResponseEntity<T> extendedExchange(
+            String url,
+            HttpMethod method,
+            HttpEntity<?> requestEntity,
+            ParameterizedTypeReference<T> responseType,
+            Object... uriVariables) {
+
+        return restTemplate.exchange(
+                url,
+                method,
+                requestEntity,
+                responseType,
+                uriVariables)
+    }
+    def <T> ResponseEntity<T> extendedExchange(
+            String url,
+            HttpMethod method,
+            Class<T> responseType,
+            Object... uriVariables) {
+
+        return extendedExchange(
+                url,
+                method,
+                createHttpEntity(),
+                responseType,
+                uriVariables)
+    }
+
+    def <T> ResponseEntity<T> extendedExchange(
+            String url,
+            HttpMethod method,
+            HttpEntity<?> requestEntity,
+            Class<T> responseType,
+            Object... uriVariables) {
+
+        return restTemplate.exchange(
+                url,
+                method,
+                requestEntity,
+                responseType,
+                uriVariables)
+    }
+
     @Override
     ResponseEntity<List<Endpoint>> getEndpoint(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/custom/service_instances/{service_instance_id}/endpoint'),HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),
+        return extendedExchange(appendPath('/custom/service_instances/{service_instance_id}/endpoint'),HttpMethod.GET,
                 new ParameterizedTypeReference<List<Endpoint>>(){},serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/custom/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),
+        return extendedExchange(appendPath('/custom/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
                 ServiceUsage.class,serviceInstanceId)
     }
 
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<Set<ServiceUsageItem>> getExtendedUsage(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+        return extendedExchange(appendPath('/v2/service_instances/{service_instance_id}/usage'),HttpMethod.GET,
                 Set.class,serviceInstanceId)
     }
 
     @Override
     ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId) {
-        return restTemplate.exchange(appendPath('/v2/service_instances/{service_instance_id}/health'),HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfUsername,cfPassword)),
+        return extendedExchange(appendPath('/v2/service_instances/{service_instance_id}/health'),HttpMethod.GET,
                 ServiceHealth.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
-        return restTemplate.exchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
-                new HttpEntity(definition, addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername,cfExtPassword))),Void.class)
+        return extendedExchange(appendPath('/custom/admin/service-definition'),HttpMethod.POST,
+                createHttpEntity(definition),Void.class)
     }
 
     @Override
     ResponseEntity<Void> deleteServiceDefinition(String id){
-        return restTemplate.exchange(appendPath('/custom/admin/service-definition/{id}'),HttpMethod.DELETE,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)),Void.class,id)
+        return extendedExchange(appendPath('/custom/admin/service-definition/{id}'),HttpMethod.DELETE,Void.class,id)
     }
 
     @Override
     ResponseEntity<BackupDto> createBackup(String serviceInstanceId){
-        return restTemplate.exchange(appendPath('/custom/service_instances/{service_instance}/backups'), HttpMethod.POST,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), BackupDto.class, serviceInstanceId)
+        return extendedExchange(appendPath('/custom/service_instances/{service_instance}/backups'), HttpMethod.POST, BackupDto.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<String> deleteBackup(String serviceInstanceId, String backupId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.DELETE,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)), String.class, serviceInstanceId, backupId)
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.DELETE, String.class, serviceInstanceId, backupId)
     }
 
     @Override
     ResponseEntity<BackupDto> getBackup(String serviceInstanceId, String backupId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)), BackupDto.class, serviceInstanceId, backupId)
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}"), HttpMethod.GET, BackupDto.class, serviceInstanceId, backupId)
     }
 
     @Override
     @TypeChecked(TypeCheckingMode.SKIP)
     ResponseEntity<List<BackupDto>> listBackups(String serviceInstanceId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups"), HttpMethod.GET,
-                new HttpEntity(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)), List.class, serviceInstanceId)
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups"), HttpMethod.GET, List.class, serviceInstanceId)
     }
 
     @Override
     ResponseEntity<RestoreDto> restoreBackup(String serviceInstanceId, String backupId) {
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores"),
-                HttpMethod.POST, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), RestoreDto.class, serviceInstanceId, backupId)
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores"),
+                HttpMethod.POST, RestoreDto.class, serviceInstanceId, backupId)
     }
 
     @Override
     ResponseEntity<RestoreDto> getRestoreStatus(String serviceInstanceId, String backupId, String restoreId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), RestoreDto.class, serviceInstanceId, backupId, restoreId)
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/backups/{backup_id}/restores/{restore_id}"),
+                HttpMethod.GET, RestoreDto.class, serviceInstanceId, backupId, restoreId)
     }
 
     @Override
     ResponseEntity<String> getApi(String serviceInstanceId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{service_instance}/api-docs"),
-                HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
-    }
-
-    //dummy endpoints
-    @Override
-    ResponseEntity<String> lockUser(String serviceInstanceId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{instanceId}/lock"),
-                HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
-    }
-
-    //dummy endpoints
-    @Override
-    ResponseEntity<String> unlockUser(String serviceInstanceId){
-        return restTemplate.exchange(appendPath("/custom/service_instances/{instanceId}/unlock"),
-                HttpMethod.PUT, new HttpEntity(createSimpleAuthHeaders(cfExtUsername,cfExtPassword)), String.class, serviceInstanceId)
-    }
-
-    private HttpHeaders addJsonContentTypeHeader(HttpHeaders headers) {
-        headers.add("Content-Type", "application/json")
-
-        return headers
+        return extendedExchange(appendPath("/custom/service_instances/{service_instance}/api-docs"),
+                HttpMethod.GET, String.class, serviceInstanceId)
     }
 }

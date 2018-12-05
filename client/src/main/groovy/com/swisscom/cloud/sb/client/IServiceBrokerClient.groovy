@@ -27,10 +27,17 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceReques
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceResponse
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
 @CompileStatic
 interface IServiceBrokerClient {
+    def <T> ResponseEntity<T> exchange(String url, HttpMethod method, ParameterizedTypeReference<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, ParameterizedTypeReference<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> exchange(String url, HttpMethod method, Class<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
     ResponseEntity<Catalog> getCatalog()
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId)
     ResponseEntity<LastOperationResponse> getServiceInstanceLastOperation(String serviceInstanceId, String operationId)
