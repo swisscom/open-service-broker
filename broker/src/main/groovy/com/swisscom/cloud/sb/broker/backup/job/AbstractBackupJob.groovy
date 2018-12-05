@@ -17,8 +17,10 @@ package com.swisscom.cloud.sb.broker.backup.job
 
 import com.swisscom.cloud.sb.broker.model.Backup
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 
 @CompileStatic
+@Slf4j
 abstract class AbstractBackupJob extends AbstractBackupRestoreJob<Backup> {
 
     @Override
@@ -36,5 +38,15 @@ abstract class AbstractBackupJob extends AbstractBackupRestoreJob<Backup> {
     @Override
     protected Backup getTargetEntity(String id) {
         return backupPersistenceService.findBackupByGuid(id)
+    }
+
+    @Override
+    protected String getServiceInstanceGuid(String id) {
+        try {
+            return getTargetEntity(id).serviceInstanceGuid
+        } catch (NullPointerException e) {
+            log.error("Could not get backup for backup guid " + id)
+            return null
+        }
     }
 }
