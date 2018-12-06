@@ -53,7 +53,7 @@ class CFExtensionsController extends BaseController {
 
     @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
     @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/usage', //deprecated, prefer the path below
-                            '/custom/service_instances/{service_instance}/usage'],
+                            '/custom/service_instances/{serviceInstanceGuid}/usage'],
             method = RequestMethod.GET)
     def usage(
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
@@ -76,7 +76,7 @@ class CFExtensionsController extends BaseController {
     @ApiOperation(value = "Get endpoint information about a service", response = Endpoint.class,
             notes = "provides information to create security groups for a given service instance", responseContainer = "List")
     @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/endpoint',//deprecated, prefer the path below
-                            '/custom/service_instances/{service_instance}/endpoint'],
+                            '/custom/service_instances/{serviceInstanceGuid}/endpoint'],
                     method = RequestMethod.GET)
     def endpoint(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
         endpointLookup.lookup(getAndCheckServiceInstance(serviceInstanceGuid))

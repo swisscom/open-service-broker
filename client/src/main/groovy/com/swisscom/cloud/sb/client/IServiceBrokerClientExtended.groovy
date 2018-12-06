@@ -21,10 +21,17 @@ import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import com.swisscom.cloud.sb.model.health.ServiceHealth
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 
 @CompileStatic
 interface IServiceBrokerClientExtended extends IServiceBrokerClient {
+    def <T> ResponseEntity<T> extendedExchange(String url, HttpMethod method, ParameterizedTypeReference<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> extendedExchange(String url, HttpMethod method, HttpEntity<?> requestEntity, ParameterizedTypeReference<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> extendedExchange(String url, HttpMethod method, Class<T> responseType, Object... uriVariables)
+    def <T> ResponseEntity<T> extendedExchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
     ResponseEntity<Endpoint> getEndpoint(String serviceInstanceId)
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId)
     ResponseEntity<Set<ServiceUsage>> getExtendedUsage(String serviceInstanceId)
@@ -38,7 +45,4 @@ interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<RestoreDto> restoreBackup(String serviceInstanceId, String backupId)
     ResponseEntity<RestoreDto> getRestoreStatus(String serviceInstanceId, String backupId, String restore_id)
     ResponseEntity<String> getApi(String serviceInstanceId)
-    ResponseEntity<String> lockUser(String serviceInstanceId)
-    ResponseEntity<String> unlockUser(String serviceInstanceId)
-
 }
