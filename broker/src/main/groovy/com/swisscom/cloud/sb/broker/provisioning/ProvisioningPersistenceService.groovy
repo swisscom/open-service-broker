@@ -154,7 +154,7 @@ class ProvisioningPersistenceService {
         }
     }
 
-    ServiceInstance createServiceInstanceOrUpdateDetails(UpdateRequest updateRequest, UpdateResponse provisionResponse) {
+    ServiceInstance updateServiceDetails(UpdateRequest updateRequest, UpdateResponse provisionResponse) {
         def serviceInstance = getServiceInstance(updateRequest.serviceInstanceGuid)
         if (serviceInstance) {
             return updateServiceDetails(provisionResponse.details, serviceInstance)
