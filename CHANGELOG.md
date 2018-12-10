@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Fix issue where ServiceDetails are not saved from the state machine while execute an service instance update
 
 ## [5.1.5] - 2018-12-06
 - Add MDC to add serviceInstanceGuid as a common metadata for all service log actions
