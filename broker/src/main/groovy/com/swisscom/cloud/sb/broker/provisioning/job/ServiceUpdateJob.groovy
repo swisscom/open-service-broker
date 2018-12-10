@@ -19,7 +19,6 @@ import com.swisscom.cloud.sb.broker.async.job.AbstractLastOperationJob
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
-import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -58,7 +57,7 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
         log.info("About to update service instance, ${context.lastOperation.toString()}")
         def updateResult = ((AsyncServiceUpdater)serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
 
-        context.serviceInstance = provisioningPersistenceService.createServiceInstanceOrUpdateDetails(context.updateRequest, new UpdateResponse(details: updateResult.details, isAsync: true))
+        context.serviceInstance = provisioningPersistenceService.updateServiceDetails(context.updateRequest, new UpdateResponse(details: updateResult.details, isAsync: true))
 
         if (updateResult.status == LastOperation.Status.SUCCESS) {
             provisioningPersistenceService.updateServiceInstanceCompletion(context.serviceInstance, true)
