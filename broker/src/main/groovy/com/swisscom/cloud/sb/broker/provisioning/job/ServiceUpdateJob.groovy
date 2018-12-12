@@ -23,6 +23,7 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,6 +55,13 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
     @Override
     protected AsyncOperationResult handleJob(LastOperationJobContext context) {
         log.info("About to update service instance, ${context.lastOperation.toString()}")
-        return ((AsyncServiceUpdater)serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
+        def updateResult = ((AsyncServiceUpdater)serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
+
+        context.serviceInstance = provisioningPersistenceService.updateServiceDetails(context.updateRequest, new UpdateResponse(details: updateResult.details, isAsync: true))
+
+        if (updateResult.status == LastOperation.Status.SUCCESS) {
+            provisioningPersistenceService.updateServiceInstanceCompletion(context.serviceInstance, true)
+        }
+        return updateResult
     }
 }

@@ -21,11 +21,13 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
 import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -144,11 +146,18 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance createServiceInstanceOrUpdateDetails(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
-        def serviceInstace = getServiceInstance(provisionRequest.serviceInstanceGuid)
-        if (serviceInstace) {
-            return updateServiceDetails(provisionResponse.details, serviceInstace)
+        def serviceInstance = getServiceInstance(provisionRequest.serviceInstanceGuid)
+        if (serviceInstance) {
+            return updateServiceDetails(provisionResponse.details, serviceInstance)
         } else {
             return createServiceInstance(provisionRequest, provisionResponse)
+        }
+    }
+
+    ServiceInstance updateServiceDetails(UpdateRequest updateRequest, UpdateResponse provisionResponse) {
+        def serviceInstance = getServiceInstance(updateRequest.serviceInstanceGuid)
+        if (serviceInstance) {
+            return updateServiceDetails(provisionResponse.details, serviceInstance)
         }
     }
 
