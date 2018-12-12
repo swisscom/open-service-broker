@@ -50,11 +50,11 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
         this.cfPassword = cfPassword
     }
 
-    private <T> HttpEntity<T>createHttpEntity(T request) {
+    def <T> HttpEntity<T>createExtendedHttpEntity(T request) {
         return new HttpEntity<T>(request, addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)))
     }
 
-    private HttpEntity createHttpEntity() {
+    def HttpEntity createExtendedHttpEntity() {
         return new HttpEntity(addJsonContentTypeHeader(createSimpleAuthHeaders(cfExtUsername, cfExtPassword)))
     }
 
@@ -64,7 +64,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
             HttpMethod method,
             ParameterizedTypeReference<T> responseType,
             Object... uriVariables) {
-        return extendedExchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
+        return extendedExchange(relativePath, method, createExtendedHttpEntity(), responseType, uriVariables)
     }
 
     @Override
@@ -83,7 +83,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
             HttpMethod method,
             Class<T> responseType,
             Object... uriVariables) {
-        return extendedExchange(relativePath, method, createHttpEntity(), responseType, uriVariables)
+        return extendedExchange(relativePath, method, createExtendedHttpEntity(), responseType, uriVariables)
     }
 
     @Override
@@ -124,7 +124,7 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     @Override
     ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
         return extendedExchange('/custom/admin/service-definition',HttpMethod.POST,
-                createHttpEntity(definition),Void.class)
+                createExtendedHttpEntity(definition),Void.class)
     }
 
     @Override

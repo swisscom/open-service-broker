@@ -56,11 +56,11 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         this(new RestTemplate(new HttpComponentsClientHttpRequestFactory()), baseUrl, username, password)
     }
 
-    private <T> HttpEntity<T>createHttpEntity(T request) {
+    def <T> HttpEntity<T>createHttpEntity(T request) {
         return new HttpEntity<T>(request, createSimpleAuthHeaders(username, password))
     }
 
-    private HttpEntity createHttpEntity() {
+    HttpEntity createHttpEntity() {
         return new HttpEntity(createSimpleAuthHeaders(username, password))
     }
 
