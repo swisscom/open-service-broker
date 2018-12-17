@@ -11,7 +11,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      JAVA_TOOL_OPTIONS: -Xmx1024m
+      JAVA_TOOL_OPTIONS: -Xmx1024m --spring.profiles.active=info,default,extensions,secrets,test
 
     steps:
     - checkout
