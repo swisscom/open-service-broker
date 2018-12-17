@@ -10,15 +10,23 @@ import javax.servlet.http.HttpServletResponse
 
 @Slf4j
 class LogContextEnrichInterceptor extends HandlerInterceptorAdapter {
+    static String serviceInstanceKey = "serviceInstanceGuid"
+
     @Override
     boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
             Map<String, String> pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
-            if (pathVariables.containsKey("serviceInstanceGuid")) {
-                MDC.put("serviceInstanceGuid", pathVariables.get("serviceInstanceGuid").toString())
+            if (pathVariables.containsKey(serviceInstanceKey)) {
+                MDC.put(serviceInstanceKey, pathVariables.get(serviceInstanceKey).toString())
             }
         } catch (Exception e) {
-            log.debug("Error setting log context", e)
+            try{
+                log.debug("Error setting log context", e)
+                MDC.put(serviceInstanceKey. "00000000-0000-0000-0000-000000000000")
+            }
+            catch (Exception ex) {
+                log.debug("Error setting log context", ex)
+            }
         }
         return true
     }
