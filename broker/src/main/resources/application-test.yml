@@ -1,8 +1,4 @@
-spring:
-  profiles.active: info,default,extensions,secrets,test
 ---
-# Configurations used for tests with local docker-compose setup
-# Activate this profile with @ActiveProfiles("test") annotation
 spring:
   profiles: test
 
