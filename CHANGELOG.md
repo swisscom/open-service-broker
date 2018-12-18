@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Fix Issue where logging context enricher crashes if there are no URI parameters
+- Rework profiles.actives in yml to simplify overwrite of profiles
 
 ## [5.1.7] - 2018-12-12
 - Refactor serviceBrokerClient to make createHttpEntity public, so that this can be used to create requests with payload
