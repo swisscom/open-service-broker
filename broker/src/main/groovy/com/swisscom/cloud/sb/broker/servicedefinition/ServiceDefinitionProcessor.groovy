@@ -212,10 +212,19 @@ class ServiceDefinitionProcessor {
         }
     }
 
+    private def demapify(Object value) {
+        if (value instanceof LinkedHashMap) {
+            return (LinkedHashMap)value.values().toArray()
+        }
+
+        return value;
+    }
+
     private void addNewServiceMetadataFromJson(serviceJson, CFService service) {
         serviceJson.metadata.each {
             k, v ->
-                def serviceMetadata = new CFServiceMetadata(key: k, value: objectMapper.writeValueAsString(v), type: v.getClass().name)
+                def value = demapify(v)
+                def serviceMetadata = new CFServiceMetadata(key: k, value: objectMapper.writeValueAsString(value), type: value.getClass().name)
                 cfServiceMetaDataRepository.saveAndFlush(serviceMetadata)
                 service.metadata.add(serviceMetadata)
                 cfServiceRepository.saveAndFlush(service)
@@ -410,7 +419,8 @@ class ServiceDefinitionProcessor {
     private void addPlanMetadataFromJson(planJson, Plan plan) {
         planJson.metadata.each {
             k, v ->
-                def planMetadata = new PlanMetadata(key: k, value: objectMapper.writeValueAsString(v), type: v.getClass().name)
+                def value = demapify(v)
+                def planMetadata = new PlanMetadata(key: k, value: objectMapper.writeValueAsString(value), type: value.getClass().name)
                 planMetadataRepository.saveAndFlush(planMetadata)
                 plan.metadata.add(planMetadata)
         }
