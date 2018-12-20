@@ -51,13 +51,13 @@ class PlanDtoConverterSpec extends Specification {
         then:
         planMetadataDto.metadata.get('key1') == result
         where:
-        value           | type                  | result
-        "value"         | null                  | "value"
-        "True"          | 'Boolean'             | true
-        "True"          | 'bool'                | true
-        "1"             | 'int'                 | 1
-        "1"             | 'Integer'             | 1
-        "[\"woop\"]"    | ArrayList.class.name  | [ "woop" ]
-        "\"1\""         | String.class.name     | "1"
+        value                   | type                      | result
+        "value"                 | null                      | "value"
+        "True"                  | 'Boolean'                 | true
+        "True"                  | 'bool'                    | true
+        "1"                     | 'int'                     | 1
+        "1"                     | 'Integer'                 | 1
+        "[\"woop\",\"mauz\"]"   | ArrayList.class.name      | [ "woop", "mauz" ]
+        "\"1\""                 | String.class.name         | "1"
     }
 }
