@@ -59,7 +59,7 @@ class ServiceDefinitionInitializer {
 
     @PostConstruct
     void init() {
-        List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions
+        List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions ?: new ArrayList<ServiceDto>()
         Map<String, CFService> cfServiceListFromDB = getServicesFromDB()
 
         synchroniseServiceDefinitions(cfServiceListFromConfig, cfServiceListFromDB)
