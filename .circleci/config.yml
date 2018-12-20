@@ -20,7 +20,7 @@ jobs:
     - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
     - run: 'if [[ -z "${CIRCLE_PULL_REQUEST}" ]]; then openssl aes-256-cbc -md md5 -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d; fi'
     - run: pushd docker && ./setup_docker.sh ; popd
-    - run: ./gradlew clean build -x functionalTest --stacktrace -debug
+    - run: ./gradlew clean build -x functionalTest --stacktrace
     - run: ./scripts/circleci-publish.sh
 
   release:
