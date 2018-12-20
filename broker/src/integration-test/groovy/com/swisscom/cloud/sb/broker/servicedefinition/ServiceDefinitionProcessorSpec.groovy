@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
+import com.swisscom.cloud.sb.broker.cfapi.converter.MetadataJsonHelper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
@@ -250,12 +251,12 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     }
 
     private def assertMetadata() {
-        def metadata = ['key1': 'value1', 'key2': 'true']
+        def metadata = ['key1': "\"value1\"", 'key2': "true"]
         CFService service = findService()
         metadata.each {
             k, v -> assert service.metadata.find { it.key == k }.value == v
         }
-        service.metadata.size() == 2
+        service.metadata.size() == 3
     }
 
     def "old service plans which are **not** in use are removed"() {
@@ -400,8 +401,8 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
         metadata.each {
             k, v ->
                 PlanMetadata planMetadata = plan.metadata.find { it.key == k }
-                assert planMetadata.type == v.class.getSimpleName()
-                assert planMetadata.value == v.toString()
+                assert planMetadata.type == v.class.name
+                assert v == MetadataJsonHelper.getValue(planMetadata.type, planMetadata.value)
         }
         plan.metadata.size() == 2
         return plan

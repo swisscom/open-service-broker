@@ -11,4 +11,4 @@
   OOOOO           OOOO                SSSSSS  BBBBB           BBB
   OOOOO           OOOO                SSSSSS  BBBBB           BBB
   OOOOOOOOOOOOOOOOOOOO  SSSSSSSSSSSSSSSSSSSS  BBBBBBBBBBBBBBBBBB    // Spring Boot 2.0.6.Release \\
-   OOOOOOOOOOOOOOOOOO    SSSSSSSSSSSSSSSSSS   BBBBBBBBBBBBBBBBB     \\   Kind regards Swisscom   //
+   OOOOOOOOOOOOOOOOOO    SSSSSSSSSSSSSSSSSS   BBBBBBBBBBBBBBBBB     \\       ~ Swisscom ~        //
