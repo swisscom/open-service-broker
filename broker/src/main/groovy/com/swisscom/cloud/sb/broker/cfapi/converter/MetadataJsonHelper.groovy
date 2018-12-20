@@ -51,8 +51,6 @@ class MetadataJsonHelper {
                 case 'long':
                 case 'Long':
                     return Long.valueOf(value)
-                case ArrayList.class.name:
-
                 default:
                     return value
             }
