@@ -37,6 +37,9 @@ com.swisscom.cloud.sb.broker.serviceDefinitions: [
   "metadata": {
     "version": "2.0.0",
     "displayName": "CredHub"
+    "bullets": [
+      "Secure Store"
+    ]
   },
   "plans": [
   {

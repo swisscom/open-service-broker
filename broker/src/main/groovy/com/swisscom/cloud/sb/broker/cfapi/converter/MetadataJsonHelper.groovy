@@ -15,22 +15,47 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
+import com.fasterxml.jackson.databind.ObjectMapper
+
 class MetadataJsonHelper {
-    public static Object getValue(String type, Object value) {
-        if (!type) {
-            return value
-        }
-        switch (type.toLowerCase()) {
-            case 'bool':
-            case 'boolean':
-                return Boolean.valueOf(value)
-            case 'int':
-            case 'integer':
-                return Integer.valueOf(value)
-            case 'long':
-                return Long.valueOf(value)
-            default:
+
+    static ObjectMapper _objectMapper
+
+    static ObjectMapper getObjectMapper() {
+        if (_objectMapper == null)
+            _objectMapper = new ObjectMapper()
+
+        return _objectMapper
+    }
+
+    static Object getValue(String type, String value) {
+        try {
+            return objectMapper.readValue(value, Class.forName(type))
+        } catch (Exception ex) {
+            if (!type) {
                 return value
+            }
+            switch (type.toLowerCase()) {
+                case boolean.class.name:
+                case Boolean.class.name:
+                case 'bool':
+                case 'boolean':
+                    return Boolean.valueOf(value)
+                case int.class.name:
+                case Integer.class.name:
+                case 'int':
+                case 'integer':
+                    return Integer.valueOf(value)
+                case long.class.name:
+                case Long.class.name:
+                case 'long':
+                case 'Long':
+                    return Long.valueOf(value)
+                case ArrayList.class.name:
+
+                default:
+                    return value
+            }
         }
     }
 }

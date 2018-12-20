@@ -17,7 +17,8 @@
   ],
   "metadata": {
     "key1": "value1",
-    "key2": true
+    "key2": true,
+    "key3": [ "array-value" ]
   },
   "requires": [
     "syslog_drain"
