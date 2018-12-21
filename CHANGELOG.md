@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Fix meta data LinkedHashMap to Array for compliance reasons
 
 ## [5.1.9] - 2018-12-20
 - Fix Issue where arrays couldn't be used as meta data in plan or service in the servicedefinition
