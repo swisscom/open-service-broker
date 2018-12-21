@@ -214,7 +214,7 @@ class ServiceDefinitionProcessor {
 
     private def demapify(Object value) {
         if (value instanceof LinkedHashMap) {
-            return (LinkedHashMap)value.values().toArray()
+            return ((LinkedHashMap)value).values().toArray()
         }
 
         return value;
