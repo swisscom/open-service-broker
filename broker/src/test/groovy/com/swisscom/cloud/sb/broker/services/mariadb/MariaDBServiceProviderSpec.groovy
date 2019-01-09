@@ -24,9 +24,11 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbBindResponseDto
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbFacade
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import spock.lang.Specification
 
 import static com.swisscom.cloud.sb.broker.error.ErrorCode.RELATIONAL_DB_NOT_FOUND
@@ -62,7 +64,7 @@ class MariaDBServiceProviderSpec extends Specification {
                 .add(ServiceDetailKey.DATABASE, db)
                 .getDetails())
         serviceInstanceWithSpecialCluster.plan = new Plan(service: new CFService(
-                metadata: [ new CFServiceMetadata(key: MariaDBServiceProvider.CLUSTER_METADATA_KEY, value: "special" ) ]))
+                metadata: [new CFServiceMetadata(key: MariaDBServiceProvider.CLUSTER_METADATA_KEY, value: "special")]))
 
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
         serviceInstanceRepository.findByGuid(serviceInstance.guid) >> serviceInstance
@@ -72,7 +74,7 @@ class MariaDBServiceProviderSpec extends Specification {
         mariaDBClientFactory = Mock(MariaDBClientFactory)
         relationalDbFacade = new RelationalDbFacade()
         mariaDBClientFactory.build() >> mariaDBClient
-        mariaDBClientFactory.build(_,_,_, _, _, _) >> mariaDBClient
+        mariaDBClientFactory.build(_, _, _, _, _, _) >> mariaDBClient
         mariaDBServiceProvider = new MariaDBServiceProvider(
                 new MariaDBConfig(clusters: [
                         new MariaDBConnectionConfig(name: "default", databasePrefix: db_prefix, host: 'host', port: '1234', adminPassword: 'adminpw', adminUser: 'admin', driver: 'com.mysql.cj.jdbc.Driver', vendor: 'mysql'),
@@ -91,6 +93,33 @@ class MariaDBServiceProviderSpec extends Specification {
         then:
         1 * mariaDBClient.createDatabase(db)
         provisionResponse.details.size() == 1
+        provisionResponse.dashboardURL == null
+    }
+
+    def "happy path: provision returns dashboardUrl if configured"() {
+        def dashboardPath = 'http://mydashboard'
+        given:
+        mariaDBServiceProvider = new MariaDBServiceProvider(
+                new MariaDBConfig(clusters: [
+                        new MariaDBConnectionConfig(name: "special", databasePrefix: db_prefix, host: 'special', port: '1234', adminPassword: 'special', adminUser: 'special', driver: 'com.mysql.cj.jdbc.Driver', vendor: 'mysql', dashboardPath: dashboardPath)
+                ]),
+                mariaDBClientFactory,
+                serviceInstanceRepository,
+                relationalDbFacade)
+
+        and:
+        def request = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceContext: new ServiceContext(
+                platform: CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM,
+                details: [
+                        ServiceContextDetail.from(ServiceContextHelper.CF_ORGANIZATION_GUID, 'my-org'),
+                        ServiceContextDetail.from(ServiceContextHelper.CF_SPACE_GUID, 'my-space')]
+        ))
+        mariaDBClient.databaseExists(db) >>> [false, true]
+        when:
+        ProvisionResponse provisionResponse = mariaDBServiceProvider.provision(request)
+        then:
+        1 * mariaDBClient.createDatabase(db)
+        provisionResponse.dashboardURL == dashboardPath
     }
 
     def "provision request for db schema that already exists throws exception"() {
@@ -136,7 +165,7 @@ class MariaDBServiceProviderSpec extends Specification {
         mariaDBServiceProvider.bind(request)
         then:
         Exception ex = thrown(ServiceBrokerException)
-        assertServiceBrokerException(ex,RELATIONAL_DB_NOT_FOUND)
+        assertServiceBrokerException(ex, RELATIONAL_DB_NOT_FOUND)
     }
 
     def "bind request throws exception when username is already in the db"() {
@@ -149,13 +178,13 @@ class MariaDBServiceProviderSpec extends Specification {
         mariaDBServiceProvider.bind(request)
         then:
         Exception ex = thrown(ServiceBrokerException)
-        assertServiceBrokerException(ex,RELATIONAL_DB_USER_ALREADY_EXISTS)
+        assertServiceBrokerException(ex, RELATIONAL_DB_USER_ALREADY_EXISTS)
     }
 
     def "happy path: unbind"() {
         given:
         def binding = createServiceBinding()
-        def request = new UnbindRequest(binding: binding,serviceInstance: serviceInstance)
+        def request = new UnbindRequest(binding: binding, serviceInstance: serviceInstance)
         mariaDBClient.userExists("user") >>> [true, false]
         when:
         mariaDBServiceProvider.unbind(request)
@@ -167,7 +196,7 @@ class MariaDBServiceProviderSpec extends Specification {
         given:
         def binding = createServiceBinding()
         serviceInstance.details.add(new ServiceDetail(key: ServiceDetailKey.USER.key, value: 'user'))
-        def request = new UnbindRequest(serviceInstance: serviceInstance,binding: binding)
+        def request = new UnbindRequest(serviceInstance: serviceInstance, binding: binding)
         mariaDBClient.userExists("user") >> false
         when:
         mariaDBServiceProvider.unbind(request)
@@ -175,7 +204,7 @@ class MariaDBServiceProviderSpec extends Specification {
         noExceptionThrown()
     }
 
-    def "happy path: service usage"(){
+    def "happy path: service usage"() {
         given:
         mariaDBClient.getUsageInBytes(ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.DATABASE)) >> '5'
         when:
@@ -201,13 +230,13 @@ class MariaDBServiceProviderSpec extends Specification {
         config.adminUser == "special"
     }
 
-    private def createServiceBinding(){
+    private def createServiceBinding() {
         def binding = new ServiceBinding()
         binding.details.add(new ServiceDetail(key: ServiceDetailKey.USER.key, value: 'user'))
         return binding
     }
 
     private BindRequest bindRequest() {
-        return new BindRequest(serviceInstance: serviceInstance,plan: new Plan())
+        return new BindRequest(serviceInstance: serviceInstance, plan: new Plan())
     }
 }
