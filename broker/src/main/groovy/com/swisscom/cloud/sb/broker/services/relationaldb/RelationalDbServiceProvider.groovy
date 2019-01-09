@@ -18,15 +18,18 @@ package com.swisscom.cloud.sb.broker.services.relationaldb
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.util.logging.Log4j
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 
 @Log4j
-abstract class RelationalDbServiceProvider implements ServiceProvider {
+abstract class RelationalDbServiceProvider implements ServiceProvider, CloudFoundryContextRestrictedOnly {
     protected final RelationalDbClientFactory dbClientFactory
     protected final RelationalDbConfig dbConfig
 
@@ -41,7 +44,12 @@ abstract class RelationalDbServiceProvider implements ServiceProvider {
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
         RelationalDbClient client = buildDbClient(request.serviceInstanceGuid)
-        relationalDbFacade.provision(client, request)
+        def provisionResponse = relationalDbFacade.provision(client, request)
+        def context = ServiceContextHelper.convertFrom(request.serviceContext) as CloudFoundryContext
+        if(dbConfig.dashboardPath && !dbConfig.dashboardPath.isEmpty()) {
+            provisionResponse.dashboardURL = String.format(dbConfig.dashboardPath, context.organizationGuid, request.serviceInstanceGuid)
+        }
+        provisionResponse
     }
 
     @Override

@@ -26,4 +26,5 @@ class RelationalDbConfig implements Config {
     String adminUser
     String adminPassword
     String databasePrefix
+    String dashboardPath
 }
