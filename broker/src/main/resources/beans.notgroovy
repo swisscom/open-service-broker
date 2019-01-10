@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker
 
 import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
+import com.swisscom.cloud.sb.broker.backup.BackupCleanup
 
 
 beans {
@@ -23,6 +24,17 @@ beans {
         cronExpression = "0 0 0 * * ?" //once per day
     }
 
+    backupCleanupBean(BackupCleanup) {}
+
+    jobBackupCleanup(org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean) {
+        targetObject = ref('backupCleanupBean')
+        targetMethod = 'run'
+    }
+
+    triggerBackupCleanup(org.springframework.scheduling.quartz.CronTriggerFactoryBean) {
+        jobDetail = ref('jobBackupCleanup')
+        cronExpression = "0 0 0 * * ?" //once per day
+    }
 
     quartzSchedulerWithPersistence(org.springframework.scheduling.quartz.SchedulerFactoryBean) { bean ->
         autoStartup = false
