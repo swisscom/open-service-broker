@@ -58,7 +58,7 @@ class JobManager {
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                 .withIntervalInSeconds(jobConfig.retryIntervalInSeconds)
                 .withRepeatCount(calculateMaxRepeatCount(jobConfig.maxRetryDurationInMinutes, jobConfig.retryIntervalInSeconds))
-                .withMisfireHandlingInstructionNextWithExistingCount())
+                .withMisfireHandlingInstructionNowWithExistingCount())
                 .startNow()
                 .build()
 
