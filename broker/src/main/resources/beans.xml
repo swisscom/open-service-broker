@@ -23,6 +23,18 @@
         <property name="cronExpression" value="0 0 0 * * ?" />
     </bean>
 
+    <bean id="backupCleanupBean" class="com.swisscom.cloud.sb.broker.backup.BackupCleanup" />
+
+    <bean id="jobBackupCleanup" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="backupCleanupBean" />
+        <property name="targetMethod" value="run" />
+    </bean>
+
+    <bean id="triggerBackupCleanup" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobBackupCleanup" />
+        <property name="cronExpression" value="0 0 0 * * ?" />
+    </bean>
+
     <bean id="quartzSchedulerWithPersistence" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="flyway">
         <property name="dataSource" ref="dataSource" />
         <property name="transactionManager" ref="transactionManager" />
