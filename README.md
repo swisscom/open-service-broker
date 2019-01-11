@@ -86,8 +86,6 @@ For installing Service Broker on Openshift, use the *openshift-deploy.sh* script
 When importing this project into IntelliJ, select the "create separate module per source set option".
 ![Intelli import](./img/intellij_import.png)
 
-
-
 ### Cloud Foundry interactions
 
 Follow the [documentation](http://docs.cloudfoundry.org/services/managing-service-brokers.html) to register the broker
@@ -345,3 +343,19 @@ so that a file with log4j2-test.yaml can be added. To have a normal human readab
    rootLogger.level = info
    rootLogger.appenderRef.stdout.ref = STDOUT
 ```
+
+## Admin Actions
+
+Admin actions allow you to modify the behaviour of the open service brokers internals. admin actions are designed to 
+remedy or change errorous states in the broker due to manual interactions on the service level.
+
+Admin actions are not for the default user and therefor are only usable with users with ext permission.
+
+### Terminate LastOperation
+
+```
+[POST] /admin/service_instances/{serviceInstanceGuid}/last_operation/terminate
+```
+
+This will stop all scheduled actions for this service and set the current last action to failed. This command should be
+used if a service creation has failed without aprioriate feedback or if the broker isn't in sync anymore.
