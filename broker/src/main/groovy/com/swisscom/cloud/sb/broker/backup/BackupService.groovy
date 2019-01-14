@@ -138,7 +138,7 @@ class BackupService {
         if (Backup.Operation.DELETE == backup.operation) {
             if (Backup.Status == Backup.Status.SUCCESS) {
                 log.info("Backup with:${backup.guid} is already deleted (awaiting cleanup job)")
-                ErrorCode.BACKUP_NOT_FOUND.throwNew()
+                ErrorCode.BACKUP_GONE.throwNew()
             } else if (Backup.Status == Backup.Status.IN_PROGRESS) {
                 log.info("Backup with:${backup.guid} is already scheduled for deletion")
                 ErrorCode.BACKUP_CONCURRENT_OPERATION.throwNew("Delete already in progress")
