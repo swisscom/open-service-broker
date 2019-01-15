@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- [MINOR] Add cleanup backup job, which removes all deleted or failed backups older then 14 days
+- Change backup endpoint to return 410 when deleting a backup which doesn't exist anymore
+- [MINOR] Add ADMIN Endpoint to terminate last operations (see readme)  
 
 ## [5.2.1] - 2019-01-10
 - Bugfix for LogContextEnrichInterceptor
@@ -16,7 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [5.1.11] - 2019-01-09
 - Add `dashboard_url` support for MariaDB Service Provider
-
 
 ## [5.1.10] - 2018-12-21
 - Fix meta data LinkedHashMap to Array for compliance reasons
