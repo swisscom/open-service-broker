@@ -70,6 +70,19 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
+    def "restTemplate with Bearer Token"() {
+        given:
+        String token = 'AbCdEf123456'
+        HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withBearerAuthentication(token))
+        when:
+        def response = makeGetRequest(new RestTemplateBuilder().withBearerAuthentication(token).build())
+        then:
+        response.statusCode == HttpStatus.OK
+        response.body.equalsIgnoreCase('hello')
+        cleanup:
+        httpServer?.stop()
+    }
+
     def 'GET request over https to self signed certificate endpoint throws exception'() {
         given:
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
