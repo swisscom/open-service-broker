@@ -28,9 +28,6 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
-import static com.swisscom.cloud.sb.broker.util.HttpHelper.createBearerTokenAuthHeaders
-import static com.swisscom.cloud.sb.broker.util.HttpHelper.createSimpleAuthHeaders
-
 @CompileStatic
 @Slf4j
 class BoshRestClient {
@@ -57,17 +54,8 @@ class BoshRestClient {
     }
 
     String getDeployment(String id) {
-        createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id),
-                HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
-    }
-
-    private HttpHeaders createAuthHeaders() {
-        String token = checkAuthTypeAndLogin()
-        if (token != null) {
-            return createBearerTokenAuthHeaders(token)
-        } else {
-            return createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)
-        }
+        createAuthRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id),
+                HttpMethod.GET, null, String.class).body
     }
 
     @TypeChecked(TypeCheckingMode.SKIP)
@@ -84,16 +72,16 @@ class BoshRestClient {
     @TypeChecked(TypeCheckingMode.SKIP)
     private String uaaLogin(String uaaBaseUrl) {
         def jsonSlurper = new JsonSlurper()
-        return jsonSlurper.parseText(createRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials", HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)), String.class).body).access_token
+        return jsonSlurper.parseText(createBasicAuthRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials", HttpMethod.GET, null, String.class).body).access_token
     }
 
     String postDeployment(String data) {
         log.trace("Posting new bosh deployment: \n${data}")
-        HttpHeaders headers = createAuthHeaders()
+        HttpHeaders headers = new HttpHeaders()
         headers.add('Content-Type', CONTENT_TYPE_YAML)
         HttpEntity<String> request = new HttpEntity<>(data, headers)
 
-        def responseEntity = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS), HttpMethod.POST, request, String.class)
+        def responseEntity = createAuthRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS), HttpMethod.POST, request, String.class)
 
         return handleRedirectonAndExtractTaskId(responseEntity)
     }
@@ -111,28 +99,28 @@ class BoshRestClient {
     }
 
     String deleteDeployment(String id) {
-        def response = createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '?force=true', HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
+        def response = createAuthRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '?force=true', HttpMethod.DELETE, null, String.class)
         return handleRedirectonAndExtractTaskId(response)
     }
 
     String fetchCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
+        createAuthRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, null, String.class).body
     }
 
     String getAllVMsInDeployment(String id) {
-        createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '/vms', HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
+        createAuthRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '/vms', HttpMethod.GET, null, String.class).body
     }
 
     void postCloudConfig(String data) {
         log.trace("Updating cloud config with: ${data}")
-        HttpHeaders headers = createAuthHeaders()
+        HttpHeaders headers = new HttpHeaders()
         headers.add('Content-Type', CONTENT_TYPE_YAML)
         HttpEntity<String> request = new HttpEntity<>(data, headers)
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS), HttpMethod.POST, request, Void.class)
+        createAuthRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS), HttpMethod.POST, request, Void.class)
     }
 
     String getTask(String id) {
-        createRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
+        createAuthRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id), HttpMethod.GET, null, String.class).body
     }
 
     @VisibleForTesting
@@ -144,10 +132,29 @@ class BoshRestClient {
         return boshConfig
     }
 
+    private RestTemplateBuilder createRestTemplateBuilder() {
+        return restTemplateBuilder.withSSLValidationDisabled()
+    }
+
     private RestTemplate createRestTemplate() {
-        def restTemplate = restTemplateBuilder.withSSLValidationDisabled().build()
+        def restTemplate = createRestTemplateBuilder().build()
         restTemplate.setErrorHandler(new CustomErrorHandler())
         return restTemplate
+    }
+
+    private RestTemplate createAuthRestTemplate() {
+        String token = checkAuthTypeAndLogin()
+        def restTemplate = token != null ? createBearerAuthRestTemplate(token) : createBasicAuthRestTemplate()
+        restTemplate.setErrorHandler(new CustomErrorHandler())
+        return restTemplate
+    }
+
+    private RestTemplate createBasicAuthRestTemplate() {
+        return createRestTemplateBuilder().withBasicAuthentication(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword).build()
+    }
+
+    private RestTemplate createBearerAuthRestTemplate(String token) {
+        return createRestTemplateBuilder().withBearerAuthentication(token).build()
     }
 
     private class CustomErrorHandler extends DefaultResponseErrorHandler {

@@ -16,14 +16,12 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
-import com.swisscom.cloud.sb.broker.util.HttpHelper
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.RequestMatcher
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
@@ -43,6 +41,8 @@ class BoshRestClientSpec extends Specification {
         mockServer = MockRestServiceServer.createServer(restTemplate)
         restTemplateBuilder = Mock(RestTemplateBuilder)
         restTemplateBuilder.withSSLValidationDisabled() >> restTemplateBuilder
+        restTemplateBuilder.withBearerAuthentication(_) >> restTemplateBuilder
+        restTemplateBuilder.withBasicAuthentication(_,_) >> restTemplateBuilder
         restTemplateBuilder.build() >> restTemplate
 
         and:
@@ -91,7 +91,6 @@ class BoshRestClientSpec extends Specification {
         def deploymentId = 'deploymentId'
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS + "/${deploymentId}")))
                 .andExpect(method(HttpMethod.GET))
-                .andExpect(autHeader())
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
 
         when:
@@ -112,7 +111,6 @@ class BoshRestClientSpec extends Specification {
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS)))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().contentType(BoshRestClient.CONTENT_TYPE_YAML))
-                .andExpect(autHeader())
                 .andRespond(withStatus(HttpStatus.FOUND).headers(headers))
 
         when:
@@ -132,7 +130,6 @@ class BoshRestClientSpec extends Specification {
         headers.setLocation(new URI(redirectLocation))
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.DEPLOYMENTS) + "/${id}" + "?force=true"))
                 .andExpect(method(HttpMethod.DELETE))
-                .andExpect(autHeader())
                 .andRespond(withStatus(HttpStatus.FOUND).headers(headers))
 
         when:
@@ -147,7 +144,6 @@ class BoshRestClientSpec extends Specification {
         def response = 'response'
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS + BoshRestClient.CLOUD_CONFIG_QUERY)))
                 .andExpect(method(HttpMethod.GET))
-                .andExpect(autHeader())
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
 
         when:
@@ -162,7 +158,6 @@ class BoshRestClientSpec extends Specification {
         def data = 'data'
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS)))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(autHeader())
                 .andExpect(content().contentType(BoshRestClient.CONTENT_TYPE_YAML))
                 .andRespond(withSuccess())
 
@@ -177,7 +172,6 @@ class BoshRestClientSpec extends Specification {
         def response = 'response'
         def taskId = 'taskId'
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.TASKS + "/${taskId}")))
-                .andExpect(autHeader())
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
 
@@ -186,9 +180,5 @@ class BoshRestClientSpec extends Specification {
         then:
         mockServer.verify()
         result == response
-    }
-
-    private RequestMatcher autHeader() {
-        return header(HttpHeaders.AUTHORIZATION, HttpHelper.computeBasicAuth(username, password))
     }
 }
