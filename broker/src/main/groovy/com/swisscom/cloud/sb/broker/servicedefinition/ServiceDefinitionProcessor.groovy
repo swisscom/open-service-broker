@@ -84,14 +84,14 @@ class ServiceDefinitionProcessor {
     private List<PlanBasedMetricsService> planBasedMetricServices
 
     def createOrUpdateServiceDefinition(String content) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(content),"Service Definition can't be empty")
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(content), "Service Definition can't be empty")
         // Preconditions.checkArgument() // TODO: check content type is application/json
 
         def serviceJson
         try {
-          serviceJson = new JsonSlurper().parseText(content)
-        } catch(Exception e) {
-          ErrorCode.INVALID_JSON.throwNew()
+            serviceJson = new JsonSlurper().parseText(content)
+        } catch (Exception e) {
+            ErrorCode.INVALID_JSON.throwNew()
         }
 
         CFService service = processServiceBasicDefiniton(serviceJson)
@@ -214,7 +214,7 @@ class ServiceDefinitionProcessor {
 
     private def demapify(Object value) {
         if (value instanceof LinkedHashMap) {
-            return ((LinkedHashMap)value).values().toArray()
+            return ((LinkedHashMap) value).values().toArray()
         }
 
         return value;
@@ -224,7 +224,9 @@ class ServiceDefinitionProcessor {
         serviceJson.metadata.each {
             k, v ->
                 def value = demapify(v)
-                def serviceMetadata = new CFServiceMetadata(key: k, value: objectMapper.writeValueAsString(value), type: value.getClass().name)
+                // Do not use ObjectMapper for String values because it will add quotes
+                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(value)
+                def serviceMetadata = new CFServiceMetadata(key: k, value: serializedObject, type: value.getClass().name)
                 cfServiceMetaDataRepository.saveAndFlush(serviceMetadata)
                 service.metadata.add(serviceMetadata)
                 cfServiceRepository.saveAndFlush(service)
@@ -420,7 +422,9 @@ class ServiceDefinitionProcessor {
         planJson.metadata.each {
             k, v ->
                 def value = demapify(v)
-                def planMetadata = new PlanMetadata(key: k, value: objectMapper.writeValueAsString(value), type: value.getClass().name)
+                // Do not use ObjectMapper for String values because it will add quotes
+                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(value)
+                def planMetadata = new PlanMetadata(key: k, value: serializedObject, type: value.getClass().name)
                 planMetadataRepository.saveAndFlush(planMetadata)
                 plan.metadata.add(planMetadata)
         }

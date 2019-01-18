@@ -251,7 +251,7 @@ class ServiceDefinitionProcessorSpec extends BaseTransactionalSpecification {
     }
 
     private def assertMetadata() {
-        def metadata = ['key1': "\"value1\"", 'key2': "true"]
+        def metadata = ['key1': "value1", 'key2': "true"]
         CFService service = findService()
         metadata.each {
             k, v -> assert service.metadata.find { it.key == k }.value == v
