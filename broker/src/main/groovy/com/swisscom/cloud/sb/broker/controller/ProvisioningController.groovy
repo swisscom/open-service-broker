@@ -38,7 +38,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.http.HttpStatus
@@ -53,8 +52,6 @@ import java.security.Principal
 @CompileStatic
 @Slf4j
 class ProvisioningController extends BaseController {
-    public static final String PARAM_ACCEPTS_INCOMPLETE = 'accepts_incomplete'
-
     @Autowired
     private ProvisioningService provisioningService
     @Autowired
@@ -98,10 +95,6 @@ class ProvisioningController extends BaseController {
             }
 
             def request = createProvisionRequest(serviceInstanceGuid, provisioningDto, acceptsIncomplete, principal)
-            if (StringUtils.contains(request.parameters, "parent_reference") &&
-                    !provisioningPersistenceService.findParentServiceInstance(request.parameters)) {
-                ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
-            }
 
             ProvisionResponse provisionResponse = provisioningService.provision(request)
 
