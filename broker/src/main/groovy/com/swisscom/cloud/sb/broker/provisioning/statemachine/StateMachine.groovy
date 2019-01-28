@@ -27,9 +27,13 @@ class StateMachine {
         stateList.addAll(states)
     }
 
-    StateMachine addState(ServiceStateWithAction serviceState) {
+    StateMachine addState(ServiceStateWithAction serviceState, Integer index = null) {
         Preconditions.checkNotNull(serviceState)
-        stateList.add(serviceState)
+        if (index != null) {
+            stateList.add(index, serviceState)
+        } else {
+            stateList.add(serviceState)
+        }
         return this
     }
 
