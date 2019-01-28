@@ -16,8 +16,12 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
+import com.swisscom.cloud.sb.broker.util.ParentServiceProvider
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
+import org.springframework.cloud.servicebroker.model.Context
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
@@ -25,6 +29,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.stereotype.Service
@@ -45,19 +50,23 @@ class ProvisioningService {
     ProvisionResponse provision(ProvisionRequest provisionRequest) {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
-        def instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
-        def serviceProvider = serviceProviderLookup.findServiceProvider(provisionRequest.plan)
-        def context = ServiceContextHelper.convertFrom(provisionRequest.serviceContext)
+        ServiceInstance instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(provisionRequest.plan)
+        Context context = ServiceContextHelper.convertFrom(provisionRequest.serviceContext)
         if (provisionRequest.serviceContext && serviceProvider instanceof CloudFoundryContextRestrictedOnly && !(context instanceof CloudFoundryContext)) {
             ErrorCode.CLOUDFOUNDRY_CONTEXT_REQUIRED.throwNew()
         }
 
+        if (StringUtils.contains(provisionRequest.parameters, "parent_reference")) {
+            checkParent(provisionRequest)
+        }
+
         ProvisionResponse provisionResponse = serviceProvider.provision(provisionRequest)
-        if (serviceProvider instanceof ExtensionProvider){
+        if (serviceProvider instanceof ExtensionProvider) {
             provisionResponse.extensions = serviceProvider.buildExtensions()
         }
 
-        if(serviceProvider instanceof SensitiveParameterProvider){
+        if (serviceProvider instanceof SensitiveParameterProvider) {
             instance.parameters = null
         }
 
@@ -75,10 +84,29 @@ class ProvisioningService {
     DeprovisionResponse deprovision(DeprovisionRequest deprovisionRequest) {
         log.trace("DeprovisionRequest request:${deprovisionRequest.toString()}")
         handleAsyncClientRequirement(deprovisionRequest.serviceInstance.plan, deprovisionRequest.acceptsIncomplete)
-        DeprovisionResponse response = serviceProviderLookup.findServiceProvider(deprovisionRequest.serviceInstance.plan).deprovision(deprovisionRequest)
+
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(deprovisionRequest.serviceInstance.plan)
+        if (serviceProvider instanceof ParentServiceProvider && serviceProvider.hasActiveChildren()) {
+            ErrorCode.CHILDREN_SERVICE_INSTANCES_ACTIVE.throwNew()
+        }
+
+        DeprovisionResponse response = serviceProvider.deprovision(deprovisionRequest)
         if (!response.isAsync) {
             provisioningPersistenceService.markServiceInstanceAsDeleted(deprovisionRequest.serviceInstance)
         }
         return response
+    }
+
+    private void checkParent(ProvisionRequest provisionRequest) {
+        if (!provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters)) {
+            ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        } else {
+            ServiceProvider parentServiceProvider = serviceProviderLookup.findServiceProvider(provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters).plan.guid)
+            if (!parentServiceProvider instanceof ParentServiceProvider) {
+                ErrorCode.NOT_A_PARENT_PROVIDER.throwNew()
+            } else if (parentServiceProvider instanceof ParentServiceProvider && parentServiceProvider.isFull()) {
+                ErrorCode.PARENT_SERVICE_FULL.throwNew()
+            }
+        }
     }
 }

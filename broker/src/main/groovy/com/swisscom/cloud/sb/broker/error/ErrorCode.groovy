@@ -93,7 +93,10 @@ enum ErrorCode {
     SERVICE_NOT_BINDABLE("69069", "Service not bindable", "SC-SB-SERVICE-NOT-BINDABLE", HttpStatus.CONFLICT),
     SERVICE_NOT_ACTIVE("69070", "Service not active", "SC-SC-SERVICE-NOT-ACTIVE", HttpStatus.CONFLICT),
     PLAN_NOT_ACTIVE("69071", "Plan not active", "SC-SC-PLAN-NOT-ACTIVE", HttpStatus.CONFLICT),
-    BACKUP_GONE("69072", "Backup has been deleted", "SC-SB-BKUP-GONE", HttpStatus.GONE)
+    BACKUP_GONE("69072", "Backup has been deleted", "SC-SB-BKUP-GONE", HttpStatus.GONE),
+    CHILDREN_SERVICE_INSTANCES_ACTIVE("69073", "Parent has active children service instances", "SC-SB-ACTIVE-CHILDREN-SI", HttpStatus.BAD_REQUEST),
+    NOT_A_PARENT_PROVIDER("69074", "Given parent is not a parent service instance", "SC-SB-NOT-PARENT-SI", HttpStatus.BAD_REQUEST),
+    PARENT_SERVICE_FULL("69075", "Given parent is full", "SC-SB-FULL-PARENT-SI", HttpStatus.BAD_REQUEST)
 
     final String code
     final String errorCode
