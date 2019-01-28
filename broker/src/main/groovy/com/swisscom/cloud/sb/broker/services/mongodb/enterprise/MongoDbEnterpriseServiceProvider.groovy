@@ -221,9 +221,20 @@ class MongoDbEnterpriseServiceProvider
         def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
         def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).findAllWithServiceDetailType(ServiceDetailType.HOST)
         def groupId = getMongoDbGroupId(request.serviceInstance)
+        // check for ongoing update isAutomationUpdateComplete(String groupId)
+        for (int i = 0; i>=10; i++){
+            if (opsManagerFacade.isAutomationUpdateComplete(groupId))
+                break
+            sleep 1
+        }
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
         def opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
-
+        // check for completion of deployment isAutomationUpdateComplete(String groupId)
+        for (int i = 0; i>=10; i++){
+            if (opsManagerFacade.isAutomationUpdateComplete(groupId))
+                break
+            sleep 1
+        }
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           ServiceDetail.from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
                                           ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME, opsManagerCredentials.user),
@@ -244,10 +255,23 @@ class MongoDbEnterpriseServiceProvider
     @Override
     void unbind(UnbindRequest request) {
         try {
-            opsManagerFacade.deleteDbUser(getMongoDbGroupId(request.serviceInstance),
+            def groupId = getMongoDbGroupId(request.serviceInstance)
+            // check for opngoing update isAutomationUpdateComplete(String groupId)
+            for (int i = 0; i>=10; i++){
+                if (opsManagerFacade.isAutomationUpdateComplete(groupId))
+                    break
+                sleep 1
+            }
+            opsManagerFacade.deleteDbUser(groupId,
                     ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
                     ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
             opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+            // check deletion of user isAutomationUpdateComplete(String groupId)
+            for (int i = 0; i>=10; i++){
+                if (opsManagerFacade.isAutomationUpdateComplete(groupId))
+                    break
+                sleep 1
+            }
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")
