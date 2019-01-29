@@ -231,4 +231,48 @@ class ProvisioningServiceSpec extends Specification {
         then:
         noExceptionThrown()
     }
+
+    def "checkActiveChildren fails with active children"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def serviceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        def service = Mock(CFService)
+        service.getAsyncRequired() >> false
+        plan.service >> service
+        serviceInstance.plan >> plan
+        serviceInstance.childs >> new HashSet<ServiceInstance>([new ServiceInstance(deleted: false)])
+        def deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, acceptsIncomplete: true, serviceInstance: serviceInstance)
+        when:
+        provisioningService.checkActiveChildren(deprovisionRequest)
+        then:
+        thrown(ServiceBrokerException)
+    }
+
+    def "checkActiveChildren succeeds with deleted children"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def serviceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        def service = Mock(CFService)
+        service.getAsyncRequired() >> false
+        plan.service >> service
+        serviceInstance.plan >> plan
+        serviceInstance.childs >> new HashSet<ServiceInstance>([new ServiceInstance(deleted: true)])
+        def deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, acceptsIncomplete: true, serviceInstance: serviceInstance)
+        when:
+        provisioningService.checkActiveChildren(deprovisionRequest)
+        then:
+        noExceptionThrown()
+    }
 }

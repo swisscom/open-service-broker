@@ -86,9 +86,7 @@ class ProvisioningService {
         handleAsyncClientRequirement(deprovisionRequest.serviceInstance.plan, deprovisionRequest.acceptsIncomplete)
 
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(deprovisionRequest.serviceInstance.plan)
-        if (serviceProvider instanceof ParentServiceProvider && serviceProvider.hasActiveChildren()) {
-            ErrorCode.CHILDREN_SERVICE_INSTANCES_ACTIVE.throwNew()
-        }
+        checkActiveChildren(deprovisionRequest)
 
         DeprovisionResponse response = serviceProvider.deprovision(deprovisionRequest)
         if (!response.isAsync) {
@@ -108,6 +106,13 @@ class ProvisioningService {
             } else if (parentServiceProvider instanceof ParentServiceProvider && parentServiceProvider.isFull(parentServiceInstance)) {
                 ErrorCode.PARENT_SERVICE_FULL.throwNew()
             }
+        }
+    }
+
+    private void checkActiveChildren(DeprovisionRequest deprovisionRequest) {
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(deprovisionRequest.serviceInstance.plan)
+        if (serviceProvider instanceof ParentServiceProvider && serviceProvider.hasActiveChildren(deprovisionRequest.serviceInstance)) {
+            ErrorCode.CHILDREN_SERVICE_INSTANCES_ACTIVE.throwNew()
         }
     }
 }
