@@ -101,10 +101,11 @@ class ProvisioningService {
         if (!provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters)) {
             ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
         } else {
-            ServiceProvider parentServiceProvider = serviceProviderLookup.findServiceProvider(provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters).plan.guid)
-            if (!parentServiceProvider instanceof ParentServiceProvider) {
+            ServiceInstance parentServiceInstance = provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters)
+            ServiceProvider parentServiceProvider = serviceProviderLookup.findServiceProvider(parentServiceInstance.plan.guid)
+            if (!(parentServiceProvider instanceof ParentServiceProvider)) {
                 ErrorCode.NOT_A_PARENT_PROVIDER.throwNew()
-            } else if (parentServiceProvider instanceof ParentServiceProvider && parentServiceProvider.isFull()) {
+            } else if (parentServiceProvider instanceof ParentServiceProvider && parentServiceProvider.isFull(parentServiceInstance)) {
                 ErrorCode.PARENT_SERVICE_FULL.throwNew()
             }
         }
