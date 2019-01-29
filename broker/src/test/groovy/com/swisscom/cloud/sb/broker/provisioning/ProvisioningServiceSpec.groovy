@@ -17,12 +17,10 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.util.ParentServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -117,10 +115,120 @@ class ProvisioningServiceSpec extends Specification {
         ErrorCodeHelper.assertServiceBrokerException(ex, ErrorCode.ASYNC_REQUIRED)
 
         where:
-        planAsync   | serviceAsync | expectedException      | expectedErrorCode
-        true        | false        | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
-        false       | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
-        true        | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        planAsync | serviceAsync | expectedException      | expectedErrorCode
+        true      | false        | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        false     | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
+        true      | true         | ServiceBrokerException | ErrorCode.ASYNC_REQUIRED
     }
 
+    def "checkParent() fails with parent_reference to non-existing service instance"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        1 * provisioningPersistenceService.findParentServiceInstance(_) >> null
+        provisioningService.provisioningPersistenceService = provisioningPersistenceService
+
+        and:
+        def provisionRequest = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid,
+                plan: new Plan(asyncRequired: false, service: new CFService(asyncRequired: false)
+                ), parameters: '{"parent_reference": "test"}', acceptsIncomplete: true
+        )
+        when:
+        provisioningService.checkParent(provisionRequest)
+        then:
+        thrown(ServiceBrokerException)
+    }
+
+    def "checkParent() fails with parent_reference to non-parent service instance"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def nonParentServiceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        plan.getGuid() >> "test"
+        nonParentServiceInstance.plan >> plan
+
+        def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        2 * provisioningPersistenceService.findParentServiceInstance(_) >> nonParentServiceInstance
+        provisioningService.provisioningPersistenceService = provisioningPersistenceService
+
+        and:
+        def provisionRequest = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid,
+                plan: new Plan(asyncRequired: false, service: new CFService(asyncRequired: false)
+                ), parameters: '{"parent_reference": "test"}', acceptsIncomplete: true
+        )
+        when:
+        provisioningService.provision(provisionRequest)
+        then:
+        thrown(ServiceBrokerException)
+    }
+
+    def "checkParent() fails with parent_reference to full parent service instance"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def parentServiceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance()])
+        plan.getGuid() >> "test"
+        plan.getParameters() >> new HashSet<Parameter>([new Parameter(name: "max_children", value: 1)])
+        parentServiceInstance.plan >> plan
+
+        def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        2 * provisioningPersistenceService.findParentServiceInstance(_) >> parentServiceInstance
+        provisioningService.provisioningPersistenceService = provisioningPersistenceService
+
+        and:
+        def provisionRequest = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid,
+                plan: new Plan(asyncRequired: false, service: new CFService(asyncRequired: false)
+                ), parameters: '{"parent_reference": "test"}', acceptsIncomplete: true
+        )
+        when:
+        provisioningService.checkParent(provisionRequest)
+        then:
+        thrown(ServiceBrokerException)
+    }
+
+    def "checkParent() succeeds with parent_reference to a parent service instance"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def parentServiceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance()])
+        plan.getGuid() >> "test"
+        plan.getParameters() >> new HashSet<Parameter>([new Parameter(name: "max_children", value: 2)])
+        parentServiceInstance.plan >> plan
+
+        def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
+        2 * provisioningPersistenceService.findParentServiceInstance(_) >> parentServiceInstance
+        provisioningService.provisioningPersistenceService = provisioningPersistenceService
+
+        and:
+        def provisionRequest = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid,
+                plan: new Plan(asyncRequired: false, service: new CFService(asyncRequired: false)
+                ), parameters: '{"parent_reference": "test"}', acceptsIncomplete: true
+        )
+        when:
+        provisioningService.checkParent(provisionRequest)
+        then:
+        noExceptionThrown()
+    }
 }

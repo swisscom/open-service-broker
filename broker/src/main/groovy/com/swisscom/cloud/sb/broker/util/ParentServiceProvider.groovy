@@ -15,7 +15,7 @@ trait ParentServiceProvider {
         if (param == null) {
             return false
         } else {
-            return (param.value as int) >= serviceInstance.childs.count({ !it.deleted })
+            return (param.value as int) <= serviceInstance.childs.count({ !it.deleted })
         }
     }
 }
