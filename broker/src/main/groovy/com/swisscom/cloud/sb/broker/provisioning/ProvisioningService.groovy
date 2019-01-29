@@ -50,15 +50,16 @@ class ProvisioningService {
     ProvisionResponse provision(ProvisionRequest provisionRequest) {
         log.trace("Provision request:${provisionRequest.toString()}")
         handleAsyncClientRequirement(provisionRequest.plan, provisionRequest.acceptsIncomplete)
+
+        if (StringUtils.contains(provisionRequest.parameters, "parent_reference")) {
+            checkParent(provisionRequest)
+        }
+
         ServiceInstance instance = provisioningPersistenceService.createServiceInstance(provisionRequest)
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(provisionRequest.plan)
         Context context = ServiceContextHelper.convertFrom(provisionRequest.serviceContext)
         if (provisionRequest.serviceContext && serviceProvider instanceof CloudFoundryContextRestrictedOnly && !(context instanceof CloudFoundryContext)) {
             ErrorCode.CLOUDFOUNDRY_CONTEXT_REQUIRED.throwNew()
-        }
-
-        if (StringUtils.contains(provisionRequest.parameters, "parent_reference")) {
-            checkParent(provisionRequest)
         }
 
         ProvisionResponse provisionResponse = serviceProvider.provision(provisionRequest)
@@ -100,7 +101,7 @@ class ProvisioningService {
             ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.throwNew()
         } else {
             ServiceInstance parentServiceInstance = provisioningPersistenceService.findParentServiceInstance(provisionRequest.parameters)
-            ServiceProvider parentServiceProvider = serviceProviderLookup.findServiceProvider(parentServiceInstance.plan.guid)
+            ServiceProvider parentServiceProvider = serviceProviderLookup.findServiceProvider(parentServiceInstance.plan)
             if (!(parentServiceProvider instanceof ParentServiceProvider)) {
                 ErrorCode.NOT_A_PARENT_PROVIDER.throwNew()
             } else if (parentServiceProvider instanceof ParentServiceProvider && parentServiceProvider.isFull(parentServiceInstance)) {
