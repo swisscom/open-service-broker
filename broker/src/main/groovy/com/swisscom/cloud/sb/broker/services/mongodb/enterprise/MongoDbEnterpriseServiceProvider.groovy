@@ -256,7 +256,7 @@ class MongoDbEnterpriseServiceProvider
     void unbind(UnbindRequest request) {
         try {
             def groupId = getMongoDbGroupId(request.serviceInstance)
-            // check for opngoing update isAutomationUpdateComplete(String groupId)
+            // check for ongoing update isAutomationUpdateComplete(String groupId)
             for (int i = 0; i>=10; i++){
                 if (opsManagerFacade.isAutomationUpdateComplete(groupId))
                     break
