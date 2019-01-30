@@ -225,7 +225,7 @@ class MongoDbEnterpriseServiceProvider
         for (int i = 0; i>=10; i++){
             if (opsManagerFacade.isAutomationUpdateComplete(groupId))
                 break
-            sleep 1
+            sleep 1000
         }
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
         def opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
@@ -233,7 +233,7 @@ class MongoDbEnterpriseServiceProvider
         for (int i = 0; i>=10; i++){
             if (opsManagerFacade.isAutomationUpdateComplete(groupId))
                 break
-            sleep 1
+            sleep 1000
         }
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           ServiceDetail.from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
@@ -260,7 +260,7 @@ class MongoDbEnterpriseServiceProvider
             for (int i = 0; i>=10; i++){
                 if (opsManagerFacade.isAutomationUpdateComplete(groupId))
                     break
-                sleep 1
+                sleep 1000
             }
             opsManagerFacade.deleteDbUser(groupId,
                     ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
@@ -270,7 +270,7 @@ class MongoDbEnterpriseServiceProvider
             for (int i = 0; i>=10; i++){
                 if (opsManagerFacade.isAutomationUpdateComplete(groupId))
                     break
-                sleep 1
+                sleep 1000
             }
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
