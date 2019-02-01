@@ -27,8 +27,6 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 
 @Component
@@ -47,11 +45,6 @@ class ShieldClient {
         this.backupPersistenceService = backupPersistenceService
     }
 
-    @Retryable(
-            value = { Exception.class },
-            maxAttemptsExpression = "{${shieldConfig.maxRetrySystemRegister}}",
-            backoff = @Backoff(delayExpression = "{${shieldConfig.retryIntervalInMSSystemRegister}}")
-    )
     String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig)

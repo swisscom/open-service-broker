@@ -29,8 +29,6 @@ class ShieldConfig implements Config {
     String jobPrefix
     String targetPrefix
     int maxRetryBackup
-    int maxRetrySystemRegister
-    int retryIntervalInMSSystemRegister
     String defaultTenantName
     String username
     String password

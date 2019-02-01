@@ -115,8 +115,6 @@ com.swisscom.cloud.sb.broker.shield:
   defaultTenantName: tenant1
   username: admin
   password: shield
-  maxRetrySystemRegister: 5
-  retryIntervalInMSSystemRegister: 5000
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:
