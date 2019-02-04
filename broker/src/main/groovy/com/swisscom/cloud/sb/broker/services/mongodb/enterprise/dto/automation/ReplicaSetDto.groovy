@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation
 
 class ReplicaSetDto implements Serializable {
     String _id
+    String protocolVersion
     List<Member> members
 
     static class Member implements Serializable {
