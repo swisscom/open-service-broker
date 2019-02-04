@@ -218,7 +218,7 @@ class OpsManagerFacade {
         if (automationConfig.replicaSets && automationConfig.replicaSets.size() > 0) {
             throw new IllegalStateException("ReplicaSets should be empty")
         }
-        automationConfig.replicaSets = [new ReplicaSetDto(_id: replicaSetId, members: members)]
+        automationConfig.replicaSets = [new ReplicaSetDto(_id: replicaSetId, members: members, protocolVersion: "1")]
 
         def deployment = new MongoDbEnterpriseDeployment(database: replicaSetId, replicaSet: replicaSetId, hostPorts: hostPorts,
                 monitoringAgentUser: USER_NAME_MMS_MONITORING_AGENT,
