@@ -24,6 +24,7 @@ import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -45,12 +46,14 @@ import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.ServiceDefinition
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.ClientHttpResponse
@@ -73,6 +76,9 @@ class ServiceBrokerServiceProvider
 
     @Autowired
     ServiceBrokerServiceProviderUsage serviceBrokerServiceProviderUsage
+
+    @Autowired
+    CFServiceRepository cfServiceRepository
 
     private final static String BASE_URL = "baseUrl"
     private final static String USERNAME = "username"
@@ -113,11 +119,21 @@ class ServiceBrokerServiceProvider
                 serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
             }
 
-            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, null)
+            def jsonSlurper = new JsonSlurper()
+            Map param = (Map)jsonSlurper.parseText(request.parameters)
+
+            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, object).withServiceDefinition(this.createServiceDefinition(req.serviceId))
+//            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, param)
             //Check out ResponseEntity
             ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(createServiceInstanceRequest, request)
             return new ProvisionResponse(isAsync: request.plan.asyncRequired)
         }
+    }
+
+    ServiceDefinition createServiceDefinition(String guid){
+        CFService service = cfServiceRepository.findByGuid(guid)
+        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, null, service.internalName, null, null, null, service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.plan_updateable, service.serviceProviderClass, service.displayIndex, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable)
+        return serviceDefinition
     }
 
     // making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this
@@ -189,7 +205,6 @@ class ServiceBrokerServiceProvider
         return null
     }
 
-    public
     static GenericProvisionRequestPlanParameter populateGenericProvisionRequestPlanParameter(Set<Parameter> params) {
         GenericProvisionRequestPlanParameter req = new GenericProvisionRequestPlanParameter();
         Iterator<Parameter> it = params.iterator()
@@ -215,7 +230,6 @@ class ServiceBrokerServiceProvider
         return req
     }
 
-    public
     static ServiceBrokerClient createServiceBrokerClient(GenericProvisionRequestPlanParameter req, Class errorHandler) {
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
         restTemplate.setErrorHandler(errorHandler.newInstance())
