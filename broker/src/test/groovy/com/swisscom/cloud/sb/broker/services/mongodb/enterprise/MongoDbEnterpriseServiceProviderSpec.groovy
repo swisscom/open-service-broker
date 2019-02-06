@@ -188,6 +188,10 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def opsManagerPassword = 'opsManagerPassword'
 
         1 * serviceProvider.opsManagerFacade.createOpsManagerUser(groupId, 'guid') >> new OpsManagerCredentials(user: opsManagerUser, password: opsManagerPassword, userId: opsManagerUserId)
+
+        and:
+        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
+
         when:
         def bindResult = serviceProvider.bind(request)
         then:
@@ -197,10 +201,37 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME) == opsManagerUser
         details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID) == opsManagerUserId
         details.getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD) == opsManagerPassword
+
         and:
         def credentials = bindResult.credentials.toJson()
         def json = new JsonSlurper().parseText(credentials)
         json.credentials.replica_set == 'replicaSet'
+
+        and:
+        noExceptionThrown()
+    }
+
+    def "Bind functions correctly and throws MongoDBAutomationConfigUpdateNotCompletedException if automationChangeUpdate is pending"() {
+        given:
+        def groupId = 'groupId'
+        BindRequest request = new BindRequest(serviceInstance: new ServiceInstance(guid: 'guid',
+                details: [from(ServiceDetailKey.DATABASE, 'db'),
+                          from(MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                          from(ServiceDetailKey.HOST, 'host1'),
+                          from(ServiceDetailKey.HOST, 'host2'),
+                          from(ServiceDetailKey.PORT, '27000'),
+                          from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, 'replicaSet')]))
+        and:
+        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
+
+        when:
+        serviceProvider.bind(request)
+
+        then:
+        0 * serviceProvider.opsManagerFacade.createDbUser(_)
+        0 * serviceProvider.opsManagerFacade.createOpsManagerUser(_)
+
+        thrown(MongoDBAutomationConfigUpdateNotCompletedException)
     }
 
     def "Unbind functions correctly"() {
@@ -208,10 +239,37 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         UnbindRequest request = new UnbindRequest(serviceInstance: new ServiceInstance(details: [from(MONGODB_ENTERPRISE_GROUP_ID, 'groupId'), from(DATABASE, 'db')]),
                 binding: new ServiceBinding(details: [from(ServiceDetailKey.USER, 'dbUser'),
                                                       from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, 'opsManagerUserId')]))
+        def groupId = 'groupId'
+
+        and:
+        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
+
         when:
         serviceProvider.unbind(request)
+
         then:
-        1 * serviceProvider.opsManagerFacade.deleteDbUser('groupId', 'dbUser', 'db')
+        1 * serviceProvider.opsManagerFacade.deleteDbUser(groupId, 'dbUser', 'db')
         1 * serviceProvider.opsManagerFacade.deleteOpsManagerUser('opsManagerUserId')
+        noExceptionThrown()
+    }
+
+    def "Unbind functions correctly and throws MongoDBAutomationConfigUpdateNotCompletedException if automationChangeUpdate is pending"() {
+        given:
+        UnbindRequest request = new UnbindRequest(serviceInstance: new ServiceInstance(details: [from(MONGODB_ENTERPRISE_GROUP_ID, 'groupId'), from(DATABASE, 'db')]),
+                binding: new ServiceBinding(details: [from(ServiceDetailKey.USER, 'dbUser'),
+                                                      from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, 'opsManagerUserId')]))
+        def groupId = 'groupId'
+
+        and:
+        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
+
+        when:
+        serviceProvider.unbind(request)
+
+        then:
+        0 * serviceProvider.opsManagerFacade.deleteDbUser(_)
+        0 * serviceProvider.opsManagerFacade.deleteOpsManagerUser(_)
+
+        thrown(MongoDBAutomationConfigUpdateNotCompletedException)
     }
 }

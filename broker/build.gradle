@@ -75,6 +75,7 @@ dependencies {
     compile('com.google.guava:guava:26.0-jre')
     compile('org.quartz-scheduler:quartz:2.3.0')
     compile('org.springframework:spring-context-support:5.0.8.RELEASE')
+    compile('org.springframework.retry:spring-retry:1.2.4.RELEASE')
     compile('joda-time:joda-time:2.10')
     compile('org.flywaydb:flyway-core:5.1.4')
     compile('com.google.code.gson:gson:2.8.5')
