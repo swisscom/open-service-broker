@@ -28,15 +28,18 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ApplicationContext appContext
 
-
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('mongodbenterprisev2', findInternalName(MongoDbEnterpriseServiceProvider), 'bosh-deployment-template-mongodb-ent')
         def plan = serviceLifeCycler.plan
-        serviceLifeCycler.createParameter(BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, 'mongoenterprise-mongodbent-service', plan)
+        serviceLifeCycler.createParameter(BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, 'mongoent.xsmall', plan)
+        serviceLifeCycler.createParameter('MONGODB_VERSION', '3.6.8-ent', plan)
+        serviceLifeCycler.createParameter('plan', 'mongoent.xsmall', plan)
     }
 
     def cleanupSpec() {
         serviceLifeCycler.cleanup()
+        serviceLifeCycler.deleteServiceBindingAndAssert()
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, 180)
     }
 
     def "provision mongoDbEnterprise service instance"() {
@@ -48,6 +51,19 @@ class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.pauseExecution(30)
         then:
         noExceptionThrown()
+    }
+
+    def "multiple bindings"(){
+        when:
+        serviceLifeCycler.bindServiceInstanceAndAssert("binding1")
+        serviceLifeCycler.bindServiceInstanceAndAssert("binding2")
+        serviceLifeCycler.bindServiceInstanceAndAssert("binding3")
+        then:
+        noExceptionThrown()
+        cleanup:
+        serviceLifeCycler.deleteServiceBindingAndAssert("binding1")
+        serviceLifeCycler.deleteServiceBindingAndAssert("binding2")
+        serviceLifeCycler.deleteServiceBindingAndAssert("binding3")
     }
 
    def "deprovision mongoDbEnterprise service instance"() {

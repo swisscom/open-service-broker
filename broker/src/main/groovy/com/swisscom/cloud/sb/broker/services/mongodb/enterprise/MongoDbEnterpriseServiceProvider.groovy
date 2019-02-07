@@ -48,14 +48,15 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 
 import javax.annotation.PostConstruct
 
-import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.google.common.base.Strings.isNullOrEmpty
+import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
 
 @Component
@@ -219,25 +220,15 @@ class MongoDbEnterpriseServiceProvider
     }
 
     @Override
-    @Retryable(
-            value = MongoDBAutomationConfigUpdateNotCompletedException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 5000l))
     BindResponse bind(BindRequest request) throws MongoDBAutomationConfigUpdateNotCompletedException {
         def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
         def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).findAllWithServiceDetailType(ServiceDetailType.HOST)
         def groupId = getMongoDbGroupId(request.serviceInstance)
         // check for ongoing update isAutomationUpdateComplete(String groupId)
-        if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
-            throw new MongoDBAutomationConfigUpdateNotCompletedException()
-
+        checkForOnGoingChanges(groupId)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
+        checkForOnGoingChanges(groupId)
         def opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
-
-        // check for ongoing update isAutomationUpdateComplete(String groupId)
-        if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
-            throw new MongoDBAutomationConfigUpdateNotCompletedException()
-
         return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           ServiceDetail.from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
                                           ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME, opsManagerCredentials.user),
@@ -256,23 +247,17 @@ class MongoDbEnterpriseServiceProvider
     }
 
     @Override
-    @Retryable(
-            value = MongoDBAutomationConfigUpdateNotCompletedException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 5000l))
     void unbind(UnbindRequest request) throws MongoDBAutomationConfigUpdateNotCompletedException {
         try {
             def groupId = getMongoDbGroupId(request.serviceInstance)
             // check for ongoing update isAutomationUpdateComplete(String groupId)
-            if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
-                throw new MongoDBAutomationConfigUpdateNotCompletedException()
+            checkForOnGoingChanges(groupId)
             opsManagerFacade.deleteDbUser(groupId,
                     ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
                     ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
             opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
             // check deletion of user isAutomationUpdateComplete(String groupId)
-            if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
-                throw new MongoDBAutomationConfigUpdateNotCompletedException()
+            checkForOnGoingChanges(groupId)
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")
@@ -280,6 +265,22 @@ class MongoDbEnterpriseServiceProvider
                 throw e
             }
         }
+    }
+
+    @Retryable(
+            value = MongoDBAutomationConfigUpdateNotCompletedException.class,
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 5000l))
+    void checkForOnGoingChanges(String groupId) throws MongoDBAutomationConfigUpdateNotCompletedException {
+        log.info("Checking for on-going changes")
+        if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
+            throw new MongoDBAutomationConfigUpdateNotCompletedException()
+    }
+
+    @Recover
+    String recover(Throwable t) {
+        log.info("Uable to create/delete user. OpsManager deployment still ongoing!");
+        return "Error Class :: " + t.getClass().getName();
     }
 
     static String getMongoDbGroupId(LastOperationJobContext context) {
