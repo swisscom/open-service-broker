@@ -24,6 +24,7 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerOngoingChangesChecker
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
@@ -39,11 +40,14 @@ import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey.D
 
 class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderSpec<MongoDbEnterpriseServiceProvider> {
     private String serviceInstanceGuid = 'serviceInstanceGuid'
+    private OpsManagerFacade opsManagerFacade
 
 
     def setup(){
+        opsManagerFacade = Mock(OpsManagerFacade)
+        serviceProvider.opsManagerFacade = opsManagerFacade
+        serviceProvider.opsManagerOngoingChangesChecker = new OpsManagerOngoingChangesChecker(opsManagerFacade: opsManagerFacade)
         serviceProvider.serviceConfig = new MongoDbEnterpriseConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
-        serviceProvider.opsManagerFacade = Mock(OpsManagerFacade)
     }
 
     def "template customization works correctly"(){
@@ -190,7 +194,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         1 * serviceProvider.opsManagerFacade.createOpsManagerUser(groupId, 'guid') >> new OpsManagerCredentials(user: opsManagerUser, password: opsManagerPassword, userId: opsManagerUserId)
 
         and:
-        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
+        opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
 
         when:
         def bindResult = serviceProvider.bind(request)
@@ -222,7 +226,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
                           from(ServiceDetailKey.PORT, '27000'),
                           from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, 'replicaSet')]))
         and:
-        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
+        opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
 
         when:
         serviceProvider.bind(request)
@@ -242,7 +246,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def groupId = 'groupId'
 
         and:
-        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
+        opsManagerFacade.isAutomationUpdateComplete(groupId) >> true
 
         when:
         serviceProvider.unbind(request)
@@ -261,7 +265,7 @@ class MongoDbEnterpriseServiceProviderSpec extends AbstractAsyncServiceProviderS
         def groupId = 'groupId'
 
         and:
-        serviceProvider.opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
+        opsManagerFacade.isAutomationUpdateComplete(groupId) >> false
 
         when:
         serviceProvider.unbind(request)
