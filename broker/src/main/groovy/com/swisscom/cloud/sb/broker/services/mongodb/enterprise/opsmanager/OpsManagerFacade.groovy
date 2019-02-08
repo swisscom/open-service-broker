@@ -481,7 +481,7 @@ class OpsManagerFacade {
         return isBackupInState(groupId, replicaSet, BackupConfigDto.Status.TERMINATING)
     }
 
-    private boolean isBackupInInactiveState(String groupId, String replicaSet) {
+    boolean isBackupInInactiveState(String groupId, String replicaSet) {
         return isBackupInState(groupId, replicaSet, BackupConfigDto.Status.INACTIVE)
     }
 

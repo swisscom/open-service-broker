@@ -21,6 +21,7 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.BackupConfigDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import spock.lang.Specification
 
@@ -41,12 +42,33 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
         context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
                                                                                                                      ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, replicaset)]))
 
+        and:
+        1 * context.opsManagerFacade.isBackupInInactiveState(groupId, replicaset) >> true
+
         when:
         def result = MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED.triggerAction(context)
 
         then:
         1 * context.opsManagerFacade.disableAndTerminateBackup(groupId, replicaset)
         result.go2NextState
+    }
+
+    def "IF_BACKUP_NOT_INACTIVE_WAIT_FOR_NEXT_STATE"() {
+        given:
+        def groupId = 'GroupId'
+        def replicaset = 'replicaset'
+        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID, groupId),
+                                                                                                                     ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET, replicaset)]))
+
+        and:
+        1 * context.opsManagerFacade.isBackupInInactiveState(groupId, replicaset) >> false
+
+        when:
+        def result = MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED.triggerAction(context)
+
+        then:
+        1 * context.opsManagerFacade.disableAndTerminateBackup(groupId, replicaset)
+        !result.go2NextState
     }
 
     def "UPDATE_AUTOMATION_CONFIG"() {
