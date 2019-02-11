@@ -46,12 +46,14 @@ import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.DashboardClient
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.ServiceDefinition
 import org.springframework.http.HttpStatus
@@ -122,17 +124,28 @@ class ServiceBrokerServiceProvider
             def jsonSlurper = new JsonSlurper()
             Map param = (Map)jsonSlurper.parseText(request.parameters)
 
-            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, object).withServiceDefinition(this.createServiceDefinition(req.serviceId))
+
+            def createServiceInstanceRequest = new CreateServiceInstanceRequestExtended(req.serviceId, req.planId, null, null, param, this.createServiceDefinition(request.plan.service))
+//            def createServiceInstanceRequest = new CreateServiceInstanceRequestExtended(req.serviceId, req.planId, null, null, param).withServiceDefinition(this.createServiceDefinition(request.plan.service))
 //            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, param)
+
+            log.info("createServiceInstanceRequest = ${createServiceInstanceRequest}")
             //Check out ResponseEntity
             ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(createServiceInstanceRequest, request)
             return new ProvisionResponse(isAsync: request.plan.asyncRequired)
         }
     }
 
-    ServiceDefinition createServiceDefinition(String guid){
-        CFService service = cfServiceRepository.findByGuid(guid)
-        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, null, service.internalName, null, null, null, service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.plan_updateable, service.serviceProviderClass, service.displayIndex, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable)
+    Service createServiceDefinition(CFService service){
+//        CFService service = cfServiceRepository.findByGuid(guid)
+        log.info("service = ${service}")
+        log.info("service.guid = ${service.guid}")
+        log.info("service.name = ${service.name}")
+        log.info("service.displayIndex = ${service.displayIndex}")
+//        ServiceDefinition serviceDefinition = new ServiceDefinition(service.id.toString(), service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()])
+//        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()], service.internalName, ["tag"], ["meta":"data"], ["requires"], service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.plan_updateable, service.serviceProviderClass, service.displayIndex, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable)
+        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()], ["tag"], ["meta":"data"], ["requires"], new DashboardClient(service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri), service.plan_updateable, service.internalName, service.serviceProviderClass, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable, service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.displayIndex)
+        log.info("serviceDefinition.toString() = ${serviceDefinition.toString()}")
         return serviceDefinition
     }
 
@@ -323,6 +336,8 @@ class ServiceBrokerServiceProvider
     private class CustomServiceBrokerServiceProviderBindingErrorHandler extends DefaultResponseErrorHandler {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
+            log.error("response code = ${response.statusCode}")
+            log.error("response status text = ${response.statusText}")
             if (response.statusCode == HttpStatus.BAD_REQUEST) {
                 ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_BAD_REQUEST.throwNew()
             } else if (response.statusCode == HttpStatus.CONFLICT) {

@@ -15,9 +15,9 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.Service
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
-
 
 class ProvisioningDto implements Serializable {
     @NotBlank(message = "service_id must not be blank")
@@ -30,6 +30,7 @@ class ProvisioningDto implements Serializable {
     String space_guid
     Context context
     Map<String, Object> parameters
+    Service service
 
     @Override
     String toString() {
@@ -39,7 +40,8 @@ class ProvisioningDto implements Serializable {
                 ", organization_guid='" + organization_guid + '\'' +
                 ", space_guid='" + space_guid + '\'' +
                 ", context='" + context + '\'' +
-                ", parameters=" + parameters +
+                ", parameters=" + parameters + '\'' +
+                ", service= " + service + '\'' +
                 '}'
     }
 }
