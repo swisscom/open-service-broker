@@ -23,7 +23,6 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
-
 class ServiceDetailHelperSpec extends BaseSpecification {
 
     @Autowired
@@ -50,8 +49,9 @@ class ServiceDetailHelperSpec extends BaseSpecification {
         then:
         noExceptionThrown()
         assert serviceDetail != null
-        assert serviceDetail.key == key
-        assert serviceDetail.value == value
+        assert serviceDetail.size() == 1
+        assert serviceDetail.get(0).key == key
+        assert serviceDetail.get(0).value == value
 
         cleanup:
         serviceInstanceRepository.delete(serviceInstance)
@@ -77,10 +77,11 @@ class ServiceDetailHelperSpec extends BaseSpecification {
         then:
         noExceptionThrown()
         assert serviceDetail != null
-        assert serviceDetail.key == key
-        assert serviceDetail.value == value
-        assert serviceDetail.serviceInstance != null
-        assert serviceDetail.serviceInstance.guid == uuid
+        assert serviceDetail.size() == 1
+        assert serviceDetail.get(0).key == key
+        assert serviceDetail.get(0).value == value
+        assert serviceDetail.get(0).serviceInstance != null
+        assert serviceDetail.get(0).serviceInstance.guid == uuid
 
         cleanup:
         serviceInstanceRepository.delete(serviceInstance)
