@@ -3,15 +3,25 @@ package com.swisscom.cloud.sb.broker.services.genericserviceprovider
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.swisscom.cloud.sb.broker.cfapi.converter.MetadataJsonHelper
+import com.swisscom.cloud.sb.broker.cfapi.dto.DashboardClientDto
+import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
 import com.swisscom.cloud.sb.broker.model.CFServicePermission
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.Tag
+import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cloud.servicebroker.model.DashboardClient
 import org.springframework.cloud.servicebroker.model.ServiceDefinition
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.ANY)
 class Service extends ServiceDefinition{
+
+    @Autowired
+    PlanDtoConverter planDtoConverter
 
     String guid
     String internalName
@@ -152,5 +162,38 @@ class Service extends ServiceDefinition{
                 ", bindingsRetrievable=" + bindingsRetrievable +
                 ", displayIndex=" + displayIndex +
                 '}';
+    }
+
+    ServiceDto convertToServiceDto(Service service){
+        ServiceDto serviceDto = new ServiceDto()
+        serviceDto.guid = service.guid
+        serviceDto.internalName = service.internalName
+        serviceDto.serviceProviderClass = service.serviceProviderClass
+        serviceDto.displayIndex = service.displayIndex
+        serviceDto.asyncRequired = service.asyncRequired
+        serviceDto.plans = planDtoConverter.convertAll(service.plansList.sort { it.displayIndex })
+        serviceDto.id = service.id
+        serviceDto.name = service.name
+        serviceDto.description = service.description
+        serviceDto.metadata = convertMetadata(service)
+        serviceDto.tags = service.tagsList.collect { Tag t -> t.tag }
+        serviceDto.requires = service.permissions.collect { CFServicePermission p -> p.permission }
+        serviceDto.dashboard_client = new DashboardClientDto()
+        serviceDto.dashboard_client.id = service.dashboardClientId
+        serviceDto.dashboard_client.secret = service.dashboardClientSecret
+        serviceDto.dashboard_client.redirect_uri = service.dashboardClientRedirectUri
+        serviceDto.bindable = service.bindable
+        serviceDto.active = service.active
+        serviceDto.plan_updateable = service.plan_updateable
+        serviceDto.bindingsRetrievable = service.bindingsRetrievable
+        serviceDto.instancesRetrievable = service.instancesRetrievable
+
+        return serviceDto
+    }
+
+    private Map<String, Object> convertMetadata(Service service) {
+        Map<String, Object> result = [:]
+        service.metadataList.each { result[it.key] = MetadataJsonHelper.getValue(it.type, it.value) }
+        result
     }
 }
