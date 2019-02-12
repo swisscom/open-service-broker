@@ -43,6 +43,10 @@ class Service extends ServiceDefinition{
     Boolean instancesRetrievable
     Boolean bindingsRetrievable
 
+    Service(){
+
+    }
+
     @JsonCreator
     Service(@JsonProperty("id") String id, @JsonProperty("guid") String guid, @JsonProperty("name") String name,
             @JsonProperty("description") String description, @JsonProperty("bindable") Boolean bindable,

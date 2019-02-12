@@ -32,6 +32,7 @@ import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.FetchServiceIns
 import com.swisscom.cloud.sb.broker.provisioning.serviceinstance.ServiceInstanceResponseDto
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.Service
 import com.swisscom.cloud.sb.broker.util.Audit
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import groovy.transform.CompileStatic
@@ -75,6 +76,8 @@ class ProvisioningController extends BaseController {
     private ServiceInstanceDtoConverter serviceInstanceDtoConverter
     @Autowired
     protected ServiceProviderLookup serviceProviderLookup
+
+    private Service service
 
     @ApiOperation(value = "Provision a new service instance", response = ProvisionResponseDto.class)
     @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}', method = RequestMethod.PUT)
@@ -137,6 +140,7 @@ class ProvisioningController extends BaseController {
         provisionRequest.acceptsIncomplete = acceptsIncomplete
         provisionRequest.parameters = serializeJson(provisioning.parameters)
         provisionRequest.applicationUser = principal.name
+        provisionRequest.serviceDefintion = service.convertToServiceDto(provisioning.service)
 
         if (!provisioning.context && (provisioning.organization_guid && provisioning.space_guid)) {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)

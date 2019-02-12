@@ -15,6 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.model
 
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
+
 import javax.persistence.Entity
 
 @Entity
@@ -22,6 +24,7 @@ class ProvisionRequest extends RequestWithParameters {
 
     boolean acceptsIncomplete
     String applicationUser
+    ServiceDto serviceDefintion
 
     @Override
     String toString() {

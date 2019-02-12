@@ -68,6 +68,8 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
+        println("In provision dummy.")
+        println("ServiceDefintion = ${request.serviceDefintion}")
         return new ProvisionResponse(details: [], isAsync: false)
     }
 
