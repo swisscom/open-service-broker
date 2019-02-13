@@ -114,7 +114,7 @@ class UpdatingController extends BaseController {
                 plan: newPlan,
                 previousPlan: previousPlan,
                 parameters: serializeJson(updateDto.parameters),
-                serviceContext: serviceContextService.findOrCreate(updateDto.context))
+                serviceContext: serviceContextService.findOrCreate(updateDto.context, serviceInstance.guid))
     }
 
     private static String serializeJson(Map object) {
