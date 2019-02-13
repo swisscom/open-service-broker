@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [5.3.5] - 2019-02-13
 - Bugfix `GetServiceDetailByKeyAndValue` for cases where the combination is not unique
 
 ## [5.3.4] - 2019-02-06
