@@ -64,7 +64,7 @@ class ServiceBindingPersistenceService {
                 serviceBinding.details.add(detail)
         }
         if (context) {
-            serviceBinding.serviceContext = contextPersistenceService.findOrCreate(context)
+            serviceBinding.serviceContext = contextPersistenceService.findOrCreate(context, serviceInstance.guid)
         }
         serviceBindingRepository.save(serviceBinding)
         serviceInstance.bindings.add(serviceBinding)

@@ -142,7 +142,7 @@ class ProvisioningController extends BaseController {
             provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
         }
 
-        provisionRequest.serviceContext = serviceContextService.findOrCreate(provisioning.context)
+        provisionRequest.serviceContext = serviceContextService.findOrCreate(provisioning.context, serviceInstanceGuid)
 
         return provisionRequest
     }

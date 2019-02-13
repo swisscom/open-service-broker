@@ -42,7 +42,10 @@ class ServiceContextPersistenceService {
     @Autowired
     private ServiceContextRepository serviceContextRepository
 
-    ServiceContext findOrCreate(Context context) {
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository
+
+    ServiceContext findOrCreate(Context context, String serviceInstanceGuid) {
         if (!context) {
             return
         }
@@ -51,7 +54,35 @@ class ServiceContextPersistenceService {
             return findOrCreateCloudFoundryContext(context as CloudFoundryContext)
         } else if (context instanceof KubernetesContext) {
             return findOrCreateKubernetesContext(context as KubernetesContext)
+        } else {
+            return setOrUpdateDynamicContext(context, serviceInstanceGuid)
         }
+    }
+
+    private ServiceContext setOrUpdateDynamicContext(Context context, String serviceInstanceGuid) {
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+
+        def serviceContext = new ServiceContext(platform: context.platform)
+        if (serviceInstance == null || serviceInstance.serviceContext == null) {
+            serviceContextRepository.saveAndFlush(serviceContext)
+        } else {
+            serviceContext = serviceInstance.serviceContext
+            serviceContext.platform = context.platform
+            serviceContext.details.clear()
+        }
+
+        def contextDetails = [] as Set<ServiceContextDetail>
+
+        context.properties.each {
+            p -> contextDetails << createServiceContextDetailRecord(p.key.toString(), p.value.toString(), serviceContext)
+        }
+        serviceContextDetailRepository.flush()
+
+        serviceContext.details.addAll(contextDetails)
+        serviceContextRepository.merge(serviceContext)
+        serviceContextRepository.flush()
+
+        return serviceContext
     }
 
     private ServiceContext findOrCreateCloudFoundryContext(CloudFoundryContext context) {
