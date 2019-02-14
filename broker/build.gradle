@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.6.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -112,17 +112,17 @@ dependencies {
     if (project.hasProperty('tomcat')) {
         // Used for production environment
         System.out.println('tomcat')
-        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat:2.0.6.RELEASE')
+        providedRuntime('org.springframework.boot:spring-boot-starter-tomcat:2.1.1.RELEASE')
     } else {
         System.out.println('standalone')
-        runtime('org.springframework.boot:spring-boot-starter-tomcat:2.0.6.RELEASE')
+        runtime('org.springframework.boot:spring-boot-starter-tomcat:2.1.1.RELEASE')
     }
 
     testCompile group: 'org.codehaus.groovy', name: 'groovy', version: '2.5.2'
     testCompile group: 'org.codehaus.groovy', name: 'groovy-test', version: '2.5.2'
 
     testCompile group: 'log4j', name: 'log4j', version: '1.2.17'
-    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.6.RELEASE')
+    testCompile('org.springframework.boot:spring-boot-starter-test:2.1.1.RELEASE')
     testCompile('org.spockframework:spock-core:1.2-groovy-2.5')
     testCompile('org.spockframework:spock-spring:1.2-groovy-2.5')
     testCompile('cglib:cglib-nodep:3.2.7')
