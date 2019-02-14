@@ -18,12 +18,10 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
-import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
 
 class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalSpec {

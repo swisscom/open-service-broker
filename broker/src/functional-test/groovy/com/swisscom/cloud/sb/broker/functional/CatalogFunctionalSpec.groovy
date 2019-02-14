@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.util.JsonHelper
-import org.springframework.cloud.servicebroker.model.Catalog
+import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 

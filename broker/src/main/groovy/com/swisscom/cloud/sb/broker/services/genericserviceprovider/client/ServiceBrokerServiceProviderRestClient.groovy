@@ -25,7 +25,7 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -51,7 +51,10 @@ class ServiceBrokerServiceProviderRestClient {
     boolean provisionServiceInstance(ServiceInstance serviceInstance) {
         log.info("Async provisioning of service instance with id ${serviceInstance.guid}")
         GenericProvisionRequestPlanParameter req = ServiceBrokerServiceProvider.populateGenericProvisionRequestPlanParameter(serviceInstance.plan.parameters)
-        def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, null)
+        def createServiceInstanceRequest = CreateServiceInstanceRequest.builder()
+                    .serviceDefinitionId(req.serviceId)
+                    .planId(req.planId)
+                    .build()
         ServiceBrokerClient serviceBrokerClient = ServiceBrokerServiceProvider.createServiceBrokerClient(req, ServiceBrokerServiceProvider.CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
 
         ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(serviceBrokerClient, createServiceInstanceRequest, serviceInstance.guid)
@@ -67,7 +70,10 @@ class ServiceBrokerServiceProviderRestClient {
     */
 
     ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(ServiceBrokerClient serviceBrokerClient, CreateServiceInstanceRequest createServiceInstanceRequest, String serviceInstanceId) {
-        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(true))
+        createServiceInstanceRequest.serviceInstanceId = serviceInstanceId
+        createServiceInstanceRequest.asyncAccepted = true
+
+        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest)
     }
 
     boolean deprovisionServiceInstance(ServiceInstance serviceInstance) {

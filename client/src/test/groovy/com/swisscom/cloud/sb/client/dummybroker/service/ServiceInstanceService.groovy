@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.client.dummybroker.service
 
 import groovy.transform.CompileStatic
-import org.springframework.cloud.servicebroker.model.*
+import org.springframework.cloud.servicebroker.model.instance.*
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,21 +25,25 @@ class ServiceInstanceService implements org.springframework.cloud.servicebroker.
 
     @Override
     CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest request) {
-        return new CreateServiceInstanceResponse()
+        return null
     }
 
     @Override
     GetLastServiceOperationResponse getLastOperation(GetLastServiceOperationRequest request) {
-        return new GetLastServiceOperationResponse().withOperationState(OperationState.SUCCEEDED).withDescription('some description')
+        return GetLastServiceOperationResponse
+                .builder()
+                .operationState(OperationState.SUCCEEDED)
+                .description('some description')
+                .build()
     }
 
     @Override
     DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest request) {
-        return new DeleteServiceInstanceResponse().withAsync(false)
+        return DeleteServiceInstanceResponse.builder().async(false).build()
     }
 
     @Override
     UpdateServiceInstanceResponse updateServiceInstance(UpdateServiceInstanceRequest request) {
-        return new UpdateServiceInstanceResponse().withAsync(false)
+        return UpdateServiceInstanceResponse.builder().async(false).build()
     }
 }

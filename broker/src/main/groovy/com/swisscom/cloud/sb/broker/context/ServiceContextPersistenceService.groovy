@@ -30,6 +30,8 @@ import org.springframework.cloud.servicebroker.model.KubernetesContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+import java.lang.reflect.Field
+
 @Slf4j
 @Service
 @Transactional
@@ -71,18 +73,38 @@ class ServiceContextPersistenceService {
             serviceContext.details.clear()
         }
 
-        def contextDetails = [] as Set<ServiceContextDetail>
+        Field f = context.getClass().getDeclaredField("properties")
+        f.setAccessible(true)
+        Map<String, Object> internalProperties = (Map<String, Object>) f.get(context)
 
-        context.properties.each {
-            p -> contextDetails << createServiceContextDetailRecord(p.key.toString(), p.value.toString(), serviceContext)
-        }
-        serviceContextDetailRepository.flush()
-
-        serviceContext.details.addAll(contextDetails)
-        serviceContextRepository.merge(serviceContext)
-        serviceContextRepository.flush()
+        setServiceContextDetails(internalProperties, serviceContext)
 
         return serviceContext
+    }
+
+    private void setServiceContextDetails(Map<String, Object> newDetails, ServiceContext serviceContext) {
+        def existingDetails = serviceContext.getDetails().toList()
+
+        newDetails.each {
+            newDetail ->
+                def matchedDetail = existingDetails.find { d -> d.key == newDetail.key }
+                if (matchedDetail == null) {
+                    serviceContext.details.add(createServiceContextDetailRecord(newDetail.key.toString(), newDetail.value.toString(), serviceContext))
+                } else if (matchedDetail.value != newDetail.value) {
+                    matchedDetail.value = newDetail.value
+                    serviceContextDetailRepository.save(matchedDetail)
+                }
+
+                if (matchedDetail != null) {
+                    existingDetails.remove(matchedDetail)
+                }
+        }
+
+        existingDetails.each {
+            toDelete ->
+                serviceContext.details.remove(toDelete)
+                serviceContextDetailRepository.delete(toDelete)
+        }
     }
 
     private ServiceContext findOrCreateCloudFoundryContext(CloudFoundryContext context) {

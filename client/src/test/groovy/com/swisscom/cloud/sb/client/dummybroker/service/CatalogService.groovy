@@ -17,8 +17,8 @@ package com.swisscom.cloud.sb.client.dummybroker.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.transform.CompileStatic
-import org.springframework.cloud.servicebroker.model.Catalog
-import org.springframework.cloud.servicebroker.model.ServiceDefinition
+import org.springframework.cloud.servicebroker.model.catalog.Catalog
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition
 import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct

@@ -27,8 +27,8 @@ import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
 import spock.lang.Ignore
 

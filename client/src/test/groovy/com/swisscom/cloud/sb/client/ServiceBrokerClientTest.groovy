@@ -25,7 +25,11 @@ import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.springframework.boot.SpringApplication
 import com.swisscom.cloud.sb.client.model.CreateServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.*
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.catalog.*
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.Assert
 import org.springframework.web.client.HttpClientErrorException
@@ -64,9 +68,13 @@ class ServiceBrokerClientTest {
     }
 
     @Test
-    void createServiceInstance(){
-        def request = new CreateServiceInstanceRequest(serviceDefinition.id, plan.id, 'orgId', 'spaceGuid', null, null)
-        request.serviceInstanceId = serviceInstanceId
+    void createServiceInstance() {
+        def request = CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId(serviceDefinition.id)
+                .planId(plan.id)
+                .serviceInstanceId(serviceInstanceId)
+                .build()
+
         CreateServiceInstanceResponse result = serviceBrokerClient.createServiceInstance(request).body
         Assert.notNull(result)
     }
@@ -100,8 +108,12 @@ class ServiceBrokerClientTest {
     }
 
     @Test
-    void updateServiceInstance(){
-         def request = new UpdateServiceInstanceRequest(serviceDefinition.id,plan.id).withServiceInstanceId(serviceInstanceId)
+    void updateServiceInstance() {
+         def request = UpdateServiceInstanceRequest.builder()
+                            .serviceDefinitionId(serviceDefinition.id)
+                            .planId(plan.id)
+                            .serviceInstanceId(serviceInstanceId)
+                            .build()
         serviceBrokerClient.updateServiceInstance(request)
     }
 }

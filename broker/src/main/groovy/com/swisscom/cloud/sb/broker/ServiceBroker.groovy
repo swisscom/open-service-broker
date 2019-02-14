@@ -23,9 +23,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.retry.annotation.EnableRetry
 
 @SpringBootApplication(exclude = [
-        org.springframework.cloud.servicebroker.config.ServiceBrokerAutoConfiguration,
-		org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,
-		org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration])
+	org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,
+	org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+])
 @CompileStatic
 @EnableRetry
 class ServiceBroker extends org.springframework.boot.web.servlet.support.SpringBootServletInitializer {
