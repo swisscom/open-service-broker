@@ -47,10 +47,10 @@ import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.ClientHttpResponse

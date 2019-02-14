@@ -42,12 +42,12 @@ import groovy.transform.CompileStatic
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.BindResource
+import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.Context
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
-import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -246,8 +246,15 @@ class ServiceLifeCycler {
     }
 
     ResponseEntity<ProvisionResponseDto> provision(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
-        def request = new CreateServiceInstanceRequest(cfService.guid, plan.guid, 'org_id', 'space_id', context, parameters)
-        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
+        def request = CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId(cfService.guid)
+                .planId(plan.guid)
+                .serviceInstanceId(serviceInstanceId)
+                .context(context)
+                .parameters(parameters)
+                .asyncAccepted(async)
+                .build()
+        return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode).provision(request)
     }
 
     ResponseEntity requestServiceProvisioning(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
@@ -262,9 +269,16 @@ class ServiceLifeCycler {
             Context context,
             Map<String, Object> parameters,
             boolean throwExceptionWhenNon2xxHttpStatusCode = true) {
-        def request = new CreateServiceInstanceRequest(serviceGuid, planGuid, 'org_id', 'space_id', context, parameters)
+        def request = CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId(serviceGuid)
+                .planId(planGuid)
+                .serviceInstanceId(serviceInstanceId)
+                .context(context)
+                .parameters(parameters)
+                .asyncAccepted(async)
+                .build()
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
-                .createServiceInstance(request.withServiceInstanceId(serviceInstanceId).withAsyncAccepted(async))
+                .createServiceInstance(request)
     }
 
     void createServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0, boolean asyncRequest = false, boolean asyncResponse = false, Context context = null) {
@@ -283,11 +297,14 @@ class ServiceLifeCycler {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
-        def bindResource = new BindResource('app-id', 'app-id.example.com', null)
-        def request = new CreateServiceInstanceBindingRequest(cfService.guid, plan.guid, bindResource, context, bindingParameters)
 
-        return createServiceBrokerClient().createServiceInstanceBinding(request.withServiceInstanceId(serviceInstanceId)
-                .withBindingId(bindingId))
+        def request = CreateServiceInstanceBindingRequest.builder()
+                .serviceInstanceId(serviceInstanceId)
+                .bindResource(BindResource.builder().appGuid('app-id').route('app-id.example.com').build())
+                .bindingId(bindingId)
+                .build()
+
+        return createServiceBrokerClient().createServiceInstanceBinding(request)
     }
 
     void deleteServiceBindingAndServiceInstanceAndAssert(boolean isAsync = false, int maxSecondsToAwaitDelete = 0) {
@@ -342,7 +359,7 @@ class ServiceLifeCycler {
 
     boolean removeParameters() {
         plan.parameters.removeAll(plan.parameters)
-        planRepository.saveAndFlush(plan)
+        planRepository.saveAndFlush(plan as Plan)
     }
 
     CFService getCfService() {
@@ -431,10 +448,18 @@ class ServiceLifeCycler {
             final Boolean async = false,
             Context context = null) {
 
+        def request = UpdateServiceInstanceRequest
+                            .builder()
+                            .serviceDefinitionId(serviceGuid)
+                            .planId(planGuid)
+                            .parameters(parameters)
+                            .context(context)
+                            .serviceInstanceId(serviceInstanceId)
+                            .asyncAccepted(async)
+                            .build()
+
         createServiceBrokerClientWithCustomErrorHandler()
-                .updateServiceInstance(new UpdateServiceInstanceRequest(serviceGuid, planGuid, parameters, null, context)
-                .withAsyncAccepted(async)
-                .withServiceInstanceId(serviceInstanceId))
+                .updateServiceInstance(request)
     }
 
     private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {

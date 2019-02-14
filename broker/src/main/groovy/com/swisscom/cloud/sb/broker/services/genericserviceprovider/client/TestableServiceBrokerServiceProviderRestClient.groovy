@@ -18,8 +18,8 @@ package com.swisscom.cloud.sb.broker.services.genericserviceprovider.client
 import com.swisscom.cloud.sb.broker.services.genericserviceprovider.GenericProvisionRequestPlanParameter
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse
 import org.springframework.http.ResponseEntity
 
 class TestableServiceBrokerServiceProviderRestClient extends ServiceBrokerServiceProviderRestClient {

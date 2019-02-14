@@ -139,7 +139,10 @@ class ProvisioningController extends BaseController {
         provisionRequest.applicationUser = principal.name
 
         if (!provisioning.context && (provisioning.organization_guid && provisioning.space_guid)) {
-            provisioning.context = new CloudFoundryContext(provisioning.organization_guid, provisioning.space_guid)
+            provisioning.context = CloudFoundryContext.builder()
+                    .organizationGuid(provisioning.organization_guid)
+                    .spaceGuid(provisioning.space_guid)
+                    .build()
         }
 
         provisionRequest.serviceContext = serviceContextService.findOrCreate(provisioning.context, serviceInstanceGuid)
