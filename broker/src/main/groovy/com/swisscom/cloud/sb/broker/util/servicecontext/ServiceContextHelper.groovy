@@ -41,7 +41,7 @@ class ServiceContextHelper {
                 String namespace = serviceContext.details.find { it -> it.key == KUBERNETES_NAMESPACE }.value
                 return new KubernetesContext(namespace)
             default:
-                throw new ServiceBrokerException("Unsupported ServiceContext platform: ${platform}")
+                return new Context("CUSTOM", serviceContext.details.collectEntries { d -> [(d.key): (d.value)] })
         }
     }
 }
