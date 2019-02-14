@@ -34,7 +34,6 @@ import java.lang.reflect.Field
 
 @Slf4j
 @Service
-@Transactional
 @CompileStatic
 class ServiceContextPersistenceService {
 
@@ -64,20 +63,20 @@ class ServiceContextPersistenceService {
     private ServiceContext setOrUpdateDynamicContext(Context context, String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
 
-        def serviceContext = new ServiceContext(platform: context.platform)
+        ServiceContext serviceContext = new ServiceContext(platform: context.platform)
+
         if (serviceInstance == null || serviceInstance.serviceContext == null) {
-            serviceContextRepository.saveAndFlush(serviceContext)
+            serviceContext = serviceContextRepository.save(serviceContext)
         } else {
             serviceContext = serviceInstance.serviceContext
-            serviceContext.platform = context.platform
-            serviceContext.details.clear()
+            if (serviceContext.platform != context.platform) {
+                serviceContext.platform = context.platform
+                serviceContext = serviceContextRepository.save(serviceContext)
+            }
         }
 
-        Field f = context.getClass().getDeclaredField("properties")
-        f.setAccessible(true)
-        Map<String, Object> internalProperties = (Map<String, Object>) f.get(context)
-
-        setServiceContextDetails(internalProperties, serviceContext)
+        setServiceContextDetails(context.properties, serviceContext)
+        serviceContext = serviceContextRepository.save(serviceContext)
 
         return serviceContext
     }
@@ -92,7 +91,7 @@ class ServiceContextPersistenceService {
                     serviceContext.details.add(createServiceContextDetailRecord(newDetail.key.toString(), newDetail.value.toString(), serviceContext))
                 } else if (matchedDetail.value != newDetail.value) {
                     matchedDetail.value = newDetail.value
-                    serviceContextDetailRepository.save(matchedDetail)
+                    matchedDetail = serviceContextDetailRepository.save(matchedDetail)
                 }
 
                 if (matchedDetail != null) {
@@ -102,8 +101,8 @@ class ServiceContextPersistenceService {
 
         existingDetails.each {
             toDelete ->
-                serviceContext.details.remove(toDelete)
                 serviceContextDetailRepository.delete(toDelete)
+                serviceContext.details.remove(toDelete)
         }
     }
 

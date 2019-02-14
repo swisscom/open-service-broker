@@ -448,6 +448,10 @@ class ServiceLifeCycler {
             final Boolean async = false,
             Context context = null) {
 
+        if (parameters == null) {
+            parameters = new HashMap<String, Object>();
+        }
+
         def request = UpdateServiceInstanceRequest
                             .builder()
                             .serviceDefinitionId(serviceGuid)
