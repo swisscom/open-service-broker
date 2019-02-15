@@ -113,7 +113,11 @@ class ServiceBrokerServiceProvider
                 serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderProvisioningErrorHandler.class)
             }
 
-            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, null)
+            def createServiceInstanceRequest = CreateServiceInstanceRequest.builder()
+                    .serviceDefinitionId(req.serviceId)
+                    .planId(req.planId)
+                    .build()
+
             //Check out ResponseEntity
             ResponseEntity<CreateServiceInstanceResponse> re = makeCreateServiceInstanceCall(createServiceInstanceRequest, request)
             return new ProvisionResponse(isAsync: request.plan.asyncRequired)
@@ -124,7 +128,9 @@ class ServiceBrokerServiceProvider
     // method can be overwritten to enable testing of the ServiceBrokerServiceProvider in the TestableServiceBrokerServiceProviderClass
     // More details as to why this is necessary can be found in the TestableServiceBrokerServiceProvider class
     ResponseEntity<CreateServiceInstanceResponse> makeCreateServiceInstanceCall(CreateServiceInstanceRequest createServiceInstanceRequest, ProvisionRequest request) {
-        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest.withServiceInstanceId(request.serviceInstanceGuid).withAsyncAccepted(request.acceptsIncomplete))
+        createServiceInstanceRequest.setServiceInstanceId(request.serviceInstanceGuid)
+        createServiceInstanceRequest.setAsyncAccepted(request.acceptsIncomplete)
+        return serviceBrokerClient.createServiceInstance(createServiceInstanceRequest)
     }
 
     @Override
@@ -161,8 +167,13 @@ class ServiceBrokerServiceProvider
         if (serviceBrokerClient == null) {
             serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderBindingErrorHandler)
         }
-        CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequest(serviceId, planId, null, null)
-        createServiceInstanceBindingRequest.withBindingId(bindingId).withServiceInstanceId(serviceInstanceId)
+        CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = CreateServiceInstanceBindingRequest.builder()
+                    .serviceDefinitionId(serviceId)
+                    .planId(planId)
+                    .bindingId(bindingId)
+                    .serviceInstanceId(serviceInstanceId)
+                    .build()
+
         serviceBrokerClient.createServiceInstanceBinding(createServiceInstanceBindingRequest)
 
         return new BindResponse()

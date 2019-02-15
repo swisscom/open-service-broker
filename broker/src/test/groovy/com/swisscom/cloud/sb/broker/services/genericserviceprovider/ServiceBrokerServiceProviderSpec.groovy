@@ -66,8 +66,8 @@ class ServiceBrokerServiceProviderSpec extends Specification{
         def provisionResponse = serviceBrokerServiceProvider.provision(provisionRequest)
 
         then:
-        !provisionResponse.isAsync
         noExceptionThrown()
+        !provisionResponse.isAsync
 
         and:
         mockServer.verify()
