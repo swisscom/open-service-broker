@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
+import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import spock.lang.Specification
 
@@ -63,10 +64,13 @@ class ServiceContextHelperSpec extends Specification {
         serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.KUBERNETES_NAMESPACE, value: "my_namespace")
 
         when:
-        ServiceContextHelper.convertFrom(serviceContext) as KubernetesContext
+        def context = ServiceContextHelper.convertFrom(serviceContext) as Context
 
         then:
-        thrown(ServiceBrokerException)
+        context.class == Context
+        context.properties.size() == 1
+        context.platform == "unknown"
+        context.properties.get(ServiceContextHelper.KUBERNETES_NAMESPACE, "my_namespace")
     }
 }
 
