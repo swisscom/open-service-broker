@@ -35,7 +35,7 @@ class OpsManagerOngoingChangesChecker {
             maxAttempts = 10,
             backoff = @Backoff(delay = 5000l))
     void checkAndRetryForOnGoingChanges(String groupId) throws MongoDBAutomationConfigUpdateNotCompletedException {
-        log.info("Checking for on-going changes")
+        log.debug("Checking for on-going changes on Opsmanager for groupId ${groupId}")
         if (!opsManagerFacade.isAutomationUpdateComplete(groupId))
             throw new MongoDBAutomationConfigUpdateNotCompletedException()
     }
