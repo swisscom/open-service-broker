@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
-import com.swisscom.cloud.sb.broker.services.genericserviceprovider.Service
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.ProxyService
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
@@ -30,7 +30,7 @@ class ProvisioningDto implements Serializable {
     String space_guid
     Context context
     Map<String, Object> parameters
-    Service service
+    ProxyService proxy_service
 
     @Override
     String toString() {
@@ -41,7 +41,7 @@ class ProvisioningDto implements Serializable {
                 ", space_guid='" + space_guid + '\'' +
                 ", context='" + context + '\'' +
                 ", parameters=" + parameters + '\'' +
-                ", service= " + service + '\'' +
+                ", proxy_service= " + proxy_service + '\'' +
                 '}'
     }
 }

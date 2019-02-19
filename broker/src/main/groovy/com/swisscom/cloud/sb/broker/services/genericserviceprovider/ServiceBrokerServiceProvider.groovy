@@ -46,7 +46,6 @@ import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,7 +54,6 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceReques
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceResponse
 import org.springframework.cloud.servicebroker.model.DashboardClient
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceResponse
-import org.springframework.cloud.servicebroker.model.ServiceDefinition
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.ClientHttpResponse
@@ -126,8 +124,6 @@ class ServiceBrokerServiceProvider
 
 
             def createServiceInstanceRequest = new CreateServiceInstanceRequestExtended(req.serviceId, req.planId, null, null, param, this.createServiceDefinition(request.plan.service))
-//            def createServiceInstanceRequest = new CreateServiceInstanceRequestExtended(req.serviceId, req.planId, null, null, param).withServiceDefinition(this.createServiceDefinition(request.plan.service))
-//            def createServiceInstanceRequest = new CreateServiceInstanceRequest(req.serviceId, req.planId, null, null, param)
 
             log.info("createServiceInstanceRequest = ${createServiceInstanceRequest}")
             //Check out ResponseEntity
@@ -136,17 +132,8 @@ class ServiceBrokerServiceProvider
         }
     }
 
-    Service createServiceDefinition(CFService service){
-//        CFService service = cfServiceRepository.findByGuid(guid)
-        log.info("service = ${service}")
-        log.info("service.guid = ${service.guid}")
-        log.info("service.name = ${service.name}")
-        log.info("service.displayIndex = ${service.displayIndex}")
-//        ServiceDefinition serviceDefinition = new ServiceDefinition(service.id.toString(), service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()])
-//        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()], service.internalName, ["tag"], ["meta":"data"], ["requires"], service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.plan_updateable, service.serviceProviderClass, service.displayIndex, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable)
-        Service serviceDefinition = new Service(service.id.toString(), service.guid, service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()], ["tag"], ["meta":"data"], ["requires"], new DashboardClient(service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri), service.plan_updateable, service.internalName, service.serviceProviderClass, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable, service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.displayIndex)
-        log.info("serviceDefinition.toString() = ${serviceDefinition.toString()}")
-        return serviceDefinition
+    ProxyService createServiceDefinition(CFService service){
+        new ProxyService(service.id.toString(), service.guid, service.name, service.description, service.bindable, [new org.springframework.cloud.servicebroker.model.Plan()], ["tag"], ["meta":"data"], ["requires"], new DashboardClient(service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri), service.plan_updateable, service.internalName, service.serviceProviderClass, service.asyncRequired, service.active, service.tags, service.plans, service.metadata, service.permissions, service.instancesRetrievable, service.bindingsRetrievable, service.dashboardClientId, service.dashboardClientSecret, service.dashboardClientRedirectUri, service.displayIndex)
     }
 
     // making the call to create a service instance via the serviceBrokerClient is defined in its own method so only this

@@ -5,23 +5,26 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.swisscom.cloud.sb.broker.cfapi.converter.MetadataJsonHelper
 import com.swisscom.cloud.sb.broker.cfapi.dto.DashboardClientDto
-import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
 import com.swisscom.cloud.sb.broker.model.CFServicePermission
+import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
+
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cloud.servicebroker.model.DashboardClient
 import org.springframework.cloud.servicebroker.model.ServiceDefinition
+import org.springframework.stereotype.Component
+
+import static com.swisscom.cloud.sb.broker.cfapi.converter.MetadataJsonHelper.getValue
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.ANY)
-class Service extends ServiceDefinition{
-
-    @Autowired
-    PlanDtoConverter planDtoConverter
+@Component
+class ProxyService extends ServiceDefinition {
 
     String guid
     String internalName
@@ -43,12 +46,12 @@ class Service extends ServiceDefinition{
     Boolean instancesRetrievable
     Boolean bindingsRetrievable
 
-    Service(){
+    ProxyService(){
 
     }
 
     @JsonCreator
-    Service(@JsonProperty("id") String id, @JsonProperty("guid") String guid, @JsonProperty("name") String name,
+    ProxyService(@JsonProperty("id") String id, @JsonProperty("guid") String guid, @JsonProperty("name") String name,
             @JsonProperty("description") String description, @JsonProperty("bindable") Boolean bindable,
             @JsonProperty("plans") List<org.springframework.cloud.servicebroker.model.Plan> plans,
             @JsonProperty("tags") List<String> tags, @JsonProperty("metadata") Map<String, Object> metadata,
@@ -61,7 +64,6 @@ class Service extends ServiceDefinition{
             @JsonProperty("instances_retrievable") Boolean instancesRetrievable, @JsonProperty("bindings_retrievable") Boolean bindingsRetrievable,
             @JsonProperty("dashboard_client_id") String dashboardClientId, @JsonProperty("dashboard_client_secret") String dashboardClientSecret,
             @JsonProperty("dashboard_client_redirect_uri") String dashboardClientRedirectUri, @JsonProperty("displayIndex") int displayIndex) {
-
         super(id, name, description, bindable, updateable, plans, tags, metadata, requires, dashboardClient)
         this.guid = guid
         this.internalName = internalName
@@ -168,36 +170,78 @@ class Service extends ServiceDefinition{
                 '}';
     }
 
-    ServiceDto convertToServiceDto(Service service){
+    ServiceDto convertToServiceDto(){
         ServiceDto serviceDto = new ServiceDto()
-        serviceDto.guid = service.guid
-        serviceDto.internalName = service.internalName
-        serviceDto.serviceProviderClass = service.serviceProviderClass
-        serviceDto.displayIndex = service.displayIndex
-        serviceDto.asyncRequired = service.asyncRequired
-        serviceDto.plans = planDtoConverter.convertAll(service.plansList.sort { it.displayIndex })
-        serviceDto.id = service.id
-        serviceDto.name = service.name
-        serviceDto.description = service.description
-        serviceDto.metadata = convertMetadata(service)
-        serviceDto.tags = service.tagsList.collect { Tag t -> t.tag }
-        serviceDto.requires = service.permissions.collect { CFServicePermission p -> p.permission }
+        serviceDto.guid = this.guid
+        serviceDto.internalName = this.internalName
+        serviceDto.serviceProviderClass = this.serviceProviderClass
+        serviceDto.displayIndex = this.displayIndex
+        serviceDto.asyncRequired = this.asyncRequired
+        serviceDto.plans = this.convertPlans(this.plansList.sort { it.displayIndex })
+        serviceDto.id = this.id
+        serviceDto.name = this.name
+        serviceDto.description = this.description
+        serviceDto.metadata = convertMetadata(this)
+        serviceDto.tags = this.tagsList.collect { Tag t -> t.tag }
+        serviceDto.requires = this.permissions.collect { CFServicePermission p -> p.permission }
         serviceDto.dashboard_client = new DashboardClientDto()
-        serviceDto.dashboard_client.id = service.dashboardClientId
-        serviceDto.dashboard_client.secret = service.dashboardClientSecret
-        serviceDto.dashboard_client.redirect_uri = service.dashboardClientRedirectUri
-        serviceDto.bindable = service.bindable
-        serviceDto.active = service.active
-        serviceDto.plan_updateable = service.plan_updateable
-        serviceDto.bindingsRetrievable = service.bindingsRetrievable
-        serviceDto.instancesRetrievable = service.instancesRetrievable
+        serviceDto.dashboard_client.id = this.dashboardClientId
+        serviceDto.dashboard_client.secret = this.dashboardClientSecret
+        serviceDto.dashboard_client.redirect_uri = this.dashboardClientRedirectUri
+        serviceDto.bindable = this.bindable
+        serviceDto.active = this.active
+        serviceDto.plan_updateable = this.plan_updateable
+        serviceDto.bindingsRetrievable = this.bindingsRetrievable
+        serviceDto.instancesRetrievable = this.instancesRetrievable
 
         return serviceDto
     }
 
-    private Map<String, Object> convertMetadata(Service service) {
+    private Map<String, Object> convertMetadata(ProxyService service) {
         Map<String, Object> result = [:]
         service.metadataList.each { result[it.key] = MetadataJsonHelper.getValue(it.type, it.value) }
+        result
+    }
+
+    List<PlanDto> convertPlans(List<Plan> planList){
+        List<PlanDto> plans = []
+        planList.each {plan ->
+            PlanDto planDto = new PlanDto()
+            planDto.guid = plan.guid
+            planDto.templateId = plan.templateUniqueIdentifier
+            planDto.templateVersion = plan.templateVersion
+            planDto.internalName = plan.internalName
+            planDto.serviceProviderClass = plan.serviceProviderClass
+            planDto.displayIndex = plan.displayIndex
+            planDto.asyncRequired = plan.asyncRequired
+            planDto.maxBackups = plan.maxBackups
+            planDto.parameters = this.convertParameter(plan.parameters)
+            planDto.containerParams = this.convertParameter(plan.parameters)
+            planDto.id = plan.id
+            planDto.active = plan.active
+            planDto.description = plan.description
+            planDto.free = plan.free
+            planDto.metadata = this.convertPlanMetadata(plan.metadata)
+            planDto.schemas = new SchemasDto(plan)
+        }
+        plans
+    }
+
+    List<ParameterDto> convertParameter(Set<Parameter> parameters){
+        List<ParameterDto> parameterDtoList = []
+        parameters.each { parameter ->
+            ParameterDto parameterDto = new ParameterDto()
+            parameterDto.name = parameter.name
+            parameterDto.value = parameter.value
+            parameterDto.template = parameter.template
+            parameterDtoList.add(parameterDto)
+        }
+        parameterDtoList
+    }
+
+    Map<String, Object> convertPlanMetadata(Set<PlanMetadata> planMetadatas){
+        Map<String, Object> result = [:]
+        planMetadatas.each { result[it.key] = getValue(it.type, it.value) }
         result
     }
 }

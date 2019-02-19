@@ -7,12 +7,12 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceReques
 class CreateServiceInstanceRequestExtended extends CreateServiceInstanceRequest{
 
     @JsonSerialize
-    @JsonProperty("service")
-    Service service
+    @JsonProperty("proxy_service")
+    ProxyService service
 
     CreateServiceInstanceRequestExtended(String serviceDefinitionId, String planId,
                                          String organizationGuid, String spaceGuid,
-                                         Map<String, Object> parameters, Service service){
+                                         Map<String, Object> parameters, ProxyService service){
         super(serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters)
 
 

@@ -17,7 +17,6 @@ package com.swisscom.cloud.sb.broker.util.test
 
 import com.google.common.base.Optional
 import com.google.gson.Gson
-import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto
@@ -38,7 +37,6 @@ import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 @Component
 @Slf4j
@@ -68,8 +66,6 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        println("In provision dummy.")
-        println("ServiceDefintion = ${request.serviceDefintion}")
         return new ProvisionResponse(details: [], isAsync: false)
     }
 

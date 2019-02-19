@@ -24,7 +24,7 @@ class ProvisionRequest extends RequestWithParameters {
 
     boolean acceptsIncomplete
     String applicationUser
-    ServiceDto serviceDefintion
+    ServiceDto proxyService
 
     @Override
     String toString() {
