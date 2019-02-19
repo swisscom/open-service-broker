@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.binding
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 
 class BindRequest {
     ServiceInstance serviceInstance
@@ -26,4 +27,5 @@ class BindRequest {
     Plan plan
     CFService service
     Map parameters
+    ServiceDto proxyService
 }

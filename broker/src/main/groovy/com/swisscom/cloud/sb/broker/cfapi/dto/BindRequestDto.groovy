@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
+import com.swisscom.cloud.sb.broker.services.genericserviceprovider.ProxyService
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
@@ -27,4 +28,5 @@ class BindRequestDto implements Serializable {
     String app_guid
     Map parameters
     Context context
+    ProxyService proxy_service
 }

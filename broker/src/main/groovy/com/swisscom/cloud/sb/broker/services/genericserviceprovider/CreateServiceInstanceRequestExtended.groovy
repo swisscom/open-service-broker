@@ -8,22 +8,21 @@ class CreateServiceInstanceRequestExtended extends CreateServiceInstanceRequest{
 
     @JsonSerialize
     @JsonProperty("proxy_service")
-    ProxyService service
+    ProxyService proxyService
 
     CreateServiceInstanceRequestExtended(String serviceDefinitionId, String planId,
                                          String organizationGuid, String spaceGuid,
-                                         Map<String, Object> parameters, ProxyService service){
+                                         Map<String, Object> parameters, ProxyService proxyService){
         super(serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters)
 
-
-        this.service = service
+        this.proxyService = proxyService
     }
 
 
     @Override
     String toString() {
         return "CreateServiceInstanceRequestExtended{" +
-                ", service=" + service +
+                ", proxyService=" + proxyService +
                 ", parameters=" + parameters +
                 ", asyncAccepted=" + asyncAccepted +
                 ", cfInstanceId='" + cfInstanceId + '\'' +

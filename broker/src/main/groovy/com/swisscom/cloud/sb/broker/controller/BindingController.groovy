@@ -142,6 +142,9 @@ class BindingController extends BaseController {
         bindRequest.service = service
         bindRequest.plan = getAndCheckPlan(bindingDto)
         bindRequest.parameters = bindingDto.parameters
+        if (bindingDto.proxy_service) {
+            bindRequest.proxyService = bindingDto.proxy_service.convertToServiceDto()
+        }
         return bindRequest
     }
 
