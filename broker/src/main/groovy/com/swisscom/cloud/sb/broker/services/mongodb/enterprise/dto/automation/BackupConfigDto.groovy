@@ -42,7 +42,7 @@ class BackupConfigDto implements Serializable {
     }
 
     static enum Status {
-        STARTED, STOPPED, TERMINATING
+        STARTED, STOPPED, TERMINATING, INACTIVE
 
         @Override
         String toString() {

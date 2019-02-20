@@ -45,7 +45,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
                             "the previous provisioning attempt must have failed.")
                 }
             }
-            return new StateChangeActionResult(go2NextState: true)
+            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isBackupInInactiveState(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext), ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET).get()))
         }
     }),
     UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {

@@ -481,6 +481,10 @@ class OpsManagerFacade {
         return isBackupInState(groupId, replicaSet, BackupConfigDto.Status.TERMINATING)
     }
 
+    boolean isBackupInInactiveState(String groupId, String replicaSet) {
+        return isBackupInState(groupId, replicaSet, BackupConfigDto.Status.INACTIVE)
+    }
+
     private boolean isBackupInState(String groupId, String replicaSet, BackupConfigDto.Status status) {
         def backupConfig = getBackupConfig(groupId, replicaSet)
         log.info("Backup config for group:${groupId} and replicaSet:${replicaSet} is: ${backupConfig}")
