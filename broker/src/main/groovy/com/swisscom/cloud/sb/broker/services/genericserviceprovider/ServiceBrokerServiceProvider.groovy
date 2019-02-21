@@ -177,7 +177,8 @@ class ServiceBrokerServiceProvider
         if (serviceBrokerClient == null) {
             serviceBrokerClient = createServiceBrokerClient(req, CustomServiceBrokerServiceProviderBindingErrorHandler)
         }
-        CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequestExtension(serviceId, planId, null, null, request.parameters, this.createServiceDefinition(request.service))
+
+        CreateServiceInstanceBindingRequestExtended createServiceInstanceBindingRequest = new CreateServiceInstanceBindingRequestExtended(serviceId, planId, null, null, request.parameters, this.createServiceDefinition(request.service))
         createServiceInstanceBindingRequest.withBindingId(bindingId).withServiceInstanceId(serviceInstanceId)
         serviceBrokerClient.createServiceInstanceBinding(createServiceInstanceBindingRequest)
 

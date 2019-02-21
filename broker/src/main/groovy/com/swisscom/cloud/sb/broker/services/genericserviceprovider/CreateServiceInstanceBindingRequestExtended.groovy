@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 
-class CreateServiceInstanceBindingRequestExtension extends CreateServiceInstanceBindingRequest{
+class CreateServiceInstanceBindingRequestExtended extends CreateServiceInstanceBindingRequest{
 
     @JsonSerialize
     @JsonProperty("proxy_service")
     ProxyService proxyService
 
-    CreateServiceInstanceBindingRequestExtension(String serviceDefinitionId, String planId, String appGuid,
-                                                 Map<String, Object> bindResource, Map<String, Object> parameters,
-                                                 ProxyService proxyService) {
+    CreateServiceInstanceBindingRequestExtended(String serviceDefinitionId, String planId, String appGuid,
+                                                Map<String, Object> bindResource, Map<String, Object> parameters,
+                                                ProxyService proxyService) {
         super(serviceDefinitionId, planId, appGuid, bindResource, parameters)
 
         this.proxyService = proxyService
