@@ -16,7 +16,6 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
-import com.swisscom.cloud.sb.broker.util.MutexFactory
 import com.swisscom.cloud.sb.broker.util.Resource
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -28,8 +27,7 @@ class BoshClientSpec extends Specification {
     def setup(){
         def boshRestClient = Mock(BoshRestClient)
         boshRestClient.boshConfig >> Stub(BoshConfig)
-        def mutexFactory = Mock(MutexFactory)
-        client = new BoshClient(boshRestClient,mutexFactory)
+        client = new BoshClient(boshRestClient)
     }
 
     def "PostDeployment fails for non valid yml"() {
