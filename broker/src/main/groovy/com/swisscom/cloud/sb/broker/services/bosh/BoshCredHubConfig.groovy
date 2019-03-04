@@ -20,9 +20,11 @@ import com.swisscom.cloud.sb.broker.services.credhub.CredHubConfig
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
+import org.springframework.credhub.core.CredHubProperties
 
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
-class BoshCredHubConfig implements CredHubConfig, CertificateConfig  {
+class BoshCredHubConfig extends CredHubProperties implements CertificateConfig  {
+    boolean enable
 }

@@ -26,5 +26,4 @@ Defines the config needed for defining a CredHub datasource
 trait CredHubConfig implements Config {
     boolean enable
     String url
-    ClientCredentialsResourceDetails oauth2_resourceowner
 }
