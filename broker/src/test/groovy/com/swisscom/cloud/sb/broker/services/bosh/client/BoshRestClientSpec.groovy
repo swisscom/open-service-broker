@@ -142,36 +142,6 @@ class BoshRestClientSpec extends Specification {
         result == response
     }
 
-    def "GetCloudConfig"() {
-        given:
-        def response = 'response'
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS + BoshRestClient.CLOUD_CONFIG_QUERY)))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(autHeader())
-                .andRespond(withSuccess(response, MediaType.APPLICATION_JSON))
-
-        when:
-        def result = boshRestClient.fetchCloudConfig()
-        then:
-        mockServer.verify()
-        result == response
-    }
-
-    def "PostCloudConfig"() {
-        given:
-        def data = 'data'
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CLOUD_CONFIGS)))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(autHeader())
-                .andExpect(content().contentType(BoshRestClient.CONTENT_TYPE_YAML))
-                .andRespond(withSuccess())
-
-        when:
-        boshRestClient.postCloudConfig(data)
-        then:
-        mockServer.verify()
-    }
-
     def "GetTask"() {
         given:
         def response = 'response'

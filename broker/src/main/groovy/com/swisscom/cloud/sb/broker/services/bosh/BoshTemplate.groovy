@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
+import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
 import java.util.regex.Pattern
@@ -66,9 +67,9 @@ class BoshTemplate {
         List azs = map.'instance_groups'.'azs'[0]
         Collections.shuffle(azs)
 
-        def options = new org.yaml.snakeyaml.DumperOptions()
-        options.defaultFlowStyle = org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK
-        options.defaultScalarStyle = org.yaml.snakeyaml.DumperOptions.ScalarStyle.PLAIN
+        def options = new DumperOptions()
+        options.defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+        options.defaultScalarStyle = DumperOptions.ScalarStyle.PLAIN
         processed = new Yaml(options).dump(map)
     }
 }

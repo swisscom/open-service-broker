@@ -20,10 +20,6 @@ import groovy.transform.CompileStatic
 
 trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
     String portRange
-    String openstackkUrl
-    String openstackUsername
-    String openstackPassword
-    String openstackTenantName
     String boshManifestFolder
     boolean shuffleAzs
 }

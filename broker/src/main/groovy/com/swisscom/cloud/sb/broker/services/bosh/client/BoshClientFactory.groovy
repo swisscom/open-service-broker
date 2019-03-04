@@ -27,19 +27,13 @@ import org.springframework.stereotype.Component
 class BoshClientFactory {
 
     RestTemplateBuilder restTemplateBuilder
-    private final MutexFactory mutexFactory
 
     @Autowired
-    BoshClientFactory(RestTemplateBuilder restTemplateBuilder, MutexFactory mutexFactory) {
+    BoshClientFactory(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplateBuilder = restTemplateBuilder
-        this.mutexFactory = mutexFactory
     }
 
     BoshClient build(BoshConfig boshConfig) {
-        return new BoshClient(new BoshRestClient(boshConfig, restTemplateBuilder), mutexFactory)
-    }
-
-    MutexFactory getMutexFactory() {
-        return mutexFactory
+        return new BoshClient(new BoshRestClient(boshConfig, restTemplateBuilder))
     }
 }

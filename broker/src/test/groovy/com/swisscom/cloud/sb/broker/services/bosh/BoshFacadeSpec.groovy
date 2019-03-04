@@ -23,19 +23,11 @@ import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
-import org.openstack4j.model.compute.ServerGroup
 import spock.lang.Specification
 
 class BoshFacadeSpec extends Specification {
-    private def serverGroupId = "serverGroupId"
-    private def boshDeploymentId = "boshDeploymentId"
-    private def boshTaskId = "boshTaskId"
     public static final String serviceInstanceGuid = "serviceInstanceGuid"
 
-    OpenStackClient openstackClient
-    OpenStackClientFactory openStackClientFactory
     BoshClient boshClient
     BoshClientFactory boshClientFactory
     BoshBasedServiceConfig serviceConfig
@@ -45,10 +37,6 @@ class BoshFacadeSpec extends Specification {
     TemplateConfig templateConfig
 
     void setup() {
-        openstackClient = Mock(OpenStackClient)
-        openStackClientFactory = Mock(OpenStackClientFactory)
-        openStackClientFactory.createOpenStackClient(*_) >> openstackClient
-        and:
         boshClient = Mock(BoshClient)
         boshClientFactory = Mock(BoshClientFactory)
         boshClientFactory.build(*_) >> boshClient
@@ -60,7 +48,7 @@ class BoshFacadeSpec extends Specification {
         boshTemplate = Mock(BoshTemplate)
         boshTemplateFactory = Mock(BoshTemplateFactory) { build(_) >> boshTemplate }
         and:
-        boshFacade = new BoshFacade(boshClientFactory, openStackClientFactory, serviceConfig, boshTemplateFactory, templateConfig)
+        boshFacade = new BoshFacade(boshClientFactory, serviceConfig, boshTemplateFactory, templateConfig)
     }
 
     def "host name creation works correctly"() {
@@ -71,60 +59,10 @@ class BoshFacadeSpec extends Specification {
         result.contains("guid-0${BoshFacade.HOST_NAME_POSTFIX}")
     }
 
-    def "creating OpenStack server group works correctly"() {
-        given:
-        def groupName = 'groupName'
-        1 * openstackClient.createAntiAffinityServerGroup(groupName) >> new DummyServerGroup(id: serverGroupId)
-        expect:
-        boshFacade.createOpenStackServerGroup(groupName) == serverGroupId
-    }
-
-
-    def "happy path: addOrUpdateVm"() {
-        given:
-        def id = 'id'
-        def vmType = 'vmType'
-        def serverGroupId = 'serverGroupId'
-        def context = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: id),
-                plan: new Plan(parameters: [new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: vmType)]),
-                serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
-        when:
-        boshFacade.addOrUpdateVmInBoshCloudConfig(context)
-        then:
-        1 * boshClient.addOrUpdateVmInCloudConfig(id, vmType, serverGroupId)
-    }
-
-    def "findServerGroupId works for service instance with existing detail"() {
-        given:
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
-        expect:
-        serverGroupId == boshFacade.findServerGroupId(context).get()
-    }
-
-    def "findServerGroupId  queries the OpenStack endpoint to find the group id"() {
-        given:
-        def guid = 'guid'
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(guid: guid))
-        and:
-        1 * openstackClient.findServerGroup(context.serviceInstance.guid) >> Optional.of(new DummyServerGroup(id: serverGroupId))
-        expect:
-        serverGroupId == boshFacade.findServerGroupId(context).get()
-    }
-
-    def "findServerGroupId returns empty optional when group id can't be found"() {
-        given:
-        def guid = 'guid'
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(guid: guid))
-        and:
-        1 * openstackClient.findServerGroup(context.serviceInstance.guid) >> Optional.absent()
-        expect:
-        !boshFacade.findServerGroupId(context).present
-    }
-
     def "templating from file is handled correctly"() {
         given:
         def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: '/bosh/template_mongodbent_v5.yml',
-                parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
+                parameters: [new Parameter(name: 'name1', value: 'value1')]))
         def customizer = Mock(BoshTemplateCustomizer)
         and:
         def boshUuid = 'boshUuid'
@@ -148,7 +86,7 @@ class BoshFacadeSpec extends Specification {
     def "templating from config is handled correctly"() {
         given:
         def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: 'test',
-                parameters: [new Parameter(name: 'name1', value: 'value1'),new Parameter(name: BoshFacade.PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE, value: 'small')]))
+                parameters: [new Parameter(name: 'name1', value: 'value1')]))
         def customizer = Mock(BoshTemplateCustomizer)
         and:
         def boshUuid = 'boshUuid'
@@ -258,59 +196,5 @@ class BoshFacadeSpec extends Specification {
 
         expect:
         boshFacade.deleteBoshDeploymentIfExists(context) == taskId
-    }
-
-    def "removing vm in cloud config functions correctly"() {
-        given:
-        def context = new LastOperationJobContext(deprovisionRequest: new DeprovisionRequest(serviceInstanceGuid: 'serviceInstanceGuid'))
-
-        when:
-        boshFacade.removeVmInBoshCloudConfig(context)
-
-        then:
-        1 * boshClient.removeVmInCloudConfig(context.deprovisionRequest.serviceInstanceGuid)
-    }
-
-    def "delete existing OpenStack group"() {
-        given:
-        def context = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: [ServiceDetail.from(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID, serverGroupId)]))
-
-        when:
-        boshFacade.deleteOpenStackServerGroupIfExists(context)
-
-        then:
-        1 * openstackClient.deleteServerGroup(serverGroupId)
-    }
-
-    def "should *NOT* create OpenStack server group by default"() {
-        given:
-        def context = new LastOperationJobContext()
-
-        expect:
-        !boshFacade.shouldCreateOpenStackServerGroup(context)
-    }
-
-    def "should create OpenStack server group based on plan parameter"() {
-        given:
-        def context = new LastOperationJobContext(plan: new Plan(parameters: [new Parameter(name: BoshFacade.PLAN_PARAMETER_CREATE_OPEN_STACK_SERVER_GROUP, value: paramValue)]))
-
-        expect:
-        result == boshFacade.shouldCreateOpenStackServerGroup(context)
-
-        where:
-        paramValue | result
-        "True"     | true
-        "true"     | true
-        ""         | false
-        "false"    | false
-        "False"    | false
-    }
-
-    private static class DummyServerGroup implements ServerGroup {
-        String id
-        String name
-        List<String> members
-        Map<String, String> metadata
-        List<String> policies
     }
 }
