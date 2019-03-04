@@ -19,18 +19,22 @@ import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.credhub.configuration.ClientHttpRequestFactoryFactory
-import org.springframework.credhub.core.OAuth2CredHubTemplate
-import org.springframework.credhub.support.ClientOptions
+import org.springframework.credhub.core.CredHubTemplate
+import org.springframework.http.client.ClientHttpRequestFactory
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.stereotype.Component
 
 @Component
 @ConditionalOnProperty(name = "com.swisscom.cloud.sb.broker.bosh.credhub.enable", havingValue = "true")
-class BoshCredHubTemplate extends OAuth2CredHubTemplate {
+class BoshCredHubTemplate extends CredHubTemplate {
 
     @Autowired
-    BoshCredHubTemplate(BoshCredHubConfig config) {
-        super(config.oauth2_resourceowner, config.url, new ClientHttpRequestFactoryFactory().create(new ClientOptions()))
+    BoshCredHubTemplate(BoshCredHubConfig config,
+                        ClientHttpRequestFactory clientHttpRequestFactory,
+                        ClientRegistrationRepository clientRegistrationRepository,
+                        OAuth2AuthorizedClientService authorizedClientService) {
+        super(config, clientHttpRequestFactory, clientRegistrationRepository, authorizedClientService)
     }
 
     CredHubService buildCredHubService() {

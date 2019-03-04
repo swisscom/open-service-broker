@@ -34,7 +34,6 @@ import org.springframework.credhub.configuration.OAuth2CredHubTemplateFactory
 import org.springframework.credhub.core.CredHubOperations
 import org.springframework.credhub.core.CredHubProperties
 import org.springframework.credhub.core.CredHubTemplate
-import org.springframework.security.oauth2.client.OAuth2RestTemplate
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails
 
 /**
