@@ -13,9 +13,6 @@ spring:
     username: root
     password:
 
-  credhub:
-    enable:
-
 com.swisscom.cloud.sb.broker.credhub:
   keyLength: LENGTH_2048
   commonName:

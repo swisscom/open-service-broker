@@ -16,7 +16,6 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.swisscom.cloud.sb.broker.services.credhub.CertificateConfig
-import com.swisscom.cloud.sb.broker.services.credhub.CredHubConfig
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration

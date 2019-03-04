@@ -19,8 +19,9 @@ import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.credhub.configuration.ClientHttpRequestFactoryFactory
 import org.springframework.credhub.core.CredHubTemplate
-import org.springframework.http.client.ClientHttpRequestFactory
+import org.springframework.credhub.support.ClientOptions
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.stereotype.Component
@@ -31,10 +32,10 @@ class BoshCredHubTemplate extends CredHubTemplate {
 
     @Autowired
     BoshCredHubTemplate(BoshCredHubConfig config,
-                        ClientHttpRequestFactory clientHttpRequestFactory,
+                        ClientOptions clientOptions,
                         ClientRegistrationRepository clientRegistrationRepository,
                         OAuth2AuthorizedClientService authorizedClientService) {
-        super(config, clientHttpRequestFactory, clientRegistrationRepository, authorizedClientService)
+        super(config, ClientHttpRequestFactoryFactory.create(clientOptions), clientRegistrationRepository, authorizedClientService)
     }
 
     CredHubService buildCredHubService() {

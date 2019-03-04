@@ -274,7 +274,7 @@ class ServiceLifeCycler {
                 .planId(planGuid)
                 .serviceInstanceId(serviceInstanceId)
                 .context(context)
-                .parameters(parameters)
+                .parameters(parameters ?: new HashMap<String, Object>())
                 .asyncAccepted(async)
                 .build()
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
