@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.client
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.client.dummybroker.Application
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
@@ -24,10 +25,12 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.springframework.boot.SpringApplication
-import com.swisscom.cloud.sb.client.model.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
-import org.springframework.cloud.servicebroker.model.catalog.*
+import org.springframework.cloud.servicebroker.model.catalog.Catalog
+import org.springframework.cloud.servicebroker.model.catalog.Plan
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -49,7 +52,8 @@ class ServiceBrokerClientTest {
     static void setup(){
         SpringApplication.run(Application.class)
         serviceBrokerClient = new ServiceBrokerClient('http://localhost:8080','user','password')
-        Catalog catalog = new ObjectMapper().readValue(new File(this.getClass().getResource('/demo-service-definition.json').getFile()).text, Catalog.class)
+        def om = new ObjectMapper()
+        Catalog catalog = om.readValue(new File(this.getClass().getResource('/demo-service-definition.json').getFile()).text, Catalog.class)
         serviceDefinition = catalog.serviceDefinitions.first()
         plan = serviceDefinition.plans.first()
     }
@@ -57,8 +61,13 @@ class ServiceBrokerClientTest {
     @Test
     void wrongPasswordCauses401(){
         exception.expect(HttpClientErrorException.class)
-        exception.expectMessage("401");
-        new ServiceBrokerClient('http://localhost:8080','user','WrongPassword').getCatalog()
+        exception.expectMessage("401")
+
+        try{
+            new ServiceBrokerClient('http://localhost:8080','user','WrongPassword').getCatalog()
+        } catch (Exception e) {
+            throw e
+        }
     }
 
     @Test
@@ -75,7 +84,7 @@ class ServiceBrokerClientTest {
                 .serviceInstanceId(serviceInstanceId)
                 .build()
 
-        CreateServiceInstanceResponse result = serviceBrokerClient.createServiceInstance(request).body
+        def result = serviceBrokerClient.createServiceInstance(request).body
         Assert.notNull(result)
     }
 
@@ -88,9 +97,14 @@ class ServiceBrokerClientTest {
 
     @Test
     void createServiceInstanceBinding(){
-        def request = new CreateServiceInstanceBindingRequest(serviceDefinition.id,plan.id,'appGuid',null)
-        request.serviceInstanceId = serviceInstanceId
-        request.bindingId = bindingId
+        def request = CreateServiceInstanceBindingRequest.builder()
+                .serviceDefinitionId(serviceDefinition.id)
+                .planId(plan.id)
+                .serviceInstanceId(serviceInstanceId)
+                .bindingId(bindingId)
+                .bindResource(BindResource.builder().appGuid("appGuid").build())
+                .build()
+
         CreateServiceInstanceAppBindingResponse result = serviceBrokerClient.createServiceInstanceBinding(request).body
         Assert.notNull(result)
     }
