@@ -171,7 +171,8 @@ class CredHubServiceImpl implements CredHubService {
             c()
         } catch (CredHubException ex) {
             // Currently CredHubExceptions can not be differentiated, workaround with message parsing
-            if (ex.getMessage() =~ /^Error calling CredHub: 404/) {
+            def exMessage = ex.getMessage()
+            if (ex.getMessage() =~ /404/) {
                 log.info("CredHubException, ignoring 404 error.")
             } else {
                 throw ex
