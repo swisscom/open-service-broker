@@ -47,7 +47,7 @@ class ServiceBrokerClientExtendedTest {
     @Test
     void getUsage(){
         //Given
-        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo("${baseUrl}/custom/service_instances/${serviceInstanceId}/usage"))
+        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo("/${baseUrl}/custom/service_instances/${serviceInstanceId}/usage"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withStatus(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
