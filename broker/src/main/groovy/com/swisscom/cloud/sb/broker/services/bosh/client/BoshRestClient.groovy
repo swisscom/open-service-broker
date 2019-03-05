@@ -23,6 +23,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
+import org.apache.http.client.utils.URIBuilder
 import org.springframework.http.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -37,8 +38,10 @@ class BoshRestClient {
     public static final String INFO = '/info'
     public static final String TASKS = '/tasks'
     public static final String DEPLOYMENTS = '/deployments'
+    public static final String CONFIGS = '/configs'
     public static final String OAUTH_TOKEN = '/oauth/token'
     public static final String CONTENT_TYPE_YAML = "text/yaml"
+    public static final String CONTENT_TYPE_JSON = "application/json"
 
     private final BoshConfig boshConfig
     private final RestTemplateBuilder restTemplateBuilder
@@ -130,6 +133,30 @@ class BoshRestClient {
 
     BoshConfig getBoshConfig() {
         return boshConfig
+    }
+
+    void postConfig(String config) {
+        log.debug("Posting new config: \n${config}")
+        HttpHeaders headers = createAuthHeaders()
+        headers.add('Content-Type', CONTENT_TYPE_JSON)
+        HttpEntity<String> request = new HttpEntity<>(config, headers)
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS), HttpMethod.POST, request, String.class)
+    }
+
+    void deleteConfig(String name, String type) {
+        createRestTemplate().exchange(prependBaseUrl("${CONFIGS}?name=${name}&type=${type}"), HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
+    }
+
+    String getConfigs(String name, String type) {
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS + setFilter(name, type)), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
+    }
+
+    private String setFilter(String name, String type) {
+        URIBuilder uriBuilder = new URIBuilder()
+        uriBuilder.setParameter('latest', 'true')
+        if (name != null) uriBuilder.setParameter('name', name)
+        if (type != null) uriBuilder.setParameter('type', type)
+        uriBuilder.toString()
     }
 
     private RestTemplate createRestTemplate() {

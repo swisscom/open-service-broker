@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
+import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
 import com.swisscom.cloud.sb.broker.util.Resource
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -99,5 +100,25 @@ class BoshClientSpec extends Specification {
 
         then:
         result
+    }
+
+    def "happy path:SetConfig"() {
+        given:
+        def cloudConfig = Resource.readTestFileContent("/bosh/cloud_config.yml")
+        ConfigRequestDto configRequestDto = new ConfigRequestDto(name: 'test', type: 'cloud', content: cloudConfig)
+        when:
+        client.setConfig(configRequestDto)
+        then:
+        1 * client.boshRestClient.postConfig(configRequestDto.toJson())
+    }
+
+    def "happy path:DeleteConfig"() {
+        given:
+        String name = 'test'
+        String type = 'cloud'
+        when:
+        client.deleteConfig(name, type)
+        then:
+        1 * client.boshRestClient.deleteConfig(name, type)
     }
 }
