@@ -54,9 +54,6 @@ class MongoDbEnterpriseConfig extends AsyncServiceConfigImpl implements BoshBase
                 "com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__retryIntervalInSeconds=" + this.retryIntervalInSeconds +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__maxRetryDurationInMinutes=" + this.maxRetryDurationInMinutes +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__portRange='" + this.portRange + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackkUrl='" + this.openstackkUrl + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackUsername='" + this.openstackUsername + '\'' +
-                ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__openstackTenantName='" + this.openstackTenantName + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshBasedServiceConfig__boshManifestFolder='" + this.boshManifestFolder + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorBaseUrl='" + this.boshDirectorBaseUrl + '\'' +
                 ", com_swisscom_cloud_sb_broker_services_bosh_BoshConfig__boshDirectorUsername='" + this.boshDirectorUsername + '\'' +
@@ -85,6 +82,6 @@ class MongoDbEnterpriseConfig extends AsyncServiceConfigImpl implements BoshBase
                 ", maxRetryDurationInMinutes=" + maxRetryDurationInMinutes +
                 ", backupConfigRetryInMilliseconds=" + backupConfigRetryInMilliseconds +
                 ", advancedBinding=" + advancedBinding +
-                '}';
+                '}'
     }
 }

@@ -42,20 +42,6 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
             return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext))
         }
-    }),
-    UPDATE_BOSH_CLOUD_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
-        @Override
-        StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            context.boshFacade.removeVmInBoshCloudConfig(context.lastOperationJobContext)
-            return new StateChangeActionResult(go2NextState: true)
-        }
-    }),
-    DELETE_OPEN_STACK_SERVER_GROUP(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
-        @Override
-        StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            context.boshFacade.deleteOpenStackServerGroupIfExists(context.lastOperationJobContext)
-            return new StateChangeActionResult(go2NextState: true)
-        }
     })
 
     final LastOperation.Status status

@@ -15,9 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
-
 
 class DummyConfig extends AsyncServiceConfigImpl implements BoshBasedServiceConfig {
 }

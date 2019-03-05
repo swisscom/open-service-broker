@@ -156,10 +156,6 @@ com.swisscom.cloud.sb.broker.service.mongodbent:
   boshDirectorBaseUrl: 'https://localhost:25556'
   boshDirectorUsername:
   boshDirectorPassword:
-  openstackkUrl: 'https://localhost:5000/v2.0' #Optional config
-  openstackUsername: #Optional config
-  openstackPassword: #Optional config
-  openstackTenantName: #Optional config
   boshManifestFolder: 'test/resources/bosh'
 
 com.swisscom.cloud.sb.broker.service.kubernetes:

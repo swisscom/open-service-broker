@@ -24,7 +24,7 @@ class BoshClientFactorySpec extends Specification {
     BoshClientFactory boshClientFactory
 
     def setup() {
-        boshClientFactory = new BoshClientFactory(Stub(RestTemplateBuilder), Stub(MutexFactory))
+        boshClientFactory = new BoshClientFactory(Stub(RestTemplateBuilder))
     }
 
     def "happy path:build bosh client"() {
@@ -33,7 +33,6 @@ class BoshClientFactorySpec extends Specification {
         when:
         BoshClient client = boshClientFactory.build(config)
         then:
-        client.mutexFactory == boshClientFactory.mutexFactory
         client.boshConfig == config
     }
 }

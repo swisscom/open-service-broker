@@ -19,7 +19,6 @@ import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -27,8 +26,6 @@ import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClient
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.openstack.OpenStackClientFactory
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
@@ -38,70 +35,26 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 @Slf4j
 class BoshFacade {
-    public static final String PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE = 'vm_instance_type'
-    public static final String PLAN_PARAMETER_CREATE_OPEN_STACK_SERVER_GROUP = 'create_openstack_server_group'
-
     public static final String DEPLOYMENT_PREFIX = 'd-'
     public static final String HOST_NAME_POSTFIX = '.service.consul'
     public static final String PARAM_BOSH_DIRECTOR_UUID = "bosh-director-uuid"
     public static final String PARAM_PREFIX = 'prefix'
     public static final String PARAM_GUID = 'guid'
-    public static final String PARAM_VM_TYPE = 'vm-type'
-
 
     private final BoshClientFactory boshClientFactory
-    private final OpenStackClientFactory openStackClientFactory
     private final BoshBasedServiceConfig serviceConfig
     private final BoshTemplateFactory boshTemplateFactory
     private final TemplateConfig templateConfig
 
-    BoshFacade(BoshClientFactory boshClientFactory, OpenStackClientFactory openStackClientFactory, BoshBasedServiceConfig serviceConfig, BoshTemplateFactory boshTemplateFactory, TemplateConfig templateConfig) {
+    BoshFacade(BoshClientFactory boshClientFactory, BoshBasedServiceConfig serviceConfig, BoshTemplateFactory boshTemplateFactory, TemplateConfig templateConfig) {
         this.boshClientFactory = boshClientFactory
-        this.openStackClientFactory = openStackClientFactory
         this.serviceConfig = serviceConfig
         this.boshTemplateFactory = boshTemplateFactory
         this.templateConfig = templateConfig
     }
 
-    String createOpenStackServerGroup(String name) {
-        return createOpenstackClient().createAntiAffinityServerGroup(name).id
-    }
-
-    private OpenStackClient createOpenstackClient() {
-        return openStackClientFactory.createOpenStackClient(serviceConfig.openstackkUrl,
-                serviceConfig.openstackUsername, serviceConfig.openstackPassword, serviceConfig.openstackTenantName)
-    }
-
-    def addOrUpdateVmInBoshCloudConfig(LastOperationJobContext context) {
-        createBoshClient().addOrUpdateVmInCloudConfig(context.provisionRequest.serviceInstanceGuid, findBoshVmInstanceType(context.plan), findServerGroupId(context).get())
-    }
-
-    @VisibleForTesting
-    private Optional<String> findServerGroupId(LastOperationJobContext context) {
-        Optional<String> maybeGroupId = ServiceDetailsHelper.from(context.serviceInstance.details).findValue(BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID)
-        if (maybeGroupId.present) {
-            return maybeGroupId
-        } else {
-            def maybeServerGroup = createOpenstackClient().findServerGroup(context.serviceInstance.guid)
-            if (maybeServerGroup.present) {
-                return Optional.of(maybeServerGroup.get().id)
-            } else {
-                log.warn("ServerGroup Id not found for serviceInstance:${context.serviceInstance.guid}")
-                return Optional.absent()
-            }
-        }
-    }
-
     private static String findBoshTaskIdForDeploy(LastOperationJobContext context) {
         return ServiceDetailsHelper.from(context.serviceInstance.details).getValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_DEPLOY)
-    }
-
-    private static String findBoshVmInstanceType(Plan plan) {
-        def instanceTypeParam = plan.parameters.find { it.name == PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE }
-        if (!instanceTypeParam) {
-            throw new RuntimeException("Missing plan paramemter:${PLAN_PARAMETER_BOSH_VM_INSTANCE_TYPE}")
-        }
-        return instanceTypeParam.value
     }
 
     Collection<ServiceDetail> handleTemplatingAndCreateDeployment(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
@@ -115,7 +68,6 @@ class BoshFacade {
         template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
         template.replace(PARAM_BOSH_DIRECTOR_UUID, createBoshClient().fetchBoshInfo().uuid)
-        template.replace(BoshFacade.PARAM_VM_TYPE, shouldCreateOpenStackServerGroup(provisionRequest.plan)?provisionRequest.serviceInstanceGuid:findBoshVmInstanceType(provisionRequest.plan))
 
         updateTemplateFromDatabaseConfiguration(template, provisionRequest)
 
@@ -201,21 +153,6 @@ class BoshFacade {
         return createBoshClient().deleteDeploymentIfExists(id)
     }
 
-    void removeVmInBoshCloudConfig(LastOperationJobContext context) {
-        createBoshClient().removeVmInCloudConfig(context.deprovisionRequest.serviceInstanceGuid)
-    }
-
-    void deleteOpenStackServerGroupIfExists(LastOperationJobContext context) {
-        def maybeServerGroupId = findServerGroupId(context)
-        if (maybeServerGroupId.present) {
-            deleteOpenStackServerGroup(maybeServerGroupId.get())
-        }
-    }
-
-    private void deleteOpenStackServerGroup(String serverGroupId) {
-        createOpenstackClient().deleteServerGroup(serverGroupId)
-    }
-
     boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
         Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
         if(maybe.present){
@@ -225,24 +162,8 @@ class BoshFacade {
         }
     }
 
-    boolean shouldCreateOpenStackServerGroup(LastOperationJobContext context) {
-        return shouldCreateOpenStackServerGroup(context.plan)
-    }
-
-    boolean shouldCreateOpenStackServerGroup(Plan plan) {
-        def param = plan?.parameters?.find { it.name == PLAN_PARAMETER_CREATE_OPEN_STACK_SERVER_GROUP }
-        if(!param){
-            return false
-        }
-        return param.value.toBoolean()
-    }
-
     BoshClientFactory getBoshClientFactory() {
         return boshClientFactory
-    }
-
-    OpenStackClientFactory getOpenStackClientFactory() {
-        return openStackClientFactory
     }
 
     BoshBasedServiceConfig getServiceConfig() {

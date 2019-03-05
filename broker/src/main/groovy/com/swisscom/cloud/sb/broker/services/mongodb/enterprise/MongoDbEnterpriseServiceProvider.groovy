@@ -175,7 +175,7 @@ class MongoDbEnterpriseServiceProvider
     @VisibleForTesting
     private StateMachine createProvisionStateMachine(LastOperationJobContext context) {
         StateMachine stateMachine = new StateMachine([CREATE_OPS_MANAGER_GROUP])
-        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow(getBoshFacade().shouldCreateOpenStackServerGroup(context)))
+        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createProvisioningStateFlow())
         stateMachine.addAll([CHECK_AGENTS, REQUEST_AUTOMATION_UPDATE, CHECK_AUTOMATION_UPDATE_STATUS, DELETE_DEFAULT_ALERTS, ENABLE_BACKUP_IF_CONFIGURED, PROVISION_SUCCESS])
         return stateMachine
     }
@@ -205,7 +205,7 @@ class MongoDbEnterpriseServiceProvider
                                                       MongoDbEnterpriseDeprovisionState.UPDATE_AUTOMATION_CONFIG,
                                                       MongoDbEnterpriseDeprovisionState.CHECK_AUTOMATION_CONFIG_STATE,
                                                       MongoDbEnterpriseDeprovisionState.DELETE_HOSTS_ON_OPS_MANAGER])
-        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createDeprovisioningStateFlow(getBoshFacade().shouldCreateOpenStackServerGroup(context)))
+        stateMachine.addAllFromStateMachine(BoshStateMachineFactory.createDeprovisioningStateFlow())
         stateMachine.addAll([MongoDbEnterpriseDeprovisionState.CLEAN_UP_GROUP, MongoDbEnterpriseDeprovisionState.DEPROVISION_SUCCESS])
     }
 

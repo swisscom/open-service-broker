@@ -19,7 +19,6 @@ import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
-import com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
 import spock.lang.Specification
 
@@ -29,31 +28,6 @@ class BoshProvisionStateSpec extends Specification {
     def setup(){
         context = new BoshStateMachineContext()
         context.boshFacade = Mock(BoshFacade)
-    }
-
-    def "CREATE_OPEN_STACK_SERVER_GROUP"(){
-        given:
-        def openStackGroupId = 'openStackGroupId'
-        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
-        and:
-        1 * context.boshFacade.createOpenStackServerGroup('guid') >> openStackGroupId
-        when:
-        def result = BoshProvisionState.CREATE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
-        then:
-        result.go2NextState
-        result.details.find({it.key ==  BoshServiceDetailKey.CLOUD_PROVIDER_SERVER_GROUP_ID.key}).value == openStackGroupId
-    }
-
-    def "UPDATE_BOSH_CLOUD_CONFIG"(){
-        given:
-        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
-        and:
-        1 * context.boshFacade.addOrUpdateVmInBoshCloudConfig(context.lastOperationJobContext)
-        when:
-        def result = BoshProvisionState.UPDATE_BOSH_CLOUD_CONFIG.triggerAction(context)
-        then:
-        result.go2NextState
-        !result.details
     }
 
     def "CREATE_DEPLOYMENT"(){

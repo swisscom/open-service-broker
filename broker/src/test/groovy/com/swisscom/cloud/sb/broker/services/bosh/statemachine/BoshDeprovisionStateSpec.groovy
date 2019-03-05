@@ -72,28 +72,4 @@ class BoshDeprovisionStateSpec extends Specification {
         true | true
         false | false
     }
-
-    def "UPDATE_BOSH_CLOUD_CONFIG "(){
-        given:
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
-        and:
-        1 * context.boshFacade.removeVmInBoshCloudConfig(context.lastOperationJobContext)
-        when:
-        def result = BoshDeprovisionState.UPDATE_BOSH_CLOUD_CONFIG.triggerAction(context)
-        then:
-        result.go2NextState
-        !result.details
-    }
-
-    def "DELETE_OPEN_STACK_SERVER_GROUP"(){
-        given:
-        context.lastOperationJobContext = new LastOperationJobContext(serviceInstance: new ServiceInstance(details: []))
-        and:
-        1 * context.boshFacade.deleteOpenStackServerGroupIfExists(context.lastOperationJobContext)
-        when:
-        def result = BoshDeprovisionState.DELETE_OPEN_STACK_SERVER_GROUP.triggerAction(context)
-        then:
-        result.go2NextState
-        !result.details
-    }
 }

@@ -34,15 +34,11 @@ import static com.swisscom.cloud.sb.broker.util.HttpHelper.createSimpleAuthHeade
 @CompileStatic
 @Slf4j
 class BoshRestClient {
-
     public static final String INFO = '/info'
     public static final String TASKS = '/tasks'
     public static final String DEPLOYMENTS = '/deployments'
-    public static final String CLOUD_CONFIGS = '/cloud_configs'
     public static final String OAUTH_TOKEN = '/oauth/token'
-
     public static final String CONTENT_TYPE_YAML = "text/yaml"
-    public static final String CLOUD_CONFIG_QUERY = "?limit=1"
 
     private final BoshConfig boshConfig
     private final RestTemplateBuilder restTemplateBuilder
@@ -84,7 +80,11 @@ class BoshRestClient {
     @TypeChecked(TypeCheckingMode.SKIP)
     private String uaaLogin(String uaaBaseUrl) {
         def jsonSlurper = new JsonSlurper()
-        return jsonSlurper.parseText(createRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials", HttpMethod.GET, new HttpEntity(createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)), String.class).body).access_token
+        return jsonSlurper.parseText(createRestTemplate().exchange(uaaBaseUrl + OAUTH_TOKEN + "?grant_type=client_credentials",
+                HttpMethod.GET,
+                new HttpEntity(createSimpleAuthHeaders(boshConfig.boshDirectorUsername, boshConfig.boshDirectorPassword)),
+                String.class).body)
+                .access_token
     }
 
     String postDeployment(String data) {
@@ -115,20 +115,8 @@ class BoshRestClient {
         return handleRedirectonAndExtractTaskId(response)
     }
 
-    String fetchCloudConfig() {
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS + CLOUD_CONFIG_QUERY), HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
-    }
-
     String getAllVMsInDeployment(String id) {
         createRestTemplate().exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + '/vms', HttpMethod.GET, new HttpEntity<Object>(createAuthHeaders()), String.class).body
-    }
-
-    void postCloudConfig(String data) {
-        log.trace("Updating cloud config with: ${data}")
-        HttpHeaders headers = createAuthHeaders()
-        headers.add('Content-Type', CONTENT_TYPE_YAML)
-        HttpEntity<String> request = new HttpEntity<>(data, headers)
-        createRestTemplate().exchange(prependBaseUrl(CLOUD_CONFIGS), HttpMethod.POST, request, Void.class)
     }
 
     String getTask(String id) {
