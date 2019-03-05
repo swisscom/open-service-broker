@@ -15,6 +15,6 @@ repositories {
 
 dependencies {
     compile('org.codehaus.groovy:groovy:2.5.2')
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.9.7'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+    compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7')
+    compile('com.fasterxml.jackson.core:jackson-databind:2.9.7')
 }
