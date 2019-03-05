@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshVMDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -94,5 +95,13 @@ class BoshClient {
     BoshInfoDto fetchBoshInfo() {
         def result = boshRestClient.fetchBoshInfo()
         return new Gson().fromJson(result, BoshInfoDto)
+    }
+
+    void setConfig(ConfigRequestDto config) {
+        boshRestClient.postConfig(config.toJson())
+    }
+
+    void deleteConfig(String name, String type) {
+        boshRestClient.deleteConfig(name, type)
     }
 }

@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
+import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
 import com.swisscom.cloud.sb.broker.util.HttpHelper
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
@@ -156,6 +157,89 @@ class BoshRestClientSpec extends Specification {
         then:
         mockServer.verify()
         result == response
+    }
+
+    def "happy path: PostConfig"() {
+        given:
+        ConfigRequestDto configRequestDto = new ConfigRequestDto(name: 'test', type: 'cloud', content: '---')
+        and:
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS)))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(content().contentType(BoshRestClient.CONTENT_TYPE_JSON))
+                .andExpect(autHeader())
+                .andRespond(withStatus(HttpStatus.OK))
+
+        when:
+        boshRestClient.postConfig(configRequestDto.toJson())
+        then:
+        mockServer.verify()
+    }
+
+    def "happy path: DeleteConfig"() {
+        given:
+        String name = 'test'
+        String type = 'cloud'
+        and:
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS) + "?name=${name}&type=${type}"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(autHeader())
+                .andRespond(withStatus(HttpStatus.OK))
+
+        when:
+        boshRestClient.deleteConfig(name, type)
+        then:
+        mockServer.verify()
+    }
+
+    def "happy path: query correctly built with name and type set"() {
+        given:
+        String name = 'test'
+        String type = 'cloud'
+        when:
+        String filter = boshRestClient.setFilter(name, type)
+        then:
+        "?latest=true&name=${name}&type=${type}" == filter
+    }
+
+    def "happy path: query correctly built with name set"() {
+        given:
+        String name = 'test'
+        when:
+        String filter = boshRestClient.setFilter(name, null)
+        then:
+        "?latest=true&name=${name}" == filter
+    }
+
+    def "happy path: query correctly built with type set"() {
+        given:
+        String type = 'cloud'
+        when:
+        String filter = boshRestClient.setFilter(null, type)
+        then:
+        "?latest=true&type=${type}" == filter
+    }
+
+    def "happy path: query correctly built without any params"() {
+        when:
+        String filter = boshRestClient.setFilter(null, null)
+        then:
+        "?latest=true" == filter
+    }
+
+    def "happy path: GetConfigs"() {
+        given:
+        String name = 'test'
+        String type = 'cloud'
+        and:
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS) + "?latest=true&name=${name}&type=${type}"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(autHeader())
+                .andRespond(withStatus(HttpStatus.OK))
+
+        when:
+        def response = boshRestClient.getConfigs(name, type)
+        then:
+        mockServer.verify()
     }
 
     private RequestMatcher autHeader() {
