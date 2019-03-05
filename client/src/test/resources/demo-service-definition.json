@@ -5,7 +5,6 @@
     "description": "fake service",
     "tags": ["no-sql", "relational"],
     "requires": ["route_forwarding"],
-    "max_db_per_node": 5,
     "bindable": true,
     "metadata": {
       "provider": {
@@ -28,7 +27,6 @@
       "name": "fake-plan",
       "id": "d3031751-XXXX-XXXX-XXXX-a42377d3320e",
       "description": "Shared fake Server, 5tb persistent disk, 40 max concurrent connections",
-      "max_storage_tb": 5,
       "metadata": {
         "cost": 0,
         "bullets": [{
@@ -43,7 +41,6 @@
       "name": "fake-async-plan",
       "id": "0f4008b5-XXXX-XXXX-XXXX-dace631cd648",
       "description": "Shared fake Server, 5tb persistent disk, 40 max concurrent connections. 100 async",
-      "max_storage_tb": 5,
       "metadata": {
         "cost": 0,
         "bullets": [{
@@ -54,7 +51,6 @@
       "name": "fake-async-only-plan",
       "id": "8d415f6a-XXXX-XXXX-XXXX-e61f3baa1c77",
       "description": "Shared fake Server, 5tb persistent disk, 40 max concurrent connections. 100 async",
-      "max_storage_tb": 5,
       "metadata": {
         "cost": 0,
         "bullets": [{
