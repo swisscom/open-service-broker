@@ -16,36 +16,58 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigRequestDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigResponseDto
 import com.swisscom.cloud.sb.broker.util.DummyConfig
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
+import spock.lang.Stepwise
 
 @Ignore
+@Stepwise
 class BoshClientTest extends BaseSpecification {
     @Autowired
     BoshClientFactory boshClientFactory
+    BoshConfigRequestDto requestConfig
 
-    def "get & upload the same cloud config"() {
-        given:
-        def cloudConfig = createClient().fetchCloudConfig()
+    def setup() {
+        requestConfig = new BoshConfigRequestDto(name: 'boshClientTest', type: 'cloud', content: '--- {}')
+    }
+
+    def "upload cloud config"() {
         when:
-
-        createClient().updateCloudConfig(cloudConfig.properties)
+        createClient().setConfig(requestConfig)
         then:
         noExceptionThrown()
     }
 
-    def "add new vm"() {
+    def "get uploaded cloud config"() {
         when:
-        createClient().addOrUpdateVmInCloudConfig('test', 'mongoent.small', 'test')
+        BoshConfigResponseDto getConfig = createClient().getConfigs(requestConfig.name, requestConfig.type)[0]
+        then:
+        getConfig.name == requestConfig.name
+        getConfig.type == requestConfig.type
+        getConfig.content == requestConfig.content
+    }
+
+    def "delete cloud config"() {
+        when:
+        createClient().deleteConfig(requestConfig.name, requestConfig.type)
         then:
         noExceptionThrown()
+    }
+
+    def "get deleted cloud config"() {
+        when:
+        List<BoshConfigResponseDto> configs = createClient().getConfigs(requestConfig.name, requestConfig.type)
+        then:
+        configs.size() == 0
     }
 
     def createClient() {
-        return boshClientFactory.build(new DummyConfig(boshDirectorBaseUrl: "https://localhost:25555",
+        return boshClientFactory.build(new DummyConfig(boshDirectorBaseUrl: "https://192.168.50.6:25555",
                 boshDirectorUsername: "admin",
-                boshDirectorPassword: "admin"))
+                boshDirectorPassword: "jiuoqjhh9gt4c9rj5qky"))
     }
 
 }

@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
-import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigRequestDto
 import com.swisscom.cloud.sb.broker.util.Resource
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -46,7 +46,6 @@ class BoshClientSpec extends Specification {
         then:
         1 * client.boshRestClient.postDeployment(cloudConfig)
     }
-
 
     def "DeleteDeploymentIfExists handles exception when resource not found"() {
         given:
@@ -105,7 +104,7 @@ class BoshClientSpec extends Specification {
     def "happy path:SetConfig"() {
         given:
         def cloudConfig = Resource.readTestFileContent("/bosh/cloud_config.yml")
-        ConfigRequestDto configRequestDto = new ConfigRequestDto(name: 'test', type: 'cloud', content: cloudConfig)
+        BoshConfigRequestDto configRequestDto = new BoshConfigRequestDto(name: 'test', type: 'cloud', content: cloudConfig)
         when:
         client.setConfig(configRequestDto)
         then:
@@ -120,5 +119,22 @@ class BoshClientSpec extends Specification {
         client.deleteConfig(name, type)
         then:
         1 * client.boshRestClient.deleteConfig(name, type)
+    }
+
+    def "happy path:GetConfigs"() {
+        given:
+        String name = 'test'
+        String type = 'cloud'
+        1 * client.boshRestClient.getConfigs(name, type) >> """
+            [{"id": "23", "name": "${name}", "type": "${type}", "content": "--- {}", "created_at": "0000", "current": "true", "team": null}]"""
+
+        when:
+        def configs = client.getConfigs(name, type)
+
+        then:
+        noExceptionThrown()
+        configs[0].name == name
+        configs[0].type == type
+
     }
 }

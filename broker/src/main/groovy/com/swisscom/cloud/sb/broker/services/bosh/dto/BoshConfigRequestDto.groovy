@@ -16,22 +16,13 @@
 package com.swisscom.cloud.sb.broker.services.bosh.dto
 
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class ConfigResponseDto implements Serializable {
-    String id
+class BoshConfigRequestDto implements Serializable {
     String name
     String type
     String content
-    String createdAt
-    boolean deleted
-
-    ConfigResponseDto(String json) {
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        jsonSlurper.parseText(json) as ConfigResponseDto
-    }
 
     String toJson() {
         return JsonOutput.toJson(this)

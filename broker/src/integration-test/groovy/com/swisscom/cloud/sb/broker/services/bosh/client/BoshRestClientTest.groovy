@@ -46,9 +46,9 @@ class BoshRestClientTest extends BaseSpecification {
         noExceptionThrown()
     }
 
-    def "get cloud config"() {
+    def "get all cloud configs"() {
         when:
-        def cc = client.fetchCloudConfig()
+        def cc = client.getConfigs(null, 'cloud')
         then:
         noExceptionThrown()
     }
