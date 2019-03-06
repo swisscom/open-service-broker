@@ -128,6 +128,15 @@ class ProvisioningController extends BaseController {
         }
     }
 
+    private handleCloudFoundryLegacyContext(ProvisioningDto provisioningDto) {
+        if (!provisioningDto.context && (provisioningDto.organization_guid && provisioningDto.space_guid)) {
+            provisioningDto.context = CloudFoundryContext.builder()
+                    .organizationGuid(provisioningDto.organization_guid)
+                    .spaceGuid(provisioningDto.space_guid)
+                    .build()
+        }
+    }
+
     private ProvisionRequest createProvisionRequest(String serviceInstanceGuid, ProvisioningDto provisioning, boolean acceptsIncomplete, Principal principal) {
         getAndCheckService(provisioning.service_id)
 
@@ -138,13 +147,7 @@ class ProvisioningController extends BaseController {
         provisionRequest.parameters = serializeJson(provisioning.parameters)
         provisionRequest.applicationUser = principal.name
 
-        if (!provisioning.context && (provisioning.organization_guid && provisioning.space_guid)) {
-            provisioning.context = CloudFoundryContext.builder()
-                    .organizationGuid(provisioning.organization_guid)
-                    .spaceGuid(provisioning.space_guid)
-                    .build()
-        }
-
+        handleCloudFoundryLegacyContext(provisioning)
         provisionRequest.serviceContext = serviceContextService.findOrCreate(provisioning.context, serviceInstanceGuid)
 
         return provisionRequest

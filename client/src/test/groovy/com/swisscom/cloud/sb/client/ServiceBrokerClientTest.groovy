@@ -63,11 +63,7 @@ class ServiceBrokerClientTest {
         exception.expect(HttpClientErrorException.class)
         exception.expectMessage("401")
 
-        try{
-            new ServiceBrokerClient('http://localhost:8080','user','WrongPassword').getCatalog()
-        } catch (Exception e) {
-            throw e
-        }
+        new ServiceBrokerClient('http://localhost:8080','user','WrongPassword').getCatalog()
     }
 
     @Test
