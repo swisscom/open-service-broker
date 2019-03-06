@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.client.dummybroker.service
 import groovy.transform.CompileStatic
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
@@ -28,12 +29,14 @@ import org.springframework.stereotype.Service
 @CompileStatic
 class ServiceInstanceBindingService implements org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService {
     @Override
-    CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) throws ServiceInstanceBindingExistsException, ServiceBrokerException {
-        return null
+    CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
+            throws ServiceInstanceBindingExistsException, ServiceBrokerException {
+        return CreateServiceInstanceAppBindingResponse.builder().build()
     }
 
     @Override
-    DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) throws ServiceBrokerException {
-        return null
+    DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest)
+            throws ServiceBrokerException {
+        return DeleteServiceInstanceBindingResponse.builder().build()
     }
 }

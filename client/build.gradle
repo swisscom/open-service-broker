@@ -36,8 +36,10 @@ dependencies {
 	compile('org.springframework:spring-core:5.1.3.RELEASE')
 	compile('org.springframework:spring-web:5.1.3.RELEASE')
 	compile('org.springframework.boot:spring-boot-autoconfigure:2.1.1.RELEASE')
+	compile('org.springframework.boot:spring-boot-starter-security:2.1.1.RELEASE')
 	compile('org.springframework.cloud:spring-cloud-open-service-broker:2.1.1.RELEASE')
 	compile('org.springframework.cloud:spring-cloud-open-service-broker-core:2.1.1.RELEASE')
+
 	compile('org.springframework.cloud:spring-cloud-starter-open-service-broker-webmvc:2.1.0.RELEASE')
 
 	compile('commons-codec:commons-codec:1.11')
