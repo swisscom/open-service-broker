@@ -35,7 +35,7 @@ class CatalogService implements org.springframework.cloud.servicebroker.service.
 
     @Override
     Catalog getCatalog() {
-        return  catalog
+        return catalog
     }
 
     @Override
