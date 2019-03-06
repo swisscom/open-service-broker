@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.DummyConfig
-import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigRequestDto
 import com.swisscom.cloud.sb.broker.util.HttpHelper
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
@@ -161,7 +161,7 @@ class BoshRestClientSpec extends Specification {
 
     def "happy path: PostConfig"() {
         given:
-        ConfigRequestDto configRequestDto = new ConfigRequestDto(name: 'test', type: 'cloud', content: '---')
+        BoshConfigRequestDto configRequestDto = new BoshConfigRequestDto(name: 'test', type: 'cloud', content: '---')
         and:
         mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS)))
                 .andExpect(method(HttpMethod.POST))

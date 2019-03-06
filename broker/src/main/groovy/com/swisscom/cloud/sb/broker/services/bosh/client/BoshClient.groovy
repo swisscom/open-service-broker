@@ -21,13 +21,17 @@ import com.google.common.base.Strings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigResponseDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshVMDto
-import com.swisscom.cloud.sb.broker.services.bosh.dto.ConfigRequestDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigRequestDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.yaml.snakeyaml.Yaml
+
+import static groovy.json.JsonParserType.LAX as RELAX
 
 @Slf4j
 @CompileStatic
@@ -97,8 +101,12 @@ class BoshClient {
         return new Gson().fromJson(result, BoshInfoDto)
     }
 
-    void setConfig(ConfigRequestDto config) {
+    void setConfig(BoshConfigRequestDto config) {
         boshRestClient.postConfig(config.toJson())
+    }
+
+    List<BoshConfigResponseDto> getConfigs(String name, String type) {
+        new JsonSlurper().setType(RELAX).parseText(boshRestClient.getConfigs(name, type)) as List<BoshConfigResponseDto>
     }
 
     void deleteConfig(String name, String type) {

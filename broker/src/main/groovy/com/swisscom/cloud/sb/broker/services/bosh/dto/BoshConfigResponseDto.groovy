@@ -15,16 +15,15 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.dto
 
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class ConfigRequestDto implements Serializable {
+class BoshConfigResponseDto implements Serializable {
+    String id
     String name
     String type
     String content
-
-    String toJson() {
-        return JsonOutput.toJson(this)
-    }
+    String team
+    String created_at
+    boolean current
 }
