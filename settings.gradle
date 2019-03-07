@@ -1,4 +1,5 @@
+rootProject.name = 'open-service-broker'
+
 include 'client'
 include 'broker'
 include 'model'
-
