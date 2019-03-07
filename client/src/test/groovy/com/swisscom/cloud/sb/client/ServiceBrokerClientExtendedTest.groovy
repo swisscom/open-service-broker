@@ -35,7 +35,8 @@ class ServiceBrokerClientExtendedTest {
     private static String serviceInstanceId = '4ca9439a-b002-11e6-80f5-76304dec7eb7'
     private RestTemplate restTemplate
     private MockRestServiceServer mockRestServiceServer
-    private String baseUrl = 'baseUrl'
+    private String baseUrl = 'http://baseUrl'
+
     @Before
     void setup(){
         restTemplate = new RestTemplate()
@@ -47,7 +48,7 @@ class ServiceBrokerClientExtendedTest {
     @Test
     void getUsage(){
         //Given
-        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo("/${baseUrl}/custom/service_instances/${serviceInstanceId}/usage"))
+        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo("${baseUrl}/custom/service_instances/${serviceInstanceId}/usage"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withStatus(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)

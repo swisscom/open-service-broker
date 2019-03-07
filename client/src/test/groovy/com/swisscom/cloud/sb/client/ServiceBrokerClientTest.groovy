@@ -37,6 +37,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.Assert
 import org.springframework.web.client.HttpClientErrorException
 
+/**
+ * Verifies that we can use our client implementation to talk to a valid (spring boot) open service broker
+ * implementation. Checks that we use the correct paths and objects and that we are using basic authentication
+ * in the client correctly.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 class ServiceBrokerClientTest {
     private static ServiceBrokerClient serviceBrokerClient
