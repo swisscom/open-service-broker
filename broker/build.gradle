@@ -1,22 +1,12 @@
-buildscript {
-    ext {
-        springBootVersion = '2.1.1.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-        maven {
-            url "http://repo.spring.io/libs-milestone-local"
-        }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
-}
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
 
-plugins {
-    id "com.github.jk1.dependency-license-report" version "1.2"
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
-}
+bootJar.enabled = false
+jar.enabled = true
+
+ext['tomcat.version'] = '9.0.11'
+ext['flyway.version'] = '5.1.4'
+ext['groovy.version'] = '2.5.2'
 
 processResources {
     filesMatching(["*.properties", "**/application-info.yml"]) {
@@ -24,33 +14,9 @@ processResources {
     }
 }
 
-licenseReport {
-    renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
-}
-
-ext['tomcat.version'] = '9.0.11'
-ext['flyway.version'] = '5.1.4'
-ext['groovy.version'] = '2.5.2'
-
-apply plugin: "idea"
-apply plugin: "org.springframework.boot"
-apply plugin: "io.spring.dependency-management"
-
-jar {
-    enabled = true
-}
-
-bootJar {
-    enabled = false
-}
-
-repositories {
-    mavenCentral()
-}
-
 configurations {
-    all*.exclude group: 'org.slf4j', module:'log4j-over-slf4j'
-    all*.exclude group: 'ch.qos.logback', module:'logback-classic'
+    all*.exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
+    all*.exclude group: 'ch.qos.logback', module: 'logback-classic'
 }
 
 dependencies {

@@ -1,23 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'io.codearte.nexus-staging' version '0.11.0'
-}
-
-allprojects {
-    apply plugin: 'groovy'
-    apply plugin: 'idea'
-    apply plugin: 'jacoco'
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
-
-repositories {
-    mavenCentral()
+    id "com.github.jk1.dependency-license-report" version "1.2"
+    id "org.springframework.boot" version "2.1.1.RELEASE" apply false
 }
 
 // To handle travis requirement
@@ -36,13 +20,29 @@ nexusStaging {
 }
 
 def brokerVersion = version
-subprojects {
-    group = 'com.swisscom.cloud.sb'
-    version = brokerVersion
 
+
+allprojects {
+}
+
+subprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
     apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    group = 'com.swisscom.cloud.sb'
+    version = brokerVersion
     ext.isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
 
     task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
@@ -137,7 +137,7 @@ subprojects {
         reports {
             xml.enabled false
             csv.enabled false
-            html.destination "${buildDir}/jacocoHtml"
+            html.destination new File("${buildDir}/jacocoHtml")
         }
     }
 
@@ -153,4 +153,8 @@ subprojects {
             }
         }
     }
+}
+
+licenseReport {
+    renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
 }

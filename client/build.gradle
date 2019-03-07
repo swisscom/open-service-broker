@@ -1,33 +1,8 @@
-buildscript {
-	ext {
-		springBootVersion = '2.1.1.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
-}
-
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
+apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 
-repositories {
-	mavenCentral()
-	maven {
-		url "https://artifacts.alfresco.com/nexus/content/repositories/public/"
-	}
-}
-
-jar {
-	enabled = true
-}
-
-bootJar {
-	enabled = false
-}
+bootJar.enabled = false
+jar.enabled = true
 
 dependencies {
 	compile project(':model')
