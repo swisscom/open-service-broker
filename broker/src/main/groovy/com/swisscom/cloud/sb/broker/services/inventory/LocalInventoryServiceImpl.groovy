@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 
 @CompileStatic
 @Service
-@ConditionalOnMissingBean
+@ConditionalOnMissingBean(InventoryService.class)
 class LocalInventoryServiceImpl implements InventoryService {
 
     private final ServiceInstanceRepository serviceInstanceRepository

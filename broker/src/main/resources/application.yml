@@ -13,7 +13,32 @@ spring:
     username: root
     password:
 
+  credhub:
+    url:
+    oauth2.registration-id:
+    enable: false
+  security:
+    oauth2:
+      client:
+        registration:
+          credhub-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+          bosh-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token
+
 com.swisscom.cloud.sb.broker.credhub:
+  enable: false
+  url: https://localhost:9000
+  oauth2.registration-id: credhub-client
   keyLength: LENGTH_2048
   commonName:
   organization: ServiceBroker
@@ -28,6 +53,8 @@ com.swisscom.cloud.sb.broker.credhub:
 
 com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: false
+  url: https://localhost:9000
+  oauth2.registration-id: bosh-client
   keyLength: LENGTH_2048
   commonName:
   organization: ServiceBroker
