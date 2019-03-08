@@ -4,6 +4,9 @@ plugins {
     id "org.springframework.boot" version "2.1.1.RELEASE" apply false
 }
 
+// Dependency management
+apply from: "gradle/dependencies.gradle"
+
 // To handle travis requirement
 // https://stackoverflow.com/a/26104997
 def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""

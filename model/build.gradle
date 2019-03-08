@@ -1,6 +1,6 @@
 
 dependencies {
-    compile('org.codehaus.groovy:groovy:2.5.2')
-    compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7')
-    compile('com.fasterxml.jackson.core:jackson-databind:2.9.7')
+    compile libs.groovy
+    compile libs.jackson_dataformat_yaml
+    compile libs.jackson_databind
 }

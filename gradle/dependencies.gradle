@@ -1,0 +1,121 @@
+ext {
+    versions = [
+            groovy                             : '2.5.2',             // Main modules are written in Groovy
+            gpars                              : '1.2.1',             // Concurrency and parallelism in Groovy
+
+            spring_boot                        : '2.1.1.RELEASE',     // THE enterprise framework
+            spring_cloud                       : '2.1.0.RELEASE',
+            spring_cloud_cloudfoundry_connector: '2.0.4.RELEASE',
+            spring_framework                   : '5.1.3.RELEASE',
+            spring_retry                       : '1.2.4.RELEASE',     //FIXME Why not 5.1.3.RELEASE?
+
+            guava                              : '26.0-jre',          // THE java utilities library
+            commons_lang                       : '2.6',               // Basic extensions provided to JDK
+            commons_codec                      : '1.11',
+            quartz                             : '2.3.0',             // THE java scheduler of tasks
+            joda_time                          : '2.10', //FIXME Why using joda-time? Starting from java 8 we should be using java.time
+            bouncycastle                       : '1.46',              // For cryptography
+
+            flyway                             : '5.1.4',             // Database migration
+            mysql_connector_java               : '8.0.12',            // OSB uses a MySQL database
+
+            gson                               : '2.8.5',
+            httpclient                         : '4.5.6',             // THE java Http client
+            json_schema_validator              : '0.1.21',
+            jackson                            : '2.9.7',             // THE java serializer
+
+            slf4j                              : '1.7.25',            // THE logging API
+            log4j                              : '1.2.17',
+            log4j_to_slf4j                     : '2.7',
+            tomcat_juli                        : '9.0.11',
+
+            influxdb_java                      : '2.7',
+            micrometer_registry_influx         : '1.0.4',
+
+            springfox                          : '2.9.2',
+            swagger                            : '2.0.2',
+            passay                             : '1.3.1',
+
+            javax_el                           : '3.0.0',
+
+            junit                              : '4.12',             // Unit Testing
+            spock                              : '1.2-groovy-2.5',   // THE testing framework
+            cglib                              : '3.2.7',            // For mocking classes without default constructor
+
+    ]
+    libs = [
+            groovy                                         : "org.codehaus.groovy:groovy-all:${versions.groovy}",
+            groovy_dateutil                                : "org.codehaus.groovy:groovy-dateutil:${versions.groovy}",
+            gpars                                          : "org.codehaus.gpars:gpars:${versions.gpars}",
+
+            // Spring boot
+            spring_boot_starter_log4j2                     : "org.springframework.boot:spring-boot-starter-log4j2:${versions.spring_boot}",
+            spring_boot_starter_web                        : "org.springframework.boot:spring-boot-starter-web:${versions.spring_boot}",
+            spring_boot_starter_autoconfigure              : "org.springframework.boot:spring-boot-autoconfigure:${versions.spring_boot}",
+            spring_boot_starter_data_jpa                   : "org.springframework.boot:spring-boot-starter-data-jpa:${versions.spring_boot}",
+            spring_boot_starter_jdbc                       : "org.springframework.boot:spring-boot-starter-jdbc:${versions.spring_boot}",
+            spring_boot_starter_security                   : "org.springframework.boot:spring-boot-starter-security:${versions.spring_boot}",
+            spring_boot_starter_actuator                   : "org.springframework.boot:spring-boot-starter-actuator:${versions.spring_boot}",
+            spring_boot_starter_devtools                   : "org.springframework.boot:spring-boot-devtools:${versions.spring_boot}",
+            spring_boot_starter_webflux                    : "org.springframework.boot:spring-boot-starter-webflux:${versions.spring_boot}",
+            spring_boot_starter_tomcat                     : "org.springframework.boot:spring-boot-starter-tomcat:${versions.spring_boot}",
+
+            // Spring cloud
+            spring_cloud_open_service_broker_core          : "org.springframework.cloud:spring-cloud-open-service-broker-core:${versions.spring_boot}", //FIXME Why is using 2.1.1 instead of 2.1.0?
+            spring_cloud_open_service_broker               : "org.springframework.cloud:spring-cloud-open-service-broker:${versions.spring_boot}", //FIXME Why is using 2.1.1 instead of 2.1.0?
+            spring_cloud_starter_open_service_broker_webmvc: "org.springframework.cloud:spring-cloud-starter-open-service-broker-webmvc:${versions.spring_cloud}",
+            spring_cloud_starter_config                    : "org.springframework.cloud:spring-cloud-starter-config:${versions.spring_cloud}",
+            spring_cloud_cloudfoundry_connector            : "org.springframework.cloud:spring-cloud-cloudfoundry-connector:${versions.spring_cloud_cloudfoundry_connector}", //FIXME Why is using 2.0.4 instead of 2.1.0
+            spring_credhub_starter                         : "org.springframework.credhub:spring-credhub-starter:2.0.0.RELEASE", //FIXME Why 2.0.0.RELEASE?
+            // Spring framework
+            spring_core                                    : "org.springframework:spring-core:${versions.spring_framework}",
+            spring_web                                     : "org.springframework:spring-web:${versions.spring_framework}",
+            spring_context_support                         : "org.springframework:spring-context-support:${versions.spring_framework}",
+            spring_security_config                         : "org.springframework.security:spring-security-config:${versions.spring_framework}",
+            spring_security_oauth2_client                  : "org.springframework.security:spring-security-oauth2-client:${versions.spring_framework}",
+            spring_retry                                   : "org.springframework.retry:spring-retry:${versions.spring_retry}",
+
+            commons_lang                                   : "commons-lang:commons-lang:${versions.commons_lang}",
+            commons_codec                                  : "commons-codec:commons-codec:${versions.commons_codec}",
+            guava                                          : "com.google.guava:guava:${versions.guava}",
+            gson                                           : "com.google.code.gson:gson:${versions.gson}",
+            bouncycastle                                   : "org.bouncycastle:bcprov-jdk16:${versions.bouncycastle}", //FIXME What is the -jdk16? is there a bouncycastle for -jdk18?
+            quartz                                         : "org.quartz-scheduler:quartz:${versions.quartz}",
+            joda_time                                      : "joda-time:joda-time:${versions.joda_time}",
+
+            flyway                                         : "org.flywaydb:flyway-core:${versions.flyway}",
+            mysql_connector_java                           : "mysql:mysql-connector-java:${versions.mysql_connector_java}",
+
+            httpclient                                     : "org.apache.httpcomponents:httpclient:${versions.httpclient}",
+            springfox_swagger2                             : "io.springfox:springfox-swagger2:${versions.springfox}",
+            springfox_swagger_ui                           : "io.springfox:springfox-swagger-ui:${versions.springfox}",
+            swagger_parser                                 : "io.swagger.parser.v3:swagger-parser:${versions.swagger}",
+            passay                                         : "org.passay:passay:${versions.passay}",
+            json_schema_validator                          : "com.networknt:json-schema-validator:${versions.json_schema_validator}",
+            jackson_dataformat_yaml                        : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions.jackson}",
+            jackson_databind                               : "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}",
+
+            javax_el_api                                   : "javax.el:javax.el-api:${versions.javax_el}",
+            javax_el                                       : "org.glassfish:javax.el:${versions.javax_el}",
+
+            slf4j                                          : "org.slf4j:slf4j-api:${versions.slf4j}",
+            log4j                                          : "log4j:log4j:${versions.log4j}", //FIXME Umm, should not be a 2.x version?
+            log4j_to_slf4j                                 : "org.apache.logging.log4j:log4j-to-slf4j:${versions.log4j_to_slf4j}",
+            tomcat_juli                                    : "org.apache.tomcat:tomcat-juli:${versions.tomcat_juli}", //FIXME is this used? Why there is no juli_to_slf4j dependency?
+
+            influxdb_java                                  : "org.influxdb:influxdb-java:${versions.influxdb_java}",
+            micrometer_registry_influx                     : "io.micrometer:micrometer-registry-influx:${versions.micrometer_registry_influx}",
+
+
+            //Test
+            junit                                          : "junit:junit:${versions.junit}",
+            spock                                          : "org.spockframework:spock-core:${versions.spock}",
+            spock_spring                                   : "org.spockframework:spock-spring:${versions.spock}",
+            cglib                                          : "cglib:cglib-nodep:${versions.cglib}",
+            groovy_test                                    : "org.codehaus.groovy:groovy-test:${versions.groovy}",
+            spring_boot_starter_test                       : "org.springframework.boot:spring-boot-starter-test:${versions.spring_boot}"
+
+    ]
+
+
+}
