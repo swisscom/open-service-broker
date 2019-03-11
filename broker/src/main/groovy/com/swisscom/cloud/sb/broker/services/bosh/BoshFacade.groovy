@@ -24,6 +24,8 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigRequestDto
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigResponseDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.util.Resource
@@ -160,6 +162,18 @@ class BoshFacade {
         }else{
             return true
         }
+    }
+
+    void setConfig(String name, String type, String content) {
+        createBoshClient().setConfig(new BoshConfigRequestDto(name: name, type: type, content: content))
+    }
+
+    void deleteConfig(String name, String type) {
+        createBoshClient().deleteConfig(name, type)
+    }
+
+    List<BoshConfigResponseDto> getConfigs(String name, String type) {
+        createBoshClient().getConfigs(name, type)
     }
 
     BoshClientFactory getBoshClientFactory() {
