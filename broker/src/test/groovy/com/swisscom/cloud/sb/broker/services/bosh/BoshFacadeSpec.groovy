@@ -20,6 +20,7 @@ import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClientFactory
+import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshConfigResponseDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.BoshInfoDto
 import com.swisscom.cloud.sb.broker.services.bosh.dto.TaskDto
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
@@ -197,4 +198,33 @@ class BoshFacadeSpec extends Specification {
         expect:
         boshFacade.deleteBoshDeploymentIfExists(context) == taskId
     }
+
+    def "set cloud config"() {
+        when:
+        boshFacade.setConfig('test', 'cloud', '--- {}')
+
+        then:
+        1 * boshClient.setConfig(_)
+    }
+
+    def "get cloud config"() {
+        given:
+        1 * boshClient.getConfigs('test', 'cloud') >> [new BoshConfigResponseDto(name: 'test', type: 'cloud', content: '--- {}')]
+
+        when:
+        List<BoshConfigResponseDto> configs = boshFacade.getConfigs('test', 'cloud')
+
+        then:
+        configs.size() == 1
+        configs[0].name == 'test'
+    }
+
+    def "delete cloud config"() {
+        when:
+        boshFacade.deleteConfig('test', 'cloud')
+
+        then:
+        1 * boshClient.deleteConfig(_, _)
+    }
+
 }
