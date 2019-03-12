@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-
+- Add pre action hooks to AsyncServiceProvider (beforeProvision,beforeUpdate,beforeDeprovision)
+- Add inventory abstraction layer to access service instance related informations
+- Clean up and update gradle
 
 ## [6.0.2] - 2019-03-11
 - Make generic config management accessible through BoshFacade
@@ -19,7 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [5.3.6] - 2019-02-20
 - Improved MongoDB Enterprise binding reliability
-
 
 ## [5.3.5] - 2019-02-13
 - Bugfix `GetServiceDetailByKeyAndValue` for cases where the combination is not unique
