@@ -33,6 +33,9 @@ import java.time.LocalDateTime
 @Component
 @Slf4j
 class MetricsCache {
+
+    private static int DEFAULT_TIMEOUT_IN_SECONDS = 3600
+
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
     @Autowired
@@ -137,7 +140,11 @@ class MetricsCache {
     }
 
     private int getTimeoutInSeconds() {
-        Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
+        if (serviceBrokerMetricsConfig.step) {
+            return Integer.parseInt(serviceBrokerMetricsConfig.step.substring(0, serviceBrokerMetricsConfig.step.length()-1))
+        } else {
+            return DEFAULT_TIMEOUT_IN_SECONDS
+        }
     }
 
     private boolean hasExpired(LocalDateTime dateOflastRefresh) {
