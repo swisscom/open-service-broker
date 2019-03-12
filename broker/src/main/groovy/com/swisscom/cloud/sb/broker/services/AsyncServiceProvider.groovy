@@ -53,11 +53,11 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
     @Autowired
     protected EndpointLookup endpointLookup
 
-    protected void beforeProvision() { }
+    protected void beforeProvision(ProvisionRequest request) { }
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
-        beforeProvision()
+        beforeProvision(request)
 
         Utils.verifyAsychronousCapableClient(request)
 
@@ -68,22 +68,22 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
         return new ProvisionResponse(isAsync: true)
     }
 
-    protected void beforeDeprovision() { }
+    protected void beforeDeprovision(DeprovisionRequest request) { }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
-        beforeDeprovision()
+        beforeDeprovision(request)
 
         asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
                 serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
         return new DeprovisionResponse(isAsync: true)
     }
 
-    protected void beforeUpdate() { }
+    protected void beforeUpdate(UpdateRequest request) { }
 
     @Override
     UpdateResponse update(UpdateRequest request) {
-        beforeUpdate()
+        beforeUpdate(request)
 
         asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceUpdateJob.class, request, request.serviceInstanceGuid,
                 serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
