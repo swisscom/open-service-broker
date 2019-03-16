@@ -55,7 +55,9 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
-        return getServiceInstance(serviceInstanceGuid).details.collect { d -> Pair.of(d.key, d.value) }
+        return getServiceInstance(serviceInstanceGuid).details
+                .findAll { d -> d.key && d.value }
+                .collect { d -> Pair.of(d.key, d.value) }
     }
 
     @Override
