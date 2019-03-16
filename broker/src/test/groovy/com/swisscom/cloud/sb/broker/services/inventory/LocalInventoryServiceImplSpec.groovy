@@ -360,4 +360,24 @@ class LocalInventoryServiceImplSpec extends Specification {
         result != null
         result.size() == 0
     }
+
+    void "null values returns as not existing"() {
+        given:
+        def guid = UUID.randomUUID().toString()
+        def key = "key_001"
+        def value = "value_001"
+        def serviceInstance = new ServiceInstance(
+                guid: guid,
+                details: [ ServiceDetail.from("key_001", null) ]
+        )
+        serviceInstanceRepository.findByGuid(guid) >> serviceInstance
+
+        when:
+        def result = testee.get(guid)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.size() == 0
+    }
 }
