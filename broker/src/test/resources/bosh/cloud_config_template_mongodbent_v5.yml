@@ -1,0 +1,24 @@
+networks:
+  - name: {{guid}}
+    subnets:
+      - azs: [{{azs}}]
+        cloud_properties:
+          name: {{networkName}}
+        dns:
+          - {{dns}}
+        gateway: {{gatewayIp}}
+        range: {{networkCidr}}
+        reserved: [{{reserved}}]
+        static: []
+    type: manual
+vm_types:
+  - cloud_properties:
+      cpu: {{cpu}}
+      ram: {{ram}}
+      disk: {{ephemeralDiskSize}}
+      nsxt:
+        ns_groups: [{{nsGroup}}]
+    name: {{guid}}
+disk_types:
+  - disk_size: {{persistentDiskSize}}
+    name: {{guid}}

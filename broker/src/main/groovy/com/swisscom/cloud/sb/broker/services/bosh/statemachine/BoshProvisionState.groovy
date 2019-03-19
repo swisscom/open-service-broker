@@ -26,6 +26,13 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContext> {
+    CREATE_CONFIGS(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
+        @Override
+        StateChangeActionResult triggerAction(BoshStateMachineContext context) {
+            context.boshFacade.handleTemplatingAndCreateConfigs(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer)
+            new StateChangeActionResult(go2NextState: true)
+        }
+    }),
     CREATE_DEPLOYMENT(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {

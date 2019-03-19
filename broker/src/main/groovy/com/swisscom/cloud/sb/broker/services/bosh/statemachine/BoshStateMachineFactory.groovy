@@ -23,12 +23,14 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class BoshStateMachineFactory {
     static StateMachine createProvisioningStateFlow() {
-        new StateMachine([BoshProvisionState.CREATE_DEPLOYMENT,
+        new StateMachine([BoshProvisionState.CREATE_CONFIGS,
+                          BoshProvisionState.CREATE_DEPLOYMENT,
                           BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE])
     }
 
     static StateMachine createDeprovisioningStateFlow() {
-        new StateMachine([BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
+        new StateMachine([BoshDeprovisionState.DELETE_CONFIGS,
+                          BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
                           BoshDeprovisionState.CHECK_BOSH_UNDEPLOY_TASK_STATE])
     }
 }

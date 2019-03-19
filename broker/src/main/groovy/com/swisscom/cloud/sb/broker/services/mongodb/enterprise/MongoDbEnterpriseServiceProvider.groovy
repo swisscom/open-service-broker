@@ -110,6 +110,9 @@ class MongoDbEnterpriseServiceProvider
         return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
     }
 
+    @Override
+    void customizeBoshConfigTemplate(BoshTemplate template, String type, ProvisionRequest provisionRequest) {}
+
     @VisibleForTesting
     private String getMongoDbBinaryPath() {
         ((MongoDbEnterpriseConfig) serviceConfig).libFolder + '/bin/'
