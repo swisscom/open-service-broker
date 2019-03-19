@@ -44,7 +44,7 @@ class BoshFacadeSpec extends Specification {
         and:
         TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
         TemplateConfig.ServiceTemplate configST = new TemplateConfig.ServiceTemplate(name: "test-config", version: "1.0.0", templates: [new File('src/test/resources/bosh/cloud_config_template_mongodbent_v5.yml').text])
-        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, boshConfigs: [['templateIdentifier': 'test-config', 'type': 'cloud']])
+        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, boshConfigs: [['templateName': 'test-config', 'type': 'cloud']])
         templateConfig = new TemplateConfig(serviceTemplates: [st, configST])
         and:
         boshTemplate = Mock(BoshTemplate)

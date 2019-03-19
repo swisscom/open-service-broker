@@ -91,7 +91,7 @@ class BoshFacade {
 
     void handleTemplatingAndCreateConfigs(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
         for (config in serviceConfig.boshConfigs) {
-            BoshTemplate template = boshTemplateFactory.build(templateConfig.getTemplateForServiceKey(config.get('templateIdentifier')).first())
+            BoshTemplate template = boshTemplateFactory.build(templateConfig.getTemplateForServiceKey(config.get('templateName')).first())
             template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
             templateCustomizer.customizeBoshConfigTemplate(template, config.get('type'), provisionRequest)
             createBoshClient().setConfig(new BoshConfigRequestDto(name: provisionRequest.serviceInstanceGuid, type: config.get('type'), content: template.build()))
