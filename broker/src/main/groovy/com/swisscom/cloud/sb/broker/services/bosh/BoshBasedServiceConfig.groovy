@@ -22,4 +22,5 @@ trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
     String portRange
     String boshManifestFolder
     boolean shuffleAzs
+    List<Map<String, String>> boshConfigs
 }

@@ -89,6 +89,15 @@ class BoshFacade {
         return serviceDetails
     }
 
+    void handleTemplatingAndCreateConfigs(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
+        for (config in serviceConfig.boshConfigs) {
+            BoshTemplate template = boshTemplateFactory.build(templateConfig.getTemplateForServiceKey(config.get('templateName')).first())
+            template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
+            templateCustomizer.customizeBoshConfigTemplate(template, config.get('type'), provisionRequest)
+            createBoshClient().setConfig(new BoshConfigRequestDto(name: provisionRequest.serviceInstanceGuid, type: config.get('type'), content: template.build()))
+        }
+    }
+
     @VisibleForTesting
     private List<String> generateHostNames(String guid, int hostCount) {
         (List<String>) (0..<hostCount).inject([]) {
@@ -145,6 +154,10 @@ class BoshFacade {
 
     private static String findBoshDeploymentId(LastOperationJobContext context) {
         return ServiceDetailsHelper.from(context.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_DEPLOYMENT_ID).or(generateDeploymentId(context.serviceInstance.guid))
+    }
+
+    void deleteConfigsIfExists(LastOperationJobContext lastOperationJobContext) {
+        deleteConfig(lastOperationJobContext.serviceInstance.guid, null)
     }
 
     Optional<String> deleteBoshDeploymentIfExists(LastOperationJobContext lastOperationJobContext) {

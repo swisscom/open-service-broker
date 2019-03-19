@@ -43,8 +43,9 @@ class BoshFacadeSpec extends Specification {
         boshClientFactory.build(*_) >> boshClient
         and:
         TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
-        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1)
-        templateConfig = new TemplateConfig(serviceTemplates: [st])
+        TemplateConfig.ServiceTemplate configST = new TemplateConfig.ServiceTemplate(name: "test-config", version: "1.0.0", templates: [new File('src/test/resources/bosh/cloud_config_template_mongodbent_v5.yml').text])
+        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, boshConfigs: [['templateName': 'test-config', 'type': 'cloud']])
+        templateConfig = new TemplateConfig(serviceTemplates: [st, configST])
         and:
         boshTemplate = Mock(BoshTemplate)
         boshTemplateFactory = Mock(BoshTemplateFactory) { build(_) >> boshTemplate }
@@ -106,6 +107,22 @@ class BoshFacadeSpec extends Specification {
         1 * boshTemplate.replace('name1', 'value1')
         1 * boshTemplate.shuffleAzs()
         result.size() == 3
+    }
+
+    def "templating generic config from config is handled correctly"() {
+        given:
+        def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: 'test',
+                parameters: [new Parameter(name: 'name1', value: 'value1')]))
+        def customizer = Mock(BoshTemplateCustomizer)
+        and:
+        1 * customizer.customizeBoshConfigTemplate(boshTemplate, 'cloud', request) >> null
+        and:
+        1 * boshClient.setConfig(_) >> null
+        when:
+        boshFacade.handleTemplatingAndCreateConfigs(request, customizer)
+        then:
+        1 * boshTemplate.replace('guid', request.serviceInstanceGuid)
+        noExceptionThrown()
     }
 
     def "bosh Deploy task state checking is handled correctly for normal cases"() {
