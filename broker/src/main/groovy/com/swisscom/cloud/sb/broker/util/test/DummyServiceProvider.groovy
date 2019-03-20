@@ -33,12 +33,7 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceDeprovisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceProvisioner
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
-import com.swisscom.cloud.sb.broker.provisioning.job.DeprovisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceDeprovisioningJob
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceProvisioningJob
-import com.swisscom.cloud.sb.broker.provisioning.job.ServiceUpdateJob
-import com.swisscom.cloud.sb.broker.provisioning.job.UpdateJobConfig
+import com.swisscom.cloud.sb.broker.provisioning.job.*
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdatableProvisioner
@@ -48,7 +43,6 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.NotImplementedException
 import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired

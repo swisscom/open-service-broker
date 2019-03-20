@@ -15,12 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.endpoint
 
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ConfigMapResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.DeploymentResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.NamespaceResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.RolesResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceAccountsResponseDto
-import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
+import com.swisscom.cloud.sb.broker.services.kubernetes.dto.*
 import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
 

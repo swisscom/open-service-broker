@@ -13,23 +13,30 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.model
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
-import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
+import com.fasterxml.jackson.annotation.JsonIgnore
 
-@CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
+import javax.persistence.*
 
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
+@Entity
+class PlanMetadata extends BaseModel{
+
+    @Column(name = '_key')
+    String key
+    @Column(name = '_value')
+    String value
+    @Column(name = '_type',columnDefinition="varchar(255) default 'String'")
+    String type
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="plan_id")
+    @JsonIgnore
+    Plan plan
+
+    static mapping = {
+        key column: '_key'
+        value column: '_value', type: "text"
+        type column: '_type', defaultValue: "'String'"
     }
 }
