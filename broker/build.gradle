@@ -24,9 +24,9 @@ configurations {
 dependencies {
     compile project(':model')
     compile project(':client')
+    compile project(':broker:core')
 
     compile libs.spring_boot_starter_log4j2
-    compile libs.spring_boot_starter_web
     compile libs.spring_boot_starter_autoconfigure
     compile libs.spring_boot_starter_data_jpa
     compile libs.spring_boot_starter_jdbc
@@ -35,36 +35,22 @@ dependencies {
     compile libs.spring_boot_starter_devtools
     compile libs.spring_boot_starter_webflux
 
-    compile libs.spring_cloud_open_service_broker_core
     compile libs.spring_cloud_open_service_broker
     compile libs.spring_cloud_starter_open_service_broker_webmvc
     compile libs.spring_cloud_starter_config
     compile libs.spring_cloud_cloudfoundry_connector
-    compile libs.spring_credhub_starter
 
     compile libs.spring_context_support
     compile libs.spring_security_config
     compile libs.spring_security_oauth2_client
-    compile libs.spring_retry
 
     compile libs.groovy
     compile libs.groovy_dateutil
-    compile libs.gpars
 
-    compile libs.commons_lang
     compile libs.guava
     compile libs.gson
-    compile libs.bouncycastle
     compile libs.quartz
-    compile libs.joda_time
     compile libs.flyway
-
-    compile libs.httpclient
-    compile libs.springfox_swagger2
-    compile libs.springfox_swagger_ui
-    compile libs.swagger_parser
-    compile libs.passay
-    compile libs.json_schema_validator
 
     compile libs.slf4j
     compile libs.log4j
@@ -72,7 +58,6 @@ dependencies {
     compile libs.tomcat_juli
 
     compile libs.influxdb_java
-    compile libs.micrometer_registry_influx
 
     runtime libs.mysql_connector_java
     runtime libs.javax_el_api

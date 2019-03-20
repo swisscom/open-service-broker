@@ -13,23 +13,27 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.model
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
-import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
+import javax.persistence.*
 
-@CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
+@Entity
+class DeprovisionRequest extends BaseModel{
 
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
+    boolean acceptsIncomplete
+    @Column(unique = true)
+    String serviceInstanceGuid
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="service_instance_id")
+    ServiceInstance serviceInstance
+
+    @Override
+    public String toString() {
+        return "DeprovisionRequest{" +
+                "id=" + id +
+                ", acceptsIncomplete=" + acceptsIncomplete +
+                ", serviceInstanceGuid='" + serviceInstanceGuid +
+                '}';
     }
 }

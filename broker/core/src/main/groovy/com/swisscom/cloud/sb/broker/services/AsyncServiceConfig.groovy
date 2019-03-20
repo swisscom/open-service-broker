@@ -13,23 +13,14 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.services
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
+import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfig
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
 
 @CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
-
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
-    }
+//TODO change this to inherit from Config and *NOT* EndpointConfig
+interface AsyncServiceConfig extends EndpointConfig {
+    int retryIntervalInSeconds
+    int maxRetryDurationInMinutes
 }

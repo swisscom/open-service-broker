@@ -1,0 +1,52 @@
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+
+bootJar.enabled = false
+jar{
+    archivesBaseName = 'broker-core'
+    enabled = true
+}
+
+
+dependencies {
+    compile project(':model')
+    compile project(':client')
+
+    compile libs.gpars
+
+
+    compile libs.spring_boot_starter_log4j2
+    compile libs.spring_boot_starter_web
+    compile libs.spring_boot_starter_data_jpa
+
+    compile libs.spring_context_support
+    compile libs.spring_retry
+
+
+    compile libs.spring_cloud_open_service_broker_core
+    compile libs.spring_credhub_starter
+
+
+
+    compile libs.guava
+    compile libs.gson
+    compile libs.quartz
+    compile libs.joda_time
+    compile libs.bouncycastle
+    compile libs.commons_lang
+    compile libs.passay
+
+    compile libs.httpclient
+    compile libs.springfox_swagger2
+    compile libs.springfox_swagger_ui
+    compile libs.swagger_parser
+    compile libs.json_schema_validator
+
+    compile libs.micrometer_registry_influx
+
+    compile libs.slf4j
+    compile libs.log4j
+    compile libs.log4j_to_slf4j
+    compile libs.tomcat_juli
+    
+}

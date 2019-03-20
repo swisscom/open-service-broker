@@ -13,23 +13,11 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.provisioning.async
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
-import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
 
-@CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
-    }
+interface AsyncServiceUpdater {
+    AsyncOperationResult requestUpdate(LastOperationJobContext context)
 }

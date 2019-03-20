@@ -13,23 +13,13 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.updating
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
+import com.fasterxml.jackson.annotation.JsonInclude
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
 
 @CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
-
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+class UpdateResponseDto implements Serializable {
+    String operation
 }

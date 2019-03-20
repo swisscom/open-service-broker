@@ -13,23 +13,26 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.util.test.DummyExtension
+package com.swisscom.cloud.sb.broker.services.bosh.client
 
-import com.swisscom.cloud.sb.broker.async.job.AbstractJob
+import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.quartz.JobExecutionContext
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
+@Component
 @CompileStatic
-@Slf4j
-class DummyJob extends AbstractJob {
+class BoshClientFactory {
 
-    void execute(JobExecutionContext context){
-        log.info("unlocking user")
-        String jobId = getJobId(context)
-        DummyStatus dummyStatus = DummyStatus.SUCCESS
-        if (DummyStatus.SUCCESS == dummyStatus){
-            dequeue(jobId)
-        }
+    RestTemplateBuilder restTemplateBuilder
+
+    @Autowired
+    BoshClientFactory(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplateBuilder = restTemplateBuilder
+    }
+
+    BoshClient build(BoshConfig boshConfig) {
+        return new BoshClient(new BoshRestClient(boshConfig, restTemplateBuilder))
     }
 }

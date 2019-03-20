@@ -45,7 +45,6 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 import static com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceDetailKey.*
