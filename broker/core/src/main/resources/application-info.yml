@@ -1,0 +1,9 @@
+---
+spring:
+  profiles: info
+
+info:
+  extended:
+    version: ${version}
+  core:
+    version: ${osbversion}
