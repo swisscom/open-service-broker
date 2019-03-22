@@ -1,7 +1,7 @@
 .gradle
 /build/
 /classes
-*/out/
+**/out/
 
 ### STS ###
 .apt_generated

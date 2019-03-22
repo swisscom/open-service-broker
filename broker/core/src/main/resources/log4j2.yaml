@@ -1,0 +1,16 @@
+Configuration:
+  status: info
+  name: YAML
+  appenders:
+    Console:
+      name: STDOUT
+      JSONLayout:
+        compact: true
+        complete: false
+        eventEol: true
+        includeStacktrace: true
+  Loggers:
+    Root:
+      level: INFO
+      AppenderRef:
+        ref: STDOUT
