@@ -31,6 +31,7 @@ dependencies {
     compile libs.guava
     compile libs.gson
     compile libs.quartz
+    compile libs.flyway
     compile libs.joda_time
     compile libs.bouncycastle
     compile libs.commons_lang
@@ -48,5 +49,27 @@ dependencies {
     compile libs.log4j
     compile libs.log4j_to_slf4j
     compile libs.tomcat_juli
+
+    testCompile libs.groovy
+    testCompile libs.groovy_test
+    testCompile libs.junit
+    testCompile libs.spock
+    testCompile libs.spock_spring
+    testCompile libs.cglib
+    testCompile libs.groovy_test
+    testCompile libs.spring_boot_starter_test
     
+}
+
+task testJar(type: Jar){
+    from sourceSets.test.output
+    classifier = 'tests'
+}
+
+configurations{
+    testArtifacts
+}
+
+artifacts {
+    testArtifacts testJar
 }

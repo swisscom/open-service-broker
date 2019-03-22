@@ -1,0 +1,105 @@
+spring.profiles:
+  include:
+  - activeprofiles
+---
+spring:
+  profiles: default
+
+  credhub:
+    url:
+    oauth2.registration-id:
+    enable: false
+  security:
+    oauth2:
+      client:
+        registration:
+          credhub-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+          bosh-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token
+
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+        uri: http://localhost:8086
+        step: 60s
+        userName:
+        db: osb_metrics
+        env: "local"
+    enable:
+      jvm: false
+      dataSource: false
+      tomcat: false
+      process: false
+      system: false
+      http: false
+      logback: false
+
+endpoints:
+  # accessibility of the endpoints is handled in ApplicationUserDetailsService class
+  enabled: false
+  # renaming of the spring boot actuator endpoint from info to version -> /info can only be accessed under /version
+  info:
+    enabled: true
+    id: version
+
+com.swisscom.cloud.sb.broker.credhub:
+  enable: false
+  url: https://localhost:9000
+  oauth2.registration-id: credhub-client
+  keyLength: LENGTH_2048
+  commonName:
+  organization: ServiceBroker
+  organizationUnit: SB
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
+
+com.swisscom.cloud.sb.broker.bosh.credhub:
+  enable: false
+  url: https://localhost:9000
+  oauth2.registration-id: bosh-client
+  keyLength: LENGTH_2048
+  commonName:
+  organization: ServiceBroker
+  organizationUnit: SB
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
+
+com.swisscom.cloud.sb.broker.backup:
+  retryIntervalInSeconds: 10
+  maxRetryDurationInMinutes: 30
+
+com.swisscom.cloud.sb.broker.shield:
+  baseUrl: 'http://localhost:8082'
+  apiKey: TEk22PhD6FeligOf3YvWyaAv
+  agent: 'shield-agent:5444'
+  jobPrefix: 'SB_CF_'
+  targetPrefix: 'SB_CF_'
+  storeName: 'local'
+  retentionName: 'default'
+  scheduleName: 'schedu'
+  maxRetryBackup: 5
+  defaultTenantName: tenant1
+  username: admin
+  password: shield

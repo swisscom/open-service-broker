@@ -33,7 +33,7 @@ dependencies {
     compile libs.spring_boot_starter_security
     compile libs.spring_boot_starter_actuator
     compile libs.spring_boot_starter_devtools
-    compile libs.spring_boot_starter_webflux
+    compile libs.spring_boot_starter_webflux // required by credhub starter (see broker-core)
 
     compile libs.spring_cloud_open_service_broker
     compile libs.spring_cloud_starter_open_service_broker_webmvc
@@ -46,11 +46,6 @@ dependencies {
 
     compile libs.groovy
     compile libs.groovy_dateutil
-
-    compile libs.guava
-    compile libs.gson
-    compile libs.quartz
-    compile libs.flyway
 
     compile libs.slf4j
     compile libs.log4j
@@ -72,6 +67,7 @@ dependencies {
         runtime libs.spring_boot_starter_tomcat
     }
 
+    testCompile project(path:':broker:core', configuration:'testArtifacts')
     testCompile libs.groovy
     testCompile libs.groovy_test
     testCompile libs.junit

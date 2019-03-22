@@ -1,8 +1,6 @@
-spring.profiles.include:
-  - activeprofiles
 ---
 spring:
-  profiles: default
+  profiles: common
   jpa.properties.hibernate.id.new_generator_mappings: false
   jpa.hibernate.enable_lazy_load_no_trans: true
   jpa.properties.hibernate.enable_lazy_load_no_trans: true
@@ -13,89 +11,6 @@ spring:
     username: root
     password:
 
-  credhub:
-    url:
-    oauth2.registration-id:
-    enable: false
-  security:
-    oauth2:
-      client:
-        registration:
-          credhub-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-          bosh-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-        provider:
-          uaa:
-            token-uri: http://localhost:8081/uaa/oauth/token
-
-com.swisscom.cloud.sb.broker.credhub:
-  enable: false
-  url: https://localhost:9000
-  oauth2.registration-id: credhub-client
-  keyLength: LENGTH_2048
-  commonName:
-  organization: ServiceBroker
-  organizationUnit: SB
-  locality: Bern
-  state: Bern
-  country: CH
-  duration: 365
-  certificateAuthority: false
-  certificateAuthorityCredential:
-  selfSign: false
-
-com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: false
-  url: https://localhost:9000
-  oauth2.registration-id: bosh-client
-  keyLength: LENGTH_2048
-  commonName:
-  organization: ServiceBroker
-  organizationUnit: SB
-  locality: Bern
-  state: Bern
-  country: CH
-  duration: 365
-  certificateAuthority: false
-  certificateAuthorityCredential:
-  selfSign: false
-
-management:
-  metrics:
-    export:
-      influx:
-        enabled: false
-        uri: http://localhost:8086
-        step: 60s
-        userName:
-        db: osb_metrics
-        env: "local"
-    enable:
-      jvm: false
-      dataSource: false
-      tomcat: false
-      process: false
-      system: false
-      http: false
-      logback: false
-
-endpoints:
-  # accessibility of the endpoints is handled in ApplicationUserDetailsService class
-  enabled: false
-  # renaming of the spring boot actuator endpoint from info to version -> /info can only be accessed under /version
-  info:
-    enabled: true
-    id: version
-
-server.tomcat.accesslog.enabled: true
-
 com.swisscom.cloud.sb.broker.security.platformUsers:
    - username: cc_admin
      password: change_me
@@ -105,10 +20,6 @@ com.swisscom.cloud.sb.broker.security.platformUsers:
      password: change_me
      role: CF_EXT_ADMIN
      platformId: 00000000-0000-0000-0000-000000000000
-
-com.swisscom.cloud.sb.broker.backup:
-  retryIntervalInSeconds: 10
-  maxRetryDurationInMinutes: 30
 
 com.swisscom.cloud.sb.broker.service.mariadb:
   nameOfDefault: "default"
@@ -125,20 +36,6 @@ com.swisscom.cloud.sb.broker.service.mariadb:
     discoveryURL: "http://localhost:8080/v2/api-docs"
     bindir: '/var/vcap/packages/shield-mysql/bin'
     dashboardPath:
-
-com.swisscom.cloud.sb.broker.shield:
-  baseUrl: 'http://localhost:8082'
-  apiKey: TEk22PhD6FeligOf3YvWyaAv
-  agent: 'shield-agent:5444'
-  jobPrefix: 'SB_CF_'
-  targetPrefix: 'SB_CF_'
-  storeName: 'local'
-  retentionName: 'default'
-  scheduleName: 'schedu'
-  maxRetryBackup: 5
-  defaultTenantName: tenant1
-  username: admin
-  password: shield
 
 com.swisscom.cloud.sb.broker.service.openwhisk:
   openWhiskProtocol:

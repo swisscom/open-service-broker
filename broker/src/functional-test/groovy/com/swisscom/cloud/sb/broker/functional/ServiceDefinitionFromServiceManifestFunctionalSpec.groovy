@@ -73,8 +73,8 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
     }
 
     /* redis service definition in resources for integration tests service-data/redisServiceToBeUpdated is identical to service definition
-     * in application.yml except for bindable = false. The service definition is created in the DB and then updated using the definition
-     * in the application.yml
+     * in application-broker.yml except for bindable = false. The service definition is created in the DB and then updated using the definition
+     * in the application-broker.yml
      */
     def "update service definition by updating it in the service manifest"() {
         given:
