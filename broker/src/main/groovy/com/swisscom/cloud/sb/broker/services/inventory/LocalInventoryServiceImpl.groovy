@@ -6,13 +6,11 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Service
 
 @CompileStatic
 @Service
-@ConditionalOnMissingBean(InventoryService.class)
 class LocalInventoryServiceImpl implements InventoryService {
 
     private final ServiceInstanceRepository serviceInstanceRepository
@@ -103,7 +101,7 @@ class LocalInventoryServiceImpl implements InventoryService {
         }
 
         for (def entry in previousDetails) {
-            serviceInstance.details.removeIf( { d -> d.key.equalsIgnoreCase(entry.key) })
+            serviceInstance.details.removeIf({ d -> d.key.equalsIgnoreCase(entry.key) })
             serviceDetailRepository.delete(entry)
         }
 
@@ -133,7 +131,7 @@ class LocalInventoryServiceImpl implements InventoryService {
         def detail = serviceInstance.details.find { d -> d.key.equalsIgnoreCase(key) }
 
         if (detail != null) {
-            serviceInstance.details.removeIf( { d -> d.key.equals(key) })
+            serviceInstance.details.removeIf({ d -> d.key.equals(key) })
             serviceDetailRepository.delete(detail)
             serviceInstance = serviceInstanceRepository.save(serviceInstance)
         }
