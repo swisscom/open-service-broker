@@ -33,7 +33,7 @@ class StateMachine {
         return this
     }
 
-    synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState, StateMachineContext context) {
+    synchronized StateChangeActionResult setCurrentState(ServiceStateWithAction serviceState, MinimalStateMachineContext context) {
         Preconditions.checkNotNull(serviceState,'ServiceState can not be null')
         Preconditions.checkArgument(states.contains(serviceState),"Invalid state:${serviceState.toString()}")
         currentState = serviceState

@@ -19,6 +19,7 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import groovy.transform.CompileStatic
 
 @CompileStatic
-abstract class StateMachineContext {
+abstract class StateMachineContext implements MinimalStateMachineContext {
     LastOperationJobContext lastOperationJobContext
 }
+
