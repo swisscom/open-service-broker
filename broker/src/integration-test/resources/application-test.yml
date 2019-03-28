@@ -1,0 +1,94 @@
+---
+spring:
+  profiles: test
+  jpa.properties.hibernate.id.new_generator_mappings: false
+  jpa.hibernate.enable_lazy_load_no_trans: true
+  jpa.properties.hibernate.enable_lazy_load_no_trans: true
+
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: 'jdbc:mysql://localhost/CFBroker?autoReconnect=true'
+    username: root
+    password:
+
+  credhub:
+    url: https://localhost:9000
+    oauth2.registration-id: credhub-client
+  security:
+    oauth2:
+      client:
+        registration:
+          credhub-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+          bosh-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token
+
+com.swisscom.cloud.sb.broker.security.platformUsers:
+  - username: cc_admin
+    password: change_me
+    role: CF_ADMIN
+    platformId: 00000000-0000-0000-0000-000000000000
+  - username: cc_ext
+    password: change_me
+    role: CF_EXT_ADMIN
+    platformId: 00000000-0000-0000-0000-000000000000
+
+com.swisscom.cloud.sb.broker.service.mariadb:
+  nameOfDefault: "default"
+  clusters:
+    - name: "default"
+      driver: com.mysql.cj.jdbc.Driver
+      vendor: mysql
+      host: 127.0.0.1
+      port: 3306
+      adminUser: 'root'
+      adminPassword:
+      databasePrefix: 'cfdb_'
+      shieldAgentUrl: 'shield-agent:5444'
+      discoveryURL: "http://localhost:8080/v2/api-docs"
+      bindir: '/var/vcap/packages/shield-mysql/bin'
+      dashboardPath:
+
+com.swisscom.cloud.sb.broker.bosh.credhub:
+  enable: true
+  url: https://localhost:9000
+  oauth2.registration-id: bosh-client
+
+com.swisscom.cloud.sb.broker.serviceDefinitions: [
+{
+  "guid": "7a495d86-73dc-4903-9b0b-140c9b011610",
+  "name": "credHubTest",
+  "description": "CredHub 2.0.0 Test",
+  "bindable": true,
+  "asyncRequired": false,
+  "internalName": "credHub",
+  "displayIndex": 1,
+  "metadata": {
+    "version": "2.0.0",
+    "displayName": "CredHub",
+    "bullets": [
+      "Secure Store"
+    ]
+  },
+  "plans": [
+  {
+    "guid": "0ef19631-1212-47cc-9c77-22d78ddaae3a",
+    "name": "test",
+    "description": "CredHub 2.0.0 Test",
+    "free": false,
+    "displayIndex": 0,
+    "metadata": {
+      "displayName": "test"
+    }
+  }
+  ]
+}]
