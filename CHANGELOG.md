@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+
+
+## [6.2.0] - 2019-03-28
 - [MINOR] Refactor to separate broker-core from broker
 - Add `MinimalStateMachineContext` interface as a base `StateMachineContext`
 
