@@ -11,21 +11,9 @@ plugins {
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
 
-repositories {
-    jcenter()
-}
-
-apply from: "$rootDir/gradle/repositories.gradle"
-apply from: "$rootDir/gradle/dependencies.gradle"
-apply from: "$rootDir/gradle/publishing.gradle"
-
 def brokerVersion = version
 
 allprojects {
-    repositories {
-        jcenter()
-    }
-    
     apply plugin: "groovy"
     apply plugin: "nebula.source-jar"
     apply plugin: "nebula.javadoc-jar"
@@ -40,6 +28,8 @@ allprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 }
+
+apply from: "$rootDir/gradle/publishing.gradle"
 
 licenseReport {
     renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
