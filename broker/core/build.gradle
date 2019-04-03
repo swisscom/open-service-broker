@@ -1,13 +1,9 @@
-apply plugin: "groovy"
-apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 
-bootJar.enabled = false
 jar{
-    archivesBaseName = 'broker-core'
     enabled = true
+    archivesBaseName = 'broker-core'
 }
-
 
 dependencies {
     compile project(':model')
@@ -60,11 +56,6 @@ dependencies {
     testCompile libs.groovy_test
     testCompile libs.spring_boot_starter_test
     
-}
-
-task testJar(type: Jar){
-    from sourceSets.test.output
-    classifier = 'tests'
 }
 
 configurations{

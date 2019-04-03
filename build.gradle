@@ -1,10 +1,12 @@
 plugins {
     id 'groovy'
+    id 'signing'
     id 'nebula.info' version '5.0.0'
-    id 'nebula.maven-publish' version '8.1.0'
-    id 'nebula.javadoc-jar' version '8.1.0'
-    id 'nebula.source-jar' version '8.1.0'
-    id 'org.springframework.boot' version '2.1.1.RELEASE'
+    id 'nebula.maven-publish' version '10.0.0'
+    id 'nebula.javadoc-jar' version '10.0.0'
+    id 'nebula.source-jar' version '10.0.0'
+    id 'nebula.test-jar' version '10.0.0'
+    id 'org.springframework.boot' version '2.1.1.RELEASE' apply(false)
     id 'io.codearte.nexus-staging' version '0.20.0'
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
@@ -15,6 +17,7 @@ repositories {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 apply from: "$rootDir/gradle/dependencies.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
 
 def brokerVersion = version
 
@@ -22,6 +25,11 @@ allprojects {
     repositories {
         jcenter()
     }
+    
+    apply plugin: "groovy"
+    apply plugin: "nebula.source-jar"
+    apply plugin: "nebula.javadoc-jar"
+    apply plugin: "nebula.test-jar"
 
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"

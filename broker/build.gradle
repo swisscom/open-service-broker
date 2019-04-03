@@ -1,4 +1,3 @@
-apply plugin: "groovy"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 
@@ -82,24 +81,6 @@ processResources {
     filesMatching(["*.properties", "**/application-info.yml"]) {
         expand(project.properties)
     }
-}
-
-task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
-    from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/test")
-    from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/functionalTest")
-    from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/integrationTest")
-    from new File(project(':client').getBuildDir().toString() + "/classes/groovy/test")
-    classifier "test"
-}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier "sources"
-}
-
-task javaDocJar(type: Jar, dependsOn: 'javadoc') {
-    from javadoc.destinationDir
-    classifier "javadoc"
 }
 
 task buildCloudFoundryManifest() {

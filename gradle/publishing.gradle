@@ -1,0 +1,110 @@
+/*
+ * Copyright (c) 2019 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
+apply plugin: "groovy"
+apply plugin: "signing"
+apply plugin: "nebula.maven-publish"
+apply plugin: "nebula.javadoc-jar"
+apply plugin: "nebula.source-jar"
+apply plugin: "nebula.test-jar"
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = project.name
+            groupId = group
+            from components.java
+            artifact testJar
+            artifact sourceJar
+
+            pom {
+                name = project.name
+                description = 'Swisscom\'s Open Service Broker API implementation'
+                url = 'https://github.com/swisscom/open-service-broker'
+                scm {
+                    connection = 'scm:git:git://github.com/swisscom/open-service-broker.git'
+                    developerConnection = 'scm:git:git@github.com:swisscom/open-service-broker.git'
+                    url = 'https://github.com/swisscom/open-service-broker'
+                }
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'philipp.meier'
+                        name = 'Philipp Meier'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'simon.peter'
+                        name = 'Simon Peter'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'christoph.seiler'
+                        name = 'Christoph Seiler'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'ibon.urrutia'
+                        name = 'Ibon Urrutia'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
+
+            if (isReleaseVersion) {
+                ext.'signing.keyId' = signingKeyId
+                ext.'signing.password' = signingPassword
+                ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
+            }
+
+            def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
+            url = isReleaseVersion ? releases : snapshots
+            credentials {
+                username = System.getProperty('nexusUsername')
+                password = System.getProperty('nexusPassword')
+            }
+        }
+    }
+}
+
+String ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
+String ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
+
+nexusStaging {
+    username = ossrhUsername
+    password = ossrhPassword
+    packageGroup = 'com.swisscom.cloud.sb'
+    stagingProfileId = '69aff991058e1e'
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
