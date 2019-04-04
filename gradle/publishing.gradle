@@ -33,8 +33,10 @@ publishing {
         mavenJava(MavenPublication) {
             artifactId = project.name
             groupId = group
-            artifact testJar
+            artifact jar
             artifact sourceJar
+            artifact testJar
+            artifact javadocJar
 
             pom {
                 name = project.name
