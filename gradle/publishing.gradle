@@ -20,12 +20,19 @@ apply plugin: "nebula.javadoc-jar"
 apply plugin: "nebula.source-jar"
 apply plugin: "nebula.test-jar"
 
+def isReleaseVersion = !(rootProject.version.endsWith('-SNAPSHOT'))
+
+def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
+def ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
+def signingKeyId = hasProperty('signingKeyId') ? signingKeyId : ""
+def signingPassword = hasProperty('signingPassword') ? signingPassword : ""
+def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signingSecretKeyRingFile : ""
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = project.name
             groupId = group
-            from components.java
             artifact testJar
             artifact sourceJar
 
@@ -71,40 +78,32 @@ publishing {
                     }
                 }
             }
-        }
-    }
 
-    repositories {
-        maven {
-            def isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
-
-            if (isReleaseVersion) {
-                ext.'signing.keyId' = signingKeyId
-                ext.'signing.password' = signingPassword
-                ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
-            }
-
-            def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
-            url = isReleaseVersion ? releases : snapshots
-            credentials {
-                username = System.getProperty('nexusUsername')
-                password = System.getProperty('nexusPassword')
+            repositories {
+                maven {
+                    def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                    def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
+                    url = isReleaseVersion ? releases : snapshots
+                    credentials {
+                        username = ossrhUsername
+                        password = ossrhPassword
+                    }
+                }
             }
         }
     }
 }
-
-String ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
-String ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
 
 nexusStaging {
     username = ossrhUsername
     password = ossrhPassword
-    packageGroup = 'com.swisscom.cloud.sb'
-    stagingProfileId = '69aff991058e1e'
 }
 
+ext.'signing.keyId' = signingKeyId
+ext.'signing.password' = signingPassword
+ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
+
 signing {
+    required { isReleaseVersion }
     sign publishing.publications.mavenJava
 }

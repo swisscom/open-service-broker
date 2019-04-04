@@ -2,7 +2,6 @@ apply plugin: "io.spring.dependency-management"
 
 jar{
     enabled = true
-    archivesBaseName = 'broker-core'
 }
 
 dependencies {

@@ -6,8 +6,8 @@ plugins {
     id 'nebula.javadoc-jar' version '10.0.0' apply false
     id 'nebula.source-jar' version '10.0.0' apply false
     id 'nebula.test-jar' version '10.0.0' apply false
-    id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id 'io.codearte.nexus-staging' version '0.20.0'
+    id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
 
@@ -29,9 +29,9 @@ subprojects {
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-}
 
-apply from: "$rootDir/gradle/publishing.gradle"
+    apply from: "$rootDir/gradle/publishing.gradle"
+}
 
 licenseReport {
     renderer = new com.github.jk1.license.render.TextReportRenderer("THIRD-PARTY-NOTICES.txt")
