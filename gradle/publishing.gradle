@@ -97,6 +97,7 @@ publishing {
 nexusStaging {
     username = ossrhUsername
     password = ossrhPassword
+    stagingProfileId = '69aff991058e1e'
 }
 
 ext.'signing.keyId' = signingKeyId
