@@ -30,13 +30,9 @@ def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signing
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        nebula(MavenPublication) {
             artifactId = project.name
             groupId = group
-            artifact jar
-            artifact sourceJar
-            artifact testJar
-            artifact javadocJar
 
             pom {
                 name = project.name
@@ -108,5 +104,5 @@ ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
 
 signing {
     required { isReleaseVersion }
-    sign publishing.publications.mavenJava
+    sign publishing.publications.nebula
 }
