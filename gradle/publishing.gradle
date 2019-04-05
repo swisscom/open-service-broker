@@ -13,12 +13,12 @@
  * specific language governing permissions and limitations under the License.
  */
 
-apply plugin: 'de.marcphilipp.nexus-publish'
 apply plugin: 'nebula.info'
 apply plugin: 'nebula.maven-publish'
 apply plugin: 'nebula.javadoc-jar'
 apply plugin: 'nebula.source-jar'
 apply plugin: 'nebula.test-jar'
+apply plugin: 'nebula.nebula-bintray-publishing'
 
 /**
  * Open service broker publication in maven central.
@@ -31,9 +31,9 @@ apply plugin: 'nebula.test-jar'
  *  ossrhUsername=<oss.sonatype.org username>
  *  ossrhPassword=<oss.sonatype.org password>
  *
- *  // For compatibility with nexus publish plugins
- *  nexusUsername=<oss.sonatype.org username or tokenId>
- *  nexusPassword=<oss.sonatype.org password or tokenPassword>
+ *  // For compatibility with nebula bintray plugin
+ *  bintrayUser=<bintray username>
+ *  bintrayPassword=<bintray apikey obtained from ui>
  *
  *  // For signing artifacts with deencrypted secring.gpg.enc
  *  signingKeyId=<signing key id>
@@ -91,17 +91,18 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
-            url = isReleaseVersion ? releases : snapshots
-            credentials {
-                username project.ossrhUsername
-                password project.ossrhPassword
-            }
-        }
-    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    apiKey = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    userOrg = "swisscom"
+    repo = "open-service-broker"
+    websiteUrl = "https://github.com/swisscom/open-service-broker"
+    issueTrackerUrl = "https://github.com/swisscom/open-service-broker/issues"
+    vcsUrl = "https://github.com/swisscom/open-service-broker.git"
+    licenses = ["Apache-2.0"]
+    labels = ["osb_api", "cloud_foundry"]
 }
 
 ext.'signing.keyId' = project.signingKeyId
@@ -109,6 +110,5 @@ ext.'signing.password' = project.signingPassword
 ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
 
 signing {
-    required { isReleaseVersion }
-    //sign publishing.publications.nebula
+    required {isReleaseVersion}
 }
