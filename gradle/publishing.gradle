@@ -13,20 +13,35 @@
  * specific language governing permissions and limitations under the License.
  */
 
-apply plugin: "groovy"
-apply plugin: "signing"
-apply plugin: "nebula.maven-publish"
-apply plugin: "nebula.javadoc-jar"
-apply plugin: "nebula.source-jar"
-apply plugin: "nebula.test-jar"
+apply plugin: 'de.marcphilipp.nexus-publish'
+apply plugin: 'nebula.info'
+apply plugin: 'nebula.maven-publish'
+apply plugin: 'nebula.javadoc-jar'
+apply plugin: 'nebula.source-jar'
+apply plugin: 'nebula.test-jar'
+
+/**
+ * Open service broker publication in maven central.
+ *
+ * ONLY OSB DEVELOPERS
+ * For publishing you have to:
+ * - Decrypt the secring.gpg.enc
+ * - Provide the following properties in your ~/.gradle/gradle.properties:
+ *  // For compatibility with scripts
+ *  ossrhUsername=<oss.sonatype.org username>
+ *  ossrhPassword=<oss.sonatype.org password>
+ *
+ *  // For compatibility with nexus publish plugins
+ *  nexusUsername=<oss.sonatype.org username or tokenId>
+ *  nexusPassword=<oss.sonatype.org password or tokenPassword>
+ *
+ *  // For signing artifacts with deencrypted secring.gpg.enc
+ *  signingKeyId=<signing key id>
+ *  signingPassword=<signing password>
+ *  signingSecretKeyRingFile=<path tho the deencrypted secring.gpg.enc>
+ */
 
 def isReleaseVersion = !(rootProject.version.endsWith('-SNAPSHOT'))
-
-def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
-def ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
-def signingKeyId = hasProperty('signingKeyId') ? signingKeyId : ""
-def signingPassword = hasProperty('signingPassword') ? signingPassword : ""
-def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signingSecretKeyRingFile : ""
 
 publishing {
     publications {
@@ -37,12 +52,7 @@ publishing {
             pom {
                 name = project.name
                 description = 'Swisscom\'s Open Service Broker API implementation'
-                url = 'https://github.com/swisscom/open-service-broker'
-                scm {
-                    connection = 'scm:git:git://github.com/swisscom/open-service-broker.git'
-                    developerConnection = 'scm:git:git@github.com:swisscom/open-service-broker.git'
-                    url = 'https://github.com/swisscom/open-service-broker'
-                }
+
                 licenses {
                     license {
                         name = 'Apache License, Version 2.0'
@@ -77,32 +87,28 @@ publishing {
                 }
             }
 
-            repositories {
-                maven {
-                    def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-                    def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
-                    url = isReleaseVersion ? releases : snapshots
-                    credentials {
-                        username = ossrhUsername
-                        password = ossrhPassword
-                    }
-                }
+
+        }
+    }
+
+    repositories {
+        maven {
+            def releases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshots = 'https://oss.sonatype.org/content/repositories/snapshots'
+            url = isReleaseVersion ? releases : snapshots
+            credentials {
+                username project.ossrhUsername
+                password project.ossrhPassword
             }
         }
     }
 }
 
-nexusStaging {
-    username = ossrhUsername
-    password = ossrhPassword
-    stagingProfileId = '69aff991058e1e'
-}
-
-ext.'signing.keyId' = signingKeyId
-ext.'signing.password' = signingPassword
-ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
+ext.'signing.keyId' = project.signingKeyId
+ext.'signing.password' = project.signingPassword
+ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
 
 signing {
     required { isReleaseVersion }
-    sign publishing.publications.nebula
+    //sign publishing.publications.nebula
 }

@@ -1,36 +1,65 @@
 plugins {
     id 'groovy'
     id 'signing'
+    id 'io.codearte.nexus-staging' version '0.20.0'
+    id 'de.marcphilipp.nexus-publish' version '0.2.0'
     id 'nebula.info' version '5.0.0' apply false
     id 'nebula.maven-publish' version '10.0.0' apply false
     id 'nebula.javadoc-jar' version '10.0.0' apply false
     id 'nebula.source-jar' version '10.0.0' apply false
     id 'nebula.test-jar' version '10.0.0' apply false
-    id 'io.codearte.nexus-staging' version '0.20.0'
     id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
 
 def brokerVersion = version
 
+group = 'com.swisscom.cloud.sb'
+version = brokerVersion
+
+/**
+ * Publishing in nexus: we need to create a staging repository before publishing on maven central. One of the
+ * requirements for the staging repository is that it should be created in the same gradle build
+ * (and even from same ip address!) or problems appear.
+ *
+ * Sometimes that is not possible in CI, so using a gradle plugin which creates a staging repository using the
+ * credentials and the staging profile id. It allows now also to have several staging repositories in parallel, so
+ * if certain staging repository is locked, it might be dropped by the scheduled tasks at oss.sonatype.org.
+ *
+ * References:
+ * https://solidsoft.wordpress.com/2019/02/22/reliable-releasing-to-maven-central-from-travis-using-gradle-2019-edition/
+ *
+ * https://support.sonatype.com/hc/en-us/articles/213465448-Automatically-dropping-old-staging-repositories
+ *
+ * For publishing using this plugin you must use:
+ * ./gradlew publishToNexus closeAndReleaseRepository
+ */
+nexusStaging {
+    username project.nexusUsername
+    password project.nexusPassword
+    stagingProfileId '69aff991058e1e'
+}
+
+nexusPublishing {
+    // for custom configuration if needed - credentials are by default taken from nexus-staging or from properties
+    // nexusUsername and nexusPassword
+    repositoryName='maven'
+}
+
+
 allprojects {
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"
+    apply from: "$rootDir/gradle/publishing.gradle"
 
-    group = 'com.swisscom.cloud.sb'
-    version = brokerVersion
+    
 }
 
 subprojects {
-    apply plugin: "groovy"
-    apply plugin: "nebula.source-jar"
-    apply plugin: "nebula.javadoc-jar"
-    apply plugin: "nebula.test-jar"
+    apply plugin: 'groovy'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-
-    apply from: "$rootDir/gradle/publishing.gradle"
 }
 
 licenseReport {
