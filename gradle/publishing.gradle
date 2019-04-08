@@ -13,12 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-apply plugin: 'nebula.info'
-apply plugin: 'nebula.maven-publish'
-apply plugin: 'nebula.javadoc-jar'
-apply plugin: 'nebula.source-jar'
-apply plugin: 'nebula.test-jar'
-apply plugin: 'nebula.nebula-bintray-publishing'
+
 
 /**
  * Open service broker publication in maven central.
@@ -31,7 +26,7 @@ apply plugin: 'nebula.nebula-bintray-publishing'
  *  ossrhUsername=<oss.sonatype.org username>
  *  ossrhPassword=<oss.sonatype.org password>
  *
- *  // For compatibility with nebula bintray plugin
+ *  // For compatibility with  bintray plugin
  *  bintrayUser=<bintray username>
  *  bintrayPassword=<bintray apikey obtained from ui>
  *
@@ -40,12 +35,33 @@ apply plugin: 'nebula.nebula-bintray-publishing'
  *  signingPassword=<signing password>
  *  signingSecretKeyRingFile=<path tho the deencrypted secring.gpg.enc>
  */
+def isReleaseVersion = !version.endsWith('-SNAPSHOT')
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+task testJar(type: Jar) {
+    from sourceSets.test.output
+    archiveClassifier = 'test'
+}
 
 publishing {
     publications {
-        nebula(MavenPublication) {
+        maven(MavenPublication) {
             artifactId = project.name
             groupId = group
+
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            artifact testJar
 
             pom {
                 name = project.name
@@ -93,14 +109,25 @@ publishing {
 
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    apiKey = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    userOrg = "swisscom"
-    repo = "open-service-broker"
-    websiteUrl = "https://github.com/swisscom/open-service-broker"
-    issueTrackerUrl = "https://github.com/swisscom/open-service-broker/issues"
-    vcsUrl = "https://github.com/swisscom/open-service-broker.git"
-    licenses = ["Apache-2.0"]
-    labels = ["osb_api", "cloud_foundry"]
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    pkg{
+        userOrg = "swisscom"
+        repo = "open-service-broker"
+        websiteUrl = "https://github.com/swisscom/open-service-broker"
+        issueTrackerUrl = "https://github.com/swisscom/open-service-broker/issues"
+        vcsUrl = "https://github.com/swisscom/open-service-broker.git"
+        licenses = ["Apache-2.0"]
+        labels = ["osb_api", "cloud_foundry"]
+    }
+}
+
+ext.'signing.keyId' = project.signingKeyId
+ext.'signing.password' = project.signingPassword
+ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
+
+signing {
+    required { isReleaseVersion }
+    sign publishing.publications.maven
 }
 
 

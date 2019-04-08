@@ -1,39 +1,24 @@
 plugins {
-    id 'groovy'
-    id 'signing'
-    id 'maven-publish'
-    id 'nebula.info' version '5.0.0' apply false
-    id 'nebula.maven-publish' version '10.0.0' apply false
-    id 'nebula.javadoc-jar' version '10.0.0' apply false
-    id 'nebula.source-jar' version '10.0.0' apply false
-    id 'nebula.test-jar' version '10.0.0' apply false
-    id 'nebula.nebula-bintray' version '7.0.0' apply false
+    id "com.jfrog.bintray" version "1.8.4" apply false
     id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
 
-def brokerVersion = version
-def isReleaseVersion = !version.endsWith('-SNAPSHOT')
-
-ext.'signing.keyId' = project.signingKeyId
-ext.'signing.password' = project.signingPassword
-ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
 
 allprojects {
-    group = 'com.swisscom.cloud.sb'
-    version = brokerVersion
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    
 }
 
 subprojects {
     apply plugin: 'groovy'
+    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
-    signing {
-        required { isReleaseVersion }
-        sign publishing.publications
-    }
+    group = 'com.swisscom.cloud.sb'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    def brokerVersion = version
 
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"

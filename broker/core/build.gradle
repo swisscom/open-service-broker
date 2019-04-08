@@ -54,7 +54,7 @@ dependencies {
 }
 
 configurations{
-    testArtifacts
+    testArtifacts.extendsFrom testRuntime
 }
 
 artifacts {
