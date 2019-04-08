@@ -1,6 +1,7 @@
 plugins {
     id 'groovy'
     id 'signing'
+    id 'maven-publish'
     id 'nebula.info' version '5.0.0' apply false
     id 'nebula.maven-publish' version '10.0.0' apply false
     id 'nebula.javadoc-jar' version '10.0.0' apply false
@@ -12,7 +13,11 @@ plugins {
 }
 
 def brokerVersion = version
+def isReleaseVersion = !version.endsWith('-SNAPSHOT')
 
+ext.'signing.keyId' = project.signingKeyId
+ext.'signing.password' = project.signingPassword
+ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
 
 allprojects {
     group = 'com.swisscom.cloud.sb'
@@ -24,6 +29,11 @@ allprojects {
 
 subprojects {
     apply plugin: 'groovy'
+
+    signing {
+        required { isReleaseVersion }
+        sign publishing.publications
+    }
 
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"

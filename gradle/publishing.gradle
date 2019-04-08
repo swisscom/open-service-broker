@@ -41,8 +41,6 @@ apply plugin: 'nebula.nebula-bintray-publishing'
  *  signingSecretKeyRingFile=<path tho the deencrypted secring.gpg.enc>
  */
 
-def isReleaseVersion = !(rootProject.version.endsWith('-SNAPSHOT'))
-
 publishing {
     publications {
         nebula(MavenPublication) {
@@ -105,10 +103,5 @@ bintray {
     labels = ["osb_api", "cloud_foundry"]
 }
 
-ext.'signing.keyId' = project.signingKeyId
-ext.'signing.password' = project.signingPassword
-ext.'signing.secretKeyRingFile' = project.signingSecretKeyRingFile
 
-signing {
-    required {isReleaseVersion}
-}
+
