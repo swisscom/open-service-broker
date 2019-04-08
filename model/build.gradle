@@ -1,4 +1,3 @@
-
 dependencies {
     compile libs.groovy
     compile libs.jackson_dataformat_yaml

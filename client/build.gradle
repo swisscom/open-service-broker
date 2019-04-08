@@ -1,8 +1,13 @@
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 
-bootJar.enabled = false
-jar.enabled = true
+jar {
+    enabled = true
+}
+
+bootJar {
+    enabled = false
+}
 
 dependencies {
     compile project(':model')

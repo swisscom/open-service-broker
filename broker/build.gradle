@@ -1,24 +1,28 @@
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 
-bootJar.enabled = false
-jar.enabled = true
+apply from: "$rootDir/gradle/functional-testing.gradle"
 
-// For spring.dependency-management plugin: checks that the versions are the ones defined here
-//TODO Not sure if we need this after the dependency management implemented for gradle
-ext['tomcat.version'] = versions.tomcat
-ext['flyway.version'] = versions.flyway
-ext['groovy.version'] = versions.groovy
+jar {
+    enabled = true
+}
 
-processResources {
-    filesMatching(["*.properties", "**/application-info.yml"]) {
-        expand(project.properties)
-    }
+bootJar {
+    enabled = true
+    mainClassName = 'com.swisscom.cloud.sb.broker.ServiceBroker'
+    baseName = "broker"
+}
+
+bootRun {
+    main = "com.swisscom.cloud.sb.broker.ServiceBroker"
 }
 
 configurations {
     all*.exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
     all*.exclude group: 'ch.qos.logback', module: 'logback-classic'
+
+    testCompile.exclude group: "ch.qos.logback"
+    testArtifacts.extendsFrom testRuntime
 }
 
 dependencies {
@@ -58,15 +62,6 @@ dependencies {
     runtime libs.javax_el_api
     runtime libs.javax_el
 
-    if (project.hasProperty('tomcat')) {
-        // Used for production environment
-        System.out.println('tomcat')
-        providedRuntime libs.spring_boot_starter_tomcat
-    } else {
-        System.out.println('standalone')
-        runtime libs.spring_boot_starter_tomcat
-    }
-
     testCompile project(path:':broker:core', configuration:'testArtifacts')
     testCompile libs.groovy
     testCompile libs.groovy_test
@@ -78,46 +73,14 @@ dependencies {
     testCompile libs.spring_boot_starter_test
 }
 
-// Add integration/functional test source sets
-sourceSets {
-    integrationTest { sourceSet ->
-        ["java", "groovy", "scala", "resources"].each {
-            if (!sourceSet.hasProperty(it)) return
-            sourceSet."$it".srcDir file("src/integration-test/${it}")
-        }
+ext {
+    osbversion = version
+}
+
+processResources {
+    filesMatching(["*.properties", "**/application-info.yml"]) {
+        expand(project.properties)
     }
-    functionalTest { sourceSet ->
-        ["java", "groovy", "scala", "resources"].each {
-            if (!sourceSet.hasProperty(it)) return
-            sourceSet."$it".srcDir file("src/functional-test/${it}")
-        }
-    }
-}
-
-// Setup dependencies for integration testing
-dependencies {
-    integrationTestCompile sourceSets.main.output
-    integrationTestCompile sourceSets.test.output
-    integrationTestCompile configurations.testCompile
-    integrationTestRuntime configurations.testRuntime
-
-    functionalTestCompile sourceSets.main.output
-    functionalTestCompile sourceSets.test.output
-    functionalTestCompile sourceSets.integrationTest.output
-    functionalTestCompile configurations.testCompile
-    functionalTestRuntime configurations.testRuntime
-}
-
-// Define integration test task
-task integrationTest(type: Test) {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
-
-// Define function test task
-task functionalTest(type: Test) {
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
 task buildCloudFoundryManifest() {
@@ -127,29 +90,15 @@ task buildCloudFoundryManifest() {
     new File("$projectDir/build/libs/manifest.yml").text = fileContent
 }
 
-configurations {
-    testArtifacts.extendsFrom testRuntime
-    testCompile.exclude group: "ch.qos.logback"
-}
-
-task testJar(type: Jar) {
-    classifier "test"
-    from sourceSets.integrationTest.output + sourceSets.functionalTest.output
-}
-
-artifacts {
-    testArtifacts testJar
-}
-
-// Make sure 'check' task calls integration test
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
-
-// Make sure 'check' task calls functional test
-check.dependsOn functionalTest
-functionalTest.mustRunAfter integrationTest
-
-test {
-    testLogging.showStandardStreams = true
-    testLogging.exceptionFormat = 'full'
+/**
+ * Escape the placeholders in the application-secrets.yml to prevent Gradle's template expanding to throw
+ * `MissingPropertyException` because these placeholders are later used from the OSB to parametrized provisioning
+ * templates.
+ */
+processResources {
+    filesMatching("**/application-secrets.yml") { matchedFile ->
+        filter { line ->
+            line.replace('${', '\\${').replace('$(', '\\$(').replace('$\"', '\\$\"')
+        }
+    }
 }
