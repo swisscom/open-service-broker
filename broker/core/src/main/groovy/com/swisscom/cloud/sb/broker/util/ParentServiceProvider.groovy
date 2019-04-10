@@ -26,10 +26,10 @@ trait ParentServiceProvider {
     }
 
     int getActiveChildrenCount(ServiceInstance serviceInstance) {
-        List<ServiceInstance> undeletedChildren = serviceInstance.childs.findAll { si -> !si.deleted }
+        def undeletedChildren = serviceInstance.childs.findAll { si -> !si.deleted }
         int completedUndeletedChildrenCount = undeletedChildren.count { si -> si.completed }
 
-        List<ServiceInstance> uncompletedChildren = undeletedChildren.findAll { si -> !si.completed }
+        def uncompletedChildren = undeletedChildren.findAll { si -> !si.completed }
 
         int childrenProvisionInProgress = 0
         uncompletedChildren.each {
