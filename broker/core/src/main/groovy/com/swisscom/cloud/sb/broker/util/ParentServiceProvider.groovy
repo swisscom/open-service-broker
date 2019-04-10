@@ -1,10 +1,11 @@
 package com.swisscom.cloud.sb.broker.util
 
-import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import org.springframework.beans.factory.annotation.Autowired
+
+import static com.swisscom.cloud.sb.broker.model.LastOperation.Status.IN_PROGRESS
 
 trait ParentServiceProvider {
     private static final String MAX_CHILDREN = "max_children"
@@ -35,7 +36,7 @@ trait ParentServiceProvider {
         uncompletedChildren.each {
             si ->
                 def lastOperation = lastOperationRepository.findByGuid(si.guid)
-                if (lastOperation.status == LastOperation.Status.IN_PROGRESS) {
+                if (lastOperation.status == IN_PROGRESS) {
                     childrenProvisionInProgress++
                 }
         }
