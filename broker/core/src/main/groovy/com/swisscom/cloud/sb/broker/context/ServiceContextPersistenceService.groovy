@@ -79,7 +79,7 @@ class ServiceContextPersistenceService {
     }
 
     private void setServiceContextDetails(Map<String, Object> newDetails, ServiceContext serviceContext) {
-        def existingDetails = serviceContext.getDetails().toList()
+        List<ServiceContextDetail> existingDetails = serviceContext.getDetails().toList() as List<ServiceContextDetail>
 
         newDetails.each {
             newDetail ->
