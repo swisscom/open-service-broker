@@ -196,7 +196,7 @@ class BoshRestClientSpec extends Specification {
         String name = 'test'
         String type = 'cloud'
         when:
-        String filter = boshRestClient.setFilter(name, type)
+        String filter = boshRestClient.setFilter(name, type, true)
         then:
         "?latest=true&name=${name}&type=${type}" == filter
     }
@@ -205,7 +205,7 @@ class BoshRestClientSpec extends Specification {
         given:
         String name = 'test'
         when:
-        String filter = boshRestClient.setFilter(name, null)
+        String filter = boshRestClient.setFilter(name, null, true)
         then:
         "?latest=true&name=${name}" == filter
     }
@@ -214,14 +214,14 @@ class BoshRestClientSpec extends Specification {
         given:
         String type = 'cloud'
         when:
-        String filter = boshRestClient.setFilter(null, type)
+        String filter = boshRestClient.setFilter(null, type, true)
         then:
         "?latest=true&type=${type}" == filter
     }
 
     def "happy path: query correctly built without any params"() {
         when:
-        String filter = boshRestClient.setFilter(null, null)
+        String filter = boshRestClient.setFilter(null, null, true)
         then:
         "?latest=true" == filter
     }

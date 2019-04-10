@@ -144,16 +144,16 @@ class BoshRestClient {
     }
 
     void deleteConfig(String name, String type) {
-        createRestTemplate().exchange(prependBaseUrl("${CONFIGS}?name=${name}&type=${type}"), HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS + setFilter(name, type)), HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
     }
 
     String getConfigs(String name, String type) {
-        createRestTemplate().exchange(prependBaseUrl(CONFIGS + setFilter(name, type)), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS + setFilter(name, type, true)), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
     }
 
-    private String setFilter(String name, String type) {
+    private String setFilter(String name, String type, Boolean latest = null) {
         URIBuilder uriBuilder = new URIBuilder()
-        uriBuilder.setParameter('latest', 'true')
+        if (latest != null) uriBuilder.setParameter('latest', latest.toString())
         if (name != null) uriBuilder.setParameter('name', name)
         if (type != null) uriBuilder.setParameter('type', type)
         uriBuilder.toString()
