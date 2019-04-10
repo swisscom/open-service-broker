@@ -105,7 +105,12 @@ class BoshClient {
         new JsonSlurper().setType(RELAX).parseText(boshRestClient.getConfigs(name, type)) as List<BoshConfigResponseDto>
     }
 
-    void deleteConfig(String name, String type) {
-        boshRestClient.deleteConfig(name, type)
+    void deleteConfigIfExists(String name, String type) {
+        try {
+            boshRestClient.deleteConfig(name, type)
+        } catch (BoshResourceNotFoundException e) {
+            log.debug("Bosh Config with name ${name} and type ${type} not found. This is ignored during deletion.")
+        }
+
     }
 }

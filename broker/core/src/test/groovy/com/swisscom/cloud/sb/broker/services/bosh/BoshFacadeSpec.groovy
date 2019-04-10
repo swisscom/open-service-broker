@@ -241,7 +241,7 @@ class BoshFacadeSpec extends Specification {
         boshFacade.deleteConfig('test', 'cloud')
 
         then:
-        1 * boshClient.deleteConfig(_, _)
+        1 * boshClient.deleteConfigIfExists(_, _)
     }
 
 }

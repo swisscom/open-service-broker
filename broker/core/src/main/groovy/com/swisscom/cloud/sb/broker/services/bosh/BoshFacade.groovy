@@ -156,7 +156,7 @@ class BoshFacade {
         return ServiceDetailsHelper.from(context.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_DEPLOYMENT_ID).or(generateDeploymentId(context.serviceInstance.guid))
     }
 
-    void deleteConfigsIfExists(LastOperationJobContext lastOperationJobContext) {
+    void deleteBoshConfigs(LastOperationJobContext lastOperationJobContext) {
         deleteConfig(lastOperationJobContext.serviceInstance.guid, null)
     }
 
@@ -182,7 +182,7 @@ class BoshFacade {
     }
 
     void deleteConfig(String name, String type) {
-        createBoshClient().deleteConfig(name, type)
+        createBoshClient().deleteConfigIfExists(name, type)
     }
 
     List<BoshConfigResponseDto> getConfigs(String name, String type) {
