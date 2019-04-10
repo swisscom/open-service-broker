@@ -126,16 +126,12 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
                 "field_c": 13.37,
                 "field_d": 1337
         ])
-
-        when:
         def serviceInstanceGuid = requestServiceProvisioning(new HashMap<String, Object>(),
                 defaultPlanGuid,
                 false,
                 defaultServiceGuid,
                 context)
 
-        then:
-        noExceptionThrown()
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         serviceInstance.serviceContext.platform == "CUSTOM"
         serviceInstance.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
@@ -145,7 +141,10 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         context = null
-        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, context)
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid,
+                null,
+                false,
+                context)
 
         then:
         def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
