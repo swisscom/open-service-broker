@@ -141,7 +141,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         serviceInstance.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
         serviceInstance.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
         serviceInstance.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
-        serviceInstance2.serviceContext.details.size() == 3
+        serviceInstance.serviceContext.details.size() == 4
 
         when:
         context = null
@@ -154,7 +154,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         serviceInstance2.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
         serviceInstance2.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
         serviceInstance2.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
-        serviceInstance2.serviceContext.details.size() == 3
+        serviceInstance2.serviceContext.details.size() == 4
 
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
