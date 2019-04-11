@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2019 Swisscom (Switzerland) Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+ * this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
+apply plugin: 'nebula.info'
+apply plugin: 'nebula.maven-publish'
+apply plugin: 'nebula.javadoc-jar'
+apply plugin: 'nebula.source-jar'
+apply plugin: 'nebula.test-jar'
+apply plugin: 'nebula.nebula-bintray-publishing'
+
+/**
+ * Open service broker publication in maven central.
+ *
+ * ONLY OSB DEVELOPERS
+ * For publishing you have to:
+ * - Decrypt the secring.gpg.enc
+ * - Provide the following properties in your ~/.gradle/gradle.properties:
+ *  // For compatibility with scripts
+ *  ossrhUsername=<oss.sonatype.org username>
+ *  ossrhPassword=<oss.sonatype.org password>
+ *
+ *  // For compatibility with  bintray plugin
+ *  bintrayUser=<bintray username>
+ *  bintrayPassword=<bintray apikey obtained from ui>
+ *
+ *  // For signing artifacts with deencrypted secring.gpg.enc
+ *  signingKeyId=<signing key id>
+ *  signingPassword=<signing password>
+ *  signingSecretKeyRingFile=<path tho the deencrypted secring.gpg.enc>
+ */
+def isReleaseVersion = !version.endsWith('-SNAPSHOT')
+
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            artifactId = project.name
+            groupId = group
+
+            pom {
+                name = project.name
+                description = 'Swisscom\'s Open Service Broker API implementation'
+
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'philipp.meier'
+                        name = 'Philipp Meier'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'simon.peter'
+                        name = 'Simon Peter'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'christoph.seiler'
+                        name = 'Christoph Seiler'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                    developer {
+                        id = 'ibon.urrutia'
+                        name = 'Ibon Urrutia'
+                        organization = 'Swisscom (Schweiz) AG'
+                        organizationUrl = 'https://www.swisscom.ch'
+                    }
+                }
+            }
+
+
+        }
+    }
+
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    apiKey = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+
+    userOrg = "swisscom"
+    repo = "open-service-broker"
+    websiteUrl = "https://github.com/swisscom/open-service-broker"
+    issueTrackerUrl = "https://github.com/swisscom/open-service-broker/issues"
+    vcsUrl = "https://github.com/swisscom/open-service-broker.git"
+    licenses = ["Apache-2.0"]
+    labels = ["osb_api", "cloud_foundry"]
+}
+
+ext.'signing.keyId' = project.hasProperty('signingKeyId') ? project.property('signingKeyId') : System.getenv('SIGNING_KEY_ID')
+ext.'signing.password' = project.hasProperty('signingPassword') ? project.property('signingPassword') : System.getenv('SIGNING_PASSWORD')
+ext.'signing.secretKeyRingFile' = project.hasProperty('signingSecretKeyRingFile') ? project.property('signingSecretKeyRingFile') : "\$(pwd)/local.secring.gpg"
+
+signing {
+    required {isReleaseVersion}
+    sign publishing.publications.nebula
+}
+
+
+

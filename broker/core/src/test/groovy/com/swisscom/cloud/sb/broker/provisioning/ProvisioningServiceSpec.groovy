@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.ParentServiceProvider
@@ -29,6 +30,7 @@ class ProvisioningServiceSpec extends Specification {
     public static final String serviceInstanceGuid = "serviceInstanceGuid"
 
     ProvisioningService provisioningService
+    LastOperationRepository lastOperationRepository
 
     void setup() {
         given:
@@ -37,6 +39,9 @@ class ProvisioningServiceSpec extends Specification {
         and:
         def provisioningPersistenceService = Mock(ProvisioningPersistenceService)
         provisioningService.provisioningPersistenceService = provisioningPersistenceService
+
+        and:
+        lastOperationRepository = Mock(LastOperationRepository)
     }
 
     def "provisioning service works with provisionRequest"() {
@@ -175,6 +180,9 @@ class ProvisioningServiceSpec extends Specification {
     def "checkParent() fails with parent_reference to full parent service instance"() {
         given:
         def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        serviceProvider.lastOperationRepository = lastOperationRepository
+        def childServiceInstanceGuid = UUID.randomUUID().toString()
+        lastOperationRepository.findByGuid(childServiceInstanceGuid) >> new LastOperation(status: LastOperation.Status.IN_PROGRESS)
         def serviceProviderLookup = Mock(ServiceProviderLookup)
         serviceProviderLookup.findServiceProvider(_) >> serviceProvider
         provisioningService.serviceProviderLookup = serviceProviderLookup
@@ -182,7 +190,7 @@ class ProvisioningServiceSpec extends Specification {
         and:
         def parentServiceInstance = Mock(ServiceInstance)
         def plan = Mock(Plan)
-        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance()])
+        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance(guid: childServiceInstanceGuid)])
         plan.getGuid() >> "test"
         plan.getParameters() >> new HashSet<Parameter>([new Parameter(name: "max_children", value: 1)])
         parentServiceInstance.plan >> plan
@@ -205,6 +213,9 @@ class ProvisioningServiceSpec extends Specification {
     def "checkParent() succeeds with parent_reference to a parent service instance"() {
         given:
         def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        serviceProvider.lastOperationRepository = lastOperationRepository
+        def childServiceInstanceGuid = UUID.randomUUID().toString()
+        lastOperationRepository.findByGuid(childServiceInstanceGuid) >> new LastOperation(status: LastOperation.Status.IN_PROGRESS)
         def serviceProviderLookup = Mock(ServiceProviderLookup)
         serviceProviderLookup.findServiceProvider(_) >> serviceProvider
         provisioningService.serviceProviderLookup = serviceProviderLookup
@@ -212,7 +223,7 @@ class ProvisioningServiceSpec extends Specification {
         and:
         def parentServiceInstance = Mock(ServiceInstance)
         def plan = Mock(Plan)
-        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance()])
+        parentServiceInstance.getChilds() >> new HashSet<ServiceInstance>([new ServiceInstance(guid: childServiceInstanceGuid)])
         plan.getGuid() >> "test"
         plan.getParameters() >> new HashSet<Parameter>([new Parameter(name: "max_children", value: 2)])
         parentServiceInstance.plan >> plan
@@ -235,6 +246,9 @@ class ProvisioningServiceSpec extends Specification {
     def "checkActiveChildren fails with active children"() {
         given:
         def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        serviceProvider.lastOperationRepository = lastOperationRepository
+        def childServiceInstanceGuid = UUID.randomUUID().toString()
+        lastOperationRepository.findByGuid(childServiceInstanceGuid) >> new LastOperation(status: LastOperation.Status.IN_PROGRESS)
         def serviceProviderLookup = Mock(ServiceProviderLookup)
         serviceProviderLookup.findServiceProvider(_) >> serviceProvider
         provisioningService.serviceProviderLookup = serviceProviderLookup
@@ -246,12 +260,37 @@ class ProvisioningServiceSpec extends Specification {
         service.getAsyncRequired() >> false
         plan.service >> service
         serviceInstance.plan >> plan
-        serviceInstance.childs >> new HashSet<ServiceInstance>([new ServiceInstance(deleted: false)])
+        serviceInstance.childs >> new HashSet<ServiceInstance>([new ServiceInstance(deleted: false, guid: childServiceInstanceGuid)])
         def deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, acceptsIncomplete: true, serviceInstance: serviceInstance)
         when:
         provisioningService.checkActiveChildren(deprovisionRequest)
         then:
         thrown(ServiceBrokerException)
+    }
+
+    def "checkActiveChildren doesn't fail with failed children"() {
+        given:
+        def serviceProvider = Mock(ServiceProvider).withTraits(ParentServiceProvider)
+        serviceProvider.lastOperationRepository = lastOperationRepository
+        def childServiceInstanceGuid = UUID.randomUUID().toString()
+        lastOperationRepository.findByGuid(childServiceInstanceGuid) >> new LastOperation(status: LastOperation.Status.FAILED)
+        def serviceProviderLookup = Mock(ServiceProviderLookup)
+        serviceProviderLookup.findServiceProvider(_) >> serviceProvider
+        provisioningService.serviceProviderLookup = serviceProviderLookup
+
+        and:
+        def serviceInstance = Mock(ServiceInstance)
+        def plan = Mock(Plan)
+        def service = Mock(CFService)
+        service.getAsyncRequired() >> false
+        plan.service >> service
+        serviceInstance.plan >> plan
+        serviceInstance.childs >> new HashSet<ServiceInstance>([new ServiceInstance(deleted: false, guid: childServiceInstanceGuid)])
+        def deprovisionRequest = new DeprovisionRequest(serviceInstanceGuid: serviceInstanceGuid, acceptsIncomplete: true, serviceInstance: serviceInstance)
+        when:
+        provisioningService.checkActiveChildren(deprovisionRequest)
+        then:
+        noExceptionThrown()
     }
 
     def "checkActiveChildren succeeds with deleted children"() {

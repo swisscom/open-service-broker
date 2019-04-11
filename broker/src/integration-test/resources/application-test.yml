@@ -59,7 +59,7 @@ com.swisscom.cloud.sb.broker.service.mariadb:
       dashboardPath:
 
 com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: true
+  enable: false
   url: https://localhost:9000
   oauth2.registration-id: bosh-client
 

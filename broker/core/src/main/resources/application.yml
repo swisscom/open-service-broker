@@ -40,7 +40,6 @@ management:
     enable:
       jvm: false
       dataSource: false
-      tomcat: false
       process: false
       system: false
       http: false

@@ -54,7 +54,9 @@ class UpdatingPersistenceService {
     void updatePlanAndServiceDetails(final ServiceInstance serviceInstance, final String updateParameters, final Collection<ServiceDetail> serviceDetails, Plan plan, ServiceContext serviceContext) {
         serviceInstance.plan = plan
         serviceInstance.parameters = mergeServiceInstanceParameter(serviceInstance.parameters, updateParameters)
-        serviceInstance.serviceContext = serviceContext
+        if (serviceContext) {
+            serviceInstance.serviceContext = serviceContext
+        }
         serviceInstanceRepository.saveAndFlush(serviceInstance)
         updateServiceDetails(serviceDetails, serviceInstance)
     }

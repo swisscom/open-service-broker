@@ -1,162 +1,32 @@
 plugins {
-    id 'io.codearte.nexus-staging' version '0.11.0'
+    id 'nebula.info' version '5.0.0' apply false
+    id 'nebula.maven-publish' version '10.0.0' apply false
+    id 'nebula.javadoc-jar' version '10.0.0' apply false
+    id 'nebula.source-jar' version '10.0.0' apply false
+    id 'nebula.test-jar' version '10.0.0' apply false
+    id 'nebula.nebula-bintray' version '7.0.0' apply false
+    id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
-    id "org.springframework.boot" version "2.1.1.RELEASE" apply false
 }
 
-// Dependency management
-apply from: "gradle/dependencies.gradle"
-
-// To handle travis requirement
-// https://stackoverflow.com/a/26104997
-def ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ""
-def ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ""
-def signingKeyId = hasProperty('signingKeyId') ? signingKeyId : ""
-def signingPassword = hasProperty('signingPassword') ? signingPassword : ""
-def signingSecretKeyRingFile = hasProperty('signingSecretKeyRingFile') ? signingSecretKeyRingFile : ""
-
-nexusStaging {
-    username = ossrhUsername
-    password = ossrhPassword
-    packageGroup = 'com.swisscom.cloud.sb'
-    stagingProfileId = '69aff991058e1e'
     delayBetweenRetriesInMillis = 30000
-}
-
-def brokerVersion = version
-
 
 allprojects {
+    
 }
 
 subprojects {
     apply plugin: 'groovy'
-    apply plugin: 'idea'
-    apply plugin: 'jacoco'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    group = 'com.swisscom.cloud.sb'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+    def brokerVersion = version
 
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-
-    group = 'com.swisscom.cloud.sb'
-    version = brokerVersion
-    ext.isReleaseVersion = !project.version.endsWith('-SNAPSHOT')
-
-    task testAllJar(type: Jar, dependsOn: ":broker:testJar") {
-        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/test")
-        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/functionalTest")
-        from new File(project(':broker').getBuildDir().toString() + "/classes/groovy/integrationTest")
-        from new File(project(':client').getBuildDir().toString() + "/classes/groovy/test")
-        classifier "test"
-    }
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier "sources"
-    }
-    task javaDocJar(type: Jar, dependsOn: 'javadoc') {
-        from javadoc.destinationDir
-        classifier "javadoc"
-    }
-
-    artifacts {
-        archives testAllJar, sourceJar, javaDocJar
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                if (isReleaseVersion) {
-                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                }
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                pom.project {
-                    name project.name
-                    description = 'Swisscom\'s Open Service Broker API implementation'
-                    packaging 'jar'
-                    url 'https://github.com/swisscom/open-service-broker.git'
-                    scm {
-                        connection 'scm:git:git://github.com/swisscom/open-service-broker.git'
-                        developerConnection 'scm:git:git@github.com:swisscom/open-service-broker.git'
-                        url 'https://github.com/swisscom/open-service-broker'
-                    }
-                    licenses {
-                        license {
-                            name 'Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.html'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'murat.celep'
-                            name = 'Murat Celep'
-                            organization = 'Swisscom (Schweiz) AG'
-                            organizationUrl = 'https://www.swisscom.ch'
-                        }
-                        developer {
-                            id = 'philipp.meier'
-                            name = 'Philipp Meier'
-                            organization = 'Swisscom (Schweiz) AG'
-                            organizationUrl = 'https://www.swisscom.ch'
-                        }
-                        developer {
-                            id = 'simon.peter'
-                            name = 'Simon Peter'
-                            organization = 'Swisscom (Schweiz) AG'
-                            organizationUrl = 'https://www.swisscom.ch'
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (isReleaseVersion) {
-        ext.'signing.keyId' = signingKeyId
-        ext.'signing.password' = signingPassword
-        ext.'signing.secretKeyRingFile' = signingSecretKeyRingFile
-    }
-
-    signing {
-        sign configurations.archives
-    }
-
-    signArchives.onlyIf { isReleaseVersion && gradle.taskGraph.hasTask(uploadArchives) }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled false
-            csv.enabled false
-            html.destination new File("${buildDir}/jacocoHtml")
-        }
-    }
-
-    /**
-     * Escape the placeholders in the application-secrets.yml to prevent Gradle's template expanding to throw
-     * `MissingPropertyException` because these placeholders are later used from the OSB to parametrized provisioning
-     * templates.
-     */
-    processResources {
-        filesMatching("**/application-secrets.yml") { matchedFile ->
-            filter { line ->
-                line.replace('${', '\\${').replace('$(', '\\$(').replace('$\"', '\\$\"')
-            }
-        }
-    }
+    apply from: "$rootDir/gradle/repositories.gradle"
+    apply from: "$rootDir/gradle/dependencies.gradle"
+    apply from: "$rootDir/gradle/publishing.gradle"
 }
 
 licenseReport {

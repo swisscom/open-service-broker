@@ -65,7 +65,7 @@ class UpdatingController extends BaseController {
         def failed = false
         def hasSensitiveData = false
         try{
-            log.info("Update request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto.parameters}")
+            log.info("Update request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto?.parameters}")
             ServiceInstance serviceInstance = getServiceInstanceOrFail(serviceInstanceGuid)
             hasSensitiveData = updatingService.hasSensitiveParameters(serviceInstance.plan)
             def updatingResponse = updatingService.update(
@@ -88,7 +88,7 @@ class UpdatingController extends BaseController {
                             parameters: hasSensitiveData ? null : updateDto.parameters
                     ])
         }
-          }
+    }
 
     private ServiceInstance getServiceInstanceOrFail(String serviceInstanceGuid) {
         ServiceInstance instance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)

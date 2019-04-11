@@ -117,4 +117,45 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         cleanup:
         serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
     }
+
+    def "sending no context does not delete context"() {
+        given:
+        def context = new CustomContext([
+                "field_a": "Some Value",
+                "field_b": null,
+                "field_c": 13.37,
+                "field_d": 1337
+        ])
+        def serviceInstanceGuid = requestServiceProvisioning(new HashMap<String, Object>(),
+                defaultPlanGuid,
+                false,
+                defaultServiceGuid,
+                context)
+
+        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        serviceInstance.serviceContext.platform == "CUSTOM"
+        serviceInstance.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
+        serviceInstance.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
+        serviceInstance.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance.serviceContext.details.size() == 4
+
+        when:
+        context = null
+        serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid,
+                null,
+                false,
+                context)
+
+        then:
+        def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        assert serviceInstance2
+        serviceInstance2.serviceContext.platform == "CUSTOM"
+        serviceInstance2.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
+        serviceInstance2.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
+        serviceInstance2.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance2.serviceContext.details.size() == 4
+
+        cleanup:
+        serviceLifeCycler.deleteServiceInstanceAndAssert(serviceInstanceGuid, defaultServiceGuid, defaultPlanGuid, null, false, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+    }
 }

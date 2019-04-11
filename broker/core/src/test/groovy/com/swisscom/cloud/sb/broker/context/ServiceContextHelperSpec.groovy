@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.context
 
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceContext
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
