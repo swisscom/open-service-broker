@@ -29,7 +29,7 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
     DELETE_CONFIGS(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            context.boshFacade.deleteConfigsIfExists(context.lastOperationJobContext)
+            context.boshFacade.deleteBoshConfigs(context.lastOperationJobContext)
             return new StateChangeActionResult(go2NextState: true)
         }
     }),

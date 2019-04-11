@@ -81,7 +81,7 @@ class BoshClient {
     List<BoshVMDto> getAllVMsInDeployment(String id) {
         String vms = boshRestClient.getAllVMsInDeployment(id)
         log.debug("Bosh VMs:${vms}")
-        return new Gson().fromJson(vms, new TypeToken<List<BoshVMDto>>(){}.getType())
+        return new Gson().fromJson(vms, new TypeToken<List<BoshVMDto>>() {}.getType())
     }
 
     BoshConfig getBoshConfig() {

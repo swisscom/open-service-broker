@@ -23,7 +23,6 @@ import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
-import org.apache.http.client.utils.URIBuilder
 import org.springframework.http.*
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -144,19 +143,20 @@ class BoshRestClient {
     }
 
     void deleteConfig(String name, String type) {
-        createRestTemplate().exchange(prependBaseUrl("${CONFIGS}?name=${name}&type=${type}"), HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
+
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS + (new GenericConfigAPIQueryFilter.Builder())
+                .withName(name).withType(type).build().asUriString()),
+                HttpMethod.DELETE, new HttpEntity<Object>(createAuthHeaders()), String.class)
     }
 
     String getConfigs(String name, String type) {
-        createRestTemplate().exchange(prependBaseUrl(CONFIGS + setFilter(name, type)), HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
+        createRestTemplate().exchange(prependBaseUrl(CONFIGS + (new GenericConfigAPIQueryFilter.Builder())
+                .withName(name).withType(type).withLatest(true).build().asUriString()),
+                HttpMethod.GET, new HttpEntity(createAuthHeaders()), String.class).body
     }
 
-    private String setFilter(String name, String type) {
-        URIBuilder uriBuilder = new URIBuilder()
-        uriBuilder.setParameter('latest', 'true')
-        if (name != null) uriBuilder.setParameter('name', name)
-        if (type != null) uriBuilder.setParameter('type', type)
-        uriBuilder.toString()
+    private String setFilter(GenericConfigAPIQueryFilter filter) {
+        return filter.asUriString()
     }
 
     private RestTemplate createRestTemplate() {

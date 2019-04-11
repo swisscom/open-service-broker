@@ -191,47 +191,12 @@ class BoshRestClientSpec extends Specification {
         mockServer.verify()
     }
 
-    def "happy path: query correctly built with name and type set"() {
-        given:
-        String name = 'test'
-        String type = 'cloud'
-        when:
-        String filter = boshRestClient.setFilter(name, type)
-        then:
-        "?latest=true&name=${name}&type=${type}" == filter
-    }
-
-    def "happy path: query correctly built with name set"() {
-        given:
-        String name = 'test'
-        when:
-        String filter = boshRestClient.setFilter(name, null)
-        then:
-        "?latest=true&name=${name}" == filter
-    }
-
-    def "happy path: query correctly built with type set"() {
-        given:
-        String type = 'cloud'
-        when:
-        String filter = boshRestClient.setFilter(null, type)
-        then:
-        "?latest=true&type=${type}" == filter
-    }
-
-    def "happy path: query correctly built without any params"() {
-        when:
-        String filter = boshRestClient.setFilter(null, null)
-        then:
-        "?latest=true" == filter
-    }
-
     def "happy path: GetConfigs"() {
         given:
         String name = 'test'
         String type = 'cloud'
         and:
-        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS) + "?latest=true&name=${name}&type=${type}"))
+        mockServer.expect(requestTo(boshRestClient.prependBaseUrl(BoshRestClient.CONFIGS) + "?name=${name}&type=${type}&latest=true"))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(autHeader())
                 .andRespond(withStatus(HttpStatus.OK))
