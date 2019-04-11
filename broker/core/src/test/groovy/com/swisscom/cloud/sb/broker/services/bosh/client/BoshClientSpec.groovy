@@ -116,7 +116,7 @@ class BoshClientSpec extends Specification {
         String name = 'test'
         String type = 'cloud'
         when:
-        client.deleteConfigIfExists(name, type)
+        client.deleteConfig(name, type)
         then:
         1 * client.boshRestClient.deleteConfig(name, type)
     }

@@ -191,45 +191,6 @@ class BoshRestClientSpec extends Specification {
         mockServer.verify()
     }
 
-    def "happy path: query correctly built with name and type set"() {
-        given:
-        String name = 'test'
-        String type = 'cloud'
-        when:
-        String filter = boshRestClient.setFilter([(BoshConfigAPIQueryFilterParameter.NAME): name,
-                                                  (BoshConfigAPIQueryFilterParameter.TYPE): type,
-                                                  (BoshConfigAPIQueryFilterParameter.LATEST): 'true'])
-        then:
-        "?name=${name}&type=${type}&latest=true" == filter
-    }
-
-    def "happy path: query correctly built with name set"() {
-        given:
-        String name = 'test'
-        when:
-        String filter = boshRestClient.setFilter([(BoshConfigAPIQueryFilterParameter.NAME): name,
-                                                  (BoshConfigAPIQueryFilterParameter.LATEST): 'true'])
-        then:
-        "?name=${name}&latest=true" == filter
-    }
-
-    def "happy path: query correctly built with type set"() {
-        given:
-        String type = 'cloud'
-        when:
-        String filter = boshRestClient.setFilter([(BoshConfigAPIQueryFilterParameter.TYPE): type,
-                                                  (BoshConfigAPIQueryFilterParameter.LATEST): 'true'])
-        then:
-        "?type=${type}&latest=true" == filter
-    }
-
-    def "happy path: query correctly built without any params"() {
-        when:
-        String filter = boshRestClient.setFilter([(BoshConfigAPIQueryFilterParameter.LATEST): 'true'])
-        then:
-        "?latest=true" == filter
-    }
-
     def "happy path: GetConfigs"() {
         given:
         String name = 'test'

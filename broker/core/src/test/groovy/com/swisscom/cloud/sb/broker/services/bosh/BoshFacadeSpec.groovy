@@ -44,7 +44,8 @@ class BoshFacadeSpec extends Specification {
         and:
         TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
         TemplateConfig.ServiceTemplate configST = new TemplateConfig.ServiceTemplate(name: "test-config", version: "1.0.0", templates: [new File('src/test/resources/bosh/cloud_config_template_mongodbent_v5.yml').text])
-        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, boshConfigs: [['templateName': 'test-config', 'type': 'cloud']])
+        GenericConfig genericConfig = new GenericConfig(templateName: 'test-config', type: 'cloud')
+        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, genericConfigs: [genericConfig])
         templateConfig = new TemplateConfig(serviceTemplates: [st, configST])
         and:
         boshTemplate = Mock(BoshTemplate)
@@ -241,7 +242,7 @@ class BoshFacadeSpec extends Specification {
         boshFacade.deleteConfig('test', 'cloud')
 
         then:
-        1 * boshClient.deleteConfigIfExists(_, _)
+        1 * boshClient.deleteConfig('test', 'cloud')
     }
 
 }

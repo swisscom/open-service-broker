@@ -85,16 +85,15 @@ class BoshFacade {
             serviceDetails.add(ServiceDetail.from(ServiceDetailKey.HOST, it))
         }
 
-
         return serviceDetails
     }
 
     void handleTemplatingAndCreateConfigs(ProvisionRequest provisionRequest, BoshTemplateCustomizer templateCustomizer) {
-        for (config in serviceConfig.boshConfigs) {
-            BoshTemplate template = boshTemplateFactory.build(templateConfig.getTemplateForServiceKey(config.get('templateName')).first())
+        for (config in serviceConfig.genericConfigs) {
+            BoshTemplate template = boshTemplateFactory.build(templateConfig.getTemplateForServiceKey(config.templateName).first())
             template.replace(PARAM_GUID, provisionRequest.serviceInstanceGuid)
-            templateCustomizer.customizeBoshConfigTemplate(template, config.get('type'), provisionRequest)
-            createBoshClient().setConfig(new BoshConfigRequestDto(name: provisionRequest.serviceInstanceGuid, type: config.get('type'), content: template.build()))
+            templateCustomizer.customizeBoshConfigTemplate(template, config.type, provisionRequest)
+            createBoshClient().setConfig(new BoshConfigRequestDto(name: provisionRequest.serviceInstanceGuid, type: config.type, content: template.build()))
         }
     }
 
@@ -157,7 +156,9 @@ class BoshFacade {
     }
 
     void deleteBoshConfigs(LastOperationJobContext lastOperationJobContext) {
-        deleteConfig(lastOperationJobContext.serviceInstance.guid, null)
+        for (config in serviceConfig.genericConfigs) {
+            deleteConfig(lastOperationJobContext.serviceInstance.guid, config.type)
+        }
     }
 
     Optional<String> deleteBoshDeploymentIfExists(LastOperationJobContext lastOperationJobContext) {
@@ -169,10 +170,10 @@ class BoshFacade {
     }
 
     boolean isBoshUndeployTaskSuccessful(LastOperationJobContext lastOperationJobContext) {
-        Optional<String> maybe =  ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
-        if(maybe.present){
+        Optional<String> maybe = ServiceDetailsHelper.from(lastOperationJobContext.serviceInstance.details).findValue(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY)
+        if (maybe.present) {
             return isBoshTaskSuccessful(maybe.get())
-        }else{
+        } else {
             return true
         }
     }
@@ -182,7 +183,7 @@ class BoshFacade {
     }
 
     void deleteConfig(String name, String type) {
-        createBoshClient().deleteConfigIfExists(name, type)
+        createBoshClient().deleteConfig(name, type)
     }
 
     List<BoshConfigResponseDto> getConfigs(String name, String type) {

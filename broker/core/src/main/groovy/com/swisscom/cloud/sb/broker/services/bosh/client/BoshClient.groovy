@@ -81,7 +81,7 @@ class BoshClient {
     List<BoshVMDto> getAllVMsInDeployment(String id) {
         String vms = boshRestClient.getAllVMsInDeployment(id)
         log.debug("Bosh VMs:${vms}")
-        return new Gson().fromJson(vms, new TypeToken<List<BoshVMDto>>(){}.getType())
+        return new Gson().fromJson(vms, new TypeToken<List<BoshVMDto>>() {}.getType())
     }
 
     BoshConfig getBoshConfig() {
@@ -105,12 +105,7 @@ class BoshClient {
         new JsonSlurper().setType(RELAX).parseText(boshRestClient.getConfigs(name, type)) as List<BoshConfigResponseDto>
     }
 
-    void deleteConfigIfExists(String name, String type) {
-        try {
-            boshRestClient.deleteConfig(name, type)
-        } catch (BoshResourceNotFoundException e) {
-            log.debug("Bosh Config with name ${name} and type ${type} not found. This is ignored during deletion.")
-        }
-
+    void deleteConfig(String name, String type) {
+        boshRestClient.deleteConfig(name, type)
     }
 }
