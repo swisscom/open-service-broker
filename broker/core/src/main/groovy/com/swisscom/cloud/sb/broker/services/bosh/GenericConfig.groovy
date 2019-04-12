@@ -4,6 +4,6 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class GenericConfig {
-    public String templateName
-    public String type
+    String templateName
+    String type
 }
