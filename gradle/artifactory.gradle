@@ -1,0 +1,59 @@
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+            password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+        }
+        defaults {
+            publications ['maven']
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+    resolve {
+        repoKey = 'jcenter'
+    }
+    clientConfig.info.setBuildNumber(System.getProperty('build.number'))
+}
+
+/**
+ * For publishing in bintray and make it later sync with maven-central
+ */
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['maven']
+
+    pkg {
+        repo = "open-service-broker"
+        userOrg = "swisscom"
+        desc = description
+        websiteUrl = "https://github.com/swisscom/open-service-broker"
+        issueTrackerUrl = "https://github.com/swisscom/open-service-broker/issues"
+        vcsUrl = "https://github.com/swisscom/open-service-broker.git"
+        githubRepo = 'swisscom/open-service-broker'
+        licenses = ["Apache-2.0"]
+        labels = ["osb_api", "cloud_foundry"]
+        publicDownloadNumbers = true
+        attributes = [:]
+        version {
+            released = new Date()
+            name = project.version
+            vcsTag = project.version
+            attributes = [:]
+
+            // Optional configuration for Maven Central sync of the version
+            mavenCentralSync {
+                sync = true //[Default: true] Determines whether to sync the version to Maven Central.
+                close = '1'
+                //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                user = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') :
+                       System.getenv('SONATYPE_USER') //OSS user token: mandatory
+                password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') :
+                           System.getenv('SONATYPE_PASSWORD') //OSS user password: mandatory
+            }
+        }
+    }
+}
