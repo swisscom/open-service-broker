@@ -126,6 +126,35 @@ class BoshFacadeSpec extends Specification {
         noExceptionThrown()
     }
 
+    def "no generic config is being processed when genericConfig is empty"() {
+        given:
+        boshClient = Mock(BoshClient)
+        boshClientFactory = Mock(BoshClientFactory)
+        boshClientFactory.build(*_) >> boshClient
+        and:
+        TemplateConfig.ServiceTemplate st = new TemplateConfig.ServiceTemplate(name: "test", version: "1.0.0", templates: [new File('src/test/resources/bosh/template_mongodbent_v5.yml').text])
+        TemplateConfig.ServiceTemplate configST = new TemplateConfig.ServiceTemplate(name: "test-config", version: "1.0.0", templates: [new File('src/test/resources/bosh/cloud_config_template_mongodbent_v5.yml').text])
+        serviceConfig = new DummyConfig(retryIntervalInSeconds: 1, maxRetryDurationInMinutes: 1, genericConfigs: [])
+        templateConfig = new TemplateConfig(serviceTemplates: [st, configST])
+        and:
+        boshTemplate = Mock(BoshTemplate)
+        boshTemplateFactory = Mock(BoshTemplateFactory) { build(_) >> boshTemplate }
+        and:
+        boshFacade = new BoshFacade(boshClientFactory, serviceConfig, boshTemplateFactory, templateConfig)
+        def request = new ProvisionRequest(serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: 'test',
+                parameters: [new Parameter(name: 'name1', value: 'value1')]))
+        def customizer = Mock(BoshTemplateCustomizer)
+        and:
+        0 * customizer.customizeBoshConfigTemplate(boshTemplate, 'cloud', request) >> null
+        and:
+        0 * boshClient.setConfig(_) >> null
+        when:
+        boshFacade.handleTemplatingAndCreateConfigs(request, customizer)
+        then:
+        0 * boshTemplate.replace('guid', request.serviceInstanceGuid)
+        noExceptionThrown()
+    }
+
     def "bosh Deploy task state checking is handled correctly for normal cases"() {
         given:
         def taskId = 'taskId'

@@ -58,6 +58,12 @@ com.swisscom.cloud.sb.broker.service.mariadb:
       bindir: '/var/vcap/packages/shield-mysql/bin'
       dashboardPath:
 
+com.swisscom.cloud.sb.broker.service.test-bosh-based-service:
+  retryIntervalInSeconds: 42
+  genericConfigs:
+    - templateName: test
+      type: cloud
+
 com.swisscom.cloud.sb.broker.bosh.credhub:
   enable: false
   url: https://localhost:9000
