@@ -15,11 +15,14 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfig
+import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
-trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
-    String portRange
-    String boshManifestFolder
-    boolean shuffleAzs
-    List<GenericConfig> genericConfigs = new ArrayList<>()
+@Configuration
+@ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.service.test-bosh-based-service")
+@Profile("test")
+class DummyBoshBasedServiceConfig extends AsyncServiceConfigImpl implements BoshBasedServiceConfig {
+
 }
