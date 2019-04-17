@@ -30,7 +30,7 @@ ext {
             tomcat_juli                        : '9.0.11',
 
             influxdb_java                      : '2.7',
-            micrometer_registry_influx         : '1.0.4',
+            micrometer_registry_influx         : '1.1.1',
 
             springfox                          : '2.9.2',
             swagger                            : '2.0.2',
