@@ -8,10 +8,7 @@ scmVersion {
         type = 'git' // type of repository
         directory = project.rootProject.file('./') // repository location
         remote = 'origin' // remote name
-
-        // Authorization: useless in our case because we can't use ssh keys
-        // customKey = 'AAasaDDSSD...' or project.file('myKey') // custom authorization key (file or String)
-        // customKeyPassword = 'secret' // key password
+        pushTagsOnly = true
     }
 
     // For connecting to remote we should provide ssh keys or you have to call it passing the username an password
@@ -20,7 +17,8 @@ scmVersion {
 
     ignoreUncommittedChanges = false // should uncommitted changes force version bump
 
-    useHighestVersion = false // Defaults as false, setting to true will find the highest visible version in the commit tree
+    useHighestVersion = false
+    // Defaults as false, setting to true will find the highest visible version in the commit tree
 
     sanitizeVersion = true // should created version be sanitized, true by default
 
@@ -66,13 +64,14 @@ scmVersion {
     //releaseCommitMessage { version, position -> ... } // custom commit message if commits are created
 
     checks {
-        uncommittedChanges = true // permanently disable uncommitted changes check
+        uncommittedChanges = false // permanently disable uncommitted changes check
         aheadOfRemote = false // permanently disable ahead of remote check
-        snapshotDependencies = false // check that there is no SNAPSHOT dependencies (for example when doing a stable release)
+        snapshotDependencies = false
+        // check that there is no SNAPSHOT dependencies (for example when doing a stable release)
     }
 
-    hooks {
-        pre 'fileUpdate', [file: 'README.md', pattern: {v,p -> ":version: (.*)"}, replacement: {v, p -> ":version: $v"}]
-        pre 'commit'
-    }
+//    hooks {
+//        pre 'fileUpdate', [file: 'README.md', pattern: {v,p -> ":version: (.*)"}, replacement: {v, p -> ":version: $v"}]
+//        pre 'commit'
+//    }
 }

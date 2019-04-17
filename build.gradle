@@ -10,26 +10,26 @@ plugins {
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
 
-
+// According to axion documentation you should apply the scmVersion configuration in the root project and associate
+// the calculated version to subprojects
+// https://axion-release-plugin.readthedocs.io/en/latest/configuration/basic_usage/#multi-module-with-multiple-versions
 apply from: "$rootDir/gradle/versioning.gradle"
 
 allprojects {
     project.version = scmVersion.version
-
 }
 
 subprojects {
-    apply plugin: 'groovy'
     apply plugin: 'signing'
+    apply plugin: 'groovy'
+    apply from: "$rootDir/gradle/repositories.gradle"
+    apply from: "$rootDir/gradle/dependencies.gradle"
+    apply from: "$rootDir/gradle/functional-testing.gradle"
 
     group = 'com.swisscom.cloud.sb'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
     def brokerVersion = version
-
-    apply from: "$rootDir/gradle/repositories.gradle"
-    apply from: "$rootDir/gradle/dependencies.gradle"
-    apply from: "$rootDir/gradle/publishing.gradle"
 }
 
 licenseReport {
