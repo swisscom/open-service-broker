@@ -1,15 +1,18 @@
 plugins {
     id "com.jfrog.bintray" version "1.8.4" apply false
     id "com.jfrog.artifactory" version "4.9.5" apply false
+    id 'pl.allegro.tech.build.axion-release' version '1.10.0'
     id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
 }
+
+apply from: "$rootDir/gradle/versioning.gradle"
 
 allprojects {
     apply plugin: 'com.jfrog.bintray'
     apply plugin: 'com.jfrog.artifactory'
     apply from: "$rootDir/gradle/artifactory.gradle"
-
+    project.version = scmVersion.version
 
 }
 
@@ -22,11 +25,12 @@ subprojects {
     group = 'com.swisscom.cloud.sb'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-    def brokerVersion = version
+
 
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"
     apply from: "$rootDir/gradle/publishing.gradle"
+    def brokerVersion = version
 }
 
 licenseReport {
