@@ -60,7 +60,7 @@ dependencies {
     runtime libs.javax_el_api
     runtime libs.javax_el
 
-    testCompile project(path:':broker:core', configuration:'testArtifacts')
+    testCompile project(path:':broker:core', configuration:'test')
     testCompile libs.groovy
     testCompile libs.groovy_test
     testCompile libs.junit
