@@ -6,6 +6,13 @@ Master Branch: [![CircleCI](https://circleci.com/gh/swisscom/open-service-broker
 
 Develop Branch: [![CircleCI](https://circleci.com/gh/swisscom/open-service-broker/tree/develop.svg?style=svg)](https://circleci.com/gh/swisscom/open-service-broker/tree/develop)
 
+broker: [ ![broker Download](https://api.bintray.com/packages/swisscom/open-service-broker/broker/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/broker/_latestVersion)
+
+core: [ ![core Download](https://api.bintray.com/packages/swisscom/open-service-broker/core/images/download.svg?version=6.6.10) ](https://bintray.com/swisscom/open-service-broker/core/6.6.10/link)
+
+model: [ ![model Download](https://api.bintray.com/packages/swisscom/open-service-broker/model/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/model/_latestVersion)
+
+client: [ ![client Download](https://api.bintray.com/packages/swisscom/open-service-broker/client/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/client/_latestVersion)
 
 ## Introduction
 
