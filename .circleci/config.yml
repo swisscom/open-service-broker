@@ -52,6 +52,7 @@ jobs:
       - image: circleci/openjdk:8
     steps:
       - checkout
+      - run: openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
       - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -PsigningSecretKeyRingFile=/home/circleci/project/local.secring.gpg
 
 
