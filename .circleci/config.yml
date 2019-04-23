@@ -52,7 +52,7 @@ jobs:
       - image: circleci/openjdk:8
     steps:
       - checkout
-      - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY
+      - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD
 
 
 workflows:
