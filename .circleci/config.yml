@@ -72,6 +72,7 @@ workflows:
       - publish:
           requires:
             - integration_test
+            - tag_release
           filters:
             branches:
               only: develop
