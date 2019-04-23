@@ -49,40 +49,42 @@ publishing {
             artifactId = project.name
             groupId = group
 
-            pom {
-                name = project.name
-                description = 'Swisscom\'s Open Service Broker API implementation'
+            afterEvaluate {
+                pom {
+                    name = "$publishingName - ${project.name}"
+                    description = publishingDescription
 
-                licenses {
-                    license {
-                        name = 'Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                    licenses {
+                        license {
+                            name = 'Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id = 'philipp.meier'
-                        name = 'Philipp Meier'
-                        organization = 'Swisscom (Schweiz) AG'
-                        organizationUrl = 'https://www.swisscom.ch'
-                    }
-                    developer {
-                        id = 'simon.peter'
-                        name = 'Simon Peter'
-                        organization = 'Swisscom (Schweiz) AG'
-                        organizationUrl = 'https://www.swisscom.ch'
-                    }
-                    developer {
-                        id = 'christoph.seiler'
-                        name = 'Christoph Seiler'
-                        organization = 'Swisscom (Schweiz) AG'
-                        organizationUrl = 'https://www.swisscom.ch'
-                    }
-                    developer {
-                        id = 'ibon.urrutia'
-                        name = 'Ibon Urrutia'
-                        organization = 'Swisscom (Schweiz) AG'
-                        organizationUrl = 'https://www.swisscom.ch'
+                    developers {
+                        developer {
+                            id = 'philipp.meier'
+                            name = 'Philipp Meier'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                        developer {
+                            id = 'simon.peter'
+                            name = 'Simon Peter'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                        developer {
+                            id = 'christoph.seiler'
+                            name = 'Christoph Seiler'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
+                        developer {
+                            id = 'ibon.urrutia'
+                            name = 'Ibon Urrutia'
+                            organization = 'Swisscom (Schweiz) AG'
+                            organizationUrl = 'https://www.swisscom.ch'
+                        }
                     }
                 }
             }
@@ -106,9 +108,15 @@ bintray {
     labels = ["osb_api", "cloud_foundry"]
 }
 
-ext.'signing.keyId' = project.hasProperty('signingKeyId') ? project.property('signingKeyId') : System.getenv('SIGNING_KEY_ID')
-ext.'signing.password' = project.hasProperty('signingPassword') ? project.property('signingPassword') : System.getenv('SIGNING_PASSWORD')
-ext.'signing.secretKeyRingFile' = project.hasProperty('signingSecretKeyRingFile') ? project.property('signingSecretKeyRingFile') : "local.secring.gpg"
+ext.'signing.keyId' = project.hasProperty('signingKeyId') ?
+                      project.property('signingKeyId') :
+                      System.getenv('SIGNING_KEY_ID')
+ext.'signing.password' = project.hasProperty('signingPassword') ?
+                         project.property('signingPassword') :
+                         System.getenv('SIGNING_PASSWORD')
+ext.'signing.secretKeyRingFile' = project.hasProperty('signingSecretKeyRingFile') ?
+                                  project.property('signingSecretKeyRingFile') :
+                                  "local.secring.gpg"
 
 signing {
     required {isReleaseVersion}
