@@ -25,6 +25,7 @@ subprojects {
     apply from: "$rootDir/gradle/repositories.gradle"
     apply from: "$rootDir/gradle/dependencies.gradle"
     apply from: "$rootDir/gradle/functional-testing.gradle"
+    apply from: "$rootDir/gradle/publishing.gradle"
 
     group = 'com.swisscom.cloud.sb'
     sourceCompatibility = 1.8

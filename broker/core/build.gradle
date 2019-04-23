@@ -4,21 +4,6 @@ jar{
     enabled = true
 }
 
-// We need to define test artifacts because broker tests extend from AbstractAsyncServiceProviderSpec
-// FIXME Use Junit Rules instead of extending AbstractAsyncServiceProviderSpec
-configurations {
-    testArtifacts.extendsFrom testRuntime
-}
-
-task testJar(type: Jar) {
-    classifier "test"
-    from sourceSets.test.output
-}
-
-artifacts {
-    testArtifacts testJar
-}
-
 dependencies {
     compile project(':model')
     compile project(':client')
