@@ -4,7 +4,7 @@ plugins {
     id 'nebula.javadoc-jar' version '10.0.0' apply false
     id 'nebula.source-jar' version '10.0.0' apply false
     id 'nebula.test-jar' version '10.0.0' apply false
-    id 'nebula.nebula-bintray' version '7.0.0' apply false
+    id 'nebula.nebula-bintray' version '7.2.7' apply false
     id 'pl.allegro.tech.build.axion-release' version '1.10.0'
     id 'org.springframework.boot' version '2.1.1.RELEASE' apply false
     id "com.github.jk1.dependency-license-report" version "1.2"
