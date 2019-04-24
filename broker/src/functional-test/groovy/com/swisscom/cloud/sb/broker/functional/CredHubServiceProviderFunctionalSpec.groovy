@@ -131,6 +131,6 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
         yaml.setResources(new ClassPathResource("application-test.yml"))
         yaml.afterPropertiesSet()
-        return StringUtils.equals(yaml.object.getProperty("spring.credhub.enable"), "true")
+        return StringUtils.equals(yaml.object.getProperty("osb.credhub.enable"), "true")
     }
 }

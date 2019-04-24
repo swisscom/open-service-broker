@@ -2,13 +2,16 @@ spring.profiles:
   include:
   - activeprofiles
 ---
+osb:
+  credhub:
+    enable: false
+
 spring:
   profiles: default
 
   credhub:
     url:
     oauth2.registration-id:
-    enable: false
   security:
     oauth2:
       client:
