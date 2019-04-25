@@ -29,8 +29,12 @@ spring:
           uaa:
             token-uri: http://localhost:8081/uaa/oauth/token
 
+# Sets the Credential Store to a CredHub instance
+osb:
+  credential:
+    store: "credhub"
+
 com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: true
   url: https://localhost:9000
   oauth2.registration-id: bosh-client
 

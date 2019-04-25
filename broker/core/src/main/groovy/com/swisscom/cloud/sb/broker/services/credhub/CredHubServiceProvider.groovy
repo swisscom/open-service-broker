@@ -46,7 +46,7 @@ import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetail
 @Component
 @CompileStatic
 @Slf4j
-@ConditionalOnProperty(name = "osb.credhub.enable", havingValue = "true")
+@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider, CloudFoundryContextRestrictedOnly {
 
     private final CredHubServiceImpl credHubServiceImpl

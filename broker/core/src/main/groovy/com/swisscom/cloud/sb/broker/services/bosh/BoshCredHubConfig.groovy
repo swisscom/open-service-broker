@@ -17,13 +17,16 @@ package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.swisscom.cloud.sb.broker.services.credhub.CertificateConfig
 import groovy.transform.CompileStatic
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.credhub.core.CredHubProperties
+import org.springframework.stereotype.Component
 
 @CompileStatic
-@Configuration
+@Component
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
+@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class BoshCredHubConfig extends CredHubProperties implements CertificateConfig  {
-    boolean enable
 }

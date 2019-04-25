@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(name = "com.swisscom.cloud.sb.broker.bosh.credhub.enable", havingValue = "true")
+@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class BoshCredHubTemplate extends CredHubTemplate {
 
     @Autowired
