@@ -33,7 +33,7 @@ apply plugin: 'nebula.nebula-bintray-publishing'
  *
  *  // For compatibility with  bintray plugin
  *  bintrayUser=<bintray username>
- *  bintrayPassword=<bintray apikey obtained from ui>
+ *  bintrayApiKey=<bintray apikey obtained from ui>
  *
  *  // For signing artifacts with deencrypted secring.gpg.enc
  *  signingKeyId=<signing key id>
