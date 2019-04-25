@@ -171,7 +171,7 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean()
         yaml.setResources(new ClassPathResource("application-test.yml"))
         yaml.afterPropertiesSet()
-        return StringUtils.equals(yaml.object.getProperty("com.swisscom.cloud.sb.broker.bosh.credhub.enable"), "true")
+        return StringUtils.equals(yaml.object.getProperty("osb.bosh.credhub.enable"), "true")
     }
 
 }

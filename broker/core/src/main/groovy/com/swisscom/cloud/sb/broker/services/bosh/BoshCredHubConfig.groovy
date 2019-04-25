@@ -25,5 +25,4 @@ import org.springframework.credhub.core.CredHubProperties
 @Configuration
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.bosh.credhub')
 class BoshCredHubConfig extends CredHubProperties implements CertificateConfig  {
-    boolean enable
 }

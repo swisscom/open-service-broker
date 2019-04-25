@@ -29,8 +29,14 @@ spring:
           uaa:
             token-uri: http://localhost:8081/uaa/oauth/token
 
+osb:
+  credhub:
+    enable: true
+  bosh:
+    credhub:
+      enable: true
+
 com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: true
   url: https://localhost:9000
   oauth2.registration-id: bosh-client
 
