@@ -65,7 +65,7 @@ class CatalogFunctionalSpec extends BaseFunctionalSpec {
         newAddedService.plans.size() == 1
 
         def plan = newAddedService.plans[0]
-        JsonHelper.toJsonString(plan.schemas.serviceInstanceSchema.createMethodSchema.configParametersSchema) == serviceInstanceCreateSchema
+        JsonHelper.toJsonString(plan.schemas.serviceInstanceSchema.createMethodSchema.parameters) == serviceInstanceCreateSchema
     }
 
 

@@ -15,19 +15,19 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.KubernetesContext
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
@@ -63,7 +63,9 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
                 DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
                 true,
                 true,
-                ['delay': String.valueOf(processDelayInSeconds)])
+                ['delay': String.valueOf(processDelayInSeconds)] as Map,
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
+        )
 
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
@@ -82,8 +84,16 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def "deprovision not existing async service instance"() {
+        given:
+        String randomServiceInstanceGuid = UUID.randomUUID().toString()
         when:
-        serviceBrokerClient.deleteServiceInstance(new DeleteServiceInstanceRequest(UUID.randomUUID().toString(), serviceLifeCycler.cfService.guid, serviceLifeCycler.cfService.plans[0].guid, true))
+        serviceBrokerClient.deleteServiceInstance(
+                DeleteServiceInstanceRequest.builder().
+                serviceDefinitionId(serviceLifeCycler.cfService.guid).
+                planId((serviceLifeCycler.cfService.plans[0] as Plan).guid).
+                serviceInstanceId(randomServiceInstanceGuid).
+                build()
+        )
 
         then:
         def ex = thrown(HttpClientErrorException)
@@ -106,48 +116,16 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         this.parentServiceInstanceGuid = serviceLifeCycler.serviceInstanceId
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4,
+                true,
+                true,
+                ['delay': String.valueOf(processDelayInSeconds)] as Map,
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
+        )
+
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
-    }
-
-    def "provision async service instance with parent reference"() {
-        given:
-        serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
-        serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true,
-                ['delay': String.valueOf(processDelayInSeconds)])
-        this.parentServiceInstanceGuid = serviceLifeCycler.serviceInstanceId
-
-        when:
-        serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parent_reference': this.parentServiceInstanceGuid])
-        then:
-        serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
-
-        def si = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
-        assert si != null
-        assert si.parentServiceInstance != null
-    }
-
-
-    def "provision async service instance with non-existing parent reference"() {
-        given:
-        serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
-        serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
-
-        when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4, true, true,
-                ['delay': String.valueOf(processDelayInSeconds), 'parent_reference': 'service-instance-xxx'])
-
-        then:
-        def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.NOT_FOUND
-        ex.responseBodyAsString != null
-        def serviceBrokerException = new ObjectMapper().readValue(ex.responseBodyAsString, ServiceBrokerException)
-        serviceBrokerException.code == ErrorCode.PARENT_SERVICE_INSTANCE_NOT_FOUND.code
     }
 
 
@@ -155,10 +133,16 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         given:
         def serviceInstanceGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new CloudFoundryContext("org_id", "space_id")
+        def context = CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, null, context)
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                0,
+                false,
+                false,
+                [] as Map,
+                context
+        )
 
         then:
         assertCloudFoundryContext(serviceInstanceGuid)
@@ -173,10 +157,16 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         given:
         def serviceInstanceGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new KubernetesContext("namespace_guid")
+        def context = KubernetesContext.builder().namespace("namespace_guid").build()
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, null, context)
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                0,
+                false,
+                false,
+                [] as Map,
+                context
+        )
 
         then:
         assertKubernetesContext(serviceInstanceGuid)
@@ -192,7 +182,13 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2,
+                true,
+                true,
+                ['delay': String.valueOf(processDelayInSeconds)] as Map,
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
+        )
         serviceBrokerClient.getServiceInstance(serviceInstanceGuid)
 
         then:
@@ -208,7 +204,13 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS, true, true, ['delay': String.valueOf(processDelayInSeconds)])
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.DEFAULT_PROCESSING_DELAY_IN_SECONDS * 2,
+                true,
+                true,
+                ['delay': String.valueOf(processDelayInSeconds)] as Map,
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
+        )
         def serviceInstance = serviceBrokerClient.getServiceInstance(serviceInstanceGuid)
 
         then:
@@ -226,8 +228,8 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         when:
         ResponseEntity provisionResponse = serviceLifeCycler.requestServiceProvisioning(
                 true,
-                null,
-                ['delay': String.valueOf(processDelayInSeconds)]
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build(),
+                ['delay': String.valueOf(processDelayInSeconds)] as Map
         )
 
         then:
@@ -251,9 +253,8 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         when:
         ResponseEntity provisionResponse = serviceLifeCycler.requestServiceProvisioning(
                 true,
-                null,
-                ['delay': String.valueOf(processDelayInSeconds),
-                 'dashboard_url': myDashboardUrl]
+                CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build(),
+                ['delay': String.valueOf(processDelayInSeconds), 'dashboard_url': myDashboardUrl] as Map
         )
 
         then:
@@ -269,20 +270,20 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     }
 
     void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
-        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid) as ServiceInstance
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
-        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid) as ServiceInstance
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == KubernetesContext.KUBERNETES_PLATFORM
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.KUBERNETES_NAMESPACE }.value == "namespace_guid"
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.KUBERNETES_NAMESPACE }.value == "namespace_guid"
     }
 
 }

@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.StringGenerator
@@ -23,6 +24,7 @@ import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
@@ -186,11 +188,13 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false,)
 
         when:
-        serviceBrokerClient.deleteServiceInstanceBinding(new DeleteServiceInstanceBindingRequest(serviceInstanceGuid,
-                                                                                                 serviceBindingGuid,
-                                                                                                 serviceLifeCycler.cfService.guid,
-                                                                                                 serviceLifeCycler.cfService.plans[
-                                                                                                         0].guid))
+        serviceBrokerClient.deleteServiceInstanceBinding(
+                DeleteServiceInstanceBindingRequest.builder().
+                        serviceDefinitionId(serviceLifeCycler.cfService.guid).
+                        planId((serviceLifeCycler.cfService.plans[0] as Plan).guid).
+                        serviceInstanceId(serviceInstanceGuid).
+                        bindingId(serviceBindingGuid).
+                        build())
         then:
         def ex = thrown(HttpClientErrorException)
         ex.statusCode == HttpStatus.GONE

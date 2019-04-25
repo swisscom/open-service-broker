@@ -22,10 +22,9 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
-import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
 
 class TestHelperServiceSpec extends BaseFunctionalSpec {
@@ -57,7 +56,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
 
         and:
         def serviceInstanceId = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(serviceId, planId, null, null, null).withServiceInstanceId(serviceInstanceId).withAsyncAccepted(false))
+        serviceBrokerClientExtended.createServiceInstance(CreateServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(serviceId).
+                planId(planId).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(false).
+                build())
 
         and:
         serviceDefinitionInitializer.init()
@@ -74,7 +79,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
         assert (planRepository.findByGuid(planId).active)
 
         cleanup:
-        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId, serviceId, planId, true))
+        serviceBrokerClientExtended.deleteServiceInstance(DeleteServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(serviceId).
+                planId(planId).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(true).
+                build())
     }
 
     def "set selected services and plans to active"() {
@@ -90,7 +101,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
 
         and:
         def serviceInstanceId = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(serviceId, planId, null, null, null).withServiceInstanceId(serviceInstanceId).withAsyncAccepted(false))
+        serviceBrokerClientExtended.createServiceInstance(CreateServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(serviceId).
+                planId(planId).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(false).
+                build())
 
         and:
         serviceDefinitionInitializer.init()
@@ -111,7 +128,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
         assert (planRepository.findByGuid(planId).active)
 
         cleanup:
-        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId, serviceId, planId, true))
+        serviceBrokerClientExtended.deleteServiceInstance(DeleteServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(serviceId).
+                planId(planId).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(true).
+                build())
     }
 
     private ServiceBrokerClientExtended createServiceBrokerClient() {

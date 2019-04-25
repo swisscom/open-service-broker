@@ -62,7 +62,10 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
             String serviceGuid = defaultServiceGuid) {
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
-        def context = new CloudFoundryContext(defaultOrgGuid, defaultSpaceGuid)
+        def context = CloudFoundryContext.builder().
+                organizationGuid(defaultOrgGuid).
+                spaceGuid(defaultSpaceGuid).
+                build()
 
         serviceLifeCycler.requestServiceProvisioning(
                 serviceInstanceGuid,
@@ -146,7 +149,10 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     def "update request also updates context"() {
         given:
         def serviceInstanceGuid = requestServiceProvisioning(parameters)
-        def updatedContext = new CloudFoundryContext("myorg", "myspace")
+        def updatedContext = CloudFoundryContext.builder().
+                organizationGuid("myorg").
+                spaceGuid("myspace").
+                build()
 
         when:
         parameters.put(parameterKey, parameterNewValue)

@@ -34,7 +34,7 @@ class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
 
     def "Create service and verify extension"(){
         when:
-        ResponseEntity<ProvisionResponseDto> res = serviceLifeCycler.provision(false, null, null)
+        ResponseEntity<ProvisionResponseDto> res = serviceLifeCycler.provision(false, null, [] as Map)
         then:
         "DummyExtensionURL" == res.body.extension_apis[0].discovery_url
     }

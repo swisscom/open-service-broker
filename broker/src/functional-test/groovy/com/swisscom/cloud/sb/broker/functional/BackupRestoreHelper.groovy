@@ -18,11 +18,13 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
+import groovy.transform.CompileStatic
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
+@CompileStatic
 class BackupRestoreHelper {
     private String backupUrl
     private String restoreUrl
