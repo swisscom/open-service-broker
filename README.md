@@ -8,7 +8,7 @@ Develop Branch: [![CircleCI](https://circleci.com/gh/swisscom/open-service-broke
 
 broker: [ ![broker Download](https://api.bintray.com/packages/swisscom/open-service-broker/broker/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/broker/_latestVersion)
 
-core: [ ![core Download](https://api.bintray.com/packages/swisscom/open-service-broker/core/images/download.svg?version=6.6.10) ](https://bintray.com/swisscom/open-service-broker/core/6.6.10/link)
+core: [ ![core Download](https://api.bintray.com/packages/swisscom/open-service-broker/core/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/core/_latestVersion)
 
 model: [ ![model Download](https://api.bintray.com/packages/swisscom/open-service-broker/model/images/download.svg) ](https://bintray.com/swisscom/open-service-broker/model/_latestVersion)
 
