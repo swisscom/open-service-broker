@@ -23,18 +23,18 @@ import org.springframework.stereotype.Component
 class CredentialService {
 
     @Autowired
-    private CredentialStoreFactory credentialStoreFactory
+    private CredentialStore credentialStore
 
     def writeCredential(ServiceBinding serviceBinding, String credentialJson) {
-        credentialStoreFactory.object.writeCredential(serviceBinding, credentialJson)
+        credentialStore.save(serviceBinding, credentialJson)
     }
 
     def deleteCredential(ServiceBinding serviceBinding) {
-        credentialStoreFactory.object.deleteCredential(serviceBinding)
+        credentialStore.delete(serviceBinding)
     }
 
     String getCredential(ServiceBinding serviceBinding) {
-        credentialStoreFactory.object.getCredential(serviceBinding)
+        credentialStore.get(serviceBinding)
     }
 
 }

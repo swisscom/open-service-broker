@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
+import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -34,18 +34,22 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ServiceBindingPersistenceService serviceBindingPersistenceService
     @Autowired
-    private CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
+    private CredHubCredentialStore credentialStore
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
-        System.setProperty('javax.net.ssl.keyStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.keyStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
-        System.setProperty('javax.net.ssl.trustStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.trustStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
     }
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
+                                                      ServiceProviderLookup.findInternalName(
+                                                              DummySynchronousServiceProvider.class))
     }
 
     def cleanupSpec() {
@@ -71,9 +75,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceBinding != null
         serviceBinding.credentials != null
         serviceBinding.applicationUser.username == cfAdminUser.username
-        if (credHubCredentialStoreStrategy.isCredHubServiceAvailable()) {
-            serviceBinding.credhubCredentialId != null
-        }
+        serviceBinding.credhubCredentialId != null
 
         cleanup:
         serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
@@ -81,7 +83,15 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
         given:
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, false, false)
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
+                                                      ServiceProviderLookup.findInternalName(
+                                                              DummySynchronousServiceProvider.class),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      0,
+                                                      false,
+                                                      false)
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
         def serviceBindingGuid = UUID.randomUUID().toString()
@@ -104,7 +114,15 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and bind with parameters with bindings retrievable"() {
         given:
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
+                                                      ServiceProviderLookup.findInternalName(
+                                                              DummySynchronousServiceProvider.class),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      0,
+                                                      true,
+                                                      true)
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
         def serviceBindingGuid = UUID.randomUUID().toString()
@@ -128,7 +146,15 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and fetch non existing binding"() {
         given:
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
+                                                      ServiceProviderLookup.findInternalName(
+                                                              DummySynchronousServiceProvider.class),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      0,
+                                                      true,
+                                                      true)
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
         def serviceBindingGuid = UUID.randomUUID().toString()
@@ -146,7 +172,15 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and unbind non existing binding"() {
         given:
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
+                                                      ServiceProviderLookup.findInternalName(
+                                                              DummySynchronousServiceProvider.class),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      0,
+                                                      true,
+                                                      true)
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
         def serviceBindingGuid = UUID.randomUUID().toString()
@@ -156,7 +190,10 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceBrokerClient.deleteServiceInstanceBinding(new DeleteServiceInstanceBindingRequest(serviceInstanceGuid,
-                serviceBindingGuid, serviceLifeCycler.cfService.guid, serviceLifeCycler.cfService.plans[0].guid))
+                                                                                                 serviceBindingGuid,
+                                                                                                 serviceLifeCycler.cfService.guid,
+                                                                                                 serviceLifeCycler.cfService.plans[
+                                                                                                         0].guid))
         then:
         def ex = thrown(HttpClientErrorException)
         ex.statusCode == HttpStatus.GONE

@@ -1,6 +1,6 @@
 spring.profiles:
   include:
-  - activeprofiles
+    - activeprofiles
 ---
 spring:
   profiles: default
@@ -52,13 +52,11 @@ endpoints:
     enabled: true
     id: version
 
-# De-activates the use of Credhub in OSB (the following credhub configuration won't be used)
+# Sets the Credential Store to use for storing credentials needed to connect to Service instances
 osb:
-  credhub:
-    enable: false
-  bosh:
-    credhub:
-      enable: false
+  credential:
+    store: "default"    # WARNING: 'default' is INSECURE for production use
+
 
 com.swisscom.cloud.sb.broker.credhub:
   url: https://localhost:9000

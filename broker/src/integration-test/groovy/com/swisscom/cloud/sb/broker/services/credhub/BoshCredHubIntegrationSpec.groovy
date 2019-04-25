@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStoreStrategy
+import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
 import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.util.JsonHelper
@@ -54,7 +54,7 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     CredHubService boshCredHubService
 
     @Autowired
-    CredHubCredentialStoreStrategy credHubCredentialStoreStrategy
+    CredHubCredentialStore credentialStore
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')

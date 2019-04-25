@@ -44,7 +44,7 @@ import org.springframework.stereotype.Service
 @Service
 @CompileStatic
 @Slf4j
-@ConditionalOnProperty(name = "osb.credhub.enable", havingValue = "true")
+@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class CredHubServiceImpl implements CredHubService {
 
     @Autowired

@@ -21,37 +21,52 @@ import com.swisscom.cloud.sb.broker.util.JsonHelper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 
+import static com.swisscom.cloud.sb.broker.util.JsonHelper.toJsonString
+
+/**
+ * A {@link CredentialStore} which uses <a href='https://github.com/cloudfoundry-incubator/credhub'>CredHub</a> as
+ * underlying store.
+ * <p>
+ *     For using it as {@link CredentialStore} of the system, include the following property in your configuration:
+ *  <pre>osb.credential.store="credhub"</pre>
+ *  or in yaml notation:
+ *  <pre>
+ *      osb:
+ *          credential:
+ *              store: "credhub"
+ *      </pre>
+ * </p>
+ *
+ */
 @Component
 @CompileStatic
 @Slf4j
-class CredHubCredentialStoreStrategy implements CredentialStoreStrategy {
+@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
+class CredHubCredentialStore implements CredentialStore {
 
     @Autowired
     private ApplicationContext applicationContext
 
-    @Autowired(required = false)
+    @Autowired
     private CredHubService credHubService
 
-    def writeCredential(ServiceBinding serviceBinding, String credentialJson) {
+    def save(ServiceBinding key, String credentialJson) {
         Map credentials = JsonHelper.parse(credentialJson, Map) as Map
-        def credhubJsonCredential = credHubService.writeCredential(serviceBinding.guid, credentials)
-        serviceBinding.credhubCredentialId = credhubJsonCredential.id
-        serviceBinding.credentials = null
+        def credhubJsonCredential = credHubService.writeCredential(key.guid, credentials)
+        key.credhubCredentialId = credhubJsonCredential.id
+        key.credentials = null
     }
 
-    def deleteCredential(ServiceBinding serviceBinding) {
-        credHubService.deleteCredential(serviceBinding.guid)
+    def delete(ServiceBinding key) {
+        credHubService.deleteCredential(key.guid)
     }
 
-    String getCredential(ServiceBinding serviceBinding) {
-        JsonHelper.toJsonString(credHubService.getCredential(serviceBinding.credhubCredentialId).value)
-    }
-
-    boolean isCredHubServiceAvailable() {
-        return credHubService != null
+    String get(ServiceBinding key) {
+        toJsonString(credHubService.getCredential(key.credhubCredentialId).value)
     }
 
 }
