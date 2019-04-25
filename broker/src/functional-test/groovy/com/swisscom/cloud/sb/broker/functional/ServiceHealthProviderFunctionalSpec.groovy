@@ -33,7 +33,13 @@ class ServiceHealthProviderFunctionalSpec extends BaseFunctionalSpec {
 
     def "Can get Health informations for service instance"() {
         given:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false)
+
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                0,
+                false,
+                false,
+                [] as Map
+        )
 
         when:
         def response = serviceBrokerClient.getHealth(serviceLifeCycler.serviceInstanceId)

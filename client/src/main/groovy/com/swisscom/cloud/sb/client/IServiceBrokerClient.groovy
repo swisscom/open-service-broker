@@ -20,11 +20,13 @@ import com.swisscom.cloud.sb.client.model.ServiceInstanceBindingResponse
 import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingResponse
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceResponse
 import org.springframework.core.ParameterizedTypeReference
@@ -44,9 +46,9 @@ interface IServiceBrokerClient {
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request)
     ResponseEntity<ProvisionResponseDto> provision(CreateServiceInstanceRequest request)
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request)
-    ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request)
+    ResponseEntity<Void> deleteServiceInstance(DeleteServiceInstanceRequest request)
     ResponseEntity<CreateServiceInstanceBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request)
-    ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request)
+    ResponseEntity<Void> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request)
     ResponseEntity<ServiceInstanceResponse> getServiceInstance(String serviceInstanceId)
     ResponseEntity<ServiceInstanceBindingResponse> getServiceInstanceBinding(String serviceInstanceId, String bindingId)
 }

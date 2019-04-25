@@ -28,10 +28,12 @@ import org.springframework.boot.SpringApplication
 import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.cloud.servicebroker.model.catalog.Plan
 import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.Assert
@@ -112,13 +114,23 @@ class ServiceBrokerClientTest {
 
     @Test
     void deleteServiceInstanceBinding(){
-        def request = new com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest(serviceInstanceId,bindingId,serviceDefinition.id,plan.id)
+        def request = new DeleteServiceInstanceBindingRequest().builder().
+                serviceDefinitionId(serviceDefinition.id).
+                planId(plan.id).
+                serviceInstanceId(serviceInstanceId).
+                bindingId(bindingId).
+                build()
         serviceBrokerClient.deleteServiceInstanceBinding(request)
     }
 
     @Test
     void deleteServiceInstance(){
-        def request = new com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest(serviceInstanceId, serviceDefinition.id, plan.id, false)
+        def request = new DeleteServiceInstanceRequest().builder().
+                serviceDefinitionId(serviceDefinition.id).
+                planId(plan.id).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(false).
+                build()
         serviceBrokerClient.deleteServiceInstance(request)
     }
 

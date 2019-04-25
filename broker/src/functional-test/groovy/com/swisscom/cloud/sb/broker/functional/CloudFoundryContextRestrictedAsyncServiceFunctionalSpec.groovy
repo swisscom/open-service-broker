@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.functional
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -48,10 +50,16 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
         given:
         def serviceInstanceGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new CloudFoundryContext("org_id", "space_id")
+        def context = CloudFoundryContext.builder().organizationGuid("org_id").spaceGuid("space_id").build()
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, null, context)
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                true,
+                true,
+                [] as Map,
+                context
+        )
 
         then:
         assertCloudFoundryContext(serviceInstanceGuid)
@@ -65,10 +73,16 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
         given:
         def serviceInstanceGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
-        def context = new KubernetesContext("namespace_guid")
+        def context = KubernetesContext.builder().namespace("namespace_guid").build()
 
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, null, context)
+        serviceLifeCycler.createServiceInstanceAndAssert(
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                true,
+                true,
+                [] as Map,
+                context
+        )
 
         then:
         def ex = thrown(HttpClientErrorException)
@@ -78,13 +92,13 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
         responseBody.code == ErrorCode.CLOUDFOUNDRY_CONTEXT_REQUIRED.code
     }
 
-    void assertCloudFoundryContext(String serviceInstanceGuid) {
-        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+    void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid) as ServiceInstance
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == "org_id"
-        assert serviceInstance.serviceContext.details.find { it -> it.key == ServiceContextHelper.CF_SPACE_GUID }.value == "space_id"
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
     }
 
 }

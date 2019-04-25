@@ -32,13 +32,13 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
 
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,7 +46,9 @@ import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpStatus
@@ -127,6 +129,7 @@ class ServiceLifeCycler {
 
     private Map<String, Object> credentials
 
+    @TypeChecked(TypeCheckingMode.SKIP)
     CFService createServiceIfDoesNotExist(String serviceName, String serviceInternalName, String templateName = null, String templateVersion = null,
                                           String planName = null, int maxBackups = 0, boolean instancesRetrievable = false, boolean bindingsRetrievable = false,
                                           String serviceInstanceCreateSchema = null, String serviceInstanceUpdateSchema = null, String serviceBindingCreateSchema = null, Plan servicePlan = null
@@ -246,6 +249,7 @@ class ServiceLifeCycler {
     }
 
     ResponseEntity<ProvisionResponseDto> provision(boolean async, Context context, Map<String, Object> parameters, boolean throwExceptionWhenNon2xxHttpStatusCode = true){
+        println(plan.guid)
         def request = CreateServiceInstanceRequest.builder()
                 .serviceDefinitionId(cfService.guid)
                 .planId(plan.guid)
@@ -323,8 +327,12 @@ class ServiceLifeCycler {
             final String serviceBindingId = null,
             boolean isAsync = false,
             int maxSecondsToAwaitDelete = 0) {
-        def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceId,
-                serviceGuid, planGuid, isAsync))
+        def deprovisionResponse = createServiceBrokerClient().deleteServiceInstance(DeleteServiceInstanceRequest.builder()
+                .serviceDefinitionId(serviceGuid)
+                .planId(planGuid)
+                .serviceInstanceId(serviceInstanceId)
+                .asyncAccepted(isAsync)
+                .build())
 
         if (isAsync) {
             assert deprovisionResponse.statusCode == HttpStatus.ACCEPTED
@@ -342,8 +350,13 @@ class ServiceLifeCycler {
             bindingId = serviceBindingId
         }
 
-        ResponseEntity unbindResponse = createServiceBrokerClient().deleteServiceInstanceBinding(new DeleteServiceInstanceBindingRequest(serviceInstanceId,
-                bindingId, cfService.guid, plan.guid))
+        ResponseEntity unbindResponse = createServiceBrokerClient().deleteServiceInstanceBinding(
+                DeleteServiceInstanceBindingRequest.builder()
+                        .serviceDefinitionId(cfService.guid)
+                        .planId(plan.guid)
+                        .serviceInstanceId(serviceInstanceId)
+                        .bindingId(bindingId)
+                        .build())
         assert unbindResponse.statusCode == HttpStatus.OK
     }
 
@@ -357,6 +370,7 @@ class ServiceLifeCycler {
         return parameterRepository.saveAndFlush(parameter)
     }
 
+    @TypeChecked(TypeCheckingMode.SKIP)
     boolean removeParameters() {
         plan.parameters.removeAll(plan.parameters)
         planRepository.saveAndFlush(plan as Plan)

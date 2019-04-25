@@ -21,11 +21,15 @@ import com.swisscom.cloud.sb.client.model.ServiceInstanceResponse
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import com.swisscom.cloud.sb.client.model.CreateServiceInstanceResponse
 import groovy.transform.CompileStatic
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import org.apache.commons.codec.binary.Base64
 import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceResponse
 import org.springframework.core.ParameterizedTypeReference
@@ -56,6 +60,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
         this(new RestTemplate(new HttpComponentsClientHttpRequestFactory()), baseUrl, username, password)
     }
 
+    @TypeChecked(TypeCheckingMode.SKIP)
     def <T> HttpEntity<T>createHttpEntity(T request) {
         return new HttpEntity<T>(request, createSimpleAuthHeaders(username, password))
     }
@@ -143,10 +148,10 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     @Override
-    ResponseEntity<Void> deleteServiceInstance(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest request) {
+    ResponseEntity<Void> deleteServiceInstance(DeleteServiceInstanceRequest request) {
         return exchange("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}",
                 HttpMethod.DELETE,
-                Void.class, request.serviceInstanceId, request.serviceId, request.planId, request.asyncAccepted)
+                Void.class, request.serviceInstanceId, request.serviceInstanceId, request.planId, request.asyncAccepted)
     }
 
     @Override
@@ -157,10 +162,10 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     }
 
     @Override
-    ResponseEntity<Void> deleteServiceInstanceBinding(com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest request) {
+    ResponseEntity<Void> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
         return exchange("/v2/service_instances/{serviceInstanceId}/service_bindings/{bindingId}?service_id={serviceId}&plan_id={planId}",
                 HttpMethod.DELETE, createHttpEntity(request),
-                Void.class, request.serviceInstanceId, request.bindingId, request.serviceId, request.planId)
+                Void.class, request.serviceInstanceId, request.bindingId, request.serviceDefinitionId, request.planId)
     }
 
     @Override

@@ -52,6 +52,10 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider, UpdatableProvisioner {
     public static final int RETRY_INTERVAL_IN_SECONDS = 10
+
+    /**
+     * double processing time because of the startup delay of the quartz scheduler
+     */
     public static final int DEFAULT_PROCESSING_DELAY_IN_SECONDS = RETRY_INTERVAL_IN_SECONDS * 2
 
     @Autowired

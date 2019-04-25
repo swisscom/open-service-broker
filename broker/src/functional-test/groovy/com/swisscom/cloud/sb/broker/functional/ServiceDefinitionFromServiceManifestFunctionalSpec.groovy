@@ -123,7 +123,14 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
 
         and:
         def serviceInstanceId = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(serviceId, planId, null, null, null).withServiceInstanceId(serviceInstanceId).withAsyncAccepted(false))
+        serviceBrokerClientExtended.createServiceInstance(
+                CreateServiceInstanceRequest.builder().
+                serviceDefinitionId(serviceId).
+                planId(planId).
+                serviceInstanceId(serviceInstanceId).
+                asyncAccepted(false).
+                build()
+        )
 
         when:
         serviceDefinitionInitializer.init()

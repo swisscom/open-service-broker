@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
-
+import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
@@ -44,7 +45,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
             String planGuid = defaultPlanGuid,
             boolean async = false,
             String serviceGuid = defaultServiceGuid,
-            context = new CloudFoundryContext(defaultOrgGuid, defaultSpaceGuid)) {
+            Context context = CloudFoundryContext.builder().
+                    organizationGuid(defaultOrgGuid).
+                    spaceGuid(defaultSpaceGuid).build()) {
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
 
@@ -58,6 +61,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
         return serviceInstanceGuid
     }
+
 
     def setup() {
         if (!serviceDefinitionsSetUp) {
@@ -92,9 +96,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         serviceInstance.serviceContext.platform == "CUSTOM"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
 
         when:
         context = new CustomContext([
@@ -109,9 +113,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance2
         serviceInstance2.serviceContext.platform == "CUSTOM"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Other Value"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_b" }.value == "Some New Value"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_c" }.value == "42.42"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Other Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_b" }.value == "Some New Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "42.42"
         serviceInstance2.serviceContext.details.size() == 3
 
         cleanup:
@@ -120,7 +124,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
     def "sending no context does not delete context"() {
         given:
-        def context = new CustomContext([
+        Context context = new CustomContext([
                 "field_a": "Some Value",
                 "field_b": null,
                 "field_c": 13.37,
@@ -132,11 +136,11 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
                 defaultServiceGuid,
                 context)
 
-        def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         serviceInstance.serviceContext.platform == "CUSTOM"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
         serviceInstance.serviceContext.details.size() == 4
 
         when:
@@ -150,9 +154,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance2
         serviceInstance2.serviceContext.platform == "CUSTOM"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance2.serviceContext.details.find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
         serviceInstance2.serviceContext.details.size() == 4
 
         cleanup:
