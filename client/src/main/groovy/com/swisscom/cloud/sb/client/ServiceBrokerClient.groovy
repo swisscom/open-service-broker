@@ -151,7 +151,7 @@ class ServiceBrokerClient implements IServiceBrokerClient {
     ResponseEntity<Void> deleteServiceInstance(DeleteServiceInstanceRequest request) {
         return exchange("/v2/service_instances/{serviceInstanceId}?service_id={serviceId}&plan_id={planId}&accepts_incomplete={asyncAccepted}",
                 HttpMethod.DELETE,
-                Void.class, request.serviceInstanceId, request.serviceInstanceId, request.planId, request.asyncAccepted)
+                Void.class, request.serviceInstanceId, request.serviceDefinitionId, request.planId, request.asyncAccepted)
     }
 
     @Override

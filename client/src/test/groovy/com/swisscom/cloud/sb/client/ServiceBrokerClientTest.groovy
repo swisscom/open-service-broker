@@ -38,6 +38,7 @@ import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInsta
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.Assert
 import org.springframework.web.client.HttpClientErrorException
+import spock.lang.Stepwise
 
 /**
  * Verifies that we can use our client implementation to talk to a valid (spring boot) open service broker
@@ -45,6 +46,7 @@ import org.springframework.web.client.HttpClientErrorException
  * in the client correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@Stepwise
 class ServiceBrokerClientTest {
     private static ServiceBrokerClient serviceBrokerClient
     private static ServiceDefinition serviceDefinition
@@ -114,7 +116,7 @@ class ServiceBrokerClientTest {
 
     @Test
     void deleteServiceInstanceBinding(){
-        def request = new DeleteServiceInstanceBindingRequest().builder().
+        def request = DeleteServiceInstanceBindingRequest.builder().
                 serviceDefinitionId(serviceDefinition.id).
                 planId(plan.id).
                 serviceInstanceId(serviceInstanceId).
@@ -125,7 +127,7 @@ class ServiceBrokerClientTest {
 
     @Test
     void deleteServiceInstance(){
-        def request = new DeleteServiceInstanceRequest().builder().
+        def request = DeleteServiceInstanceRequest.builder().
                 serviceDefinitionId(serviceDefinition.id).
                 planId(plan.id).
                 serviceInstanceId(serviceInstanceId).
