@@ -31,7 +31,6 @@ import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInsta
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
-import spock.lang.Shared
 
 class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
@@ -40,9 +39,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     private ServiceContextDetailRepository contextRepository
 
     private int processDelayInSeconds = DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2
-
-    @Shared
-    private String parentServiceInstanceGuid
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
@@ -113,7 +109,6 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         given:
         serviceLifeCycler.setServiceInstanceId(UUID.randomUUID().toString())
         serviceLifeCycler.setServiceBindingId(UUID.randomUUID().toString())
-        this.parentServiceInstanceGuid = serviceLifeCycler.serviceInstanceId
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(
