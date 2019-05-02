@@ -48,7 +48,6 @@ import spock.lang.Specification
 @ContextConfiguration
 @SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
 @ComponentScan(
-        basePackages = "com.swisscom.cloud.sb.broker.services.credhub",
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASPECTJ,
                 pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))

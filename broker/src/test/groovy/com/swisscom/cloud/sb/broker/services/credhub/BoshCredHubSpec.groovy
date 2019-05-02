@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.credhub
 
-import com.swisscom.cloud.sb.broker.BaseSpecification
+
 import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
 import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
@@ -23,20 +23,60 @@ import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
+import org.junit.ClassRule
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.FilterType
 import org.springframework.core.io.ClassPathResource
 import org.springframework.credhub.support.CredentialDetails
 import org.springframework.credhub.support.certificate.CertificateCredential
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.test.context.ActiveProfiles
-import spock.lang.IgnoreIf
+import org.springframework.test.context.ContextConfiguration
+import org.testcontainers.containers.DockerComposeContainer
+import org.testcontainers.containers.output.Slf4jLogConsumer
+import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
+import spock.lang.Specification
 
-@IgnoreIf({ !BoshCredHubSpec.checkCredHubConfigSet() })
-@ActiveProfiles("info,default,extensions,secrets,test")
-class BoshCredHubIntegrationSpec extends BaseSpecification {
+@ActiveProfiles("credhub")
+@Testcontainers
+@ContextConfiguration
+@SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
+@ComponentScan(
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASPECTJ,
+                pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
+class BoshCredHubSpec extends Specification {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CredHubSpec.class)
+
+    @ClassRule
+    public static DockerComposeContainer environment =
+            new DockerComposeContainer(new File("docker/docker-compose-test.yml"))
+                    .withExposedService(
+                            "mariadb",
+                            3306,
+                            Wait.forListeningPort())
+                    .withExposedService(
+                            "credhub",
+                            9000,
+                            Wait.forListeningPort())
+                    .withExposedService(
+                            "uaa",
+                            9081,
+                            Wait.forListeningPort()
+                    )
+                    .waitingFor("mariadb",
+                                Wait.forLogMessage(".*mysqld: ready for connections.*", 2))
+                    .withLogConsumer("credhub", new Slf4jLogConsumer(LOG))
+
     @Autowired
     private BoshCredHubTemplate boshCredHubTemplate
 
@@ -57,11 +97,18 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
     CredHubCredentialStore credentialStore
 
     def setupSpec() {
+        environment.start()
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
-        System.setProperty('javax.net.ssl.keyStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.keyStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
-        System.setProperty('javax.net.ssl.trustStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.trustStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
+    }
+
+    def cleanupSpec() {
+        environment.stop()
     }
 
     def setup() {
@@ -82,7 +129,10 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
         credentialName = StringGenerator.randomUuid()
 
         when:
-        CredentialDetails<JsonCredential> credential = boshCredHubService.writeCredential(credentialName, [username: StringGenerator.randomUuid(), password: StringGenerator.randomUuid()])
+        CredentialDetails<JsonCredential> credential = boshCredHubService.writeCredential(credentialName,
+                                                                                          [username                     : StringGenerator.
+                                                                                                  randomUuid(), password: StringGenerator.
+                                                                                                  randomUuid()])
         assert credential != null
         credentialId = credential.id
 
@@ -138,7 +188,8 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
         boshCredHubConfig.certificateAuthority = true
 
         when:
-        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[
+                0], boshCredHubConfig)
         assert credential != null
         credentialId = credential.id
 
@@ -151,13 +202,16 @@ class BoshCredHubIntegrationSpec extends BaseSpecification {
         testCredentialNames = [StringGenerator.randomUuid(), StringGenerator.randomUuid()]
         boshCredHubConfig.commonName = 'testone.service.consul'
         boshCredHubConfig.certificateAuthority = true
-        CredentialDetails<CertificateCredential> caCredential = boshCredHubService.generateCertificate(testCredentialNames[0], boshCredHubConfig)
+        CredentialDetails<CertificateCredential> caCredential = boshCredHubService.generateCertificate(
+                testCredentialNames[0],
+                boshCredHubConfig)
 
         boshCredHubConfig.certificateAuthority = false
         boshCredHubConfig.certificateAuthorityCredential = '/' + testCredentialNames[0]
 
         when:
-        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[1], boshCredHubConfig)
+        CredentialDetails<CertificateCredential> credential = boshCredHubService.generateCertificate(testCredentialNames[
+                1], boshCredHubConfig)
 
         assert caCredential != null
         assert credential != null
