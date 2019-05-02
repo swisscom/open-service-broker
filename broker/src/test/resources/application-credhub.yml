@@ -1,6 +1,6 @@
 ---
 spring:
-  profiles: test
+  profiles: credhub
 
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -29,14 +29,33 @@ spring:
           uaa:
             token-uri: http://localhost:8081/uaa/oauth/token
 
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+        uri: http://localhost:8086
+        step: 60s
+        userName:
+        db: osb_metrics
+        env: "local"
+    enable:
+      jvm: false
+      dataSource: false
+      process: false
+      system: false
+      http: false
+      logback: false
+
+
 # Sets the Credential Store to a CredHub instance
 osb:
   credential:
-    store: "default"
+    store: "credhub"
 
-#com.swisscom.cloud.sb.broker.bosh.credhub:
-#  url: https://localhost:9000
-#  oauth2.registration-id: bosh-client
+com.swisscom.cloud.sb.broker.bosh.credhub:
+  url: https://localhost:9000
+  oauth2.registration-id: bosh-client
 
 com.swisscom.cloud.sb.broker.serviceDefinitions: [
 {

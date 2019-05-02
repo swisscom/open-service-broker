@@ -39,8 +39,9 @@ ext {
             javax_el                           : '3.0.0',
 
             junit                              : '4.12',             // Unit Testing
-            spock                              : '1.2-groovy-2.5',   // THE testing framework
+            spock                              : '1.3-groovy-2.5',   // THE testing framework
             cglib                              : '3.2.7',            // For mocking classes without default constructor
+            test_containers                    : '1.11.2',            // Running docker from tests
 
     ]
     libs = [
@@ -113,7 +114,9 @@ ext {
             spock_spring                                   : "org.spockframework:spock-spring:${versions.spock}",
             cglib                                          : "cglib:cglib-nodep:${versions.cglib}",
             groovy_test                                    : "org.codehaus.groovy:groovy-test:${versions.groovy}",
-            spring_boot_starter_test                       : "org.springframework.boot:spring-boot-starter-test:${versions.spring_boot}"
+            spring_boot_starter_test                       : "org.springframework.boot:spring-boot-starter-test:${versions.spring_boot}",
+            test_containers                                : "org.testcontainers:testcontainers:${versions.test_containers}",
+            test_containers_spock                          : "org.testcontainers:spock:${versions.test_containers}"
 
     ]
 

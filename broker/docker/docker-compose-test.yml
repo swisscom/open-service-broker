@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  mariadb:
+    image: mariadb:10
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_DATABASE: CFBroker
+
+  uaa:
+    image: pcfseceng/uaa
+    container_name: uaa
+    volumes:
+      - ./uaa.yml:/uaa/uaa.yml
+    ports:
+      - "9081:8080"
+    restart: always
+
+  credhub:
+    image: ampersand8/credhub
+    container_name: credhub
+    ports:
+      - "9000:9000"
+    links:
+      - uaa:uaa
+    depends_on:
+      - uaa
+    environment:
+      UAA_URL: http://localhost:9081/uaa
+      UAA_INTERNAL_URL: http://uaa:8080/uaa

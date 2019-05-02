@@ -50,5 +50,7 @@ dependencies {
     testCompile libs.cglib
     testCompile libs.groovy_test
     testCompile libs.spring_boot_starter_test
+    testCompile libs.test_containers
+    testCompile libs.test_containers_spock
     
 }

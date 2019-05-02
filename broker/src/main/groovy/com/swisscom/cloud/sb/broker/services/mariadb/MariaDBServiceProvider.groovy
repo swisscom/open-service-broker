@@ -36,10 +36,12 @@ import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @Component
 @CompileStatic
+@ConditionalOnProperty(name = 'com.swisscom.cloud.sb.broker.service.mariadb.clusters')
 class MariaDBServiceProvider extends RelationalDbServiceProvider implements ShieldBackupRestoreProvider, ServiceUsageProvider {
     private MariaDBConfig mariaDBConfig
 

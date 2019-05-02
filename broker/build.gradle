@@ -69,6 +69,7 @@ dependencies {
     testCompile libs.cglib
     testCompile libs.groovy_test
     testCompile libs.spring_boot_starter_test
+    
 }
 
 ext {

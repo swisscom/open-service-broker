@@ -1,4 +1,9 @@
 ---
+# Sets the Credential Store to a CredHub instance
+osb:
+  credential:
+    store: "default"
+
 spring:
   profiles: test
   jpa.properties.hibernate.id.new_generator_mappings: false
@@ -11,26 +16,26 @@ spring:
     username: root
     password:
 
-  credhub:
-    url: https://localhost:9000
-    oauth2.registration-id: credhub-client
-  security:
-    oauth2:
-      client:
-        registration:
-          credhub-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-          bosh-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-        provider:
-          uaa:
-            token-uri: http://localhost:8081/uaa/oauth/token
+#  credhub:
+#    url: https://localhost:9000
+#    oauth2.registration-id: credhub-client
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          credhub-client:
+#            provider: uaa
+#            client-id: credhub_client
+#            client-secret: secret
+#            authorization-grant-type: client_credentials
+#          bosh-client:
+#            provider: uaa
+#            client-id: credhub_client
+#            client-secret: secret
+#            authorization-grant-type: client_credentials
+#        provider:
+#          uaa:
+#            token-uri: http://localhost:8081/uaa/oauth/token
 
 com.swisscom.cloud.sb.broker.security.platformUsers:
   - username: cc_admin
@@ -64,10 +69,10 @@ com.swisscom.cloud.sb.broker.service.test-bosh-based-service:
     - templateName: test
       type: cloud
 
-com.swisscom.cloud.sb.broker.bosh.credhub:
-  enable: false
-  url: https://localhost:9000
-  oauth2.registration-id: bosh-client
+#com.swisscom.cloud.sb.broker.bosh.credhub:
+#  enable: false
+#  url: https://localhost:9000
+#  oauth2.registration-id: bosh-client
 
 com.swisscom.cloud.sb.broker.serviceDefinitions: [
 {
