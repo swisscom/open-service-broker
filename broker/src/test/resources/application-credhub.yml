@@ -1,6 +1,11 @@
 ---
+debug: true
 spring:
   profiles: credhub
+
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
 
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -27,7 +32,7 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           uaa:
-            token-uri: http://localhost:8081/uaa/oauth/token
+            token-uri: http://localhost:9081/uaa/oauth/token
 
 management:
   metrics:
@@ -53,9 +58,37 @@ osb:
   credential:
     store: "credhub"
 
+# Credhub Certificate parameters
+com.swisscom.cloud.sb.broker.credhub:
+  url: https://localhost:9000
+  oauth2.registration-id: credhub-client
+  keyLength: LENGTH_2048
+  commonName:
+  organization: ServiceBroker
+  organizationUnit: SB
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
+
 com.swisscom.cloud.sb.broker.bosh.credhub:
   url: https://localhost:9000
   oauth2.registration-id: bosh-client
+  keyLength: LENGTH_2048
+  commonName:
+  organization: ServiceBroker
+  organizationUnit: SB
+  locality: Bern
+  state: Bern
+  country: CH
+  duration: 365
+  certificateAuthority: false
+  certificateAuthorityCredential:
+  selfSign: false
+
 
 com.swisscom.cloud.sb.broker.serviceDefinitions: [
 {

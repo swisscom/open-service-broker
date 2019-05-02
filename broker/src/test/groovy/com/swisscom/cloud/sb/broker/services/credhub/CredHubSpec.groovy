@@ -67,6 +67,11 @@ class CredHubSpec extends Specification {
                             "credhub",
                             9000,
                             Wait.forListeningPort())
+                    .withExposedService(
+                            "uaa",
+                            9081,
+                            Wait.forListeningPort()
+                    )
                     .waitingFor("mariadb",
                                 Wait.forLogMessage(".*mysqld: ready for connections.*", 2))
                     .withLogConsumer("credhub", new Slf4jLogConsumer(LOG))
@@ -102,6 +107,10 @@ class CredHubSpec extends Specification {
         System.setProperty('javax.net.ssl.trustStore',
                            FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
+    }
+
+    def cleanupSpec() {
+        environment.stop()
     }
 
     def cleanup() {
