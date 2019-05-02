@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
@@ -33,8 +32,6 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     protected ServiceBindingRepository serviceBindingRepository
     @Autowired
     private ServiceBindingPersistenceService serviceBindingPersistenceService
-    @Autowired
-    private CredHubCredentialStore credentialStore
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
