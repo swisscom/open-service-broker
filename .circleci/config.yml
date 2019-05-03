@@ -43,7 +43,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
-      - run: ./gradlew clean build -x functionalTest --stacktrace
+      - run: ./gradlew integrationTest -x functionalTest --stacktrace
 
   # For tagging in the repository tags in the form 'vn.minor+1.0' or in the form 'vn.nn.patch+1'
   tag_release:
