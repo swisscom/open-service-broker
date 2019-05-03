@@ -15,12 +15,10 @@
 
 package com.swisscom.cloud.sb.broker.services.credhub
 
-
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
-import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,9 +34,6 @@ import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.testcontainers.containers.DockerComposeContainer
-import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
 import spock.lang.Specification
@@ -51,29 +46,9 @@ import spock.lang.Specification
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASPECTJ,
                 pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
-class CredHubSpec extends Specification {
+class CredHubSpec extends AbstractCredHubSpec {
 
     private static final Logger LOG = LoggerFactory.getLogger(CredHubSpec.class)
-
-    @ClassRule
-    public static DockerComposeContainer environment =
-            new DockerComposeContainer(new File("docker/docker-compose-test.yml"))
-                    .withExposedService(
-                            "mariadb",
-                            3306,
-                            Wait.forListeningPort())
-                    .withExposedService(
-                            "credhub",
-                            9000,
-                            Wait.forListeningPort())
-                    .withExposedService(
-                            "uaa",
-                            9081,
-                            Wait.forListeningPort()
-                    )
-                    .waitingFor("mariadb",
-                                Wait.forLogMessage(".*mysqld: ready for connections.*", 2))
-                    .withLogConsumer("credhub", new Slf4jLogConsumer(LOG))
 
     @Autowired
     private DefaultCredHubConfig defaultCredHubConfig
@@ -91,14 +66,6 @@ class CredHubSpec extends Specification {
     CredHubService credHubService
 
     def setupSpec() {
-        environment.start()
-        LOG.info("'mariadb' running at {}:{}",
-                 environment.getServiceHost("mariadb", 3306),
-                 environment.getServicePort("mariadb", 3306))
-        LOG.info("'credhub' running at {}:{}",
-                 environment.getServiceHost("credhub", 9000),
-                 environment.getServicePort("credhub", 9000))
-
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
         System.setProperty('javax.net.ssl.keyStore',
                            FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
@@ -106,10 +73,6 @@ class CredHubSpec extends Specification {
         System.setProperty('javax.net.ssl.trustStore',
                            FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
-    }
-
-    def cleanupSpec() {
-        environment.stop()
     }
 
     def cleanup() {
