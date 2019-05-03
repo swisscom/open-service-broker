@@ -17,8 +17,10 @@ package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
+import com.swisscom.cloud.sb.broker.util.test.category.DockerTest
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
+import org.junit.experimental.categories.Category
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,8 +38,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
-import spock.lang.Specification
 
+@Category([DockerTest.class])
 @ActiveProfiles("credhub")
 @Testcontainers
 @ContextConfiguration

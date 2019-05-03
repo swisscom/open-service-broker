@@ -20,8 +20,10 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
+import com.swisscom.cloud.sb.broker.util.test.category.DockerTest
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
+import org.junit.experimental.categories.Category
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 import org.springframework.boot.test.context.SpringBootTest
@@ -37,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
 
+@Category([DockerTest.class])
 @ActiveProfiles("credhub")
 @Testcontainers
 @ContextConfiguration
