@@ -234,7 +234,7 @@ class ServiceLifeCycler {
     void createServiceInstanceAndServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
                                                          boolean asyncRequest = false, boolean asyncResponse = false, Context context = null, Map<String, Object> provisionParameters = null) {
         createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind, asyncRequest, asyncResponse, provisionParameters, context)
-        bindServiceInstanceAndAssert(null, null, true, context)
+        bindServiceInstanceAndAssert(null, [] as Map, true, context)
         println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
@@ -291,23 +291,29 @@ class ServiceLifeCycler {
     }
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null) {
-        def bindResponse = requestBindService(bindingId, bindingParameters, context)
+        return bindServiceInstanceAndAssert(bindingId, bindingParameters, uniqueCredentials, context, cfService.guid, plan.guid)
+    }
+
+    Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null, Map bindingParameters = null, boolean uniqueCredentials = true, Context context = null, String serviceId, String planId) {
+        def bindResponse = requestBindService(bindingId, bindingParameters, context, serviceId, planId)
         assert bindResponse.statusCode == (uniqueCredentials ? HttpStatus.CREATED : HttpStatus.OK)
         credentials = bindResponse.body.credentials
         return bindResponse.body.credentials
     }
 
-    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = null, Context context = null) {
+    ResponseEntity<CreateServiceInstanceAppBindingResponse> requestBindService(String bindingId = null, Map bindingParameters = [] as Map, Context context = null, String serviceId, String planId) {
         if (!bindingId) {
             bindingId = serviceBindingId
         }
 
         def request = CreateServiceInstanceBindingRequest.builder()
+                .serviceDefinitionId(serviceId)
+                .planId(planId)
                 .serviceInstanceId(serviceInstanceId)
                 .bindResource(BindResource.builder().appGuid('app-id').route('app-id.example.com').build())
+                .parameters(bindingParameters)
                 .bindingId(bindingId)
                 .build()
-
         return createServiceBrokerClient().createServiceInstanceBinding(request)
     }
 

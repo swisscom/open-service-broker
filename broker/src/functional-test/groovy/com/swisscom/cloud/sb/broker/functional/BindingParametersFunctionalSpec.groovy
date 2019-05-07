@@ -21,7 +21,6 @@ import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
@@ -65,7 +64,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         String password = StringGenerator.randomUuid()
 
         when:
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, [username: username, password: password])
+        serviceLifeCycler.bindServiceInstanceAndAssert(serviceBindingGuid, [username: username, password: password])
 
         then:
         noExceptionThrown()
@@ -74,7 +73,6 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceBinding != null
         serviceBinding.credentials != null
         serviceBinding.applicationUser.username == cfAdminUser.username
-        serviceBinding.credhubCredentialId != null
 
         cleanup:
         serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
