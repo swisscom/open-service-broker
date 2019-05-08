@@ -22,8 +22,10 @@ import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestTemplate
 
+@ActiveProfiles(profiles = "default,broker,test")
 class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalSpec {
 
     String REDIS_SERVICE_GUID_FROM_APPLICATION_YAML = "781e8f8c-c753-4a93-95eb-17c1f745b229"
