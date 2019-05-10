@@ -25,12 +25,15 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import com.swisscom.cloud.sb.broker.model.Tag
 import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.TagRepository
+import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
@@ -105,6 +108,15 @@ class ServiceLifeCycler {
         cfAdminUser = getUserByRole(WebSecurityConfig.ROLE_CF_ADMIN)
         cfExtUser = getUserByRole(WebSecurityConfig.ROLE_CF_EXT_ADMIN)
     }
+
+    @Autowired
+    private ProvisionRequestRepository provisionRequestRepository
+
+    @Autowired
+    private DeprovisionRequestRepository deprovisionRequestRepository
+
+    @Autowired
+    private UpdateRequestRepository updateRequestRepository
 
     @Autowired
     private CFServiceRepository cfServiceRepository
@@ -182,6 +194,9 @@ class ServiceLifeCycler {
     }
 
     void cleanup() {
+        updateRequestRepository.deleteAll()
+        provisionRequestRepository.deleteAll()
+        deprovisionRequestRepository.deleteAll()
 
         // reverse iteration is required in case a service instance has a child service instance which needs to be deleted first
         (serviceInstanceIds as String[]).reverseEach { it ->

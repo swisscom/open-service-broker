@@ -25,10 +25,8 @@ import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.RestTemplate
 
-@ActiveProfiles(profiles = "default,broker,test")
 class TestHelperServiceSpec extends BaseFunctionalSpec {
 
     ServiceBrokerClientExtended serviceBrokerClientExtended
@@ -44,6 +42,10 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
 
     @Autowired
     TestHelperService testHelperService
+
+    def cleanupSpec() {
+        serviceLifeCycler.cleanup()
+    }
 
     def "set all services and plans to active"() {
         given:
