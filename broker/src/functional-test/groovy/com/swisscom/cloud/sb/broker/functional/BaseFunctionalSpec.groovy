@@ -29,6 +29,7 @@ import org.joda.time.Seconds
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.context.WebApplicationContext
@@ -39,6 +40,7 @@ import spock.lang.Stepwise
 @CompileStatic
 @Stepwise
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ActiveProfiles(profiles = "default,broker,test")
 @ContextConfiguration
 abstract class BaseFunctionalSpec extends Specification {
 

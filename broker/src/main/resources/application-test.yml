@@ -2,42 +2,6 @@
 spring:
   profiles: test
 
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    url: 'jdbc:mysql://localhost/CFBroker?autoReconnect=true'
-    username: root
-    password:
-
-  credhub:
-    url: https://localhost:9000
-    oauth2.registration-id: credhub-client
-  security:
-    oauth2:
-      client:
-        registration:
-          credhub-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-          bosh-client:
-            provider: uaa
-            client-id: credhub_client
-            client-secret: secret
-            authorization-grant-type: client_credentials
-        provider:
-          uaa:
-            token-uri: http://localhost:8081/uaa/oauth/token
-
-# Sets the Credential Store to a CredHub instance
-osb:
-  credential:
-    store: "credhub"
-
-com.swisscom.cloud.sb.broker.bosh.credhub:
-  url: https://localhost:9000
-  oauth2.registration-id: bosh-client
-
 com.swisscom.cloud.sb.broker.serviceDefinitions: [
 {
   "guid": "7a495d86-73dc-4903-9b0b-140c9b011610",
