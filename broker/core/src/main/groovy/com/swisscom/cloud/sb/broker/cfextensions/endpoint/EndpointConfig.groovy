@@ -18,6 +18,11 @@ package com.swisscom.cloud.sb.broker.cfextensions.endpoint
 import com.swisscom.cloud.sb.broker.config.Config
 
 interface EndpointConfig extends Config {
-    List<String> ipRanges
-    List<String> protocols
+    List<String> getIpRanges();
+    /**'
+     * Network protocol customers use to access the service
+     * Example: ["tcp","udp"]
+     * @return
+     */
+    List<String> getProtocols();
 }

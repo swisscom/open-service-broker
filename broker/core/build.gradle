@@ -4,7 +4,16 @@ jar{
     enabled = true
 }
 
+test{
+    systemProperty 'bosh.mocked', "${boshMocked}"
+    systemProperty 'bosh.url', "${boshUrl}"
+    systemProperty 'bosh.username', "${boshUsername}"
+    systemProperty 'bosh.password', "${boshPassword}"
+    systemProperty 'uaa.url', "${uaaUrl}"
+}
+
 dependencies {
+    annotationProcessor "org.immutables:value:2.7.5"
     compile project(':model')
     compile project(':client')
 
@@ -36,6 +45,7 @@ dependencies {
     compile libs.json_schema_validator
 
     compile libs.micrometer_registry_influx
+    compile libs.immutables
 
     compile libs.slf4j
     compile libs.log4j
@@ -50,5 +60,5 @@ dependencies {
     testCompile libs.cglib
     testCompile libs.groovy_test
     testCompile libs.spring_boot_starter_test
-    
+    testCompile libs.wiremock
 }

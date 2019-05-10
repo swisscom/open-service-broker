@@ -1,0 +1,29 @@
+{
+  "id" : "4b1332a1-3920-420b-85b5-5b2e50f8492c",
+  "name" : "deployments",
+  "request" : {
+    "url" : "/deployments",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalTo" : "name: \"d-7eff4b56-be53-4925-a4fe-afde1e00111a\"\n\nreleases:\n  - name: dummy\n    version: latest\n\nstemcells:\n  - alias: ubuntu\n    os: ubuntu-xenial\n    version: latest\n\ninstance_groups:\n  - name: dummy\n    azs: [z1]\n    instances: 1\n    vm_type: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    stemcell: ubuntu\n    networks:\n      - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    jobs:\n      - name: dummy\n        release: dummy\n\nupdate:\n  canaries: 1\n  max_in_flight: 6\n  serial: false\n  canary_watch_time: 1000-60000\n  update_watch_time: 1000-60000",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 23 May 2019 07:36:02 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://192.168.50.6/tasks/11",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "4b1332a1-3920-420b-85b5-5b2e50f8492c",
+  "persistent" : true,
+  "insertionIndex" : 5
+}

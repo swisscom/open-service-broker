@@ -37,22 +37,28 @@ import com.swisscom.cloud.sb.broker.services.common.Utils
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 
 @Slf4j
 abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
-        implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider {
+        implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater,
+                EndpointProvider {
 
-    @Autowired
     protected AsyncProvisioningService asyncProvisioningService
-    @Autowired
     protected ProvisioningPersistenceService provisioningPersistenceService
-    @Autowired
     protected T serviceConfig
-    @Autowired
     protected EndpointLookup endpointLookup
 
-    protected void beforeProvision(ProvisionRequest request) { }
+    AsyncServiceProvider(AsyncProvisioningService asyncProvisioningService,
+                         ProvisioningPersistenceService provisioningPersistenceService,
+                         T serviceConfig) {
+        this.asyncProvisioningService = asyncProvisioningService
+        this.provisioningPersistenceService = provisioningPersistenceService
+        this.serviceConfig = serviceConfig
+        this.endpointLookup = new EndpointLookup()
+    }
+
+    protected void beforeProvision(ProvisionRequest request) {
+    }
 
     @Override
     ProvisionResponse provision(ProvisionRequest request) {
@@ -62,30 +68,37 @@ abstract class AsyncServiceProvider<T extends AsyncServiceConfig>
 
         asyncProvisioningService.scheduleProvision(
                 new ProvisioningJobConfig(ServiceProvisioningJob.class, request,
-                        serviceConfig.retryIntervalInSeconds,
-                        serviceConfig.maxRetryDurationInMinutes))
+                                          serviceConfig.retryIntervalInSeconds,
+                                          serviceConfig.maxRetryDurationInMinutes))
         return new ProvisionResponse(isAsync: true)
     }
 
-    protected void beforeDeprovision(DeprovisionRequest request) { }
+    protected void beforeDeprovision(DeprovisionRequest request) {
+    }
 
     @Override
     DeprovisionResponse deprovision(DeprovisionRequest request) {
         beforeDeprovision(request)
 
-        asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class, request,
-                serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
+        asyncProvisioningService.scheduleDeprovision(new DeprovisioningJobConfig(ServiceDeprovisioningJob.class,
+                                                                                 request,
+                                                                                 serviceConfig.retryIntervalInSeconds,
+                                                                                 serviceConfig.maxRetryDurationInMinutes))
         return new DeprovisionResponse(isAsync: true)
     }
 
-    protected void beforeUpdate(UpdateRequest request) { }
+    protected void beforeUpdate(UpdateRequest request) {
+    }
 
     @Override
     UpdateResponse update(UpdateRequest request) {
         beforeUpdate(request)
 
-        asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceUpdateJob.class, request, request.serviceInstanceGuid,
-                serviceConfig.retryIntervalInSeconds, serviceConfig.maxRetryDurationInMinutes))
+        asyncProvisioningService.scheduleUpdate(new UpdateJobConfig(ServiceUpdateJob.class,
+                                                                    request,
+                                                                    request.serviceInstanceGuid,
+                                                                    serviceConfig.retryIntervalInSeconds,
+                                                                    serviceConfig.maxRetryDurationInMinutes))
         return new UpdateResponse(isAsync: true)
     }
 

@@ -15,16 +15,17 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis
 
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.dto.*
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.config.KubernetesRedisConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
@@ -35,6 +36,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
+
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Slf4j
@@ -54,7 +56,7 @@ metadata:
     KubernetesFacadeRedis kubernetesRedisClientRedisDecorated
     KubernetesClient kubernetesClient
     KubernetesConfig kubernetesConfig
-    KubernetesTemplateManager kubernetesTemplateManager
+    TemplateConfig templateConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
     KubernetesRedisConfig kubernetesRedisConfig
     ProvisionRequest provisionRequest
@@ -63,24 +65,23 @@ metadata:
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
-        kubernetesTemplateManager = Mock()
+        templateConfig = Mock()
+        templateConfig.getTemplates(_) >> [TEMPLATE_EXAMPLE, TEMPLATE_EXAMPLE]
         endpointMapperParamsDecorated = Mock()
         deprovisionRequest = Stub()
+
         kubernetesRedisConfig = Stub()
+        kubernetesRedisConfig.templateConfig >> templateConfig
         kubernetesRedisConfig.kubernetesRedisHost >> "host.redis"
-        kubernetesRedisConfig.redisConfigurationDefaults >> ["testing":"test"]
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate(TEMPLATE_EXAMPLE)
+        kubernetesRedisConfig.redisConfigurationDefaults >> ["testing": "test"]
         endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(_, _) >> new Pair("/endpoint/", new NamespaceResponseDto())
-        kubernetesTemplateManager = Mock()
-        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
-            {
-                add(kubernetesTemplate)
-                add(kubernetesTemplate)
-            }
-        }
+
         mockProvisionRequest()
         and:
-        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient, kubernetesConfig, kubernetesTemplateManager, endpointMapperParamsDecorated, kubernetesRedisConfig)
+        kubernetesRedisClientRedisDecorated = new KubernetesFacadeRedis(kubernetesClient,
+                                                                        kubernetesConfig,
+                                                                        endpointMapperParamsDecorated,
+                                                                        kubernetesRedisConfig)
     }
 
 
@@ -93,66 +94,75 @@ metadata:
 
     def "provision creating a namespace with replacing the organization"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("""org: \"\$ORG_ID\"
+        updateTemplates("""org: \"\$ORG_ID\"
 kind: Namespace""")
-        updateTemplates(kubernetesTemplate)
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "org: \"ORG\"\nkind: Namespace", NamespaceResponseDto.class)
+        1 * kubernetesClient.exchange('/endpoint/',
+                                      HttpMethod.POST,
+                                      "org: \"ORG\"\nkind: Namespace",
+                                      NamespaceResponseDto.class)
     }
+
+
 
     def "provision creating a namespace with replacing the space id"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("space: \"\$SPACE_ID\"\nkind: Namespace")
-        updateTemplates(kubernetesTemplate)
+        updateTemplates("space: \"\$SPACE_ID\"\nkind: Namespace")
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "space: \"SPACE\"\nkind: Namespace", NamespaceResponseDto.class)
+        1 * kubernetesClient.exchange('/endpoint/',
+                                      HttpMethod.POST,
+                                      "space: \"SPACE\"\nkind: Namespace",
+                                      NamespaceResponseDto.class)
     }
 
     def "provision creating a namespace with replacing the Service Instance Guid id"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
-        updateTemplates(kubernetesTemplate)
+        updateTemplates("name: \"\$SERVICE_ID\"\nkind: Namespace")
         and:
         kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        1 * kubernetesClient.exchange('/endpoint/', HttpMethod.POST, "name: \"ID\"\nkind: Namespace", NamespaceResponseDto.class)
+        1 * kubernetesClient.exchange('/endpoint/',
+                                      HttpMethod.POST,
+                                      "name: \"ID\"\nkind: Namespace",
+                                      NamespaceResponseDto.class)
     }
 
     def "return correct port to the client from k8s"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
-        updateTemplates(kubernetesTemplate)
+        updateTemplates("name: \"\$SERVICE_ID\"\nkind: Namespace")
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "112" == ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)
+        "112" == ServiceDetailsHelper.from(results).
+                getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER)
     }
 
     def "return correct host to the client from SB"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
-        updateTemplates(kubernetesTemplate)
+        updateTemplates("name: \"\$SERVICE_ID\"\nkind: Namespace")
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        "host.redis" == ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST)
+        "host.redis" == ServiceDetailsHelper.from(results).
+                getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST)
     }
 
     def "returned password has proper length"() {
         when:
-        KubernetesTemplate kubernetesTemplate = new KubernetesTemplate("name: \"\$SERVICE_ID\"\nkind: Namespace")
-        updateTemplates(kubernetesTemplate)
+        updateTemplates("name: \"\$SERVICE_ID\"\nkind: Namespace")
         kubernetesClient.exchange(_, _, _, _) >> new ResponseEntity(mockServiceResponse(), HttpStatus.ACCEPTED)
         and:
         List<ServiceDetail> results = kubernetesRedisClientRedisDecorated.provision(provisionRequest)
         then:
-        30 <= ServiceDetailsHelper.from(results).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).length()
+        30 <= ServiceDetailsHelper.from(results).
+                getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).
+                length()
     }
 
     def "deletion of service calls proper endpoint"() {
@@ -167,7 +177,10 @@ kind: Namespace""")
 
     def "assert that KubernetesRedisServiceProvider is of CloudFoundryContextRestrictedOnly"() {
         expect:
-        def serviceProvider = new KubernetesRedisServiceProvider()
+        def serviceProvider = new KubernetesRedisServiceProvider(Mock(AsyncProvisioningService),
+                                                                 Mock(ProvisioningPersistenceService),
+                                                                 Mock(KubernetesRedisConfig),
+                                                                 Mock(KubernetesFacadeRedis))
         serviceProvider instanceof CloudFoundryContextRestrictedOnly
     }
 
@@ -178,7 +191,8 @@ kind: Namespace""")
         plan.setGuid("test")
         ServiceContext ctx = new ServiceContext()
         ctx.setPlatform("cloudfoundry")
-        ctx.setDetails([ServiceContextDetail.from("space_guid","test"),ServiceContextDetail.from("organization_guid","test")].toSet())
+        ctx.setDetails([ServiceContextDetail.from("space_guid", "test"), ServiceContextDetail.from("organization_guid",
+                                                                                                   "test")].toSet())
 
         when:
         List threads = new ArrayList()
@@ -191,7 +205,8 @@ kind: Namespace""")
                 Map<String, String> bindingMap = kubernetesRedisClientRedisDecorated.getBindingMap(pr)
                 if (pr.getServiceInstanceGuid() != bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue())) {
                     raceConditionHit.set(true)
-                    log.info("Race Condition: " + pr.getServiceInstanceGuid() + " != " + bindingMap.get(BaseTemplateConstants.SERVICE_ID.getValue()))
+                    log.info("Race Condition: " + pr.getServiceInstanceGuid() + " != " + bindingMap.get(
+                            BaseTemplateConstants.SERVICE_ID.getValue()))
                 }
             })
             t.start()
@@ -223,12 +238,8 @@ kind: Namespace""")
         spec.ports >> [port]
     }
 
-    private void updateTemplates(KubernetesTemplate kubernetesTemplate) {
-        kubernetesTemplateManager.getTemplates(_) >> new LinkedList<KubernetesTemplate>() {
-            {
-                add(kubernetesTemplate)
-            }
-        }
+    private void updateTemplates(String templateConfig) {
+        this.templateConfig.getTemplates(_) >> [templateConfig]
     }
 
     private void mockProvisionRequest() {

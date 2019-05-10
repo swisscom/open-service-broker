@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
 import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateChangeActionResult
@@ -27,14 +28,20 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
     CREATE_CONFIGS(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            context.boshFacade.handleTemplatingAndCreateConfigs(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer)
+            context.boshFacade.handleTemplatingAndCreateConfigs(context.lastOperationJobContext.provisionRequest.serviceInstanceGuid,
+                                                                context.boshTemplateCustomizer)
             new StateChangeActionResult(go2NextState: true)
         }
     }),
     CREATE_DEPLOYMENT(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            new StateChangeActionResult(go2NextState: true, details: context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest, context.boshTemplateCustomizer))
+            RequestWithParameters request = context.lastOperationJobContext.provisionRequest
+            new StateChangeActionResult(go2NextState: true,
+                                        details: context.boshFacade.handleTemplatingAndCreateDeployment(request.serviceInstanceGuid,
+                                                                                                        request.plan.templateUniqueIdentifier,
+                                                                                                        request.plan.parameters.toSet(),
+                                                                                                        context.boshTemplateCustomizer))
         }
     }),
     CHECK_BOSH_DEPLOYMENT_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
@@ -47,7 +54,7 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
     final LastOperation.Status status
     final OnStateChange<BoshStateMachineContext> onStateChange
 
-    BoshProvisionState(final LastOperation.Status status,OnStateChange<BoshStateMachineContext> onStateChange) {
+    BoshProvisionState(final LastOperation.Status status, OnStateChange<BoshStateMachineContext> onStateChange) {
         this.status = status
         this.onStateChange = onStateChange
     }
@@ -63,7 +70,7 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
     }
 
     static Optional<BoshProvisionState> of(String text) {
-        def result = BoshProvisionState.values().find { it.name() == text }
+        def result = BoshProvisionState.values().find {it.name() == text}
         if (!result) {
             return Optional.absent()
         }

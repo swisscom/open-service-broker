@@ -18,29 +18,27 @@ package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
-import com.swisscom.cloud.sb.broker.services.bosh.BoshFacadeFactory
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineFactory
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerOngoingChangesChecker
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
@@ -66,23 +64,23 @@ class MongoDbEnterpriseServiceProvider
     public static final String PARAM_MMS_BASE_URL = "mms-base-url"
     public static final String PARAM_MMS_API_KEY = "mms-api-key"
     public static final String MMS_GROUP_ID = "mms-group-id"
-
     public static final String PORT = 'port'
     public static final String MONGODB_BINARY_PATH = 'mongodb-binary-path'
     public static final String HEALTH_CHECK_USER = 'health-check-user'
     public static final String HEALTH_CHECK_PASSWORD = 'health-check-password'
 
-    @Autowired
     protected OpsManagerFacade opsManagerFacade
-
-    @Autowired
     protected MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder
 
     @Autowired
-    protected BoshFacadeFactory boshFacadeFactory
-
-    @Autowired
-    protected OpsManagerOngoingChangesChecker opsManagerOngoingChangesChecker
+    MongoDbEnterpriseServiceProvider(AsyncProvisioningService asyncProvisioningService,
+                                     ProvisioningPersistenceService provisioningPersistenceService,
+                                     MongoDbEnterpriseConfig serviceConfig,
+                                     MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder) {
+        super(asyncProvisioningService, provisioningPersistenceService, serviceConfig)
+        this.opsManagerFacade = new OpsManagerFacade(serviceConfig)
+        this.mongoDbEnterpriseFreePortFinder = mongoDbEnterpriseFreePortFinder
+    }
 
     @PostConstruct
     void init() {
@@ -90,28 +88,36 @@ class MongoDbEnterpriseServiceProvider
     }
 
     @Override
-    Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, ProvisionRequest provisionRequest) {
-        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(provisionRequest.serviceInstanceGuid)
+    Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, String serviceInstanceGuid) {
+        ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
 
-        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
+        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).
+                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
         Preconditions.checkArgument(!isNullOrEmpty(opsManagerGroupId), "A valid OpsManager GroupId is required")
 
-        String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY)
+        String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).
+                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_AGENT_API_KEY)
         Preconditions.checkArgument(!isNullOrEmpty(agentApiKey), "A valid AgentApiKey is required")
 
         template.replace(PARAM_MMS_BASE_URL, getOpsManagerUrl())
         template.replace(PARAM_MMS_API_KEY, agentApiKey)
         template.replace(MMS_GROUP_ID, opsManagerGroupId)
-        template.replace(MongoDbEnterpriseServiceProvider.PORT, ServiceDetailsHelper.from(serviceInstance.details).getValue(PORT))
+        template.replace(PORT, ServiceDetailsHelper.from(serviceInstance.details).getValue(PORT))
         template.replace(MONGODB_BINARY_PATH, getMongoDbBinaryPath())
-        template.replace(HEALTH_CHECK_USER, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
-        template.replace(HEALTH_CHECK_PASSWORD, ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
+        template.replace(HEALTH_CHECK_USER,
+                         ServiceDetailsHelper.from(serviceInstance.details).
+                                 getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_USER))
+        template.replace(HEALTH_CHECK_PASSWORD,
+                         ServiceDetailsHelper.from(serviceInstance.details).
+                                 getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD))
 
-        return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT, template.instanceCount() as String)]
+        return [from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_TARGET_AGENT_COUNT,
+                     template.instanceCount() as String)]
     }
 
     @Override
-    void customizeBoshConfigTemplate(BoshTemplate template, String type, ProvisionRequest provisionRequest) {}
+    void customizeBoshConfigTemplate(BoshTemplate template, String type, String serviceInstanceGuid) {
+    }
 
     @VisibleForTesting
     private String getMongoDbBinaryPath() {
@@ -132,7 +138,8 @@ class MongoDbEnterpriseServiceProvider
             StateMachine stateMachine = createUpdateStateMachine()
             ServiceStateWithAction currentState = getUpdateState(context)
             def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-            return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
+            return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) :
+                                           currentState, actionResult.details)
         } else {
             // throw error for impossible upgrade
             ErrorCode.SERVICE_UPDATE_NOT_ALLOWED.throwNew()
@@ -150,9 +157,9 @@ class MongoDbEnterpriseServiceProvider
     private ServiceStateWithAction getUpdateState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
         if (!context.lastOperation.internalState) {
-            provisionState = MongoDbEnterpriseProvisionState.CHECK_AGENTS
+            provisionState = CHECK_AGENTS
         } else {
-            provisionState = MongoDbEnterpriseProvisionState.of(context.lastOperation.internalState)
+            provisionState = of(context.lastOperation.internalState)
         }
         return provisionState
     }
@@ -162,17 +169,18 @@ class MongoDbEnterpriseServiceProvider
         StateMachine stateMachine = createProvisionStateMachine(context)
         ServiceStateWithAction currentState = getProvisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
+        return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState,
+                                       actionResult.details)
     }
 
     @VisibleForTesting
     private MongoDbEnterperiseStateMachineContext createStateMachineContext(LastOperationJobContext context) {
         return new MongoDbEnterperiseStateMachineContext(mongoDbEnterpriseConfig: serviceConfig,
-                mongoDbEnterpriseFreePortFinder: mongoDbEnterpriseFreePortFinder,
-                opsManagerFacade: opsManagerFacade,
-                boshFacade: getBoshFacade(),
-                boshTemplateCustomizer: this,
-                lastOperationJobContext: context)
+                                                         mongoDbEnterpriseFreePortFinder: mongoDbEnterpriseFreePortFinder,
+                                                         opsManagerFacade: opsManagerFacade,
+                                                         boshFacade: BoshFacade.of(serviceConfig),
+                                                         boshTemplateCustomizer: this,
+                                                         lastOperationJobContext: context)
     }
 
     @VisibleForTesting
@@ -187,9 +195,9 @@ class MongoDbEnterpriseServiceProvider
     private ServiceStateWithAction getProvisionState(LastOperationJobContext context) {
         ServiceStateWithAction provisionState = null
         if (!context.lastOperation.internalState) {
-            provisionState = MongoDbEnterpriseProvisionState.CREATE_OPS_MANAGER_GROUP
+            provisionState = CREATE_OPS_MANAGER_GROUP
         } else {
-            provisionState = MongoDbEnterpriseProvisionState.of(context.lastOperation.internalState)
+            provisionState = of(context.lastOperation.internalState)
         }
         return provisionState
     }
@@ -199,7 +207,8 @@ class MongoDbEnterpriseServiceProvider
         StateMachine stateMachine = createDeprovisionStateMachine(context)
         ServiceStateWithAction currentState = getDeprovisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details))
+        return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) :
+                                                   currentState, actionResult.details))
     }
 
     @VisibleForTesting
@@ -226,39 +235,47 @@ class MongoDbEnterpriseServiceProvider
     @Override
     BindResponse bind(BindRequest request) {
         def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
-        def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).findAllWithServiceDetailType(ServiceDetailType.HOST)
+        def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).
+                findAllWithServiceDetailType(ServiceDetailType.HOST)
         def groupId = getMongoDbGroupId(request.serviceInstance)
-        opsManagerOngoingChangesChecker.checkAndRetryForOnGoingChanges(groupId)
+        opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
-        opsManagerOngoingChangesChecker.checkAndRetryForOnGoingChanges(groupId)
+        opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         def opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
-        return new BindResponse(details: [ServiceDetail.from(ServiceDetailKey.USER, dbUserCredentials.username),
-                                          ServiceDetail.from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
-                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME, opsManagerCredentials.user),
-                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD, opsManagerCredentials.password),
-                                          ServiceDetail.from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID, opsManagerCredentials.userId)],
-                credentials: new MongoDbEnterpriseBindResponseDto(
-                        database: database,
-                        username: dbUserCredentials.username,
-                        password: dbUserCredentials.password,
-                        hosts: hosts,
-                        port: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(PORT),
-                        opsManagerUrl: getOpsManagerUrl(),
-                        opsManagerUser: opsManagerCredentials.user,
-                        opsManagerPassword: opsManagerCredentials.password,
-                        replicaSet: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)))
+        return new BindResponse(details: [from(ServiceDetailKey.USER, dbUserCredentials.username),
+                                          from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
+                                          from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME,
+                                                             opsManagerCredentials.user),
+                                          from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD,
+                                                             opsManagerCredentials.password),
+                                          from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID,
+                                                             opsManagerCredentials.userId)],
+                                credentials: new MongoDbEnterpriseBindResponseDto(
+                                        database: database,
+                                        username: dbUserCredentials.username,
+                                        password: dbUserCredentials.password,
+                                        hosts: hosts,
+                                        port: ServiceDetailsHelper.from(request.serviceInstance.details).getValue(PORT),
+                                        opsManagerUrl: getOpsManagerUrl(),
+                                        opsManagerUser: opsManagerCredentials.user,
+                                        opsManagerPassword: opsManagerCredentials.password,
+                                        replicaSet: ServiceDetailsHelper.from(request.serviceInstance.details).
+                                                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)))
     }
 
     @Override
     void unbind(UnbindRequest request) {
         try {
             def groupId = getMongoDbGroupId(request.serviceInstance)
-            opsManagerOngoingChangesChecker.checkAndRetryForOnGoingChanges(groupId)
+            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
             opsManagerFacade.deleteDbUser(groupId,
-                    ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
-                    ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
-            opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
-            opsManagerOngoingChangesChecker.checkAndRetryForOnGoingChanges(groupId)
+                                          ServiceDetailsHelper.from(request.binding.details).
+                                                  getValue(ServiceDetailKey.USER),
+                                          ServiceDetailsHelper.from(request.serviceInstance.details).
+                                                  getValue(ServiceDetailKey.DATABASE))
+            opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
+                    getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")
@@ -273,10 +290,7 @@ class MongoDbEnterpriseServiceProvider
     }
 
     static String getMongoDbGroupId(ServiceInstance serviceInstance) {
-        return ServiceDetailsHelper.from(serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
-    }
-
-    BoshFacade getBoshFacade() {
-        return boshFacadeFactory.build(serviceConfig)
+        return ServiceDetailsHelper.from(serviceInstance.details).
+                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 }

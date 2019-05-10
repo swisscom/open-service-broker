@@ -47,8 +47,8 @@ class OpsManagerFacadeSpec extends Specification {
         opsManagerClient = Mock(OpsManagerClient)
 
         and:
-        opsManagerFacade = new OpsManagerFacade(opsManagerClient: opsManagerClient,
-                mongoDbEnterpriseConfig: mongoDbEnterpriseConfig)
+        opsManagerFacade = new OpsManagerFacade(mongoDbEnterpriseConfig)
+        opsManagerFacade.opsManagerClient = opsManagerClient
     }
 
     def "creation of group functions correctly"() {

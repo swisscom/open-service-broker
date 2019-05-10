@@ -19,16 +19,19 @@ import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.gson.Gson
 import com.swisscom.cloud.sb.broker.services.common.HostPort
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDBAutomationConfigUpdateNotCompletedException
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseDeployment
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.GroupDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.alert.AlertConfigDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.access.OpsManagerUserDto.UserRole.GROUP_MONITORING_ADMIN
@@ -64,13 +67,15 @@ class OpsManagerFacade {
     public static
     final List<OpsManagerUserDto.UserRole> DEFAULT_OPS_MANAGER_ROLES = Collections.unmodifiableList([GROUP_MONITORING_ADMIN])
 
-    @Autowired
-    OpsManagerClient opsManagerClient
+    private OpsManagerClient opsManagerClient
+    private MongoDbEnterpriseConfig mongoDbEnterpriseConfig
 
-    @Autowired
-    MongoDbEnterpriseConfig mongoDbEnterpriseConfig
+    OpsManagerFacade(MongoDbEnterpriseConfig mongoDbEnterpriseConfig) {
+        this.mongoDbEnterpriseConfig = mongoDbEnterpriseConfig
+        this.opsManagerClient = new OpsManagerClient(new RestTemplateBuilder(), mongoDbEnterpriseConfig)
+    }
 
-    def OpsManagerGroup createGroup(String serviceInstanceId) {
+    OpsManagerGroup createGroup(String serviceInstanceId) {
         GroupDto groupDto = opsManagerClient.createGroup(new GroupDto(name: serviceInstanceId, publicApiEnabled: true))
         return new OpsManagerGroup(groupId: groupDto.id,
                 groupName: groupDto.name,
@@ -81,7 +86,7 @@ class OpsManagerFacade {
         opsManagerClient.deleteGroup(groupId)
     }
 
-    def OpsManagerCredentials createOpsManagerUser(String groupId, String serviceInstanceId) {
+    OpsManagerCredentials createOpsManagerUser(String groupId, String serviceInstanceId) {
         def userCreationRequestDto = createUserDto(groupId, serviceInstanceId)
         OpsManagerUserDto userDto = opsManagerClient.createUser(userCreationRequestDto)
         return new OpsManagerCredentials(user: userCreationRequestDto.username,
@@ -171,6 +176,15 @@ class OpsManagerFacade {
         throw new NotImplementedException()
     }
 
+    @Retryable(
+            value = MongoDBAutomationConfigUpdateNotCompletedException.class,
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 5000l))
+    void checkAndRetryForOnGoingChanges(String groupId) throws MongoDBAutomationConfigUpdateNotCompletedException {
+        log.debug("Checking for on-going changes on Opsmanager for groupId ${groupId}")
+        if (!isAutomationUpdateComplete(groupId))
+            throw new MongoDBAutomationConfigUpdateNotCompletedException()
+    }
 
     private List<String> findHostsForGroup(String groupId) {
         def reservedHosts = opsManagerClient.getAutomationStatus(groupId).processes?.collect { it.hostname }
