@@ -53,7 +53,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     static String parameterKey = "mode"
     static String parameterOldValue = "blocking"
     static String parameterNewValue = "open"
-    Map<String, Object> parameters;
+    Map<String, Object> parameters
 
     private String requestServiceProvisioning(
             Map<String, Object> parameters = new HashMap<String, Object>(),
@@ -75,6 +75,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
                 context,
                 parameters)
 
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
         return serviceInstanceGuid
     }
 
@@ -94,6 +95,14 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         secondNotUpdatablePlan.service = notUpdatableService
         serviceLifeCycler.updateServiceOfPlanInRepository(notUpdatablePlanGuid, notUpdatableService)
         serviceLifeCycler.updateServiceOfPlanInRepository(secondNotUpdatablePlanGuid, notUpdatableService)
+
+        serviceLifeCycler.setPlan(defaultPlan)
+        serviceLifeCycler.setPlan(secondPlan)
+        serviceLifeCycler.setPlan(notUpdatablePlan)
+        serviceLifeCycler.setPlan(secondNotUpdatablePlan)
+
+        serviceLifeCycler.addCFServiceToSet(defaultService)
+        serviceLifeCycler.addCFServiceToSet(notUpdatableService)
     }
 
     def setup() {
@@ -111,9 +120,14 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         parameters.put(parameterKey, parameterOldValue)
     }
 
+    def cleanupSpec() {
+        serviceLifeCycler.cleanup()
+    }
+
     def "plan can be updated"() {
         setup:
         def serviceInstanceGuid = requestServiceProvisioning()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
         serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
@@ -130,6 +144,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     def "parameters can be updated"() {
         given:
         def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
         parameters.put(parameterKey, parameterNewValue)
@@ -149,6 +164,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     def "update request also updates context"() {
         given:
         def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
         def updatedContext = CloudFoundryContext.builder().
                 organizationGuid("myorg").
                 spaceGuid("myspace").
@@ -170,6 +186,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     def "parameters can be updated with same planId"() {
         given:
         def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
         parameters.put(parameterKey, parameterNewValue)
@@ -189,6 +206,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
     def "parameters update changes parameters on serviceDefinition"() {
         setup:
         def serviceInstanceGuid = requestServiceProvisioning(parameters)
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
 
         when:
         parameters.put(parameterKey, parameterNewValue)
