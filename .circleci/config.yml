@@ -29,7 +29,23 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
-      - run: ./gradlew clean build -x functionalTest --stacktrace
+      - run: ./gradlew clean build -x test -x functionalTest --stacktrace
+
+  # For functional testing we need to start a machine or setup_remote_docker because we need to use docker-compose for
+  # having services up to launch the tests against
+  functional_test:
+    machine:
+      image: circleci/classic:latest
+    working_directory: ~/repo
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx1024m
+      SPRING_PROFILES_ACTIVE: info,default,extensions,secrets,test
+    steps:
+      - checkout
+      - run: sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+      - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
+      - run: pushd docker && ./setup_docker.sh ; popd
+      - run: ./gradlew clean build -x test -x integrationTest --stacktrace
 
   # For tagging in the repository tags in the form 'vn.minor+1.0' or in the form 'vn.nn.patch+1'
   tag_release:
@@ -63,15 +79,20 @@ workflows:
       - integration_test:
           requires:
             - build
+      - functional_test:
+          requires:
+            - integration_test
       - tag_release:
           requires:
             - integration_test
+            - functional_test
           filters:
             branches:
               only: develop
       - publish:
           requires:
             - integration_test
+            - functional_test
             - tag_release
           filters:
             branches:
