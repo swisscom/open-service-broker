@@ -21,7 +21,6 @@ import com.swisscom.cloud.sb.broker.metrics.ServiceBrokerMetricsConfig
 import com.swisscom.cloud.sb.broker.metrics.ServiceInstanceMetricsService
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
-import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceRequest
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 import org.influxdb.dto.Query
@@ -31,9 +30,11 @@ import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstan
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 
 import static junit.framework.Assert.assertEquals
 
+@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
     final String SERVICE_GUID = "metricsServiceFunctionalTest"
@@ -100,8 +101,13 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         def serviceInstanceGuid = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstance(new CreateServiceInstanceRequest(SERVICE_GUID, PLAN_GUID, null, null, null)
-                .withServiceInstanceId(serviceInstanceGuid).withAsyncAccepted(true))
+        serviceBrokerClientExtended.createServiceInstance(CreateServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(SERVICE_GUID).
+                planId(PLAN_GUID).
+                serviceInstanceId(serviceInstanceGuid).
+                asyncAccepted(true).
+                build())
         def instantiationTime = System.currentTimeMillis()
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
@@ -110,8 +116,13 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
         and:
         def serviceBindingId = UUID.randomUUID().toString()
-        serviceBrokerClientExtended.createServiceInstanceBinding(new CreateServiceInstanceBindingRequest(SERVICE_GUID, PLAN_GUID, null, null)
-                .withServiceInstanceId(serviceInstanceGuid).withBindingId(serviceBindingId))
+        serviceBrokerClientExtended.createServiceInstanceBinding(CreateServiceInstanceBindingRequest.
+                builder().
+                serviceDefinitionId(SERVICE_GUID).
+                planId(PLAN_GUID).
+                bindingId(serviceBindingId).
+                build()
+        )
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
         def newNrOfServiceBindings = getValueFromDB("sum", BindingMetricsService.BINDING_SERVICE_KEY)
@@ -122,7 +133,13 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
         and:
         def deletionTime = System.currentTimeMillis()
-        serviceBrokerClientExtended.deleteServiceInstance(new DeleteServiceInstanceRequest(serviceInstanceGuid, SERVICE_GUID, PLAN_GUID, false))
+        serviceBrokerClientExtended.deleteServiceInstance(org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest.
+                builder().
+                serviceDefinitionId(SERVICE_GUID).
+                planId(PLAN_GUID).
+                serviceInstanceId(serviceInstanceGuid).
+                asyncAccepted(false).
+                build())
         Thread.sleep(TIME_TO_WAIT_FOR_WRITING_TO_INFLUXDB_TO_OCCUR_IN_MILLISECONDS)
 
         def newNrOfDeletedServiceInstances = getValueFromDB("sum", ServiceInstanceMetricsService.SERVICE_INSTANCES_KEY, "status = 'deleted' and")
