@@ -31,6 +31,7 @@ ext {
 
             influxdb_java                      : '2.7',
             micrometer_registry_influx         : '1.1.1',
+            immutables                         : '2.7.5',
 
             springfox                          : '2.9.2',
             swagger                            : '2.0.2',
@@ -41,7 +42,7 @@ ext {
             junit                              : '4.12',             // Unit Testing
             spock                              : '1.2-groovy-2.5',   // THE testing framework
             cglib                              : '3.2.7',            // For mocking classes without default constructor
-
+            wiremock                           : '2.23.2'
     ]
     libs = [
             groovy                                         : "org.codehaus.groovy:groovy-all:${versions.groovy}",
@@ -105,7 +106,7 @@ ext {
 
             influxdb_java                                  : "org.influxdb:influxdb-java:${versions.influxdb_java}",
             micrometer_registry_influx                     : "io.micrometer:micrometer-registry-influx:${versions.micrometer_registry_influx}",
-
+            immutables                                     : "org.immutables:value:${versions.immutables}",
 
             //Test
             junit                                          : "junit:junit:${versions.junit}",
@@ -113,9 +114,7 @@ ext {
             spock_spring                                   : "org.spockframework:spock-spring:${versions.spock}",
             cglib                                          : "cglib:cglib-nodep:${versions.cglib}",
             groovy_test                                    : "org.codehaus.groovy:groovy-test:${versions.groovy}",
-            spring_boot_starter_test                       : "org.springframework.boot:spring-boot-starter-test:${versions.spring_boot}"
-
+            spring_boot_starter_test                       : "org.springframework.boot:spring-boot-starter-test:${versions.spring_boot}",
+            wiremock                                       : "com.github.tomakehurst:wiremock-jre8:${versions.wiremock}"
     ]
-
-
 }

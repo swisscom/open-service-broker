@@ -17,9 +17,59 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceConfig
+import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import groovy.transform.CompileStatic
-
 
 @CompileStatic
 class DummyConfig implements BoshBasedServiceConfig, AsyncServiceConfig {
+    @Override
+    String getPortRange() {
+        return null
+    }
+
+    @Override
+    String getBoshManifestFolder() {
+        return null
+    }
+
+    @Override
+    boolean getShuffleAzs() {
+        return false
+    }
+
+    @Override
+    List<GenericConfig> getGenericConfigs() {
+        return null
+    }
+
+    @Override
+    TemplateConfig getTemplateConfig() {
+        return null
+    }
+
+    @Override
+    List<String> getIpRanges() {
+        return null
+    }
+
+    @Override
+    List<String> getProtocols() {
+        return null
+    }
+
+    @Override
+    String getBoshDirectorBaseUrl() {
+        return null
+    }
+
+    @Override
+    String getBoshDirectorUsername() {
+        return null
+    }
+
+    @Override
+    String getBoshDirectorPassword() {
+        return null
+    }
 }

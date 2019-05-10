@@ -18,10 +18,14 @@ package com.swisscom.cloud.sb.broker.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 import javax.persistence.*
+import javax.validation.constraints.NotEmpty
+import javax.validation.constraints.NotNull
 
 @MappedSuperclass
 abstract class RequestWithParameters extends BaseModel {
     @Column(unique = true)
+    @NotNull
+    @NotEmpty
     String serviceInstanceGuid
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")

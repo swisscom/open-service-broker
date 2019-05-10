@@ -20,6 +20,17 @@ an example of usage.
 In `src/main/resources/log4j*` you have an example of logging configuration. For an example of needed 
 Spring configuration see [broker Spring boot application](https://github.com/swisscom/open-service-broker/tree/develop/broker).
 
+For running the BoshFacadeTest or BoshClientTest against your bosh, the
+[dummy bosh-release](https://github.com/pivotal-cf-experimental/dummy-boshrelease) needs to be uploaded.
+You can set your bosh credentials in `~/.gradle/gradle.properties`:
+```
+boshUrl=<BASEURL OF YOUR BOSH>
+uaaUrl=<BASEURL OF UAA USED FOR AUTHENTICATION>
+boshUsername=<YOUR BOSH USERNAME>
+boshPassword=<YOUR BOSH PASSWORD>
+boshMocked=false
+```
+
 ## Build
 Run:
 ```bash

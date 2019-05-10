@@ -21,13 +21,15 @@ import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
 import groovy.transform.AutoClone
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
 @AutoClone
 @CompileStatic
-@Configuration
+@Component
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.service.kubernetes')
 class KubernetesConfig implements Config, EndpointConfig, AsyncServiceConfig {
+    List<String> ipRanges
+    List<String> protocols
     String kubernetesHost
     String kubernetesPort
     String kubernetesClientCertificate

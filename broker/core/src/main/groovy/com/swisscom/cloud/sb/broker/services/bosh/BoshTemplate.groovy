@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
+import org.springframework.util.Assert
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
@@ -36,9 +37,14 @@ class BoshTemplate {
         return ~(REGEX_PLACEHOLDER_PREFIX + placeholder + REGEX_PLACEHOLDER_POSTFIX)
     }
 
-    BoshTemplate(String template) {
+    private BoshTemplate(String template) {
         this.template = template
         this.processed = template
+    }
+
+    public static BoshTemplate of(String template) {
+        Assert.hasText(template, "Template cannot be empty!")
+        return new BoshTemplate(template)
     }
 
     void replace(String key, String value) {

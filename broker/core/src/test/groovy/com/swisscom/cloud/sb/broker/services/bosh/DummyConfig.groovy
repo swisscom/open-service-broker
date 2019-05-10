@@ -16,6 +16,34 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
+import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 
 class DummyConfig extends AsyncServiceConfigImpl implements BoshBasedServiceConfig {
+    int retryIntervalInSeconds
+
+    int maxRetryDurationInMinutes
+
+    List<String> ipRanges
+
+    List<String> protocols
+
+    String portRange
+
+    String boshManifestFolder
+
+    boolean shuffleAzs
+
+    List<GenericConfig> genericConfigs
+
+    String boshDirectorBaseUrl
+
+    String boshDirectorUsername
+
+    String boshDirectorPassword
+
+    @Override
+    TemplateConfig getTemplateConfig() {
+        return TemplateConfig.EMPTY
+    }
 }

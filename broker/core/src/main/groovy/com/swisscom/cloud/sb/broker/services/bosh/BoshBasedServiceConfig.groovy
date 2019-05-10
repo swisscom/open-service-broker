@@ -16,10 +16,23 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.swisscom.cloud.sb.broker.cfextensions.endpoint.EndpointConfig
+import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 
-trait BoshBasedServiceConfig implements EndpointConfig, BoshConfig {
-    String portRange
-    String boshManifestFolder
-    boolean shuffleAzs
-    List<GenericConfig> genericConfigs = new ArrayList<>()
+// TODO: split config not needed for bosh services (e.g. portRange and EndpointConfig), this adds unnecessary config
+interface BoshBasedServiceConfig extends EndpointConfig, BoshConfig {
+    /**
+     * PortRange should be in format:"n1-n2" where n2>n1 e.g. "27000-45000"
+     * @return
+     */
+    String getPortRange();
+
+    String getBoshManifestFolder();
+
+    boolean getShuffleAzs();
+
+    List<GenericConfig> getGenericConfigs();
+
+    TemplateConfig getTemplateConfig();
+
 }

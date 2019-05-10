@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -25,18 +26,22 @@ import spock.lang.Specification
 class BoshProvisionStateSpec extends Specification {
     private BoshStateMachineContext context
 
-    def setup(){
+    def setup() {
         context = new BoshStateMachineContext()
         context.boshFacade = Mock(BoshFacade)
     }
 
-    def "CREATE_DEPLOYMENT"(){
+    def "CREATE_DEPLOYMENT"() {
         given:
-        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
+        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(
+                serviceInstanceGuid: "guid", plan: new Plan(templateUniqueIdentifier: "test")))
         context.boshTemplateCustomizer = Mock(BoshTemplateCustomizer)
-        def details = [ServiceDetail.from('key','value')]
+        def details = [ServiceDetail.from("key", "value")]
         and:
-        1 * context.boshFacade.handleTemplatingAndCreateDeployment(context.lastOperationJobContext.provisionRequest,context.boshTemplateCustomizer) >> details
+        1 * context.boshFacade.handleTemplatingAndCreateDeployment("guid",
+                                                                   "test",
+                                                                   [].toSet(),
+                                                                   context.boshTemplateCustomizer) >> details
         when:
         def result = BoshProvisionState.CREATE_DEPLOYMENT.triggerAction(context)
         then:
@@ -44,11 +49,12 @@ class BoshProvisionStateSpec extends Specification {
         result.details == details
     }
 
-    def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "(){
+    def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "() {
         given:
-        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(serviceInstanceGuid: 'guid'))
+        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(
+                serviceInstanceGuid: "guid"))
         and:
-        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext)>>isBoshDeploySuccessful
+        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext) >> isBoshDeploySuccessful
         when:
         def result = BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.triggerAction(context)
         then:

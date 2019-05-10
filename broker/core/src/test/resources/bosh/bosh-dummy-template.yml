@@ -1,0 +1,29 @@
+name: "d-{{guid}}"
+
+releases:
+  - name: dummy
+    version: latest
+
+stemcells:
+  - alias: ubuntu
+    os: ubuntu-xenial
+    version: latest
+
+instance_groups:
+  - name: dummy
+    azs: [z1]
+    instances: 1
+    vm_type: "{{guid}}"
+    stemcell: ubuntu
+    networks:
+      - name: "{{guid}}"
+    jobs:
+      - name: dummy
+        release: dummy
+
+update:
+  canaries: 1
+  max_in_flight: 6
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

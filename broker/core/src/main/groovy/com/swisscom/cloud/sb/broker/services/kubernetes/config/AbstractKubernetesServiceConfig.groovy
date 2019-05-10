@@ -16,7 +16,9 @@
 package com.swisscom.cloud.sb.broker.services.kubernetes.config
 
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfigImpl
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 
 class AbstractKubernetesServiceConfig extends AsyncServiceConfigImpl {
     boolean enablePodLabelHealthzFilter
+    TemplateConfig templateConfig
 }

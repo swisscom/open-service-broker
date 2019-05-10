@@ -18,26 +18,32 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.base.Strings
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
-import com.swisscom.cloud.sb.broker.services.bosh.dto.*
-import groovy.json.JsonSlurper
+import com.swisscom.cloud.sb.broker.services.bosh.BoshResourceNotFoundException
+import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest
+import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshInfo
+import com.swisscom.cloud.sb.broker.services.bosh.resources.Task
+import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
+import groovy.transform.PackageScope
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 
-import static groovy.json.JsonParserType.LAX as RELAX
-
-@Slf4j
 @CompileStatic
 class BoshClient {
-    private final BoshConfig boshConfig
+    private static final Logger LOG = LoggerFactory.getLogger(BoshClient.class);
+
     private final BoshRestClient boshRestClient
 
+    @PackageScope
     BoshClient(BoshRestClient boshRestClient) {
-        this.boshConfig = boshRestClient.getBoshConfig()
         this.boshRestClient = boshRestClient
+    }
+
+    public static BoshClient of(BoshConfig boshConfig, RestTemplateBuilder restTemplateBuilder) {
+        return new BoshClient(new BoshRestClient(boshConfig, restTemplateBuilder))
     }
 
     /**
@@ -53,56 +59,35 @@ class BoshClient {
         } catch (Exception e) {
             throw new RuntimeException("Deployment needs a valid yml file: ${yml}")
         }
-        log.trace("Bosh deployment on ${boshConfig.boshDirectorBaseUrl} with yml:${yml}")
         return boshRestClient.postDeployment(yml)
     }
 
     /**
-     * Deletes a deployment
+     * Deletes a deployment if it exists and returns the id of the task deleting the deployment
+     * if the deployment does not exist, an {@link Optional#absent} is returned
      *
-     * @param id deploymentId
+     * @param id deploymentId to be deleted
      * @return String indicating task id that is created.
      */
     Optional<String> deleteDeploymentIfExists(String id) {
         try {
             return Optional.of(boshRestClient.deleteDeployment(id))
         } catch (BoshResourceNotFoundException e) {
-            log.warn("Bosh deployment ${id} not found")
+            LOG.warn("[delete]: Bosh deployment ${id} not found")
             return Optional.absent()
         }
     }
 
-    TaskDto getTask(String id) {
-        String task = boshRestClient.getTask(id)
-        log.info("Bosh task:${task}")
-        return new Gson().fromJson(task, TaskDto)
+    Task getTask(String id) {
+        return boshRestClient.getTask(id);
     }
 
-    List<BoshVMDto> getAllVMsInDeployment(String id) {
-        String vms = boshRestClient.getAllVMsInDeployment(id)
-        log.debug("Bosh VMs:${vms}")
-        return new Gson().fromJson(vms, new TypeToken<List<BoshVMDto>>() {}.getType())
+    BoshInfo fetchBoshInfo() {
+        return boshRestClient.fetchBoshInfo();
     }
 
-    BoshConfig getBoshConfig() {
-        return boshConfig
-    }
-
-    BoshRestClient getBoshRestClient() {
-        return boshRestClient
-    }
-
-    BoshInfoDto fetchBoshInfo() {
-        def result = boshRestClient.fetchBoshInfo()
-        return new Gson().fromJson(result, BoshInfoDto)
-    }
-
-    void setConfig(BoshConfigRequestDto config) {
-        boshRestClient.postConfig(config.toJson())
-    }
-
-    List<BoshConfigResponseDto> getConfigs(String name, String type) {
-        new JsonSlurper().setType(RELAX).parseText(boshRestClient.getConfigs(name, type)) as List<BoshConfigResponseDto>
+    BoshConfigResponse postConfig(BoshConfigRequest config) {
+        return boshRestClient.postConfig(config.toJson())
     }
 
     void deleteConfig(String name, String type) {

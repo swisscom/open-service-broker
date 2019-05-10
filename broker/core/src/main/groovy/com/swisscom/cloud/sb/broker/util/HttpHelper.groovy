@@ -23,16 +23,16 @@ import java.nio.charset.Charset
 
 @Slf4j
 class HttpHelper {
-    static HttpHeaders createSimpleAuthHeaders(String username, String password ){
-        return new HttpHeaders(){
+    static HttpHeaders createSimpleAuthHeaders(String username, String password) {
+        return new HttpHeaders() {
             {
-                set(HttpHeaders.AUTHORIZATION, computeBasicAuth(username,password) )
+                set(HttpHeaders.AUTHORIZATION, computeBasicAuth(username, password))
             }
         }
     }
 
-    static HttpHeaders createBearerTokenAuthHeaders(String token ){
-        return new HttpHeaders(){
+    static HttpHeaders createBearerTokenAuthHeaders(String token) {
+        return new HttpHeaders() {
             {
                 log.trace("Bearer " + token)
                 set(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -40,9 +40,9 @@ class HttpHelper {
         }
     }
 
-    static String computeBasicAuth(String username,String password){
-        String auth = username + ":" + password
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")) )
-        return "Basic " + new String( encodedAuth )
+    static String computeBasicAuth(String username, String password) {
+        String auth = username + ":" + String.valueOf(password)
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")))
+        return "Basic " + new String(encodedAuth)
     }
 }

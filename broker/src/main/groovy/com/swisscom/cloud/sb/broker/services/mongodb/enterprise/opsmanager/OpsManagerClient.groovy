@@ -25,12 +25,10 @@ import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.dto.automation.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
-import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -40,7 +38,6 @@ import static com.swisscom.cloud.sb.broker.error.ErrorCode.MONGODB_OPS_MANAGER_A
 import static org.springframework.http.HttpStatus.FORBIDDEN
 import static org.springframework.http.HttpStatus.UNAUTHORIZED
 
-@Component
 class OpsManagerClient {
     public static final String API_V1_CONTEXT_PATH = '/api/public/v1.0'
     public static final String GROUPS = '/groups'
@@ -60,7 +57,6 @@ class OpsManagerClient {
     private final RestTemplateBuilder restTemplateBuilder
     private final MongoDbEnterpriseConfig mongoDbEnterpriseConfig
 
-    @Autowired
     OpsManagerClient(RestTemplateBuilder restTemplateBuilder, MongoDbEnterpriseConfig mongoDbEnterpriseConfig) {
         this.restTemplateBuilder = restTemplateBuilder
         this.mongoDbEnterpriseConfig = mongoDbEnterpriseConfig

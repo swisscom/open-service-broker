@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
@@ -27,6 +28,7 @@ import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -58,7 +60,11 @@ class KubernetesRedisServiceProvider
     KubernetesFacadeRedis kubernetesClientRedisDecorated
 
     @Autowired
-    KubernetesRedisServiceProvider(KubernetesFacadeRedis kubernetesClientRedisDecorated) {
+    KubernetesRedisServiceProvider(AsyncProvisioningService asyncProvisioningService,
+                                   ProvisioningPersistenceService provisioningPersistenceService,
+                                   KubernetesRedisConfig serviceConfig,
+                                   KubernetesFacadeRedis kubernetesClientRedisDecorated) {
+        super(asyncProvisioningService, provisioningPersistenceService, serviceConfig)
         this.kubernetesClientRedisDecorated = kubernetesClientRedisDecorated
     }
 
@@ -67,7 +73,8 @@ class KubernetesRedisServiceProvider
         StateMachine stateMachine = createProvisionStateMachine()
         ServiceStateWithAction currentState = getProvisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details)
+        return AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState,
+                                       actionResult.details)
     }
 
     @VisibleForTesting
@@ -84,7 +91,7 @@ class KubernetesRedisServiceProvider
     @VisibleForTesting
     private KubernetesServiceStateMachineContext createStateMachineContext(LastOperationJobContext context) {
         return new KubernetesServiceStateMachineContext(kubernetesFacade: kubernetesClientRedisDecorated,
-                lastOperationJobContext: context)
+                                                        lastOperationJobContext: context)
     }
 
     @VisibleForTesting
@@ -101,7 +108,8 @@ class KubernetesRedisServiceProvider
         StateMachine stateMachine = createDeprovisionStateMachine()
         ServiceStateWithAction currentState = getDeprovisionState(context)
         def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(context))
-        return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState, actionResult.details))
+        return Optional.of(AsyncOperationResult.of(actionResult.go2NextState ? stateMachine.nextState(currentState) :
+                                                   currentState, actionResult.details))
     }
 
     @VisibleForTesting
@@ -127,12 +135,17 @@ class KubernetesRedisServiceProvider
     @Override
     BindResponse bind(BindRequest request) {
         RedisBindResponseDto credentials = new RedisBindResponseDto(
-                host: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST).toString(),
-                masterPort: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as int,
+                host: ServiceDetailsHelper.from(request.serviceInstance).
+                        getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_HOST).
+                        toString(),
+                masterPort: ServiceDetailsHelper.from(request.serviceInstance).
+                        getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_MASTER) as int,
                 slavePorts: ServiceDetailsHelper.from(request.serviceInstance).getDetails().findAll {
                     it.key.equals(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PORT_SLAVE.getKey())
-                }.collect { it.getValue() as int } as List,
-                password: ServiceDetailsHelper.from(request.serviceInstance).getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).toString()
+                }.collect {it.getValue() as int} as List,
+                password: ServiceDetailsHelper.from(request.serviceInstance).
+                        getValue(KubernetesRedisServiceDetailKey.KUBERNETES_REDIS_PASSWORD).
+                        toString()
         )
         return new BindResponse(credentials: credentials)
     }
@@ -149,7 +162,9 @@ class KubernetesRedisServiceProvider
 
     @Override
     ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
-        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid, port: ServiceDetailsHelper.from(serviceInstance.details).getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT) as Integer)
+        new KubernetesRedisShieldTarget(namespace: serviceInstance.guid,
+                                        port: ServiceDetailsHelper.from(serviceInstance.details).
+                                                getValue(ShieldServiceDetailKey.SHIELD_AGENT_PORT) as Integer)
     }
 
     @Override
@@ -158,7 +173,7 @@ class KubernetesRedisServiceProvider
     }
 
     @Override
-    Collection<Extension> buildExtensions(){
+    Collection<Extension> buildExtensions() {
         return [new Extension(discovery_url: serviceConfig.discoveryURL)]
     }
 }

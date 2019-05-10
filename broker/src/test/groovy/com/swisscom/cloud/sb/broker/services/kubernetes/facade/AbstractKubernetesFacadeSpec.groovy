@@ -18,11 +18,11 @@ package com.swisscom.cloud.sb.broker.services.kubernetes.facade
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,19 +35,20 @@ class AbstractKubernetesFacadeSpec extends Specification {
     AbstractKubernetesFacade kubernetesFacade
     KubernetesClient kubernetesClient
     KubernetesConfig kubernetesConfig
-    KubernetesTemplateManager kubernetesTemplateManager
+    TemplateConfig templateConfig
     EndpointMapperParamsDecorated endpointMapperParamsDecorated
     AbstractKubernetesServiceConfig kubernetesServiceConfig
 
     def setup() {
         kubernetesClient = Mock()
         kubernetesConfig = Stub()
-        kubernetesTemplateManager = Mock()
+        templateConfig = Mock()
         endpointMapperParamsDecorated = Mock()
         kubernetesServiceConfig = Mock()
         kubernetesServiceConfig.enablePodLabelHealthzFilter >> true
+        kubernetesServiceConfig.templateConfig >> templateConfig
         and:
-        kubernetesFacade = new AbstractKubernetesFacade<AbstractKubernetesServiceConfig>(kubernetesClient, kubernetesConfig, kubernetesTemplateManager, endpointMapperParamsDecorated, kubernetesServiceConfig) {
+        kubernetesFacade = new AbstractKubernetesFacade<AbstractKubernetesServiceConfig>(kubernetesClient, kubernetesConfig, endpointMapperParamsDecorated, kubernetesServiceConfig) {
             @Override
             protected Map<String, String> getBindingMap(RequestWithParameters context) {
                 ["DUMMY_PLACEHOLDER": "dummy_value"]

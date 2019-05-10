@@ -19,6 +19,7 @@ import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.RequestWithParameters
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.client.rest.KubernetesClient
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.AbstractKubernetesServiceConfig
 import com.swisscom.cloud.sb.broker.services.kubernetes.config.KubernetesConfig
@@ -27,15 +28,13 @@ import com.swisscom.cloud.sb.broker.services.kubernetes.dto.ServiceResponse
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.EndpointMapper
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.EndpointMapperParamsDecorated
 import com.swisscom.cloud.sb.broker.services.kubernetes.endpoint.parameters.KubernetesConfigUrlParams
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplate
-import com.swisscom.cloud.sb.broker.services.kubernetes.templates.KubernetesTemplateManager
 import com.swisscom.cloud.sb.broker.services.kubernetes.templates.constants.BaseTemplateConstants
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import groovy.text.SimpleTemplateEngine
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.data.util.Pair
 import org.springframework.http.HttpMethod
@@ -49,15 +48,17 @@ import static groovy.transform.TypeCheckingMode.SKIP
 abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfig> implements KubernetesFacade {
     protected final KubernetesClient<?> kubernetesClient
     protected final KubernetesConfig kubernetesConfig
-    protected final KubernetesTemplateManager kubernetesTemplateManager
+    protected final TemplateConfig templateConfig
     protected final EndpointMapperParamsDecorated endpointMapperParamsDecorated
     protected final T kubernetesServiceConfig
 
-    @Autowired
-    AbstractKubernetesFacade(KubernetesClient kubernetesClient, KubernetesConfig kubernetesConfig, KubernetesTemplateManager kubernetesTemplateManager, EndpointMapperParamsDecorated endpointMapperParamsDecorated, AbstractKubernetesServiceConfig abstractKubernetesServiceConfig) {
+    AbstractKubernetesFacade(KubernetesClient kubernetesClient,
+                             KubernetesConfig kubernetesConfig,
+                             EndpointMapperParamsDecorated endpointMapperParamsDecorated,
+                             AbstractKubernetesServiceConfig abstractKubernetesServiceConfig) {
         this.kubernetesClient = kubernetesClient
         this.kubernetesConfig = kubernetesConfig
-        this.kubernetesTemplateManager = kubernetesTemplateManager
+        this.templateConfig = abstractKubernetesServiceConfig.getTemplateConfig()
         this.endpointMapperParamsDecorated = endpointMapperParamsDecorated
         this.kubernetesServiceConfig = abstractKubernetesServiceConfig
     }
@@ -67,35 +68,46 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     protected abstract Map<String, String> getUpdateBindingMap(RequestWithParameters context)
 
     protected
-    abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap, List<ResponseEntity> responses)
+    abstract Collection<ServiceDetail> buildServiceDetailsList(Map<String, String> bindingMap,
+                                                               List<ResponseEntity> responses)
 
     Collection<ServiceDetail> provision(RequestWithParameters context) {
         def bindingMap = getBindingMap(context)
-        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
-        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
-        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        log.debug("Use this bindings for k8s templates: ${JsonOutput.prettyPrint(JsonOutput.toJson(bindingMap))}")
+        List<String> templates = templateConfig.getTemplates(context.plan.templateUniqueIdentifier)
+        def templateEngine = new SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
-        for (KubernetesTemplate kubernetesTemplate : templates) {
-            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+        for (String kubernetesTemplate : templates) {
+            String boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).
+                    make(bindingMap).
+                    toString()
             log.trace("Request this template for k8s provision: ${boundTemplate}")
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
-            responses.add(kubernetesClient.exchange(urlReturn.getFirst(), HttpMethod.POST, boundTemplate, urlReturn.getSecond().class))
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(TemplateConfig.
+                    getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            responses.add(kubernetesClient.exchange(urlReturn.getFirst(),
+                                                    HttpMethod.POST,
+                                                    boundTemplate,
+                                                    urlReturn.getSecond().class))
         }
         return buildServiceDetailsList(bindingMap, responses)
     }
 
     Collection<ServiceDetail> update(RequestWithParameters context) {
         def bindingMap = getUpdateBindingMap(context)
-        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
-        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
-        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        log.debug("Use this bindings for k8s templates: ${JsonOutput.prettyPrint(JsonOutput.toJson(bindingMap))}")
+        List<String> templates = templateConfig.getTemplates(context.plan.templateUniqueIdentifier)
+        def templateEngine = new SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
-        for (KubernetesTemplate kubernetesTemplate : templates) {
-            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+        for (String kubernetesTemplate : templates) {
+            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).
+                    make(bindingMap).
+                    toString()
             log.trace("Request this template for k8s provision: ${boundTemplate}")
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
-            if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Service") {
-                ServiceResponse service = getServiceTemplate((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)))
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(TemplateConfig.
+                    getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            if (TemplateConfig.getKindForTemplate(boundTemplate) == "Service") {
+                ServiceResponse service = getServiceTemplate((urlReturn.getFirst() + "/" + TemplateConfig.
+                        getNameForTemplate(boundTemplate)))
                 def newMap = [
                         "spec"    :
                                 ["clusterIP": service.spec.clusterIP,
@@ -103,10 +115,15 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                         "metadata":
                                 ["resourceVersion": service.metadata.resourceVersion]
                 ]
-                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
-            } else if (KubernetesTemplate.getKindForTemplate(boundTemplate) == "Deployment") {
-                def pods = getPodList(context.serviceInstanceGuid).findAll { it.metadata.labels.pod_type != 'meta' }
-                def nodes = pods.collect { it.spec.nodeName }
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + TemplateConfig.getNameForTemplate(
+                        boundTemplate)),
+                                                        HttpMethod.PUT,
+                                                        JsonOutput.toJson(newMap),
+                                                        boundTemplate,
+                                                        urlReturn.getSecond().class))
+            } else if (TemplateConfig.getKindForTemplate(boundTemplate) == "Deployment") {
+                def pods = getPodList(context.serviceInstanceGuid).findAll {it.metadata.labels.pod_type != 'meta'}
+                def nodes = pods.collect {it.spec.nodeName}
                 def newMap = [
                         'spec': [
                                 'template': [
@@ -115,11 +132,11 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                                                         'nodeAffinity': [
                                                                 'requiredDuringSchedulingIgnoredDuringExecution': [
                                                                         'nodeSelectorTerms': [[
-                                                                                        'matchExpressions': [[
-                                                                                                       key     : 'kubernetes.io/hostname',
-                                                                                                       operator: 'In',
-                                                                                                       values  : nodes as ArrayList
-                                                                                                       ]]
+                                                                                                      'matchExpressions': [[
+                                                                                                                                   key     : 'kubernetes.io/hostname',
+                                                                                                                                   operator: 'In',
+                                                                                                                                   values  : nodes as ArrayList
+                                                                                                                           ]]
                                                                                               ]]
                                                                 ]
                                                         ]
@@ -128,9 +145,15 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
                                 ]
                         ]
                 ]
-                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, JsonOutput.toJson(newMap), boundTemplate, urlReturn.getSecond().class))
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + TemplateConfig.getNameForTemplate(
+                        boundTemplate)),
+                                                        HttpMethod.PUT,
+                                                        JsonOutput.toJson(newMap),
+                                                        boundTemplate,
+                                                        urlReturn.getSecond().class))
             } else {
-                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + TemplateConfig.getNameForTemplate(
+                        boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
             }
         }
         return buildServiceDetailsList(bindingMap, responses)
@@ -138,18 +161,22 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
 
     Collection<ServiceDetail> removeAffinity(RequestWithParameters context) {
         def bindingMap = getUpdateBindingMap(context)
-        log.debug("Use this bindings for k8s templates: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(bindingMap))}")
-        def templates = kubernetesTemplateManager.getTemplates(context.plan.templateUniqueIdentifier)
-        def templateEngine = new groovy.text.SimpleTemplateEngine()
+        log.debug("Use this bindings for k8s templates: ${JsonOutput.prettyPrint(JsonOutput.toJson(bindingMap))}")
+        List<String> templates = templateConfig.getTemplates(context.plan.templateUniqueIdentifier)
+        def templateEngine = new SimpleTemplateEngine()
         List<ResponseEntity> responses = new LinkedList()
-        for (KubernetesTemplate kubernetesTemplate : templates) {
-            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).make(bindingMap).toString()
+        for (String kubernetesTemplate : templates) {
+            def boundTemplate = templateEngine.createTemplate(fixTemplateEscaping(kubernetesTemplate)).
+                    make(bindingMap).
+                    toString()
             log.trace("Request this template for k8s provision: ${boundTemplate}")
-            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(KubernetesTemplate.getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
-            if (KubernetesTemplate.getKindForTemplate(boundTemplate) != "Deployment") {
+            Pair<String, ?> urlReturn = endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams(TemplateConfig.
+                    getKindForTemplate(boundTemplate), (new KubernetesConfigUrlParams()).getParameters(context))
+            if (TemplateConfig.getKindForTemplate(boundTemplate) != "Deployment") {
                 continue
             } else {
-                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + KubernetesTemplate.getNameForTemplate(boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
+                responses.add(kubernetesClient.exchange((urlReturn.getFirst() + "/" + TemplateConfig.getNameForTemplate(
+                        boundTemplate)), HttpMethod.PUT, boundTemplate, urlReturn.getSecond().class))
             }
         }
         return buildServiceDetailsList(bindingMap, responses)
@@ -178,12 +205,15 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
 
     void deprovision(DeprovisionRequest request) {
         try {
-            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").getFirst() + "/" + request.serviceInstanceGuid,
-                    HttpMethod.DELETE, "", Object.class)
+            kubernetesClient.exchange(EndpointMapper.INSTANCE.getEndpointUrlByType("Namespace").
+                    getFirst() + "/" + request.serviceInstanceGuid,
+                                      HttpMethod.DELETE, "", Object.class)
         } catch (HttpStatusCodeException e) {
-            if (e.statusCode != HttpStatus.NOT_FOUND) throw e
-            else {
-                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.toString())
+            if (e.statusCode != HttpStatus.NOT_FOUND) {
+                throw e
+            } else {
+                log.debug("404: Tried to delete namespace " + request.serviceInstanceGuid + " which was not found. Error Message:" + e.
+                        toString())
             }
         }
     }
@@ -192,17 +222,22 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     boolean isKubernetesUpdateSuccessful(String serviceInstanceGuid) {
         try {
             DeploymentListDto deploymentList = kubernetesClient.exchange(
-                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('Deployment', ["serviceInstanceGuid": serviceInstanceGuid]).getFirst(),
+                    endpointMapperParamsDecorated.getEndpointUrlByTypeWithParams('Deployment',
+                                                                                 ["serviceInstanceGuid": serviceInstanceGuid]).
+                            getFirst(),
                     HttpMethod.GET,
                     "",
                     DeploymentListDto.class
             ).body
             int numberOfDeployments = deploymentList.items.size()
-            int updatedDeployments = deploymentList.items.findAll() { deployment -> deployment.status.updatedReplicas == deployment.status.replicas }.size()
+            int updatedDeployments = deploymentList.items.findAll() {deployment
+                ->
+                deployment.status.updatedReplicas == deployment.status.replicas
+            }.size()
             return (numberOfDeployments == updatedDeployments)
         } catch (HttpStatusCodeException e) {
             log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
-                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+                      "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
             return false
         }
     }
@@ -215,7 +250,7 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
             return checkPodsReadinessState(consideredPods)
         } catch (HttpStatusCodeException e) {
             log.error("Readiness check for kubernetes service with instance guid ${serviceInstanceGuid} failed, " +
-                    "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
+                      "got HTTP status code: ${e.getStatusCode().toString()}; body: ${e.getResponseBodyAsString()}")
 
             return false
         }
@@ -245,7 +280,8 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     @TypeChecked(SKIP)
     private List getPodList(String serviceInstanceGuid) throws HttpStatusCodeException {
         ResponseEntity<String> podListResponse = kubernetesClient.exchange(
-                EndpointMapper.INSTANCE.getEndpointUrlByType('Namespace').getFirst() + '/' + serviceInstanceGuid + '/pods',
+                EndpointMapper.INSTANCE.getEndpointUrlByType('Namespace').
+                        getFirst() + '/' + serviceInstanceGuid + '/pods',
                 HttpMethod.GET, "", String.class)
         def jsonSlurper = new JsonSlurper()
         def podList = jsonSlurper.parseText(podListResponse.body)
@@ -259,16 +295,16 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
     @TypeChecked(SKIP)
     private List getPodsConsideredForReadiness(List pods) {
         if (kubernetesServiceConfig.enablePodLabelHealthzFilter) {
-            return pods.findAll { it.metadata.labels.healthz == "true" }
+            return pods.findAll {it.metadata.labels.healthz == "true"}
         } else {
             return pods
         }
     }
 
     @TypeChecked(SKIP)
-    private boolean checkPodsReadinessState(List pods) {
-        def podsConditions = pods.collect { it.status.conditions }.flatten()
-        def hasConditionsReadyAndStatusFalse = podsConditions.findAll { it.type == 'Ready' }.findAll {
+    private static boolean checkPodsReadinessState(List pods) {
+        def podsConditions = pods.collect {it.status.conditions}.flatten()
+        def hasConditionsReadyAndStatusFalse = podsConditions.findAll {it.type == 'Ready'}.findAll {
             it.status == 'False'
         }
         return (hasConditionsReadyAndStatusFalse.size() == 0 && !pods.empty)
@@ -278,8 +314,8 @@ abstract class AbstractKubernetesFacade<T extends AbstractKubernetesServiceConfi
  * If a k8s templates contains bash scripts some literals must be escaped additionally because otherwise
  * `SimpleTemplateEngine` will strugle because everything with `$` would be a template expression.
  */
-    protected String fixTemplateEscaping(KubernetesTemplate kubernetesTemplate) {
-        def escapedTemplate = kubernetesTemplate.template.replace('$(', '\\$(').
+    protected static String fixTemplateEscaping(String kubernetesTemplate) {
+        def escapedTemplate = kubernetesTemplate.replace('$(', '\\$(').
                 replace('$"', '\\$"')
         escapedTemplate
     }
