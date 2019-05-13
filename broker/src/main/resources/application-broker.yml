@@ -1,6 +1,6 @@
 ---
 spring:
-  profiles: common
+  profiles: broker
   jpa.properties.hibernate.id.new_generator_mappings: false
   jpa.hibernate.enable_lazy_load_no_trans: true
   jpa.properties.hibernate.enable_lazy_load_no_trans: true
