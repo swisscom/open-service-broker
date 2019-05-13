@@ -42,14 +42,20 @@ class ServiceDefinitionFromServiceManifestFunctionalSpec extends BaseFunctionalS
     @Autowired
     ServiceDefinitionInitializer serviceDefinitionInitializer
 
+    def cleanupSpec() {
+        serviceLifeCycler.cleanup()
+    }
+
     def "read service definition from service manifest as active"() {
         when:
+        serviceDefinitionInitializer.init()
+
+        then:
         def redisService = cfServiceRepository.findByGuid(REDIS_SERVICE_GUID_FROM_APPLICATION_YAML)
         def largePlan = planRepository.findByGuid(REDIS_LARGE_PLAN_GUID_FROM_APPLICATION_YAML)
         def xlargePlan = planRepository.findByGuid(REDIS_XLARGE_PLAN_GUID_FROM_APPLICATION_YAML)
         def xxlargePlan = planRepository.findByGuid(REDIS_XXLARGE_PLAN_GUID_FROM_APPLICATION_YAML)
 
-        then:
         assert (redisService.active)
         assert (largePlan.active)
         assert (xlargePlan.active)
