@@ -44,6 +44,8 @@ import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import org.joda.time.LocalTime
 import org.joda.time.Seconds
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.Context
@@ -63,11 +65,13 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 import javax.annotation.PostConstruct
+import java.sql.SQLException
 
 @Component
 @Scope('prototype')
 @CompileStatic
 class ServiceLifeCycler {
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceLifeCycler.class);
     private CFService cfService
     private Set<CFService> cfServices = []
     private Plan plan
@@ -100,7 +104,6 @@ class ServiceLifeCycler {
     ServiceLifeCycler(String serviceInstanceId, String serviceBindingId) {
         this.serviceInstanceId = serviceInstanceId
         this.serviceBindingId = serviceBindingId
-        this.serviceInstanceIds << serviceInstanceId
     }
 
     @PostConstruct
@@ -225,6 +228,17 @@ class ServiceLifeCycler {
         // reverse iteration is required in case a service instance has a child service instance which needs to be deleted first
         (serviceInstanceIds as String[]).reverseEach {it ->
             serviceInstanceRepository.deleteByGuid(it)
+        }
+
+        /**
+         * Try to delete remaining `serviceInstanceId` and catch the exception when it didn't exist.
+         * This is a very dumb solution to at least have a clean service lifecycle until this class got complete
+         * refactoring fixing all the flaws
+         */
+        try {
+            serviceInstanceRepository.deleteByGuid(serviceInstanceId)
+        } catch (SQLException e) {
+            LOG.info("Got SQLException while cleaning up serviceinstance within ServiceLifeCycler: ${e.message}")
         }
 
         if (parameters.size() > 0) {
