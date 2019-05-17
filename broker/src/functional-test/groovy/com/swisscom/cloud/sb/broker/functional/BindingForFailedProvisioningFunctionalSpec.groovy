@@ -33,6 +33,10 @@ class BindingForFailedProvisioningFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision async service instance and bind immediately"() {
         given:
+        def serviceInstanceGuid = UUID.randomUUID().toString()
+        serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
+
+        and:
         serviceLifeCycler.createServiceInstanceAndAssert(0, true, true, ['success': true, 'delay': String.valueOf(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2)])
         assert serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.IN_PROGRESS
 
