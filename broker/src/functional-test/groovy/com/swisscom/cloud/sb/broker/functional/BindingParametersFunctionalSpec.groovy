@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
@@ -29,6 +30,8 @@ import org.springframework.web.client.HttpClientErrorException
 
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
+    @Autowired
+    protected ServiceInstanceRepository serviceInstanceRepository
     @Autowired
     protected ServiceBindingRepository serviceBindingRepository
     @Autowired
@@ -76,6 +79,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         cleanup:
         serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
+        serviceInstanceRepository.deleteByGuid(serviceLifeCycler.getServiceInstanceId())
     }
 
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
@@ -98,7 +102,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false,)
 
         when:
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])
+        serviceLifeCycler.bindServiceInstanceAndAssert(serviceBindingGuid, ['key1': 'value1'])
         serviceBrokerClient.getServiceInstanceBinding(serviceInstanceGuid, serviceBindingGuid)
 
         then:
@@ -128,7 +132,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.createServiceInstanceAndAssert(0, false, false,)
 
         when:
-        serviceLifeCycler.bindServiceInstanceAndAssert(null, ['key1': 'value1'])
+        serviceLifeCycler.bindServiceInstanceAndAssert(serviceBindingGuid, ['key1': 'value1'])
         def bindingResponse = serviceBrokerClient.getServiceInstanceBinding(serviceInstanceGuid, serviceBindingGuid)
 
         then:
