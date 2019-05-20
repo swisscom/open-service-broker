@@ -31,6 +31,7 @@ import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
 import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.model.repository.TagRepository
 import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
@@ -137,6 +138,9 @@ class ServiceLifeCycler {
     private ServiceBindingRepository serviceBindingRepository
 
     @Autowired
+    private ServiceDetailRepository serviceDetailRepository
+
+    @Autowired
     private TagRepository tagRepository
 
     @Autowired
@@ -225,21 +229,9 @@ class ServiceLifeCycler {
         provisionRequestRepository.deleteAll()
         deprovisionRequestRepository.deleteAll()
 
-        // reverse iteration is required in case a service instance has a child service instance which needs to be deleted first
-        (serviceInstanceIds as String[]).reverseEach {it ->
-            serviceInstanceRepository.deleteByGuid(it)
-        }
-
-        /**
-         * Try to delete remaining `serviceInstanceId` and catch the exception when it didn't exist.
-         * This is a very dumb solution to at least have a clean service lifecycle until this class got complete
-         * refactoring fixing all the flaws
-         */
-        try {
-            serviceInstanceRepository.deleteByGuid(serviceInstanceId)
-        } catch (SQLException e) {
-            LOG.info("Got SQLException while cleaning up serviceinstance within ServiceLifeCycler: ${e.message}")
-        }
+        serviceBindingRepository.deleteAll()
+        serviceInstanceRepository.deleteAll()
+        serviceDetailRepository.deleteAll()
 
         if (parameters.size() > 0) {
             parameters.each {
