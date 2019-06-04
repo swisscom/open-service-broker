@@ -100,7 +100,7 @@ class BoshRestClient {
     }
 
     void deleteConfig(String name, String type) {
-        createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS + (new GenericConfigAPIQueryFilter.Builder())
+        createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS + GenericConfigAPIQueryFilter.builder()
                 .withName(name).withType(type).build().asUriString()),
                                           HttpMethod.DELETE, null, String.class);
     }
