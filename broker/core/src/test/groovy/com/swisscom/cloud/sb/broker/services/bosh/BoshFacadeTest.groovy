@@ -519,6 +519,6 @@ class BoshFacadeTest extends Specification {
         "guid" | ""                       | EMPTY_PARAMETERS | templateCustomizer | "Template identifier cannot be empty!"
         "guid" | DEPLOYMENT_TEMPLATE_NAME | null             | templateCustomizer | "Parameters cannot be null!"
         "guid" | DEPLOYMENT_TEMPLATE_NAME | EMPTY_PARAMETERS | null               | "Template customizer cannot be null!"
-        "guid" | "DOES_NOT_EXIST"         | EMPTY_PARAMETERS | templateCustomizer | "Template cannot be empty!"
+        "guid" | "DOES_NOT_EXIST"         | EMPTY_PARAMETERS | templateCustomizer | "No template could be found for templateIdentifier \"DOES_NOT_EXIST\"!"
     }
 }
