@@ -219,12 +219,13 @@ class BoshFacade {
                     return file.text
                 }
                 LOG.info("Will try to read file:${fileName} from embedded resources")
-
-                def result = Resource.readTestFileContent(fileName.startsWith('/') ? fileName : ('/' + fileName))
-                return result
+                return Resource.readTestFileContent(fileName.startsWith('/') ? fileName : ('/' + fileName))
             } catch (Exception ex) {
-                ex.printStackTrace()
-                throw new IllegalStateException("No template could be found for templateIdentifier ${templateIdentifier}")
+                LOG.error(String.format("No template could be found for templateIdentifier \"%s\"", templateIdentifier),
+                          ex)
+                throw new IllegalArgumentException(String.format(
+                        "No template could be found for templateIdentifier \"%s\"!",
+                        templateIdentifier))
             }
         }
     }
