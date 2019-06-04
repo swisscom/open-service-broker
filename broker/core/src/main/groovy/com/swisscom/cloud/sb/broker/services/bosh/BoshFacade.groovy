@@ -208,8 +208,7 @@ class BoshFacade {
     private String readTemplateContent(String templateIdentifier, String version = "1.0.0") {
         Assert.hasText(templateIdentifier, "empty string is invalid template identifier")
         try {
-            String template = templateConfig.getTemplateForServiceKey(templateIdentifier, version)[0]
-            return template
+            return templateConfig.getTemplateForServiceKey(templateIdentifier, version).first()
         } catch (NoSuchElementException e) {
             try {
                 // Fallback method which was used by BOSH deployments
@@ -230,8 +229,7 @@ class BoshFacade {
         }
     }
 
-    private static
-    void updateTemplateFromDatabaseConfiguration(BoshTemplate template, Set<Parameter> parameters) {
+    private static void updateTemplateFromDatabaseConfiguration(BoshTemplate template, Set<Parameter> parameters) {
         parameters.each {Parameter p -> template.replace(p.name, p.value)}
     }
 

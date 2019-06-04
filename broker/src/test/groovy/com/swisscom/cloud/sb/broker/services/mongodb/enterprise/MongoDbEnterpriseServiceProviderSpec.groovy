@@ -61,7 +61,9 @@ class MongoDbEnterpriseServiceProviderSpec extends Specification {
                                                                                       boshDirectorUsername: "admin",
                                                                                       boshDirectorPassword: "test",
                                                                                       templateConfig: TemplateConfig.EMPTY,
-                                                                                      boshManifestFolder: "/var/vcap/data")
+                                                                                      boshManifestFolder: "/var/vcap/data",
+                                                                                      libFolder: '/test',
+                                                                                      opsManagerUrlForAutomationAgent: 'http://10.0.0.2:8443')
         mockedOpsManagerFacade = Spy(new OpsManagerFacade(mongoDbEnterpriseConfig))
         serviceProvider = new MongoDbEnterpriseServiceProvider(Mock(AsyncProvisioningService),
                                                                Mock(ProvisioningPersistenceService),
@@ -91,7 +93,7 @@ class MongoDbEnterpriseServiceProviderSpec extends Specification {
         })
     }
 
-    def "template customization works correctly"() {
+    def "template customization calls all necessary replacements"() {
         given:
         String mongoOpsManagerGroupId = 'mongoOpsManagerGroupId'
         String mongoAgentApiKey = 'mongoAgentApiKey'
@@ -128,6 +130,35 @@ class MongoDbEnterpriseServiceProviderSpec extends Specification {
         ServiceDetailsHelper.from(details).
                 getValue(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) == instanceCount.
                 toString()
+    }
+
+    def "template is correctly customized"() {
+        given:
+        String mongoOpsManagerGroupId = 'mongoOpsManagerGroupId'
+        String mongoAgentApiKey = 'mongoAgentApiKey'
+        String port = '666'
+        String healthCheckUser = 'healthCheckUser'
+        String healthCheckPassword = 'healthCheckPassword'
+
+        and:
+
+        def serviceInstance = new ServiceInstance(details: [from(MONGODB_ENTERPRISE_GROUP_ID, mongoOpsManagerGroupId),
+                                                            from(MONGODB_ENTERPRISE_AGENT_API_KEY, mongoAgentApiKey),
+                                                            from(MONGODB_ENTERPRISE_HEALTH_CHECK_USER, healthCheckUser),
+                                                            from(MONGODB_ENTERPRISE_HEALTH_CHECK_PASSWORD,
+                                                                 healthCheckPassword),
+                                                            from(ServiceDetailKey.PORT, port)])
+        1 * serviceProvider.provisioningPersistenceService.getServiceInstance(serviceInstanceGuid) >> serviceInstance
+        and:
+        BoshTemplate template = BoshTemplate.of(new File(this.getClass().
+                getResource('/bosh/mongodbent-bosh-template.yml').file).text)
+
+        when:
+        def details = serviceProvider.customizeBoshTemplate(template, serviceInstanceGuid)
+        String processed = template.build()
+
+        then:
+        processed == new File(this.getClass().getResource('/bosh/mongodbent-bosh-manifest.yml').file).text
     }
 
     def "StateMachineContext is created correctly"() {

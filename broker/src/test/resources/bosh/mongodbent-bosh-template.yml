@@ -1,0 +1,49 @@
+director_uuid: dd5e8b9e-ef63-4df5-8a94-0b1fe6f8d41a  #STACK LEVEL
+name: 'd-6006383c-bc7d-48b0-ad1f-064aa870c9d5' #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+instance_groups:
+  - azs:
+      - z1
+    instances: 3
+    jobs:
+      - name: mms-automation-agent
+        properties:
+          mms-automation-agent:
+            mmsApiKey: {{mms-api-key}} # SERVICE-INSTANCE LEVEL
+            mmsBaseUrl: {{mms-base-url}} # SERVICE-INSTANCE LEVEL
+            mmsGroupId: {{mms-group-id}} # SERVICE-INSTANCE LEVEL
+            service_id: 6006383c-bc7d-48b0-ad1f-064aa870c9d5 #SERVICE-LEVEL same as service-id
+          mongodb:
+            port: {{port}}
+            bin_path: {{mongodb-binary-path}}
+            health:
+              user: {{health-check-user}}
+              password: {{health-check-password}}
+        release: mongodb-enterprise
+    migrated_from:
+      - az: z1
+        name: mongoenterprise_6006383c-bc7d-48b0-ad1f-064aa870c9d5_z1 #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
+    name: mongoenterprise_6006383c-bc7d-48b0-ad1f-064aa870c9d5 #SERVICE-INSTANCE LEVEL e.g. mongoenterprise_<serviceid>
+    networks:
+      - default:
+          - dns
+          - gateway
+        name: mongoenterprise-mongodbent-service #STACK LEVEL
+    persistent_disk_type: small
+    stemcell: bosh-openstack-kvm-ubuntu-trusty-go_agent
+    vm_type: 6006383c-bc7d-48b0-ad1f-064aa870c9d5 #SERVICE-INSTANCE LEVEL
+properties: {}
+releases:
+  - name: mongodb-enterprise  #SERVICE-TEMPLATE LEVEL
+    version: 1.0.3 #SERVICE-TEMPLATE LEVEL
+  - name: konsul
+    version: 1.1.2 #SERVICE_TEMPLATE LEVEL
+stemcells:
+  - alias: bosh-openstack-kvm-ubuntu-trusty-go_agent
+    name: bosh-openstack-kvm-ubuntu-trusty-go_agent
+    version: 3262.4 #SERVICE-TEMPLATE LEVEL
+update:
+  canaries: 1
+  canary_watch_time: 30000-180000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 5000-180000
