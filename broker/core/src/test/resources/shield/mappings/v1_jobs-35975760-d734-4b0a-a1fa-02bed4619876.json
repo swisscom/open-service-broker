@@ -1,0 +1,19 @@
+{
+  "id" : "35975760-d734-4b0a-a1fa-02bed4619876",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENT",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-35975760-d734-4b0a-a1fa-02bed4619876.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:47 GMT"
+    }
+  },
+  "uuid" : "35975760-d734-4b0a-a1fa-02bed4619876",
+  "persistent" : true,
+  "insertionIndex" : 94
+}

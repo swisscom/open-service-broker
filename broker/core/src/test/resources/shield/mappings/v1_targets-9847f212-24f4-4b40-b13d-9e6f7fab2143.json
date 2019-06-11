@@ -1,0 +1,24 @@
+{
+  "id" : "9847f212-24f4-4b40-b13d-9e6f7fab2143",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SHIELD-CLIENT-TARGET\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\"}\",\"agent\":\"127.0.0.1:5444\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"d8d35d19-0f2f-4ddd-ae8e-e232f8f0bdf5\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:41 GMT"
+    }
+  },
+  "uuid" : "9847f212-24f4-4b40-b13d-9e6f7fab2143",
+  "persistent" : true,
+  "insertionIndex" : 70
+}

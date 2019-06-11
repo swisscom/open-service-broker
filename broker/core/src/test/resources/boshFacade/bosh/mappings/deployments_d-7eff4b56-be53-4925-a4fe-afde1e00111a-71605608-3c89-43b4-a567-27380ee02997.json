@@ -1,0 +1,28 @@
+{
+  "id" : "71605608-3c89-43b4-a567-27380ee02997",
+  "name" : "deployments_d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "request" : {
+    "url" : "/deployments/d-7eff4b56-be53-4925-a4fe-afde1e00111a?force=true",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 23 May 2019 14:35:51 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://192.168.50.6/tasks/14",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "71605608-3c89-43b4-a567-27380ee02997",
+  "persistent" : true,
+  "scenarioName" : "scenario-deployments-d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-deployments-d-7eff4b56-be53-4925-a4fe-afde1e00111a-2",
+  "insertionIndex" : 38
+}

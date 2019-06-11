@@ -1,0 +1,19 @@
+{
+  "id" : "bb624810-2343-416c-af30-8e9825fe25a1",
+  "name" : "v1_job_6bdf241b-2504-4658-9b21-32c8172409a6",
+  "request" : {
+    "url" : "/v1/job/6bdf241b-2504-4658-9b21-32c8172409a6",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"deleted\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:52 GMT"
+    }
+  },
+  "uuid" : "bb624810-2343-416c-af30-8e9825fe25a1",
+  "persistent" : true,
+  "insertionIndex" : 120
+}

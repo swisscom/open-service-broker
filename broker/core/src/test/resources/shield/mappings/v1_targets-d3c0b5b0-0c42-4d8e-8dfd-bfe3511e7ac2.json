@@ -1,0 +1,19 @@
+{
+  "id" : "d3c0b5b0-0c42-4d8e-8dfd-bfe3511e7ac2",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENT",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"d8d35d19-0f2f-4ddd-ae8e-e232f8f0bdf5\",\"name\":\"TEST-SHIELD-CLIENT-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:48 GMT"
+    }
+  },
+  "uuid" : "d3c0b5b0-0c42-4d8e-8dfd-bfe3511e7ac2",
+  "persistent" : true,
+  "insertionIndex" : 98
+}

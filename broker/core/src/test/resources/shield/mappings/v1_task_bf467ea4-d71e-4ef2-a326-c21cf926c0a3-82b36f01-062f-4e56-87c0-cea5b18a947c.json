@@ -1,0 +1,21 @@
+{
+  "id" : "82b36f01-062f-4e56-87c0-cea5b18a947c",
+  "name" : "v1_task_bf467ea4-d71e-4ef2-a326-c21cf926c0a3",
+  "request" : {
+    "url" : "/v1/task/bf467ea4-d71e-4ef2-a326-c21cf926c0a3",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_task_bf467ea4-d71e-4ef2-a326-c21cf926c0a3-82b36f01-062f-4e56-87c0-cea5b18a947c.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:45 GMT"
+    }
+  },
+  "uuid" : "82b36f01-062f-4e56-87c0-cea5b18a947c",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-bf467ea4-d71e-4ef2-a326-c21cf926c0a3",
+  "requiredScenarioState" : "scenario-v1-task-bf467ea4-d71e-4ef2-a326-c21cf926c0a3-3",
+  "insertionIndex" : 90
+}

@@ -1,0 +1,19 @@
+{
+  "id" : "11ca257a-1583-4689-9e0a-3f0de2f3b478",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENT-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 13:13:41 GMT"
+    }
+  },
+  "uuid" : "11ca257a-1583-4689-9e0a-3f0de2f3b478",
+  "persistent" : true,
+  "insertionIndex" : 68
+}

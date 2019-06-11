@@ -1,0 +1,21 @@
+{
+  "id" : "4891b19d-e2ac-406f-adb1-63055ad06da0",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SYSTEM-SHIELD-CLIENT-JOB",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-4891b19d-e2ac-406f-adb1-63055ad06da0.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Thu, 06 Jun 2019 11:21:13 GMT"
+    }
+  },
+  "uuid" : "4891b19d-e2ac-406f-adb1-63055ad06da0",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-jobs",
+  "requiredScenarioState" : "scenario-v1-jobs-2",
+  "insertionIndex" : 54
+}

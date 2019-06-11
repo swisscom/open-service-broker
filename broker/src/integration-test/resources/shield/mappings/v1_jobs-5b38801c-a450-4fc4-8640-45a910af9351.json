@@ -1,0 +1,22 @@
+{
+  "id" : "5b38801c-a450-4fc4-8640-45a910af9351",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=SystemBackupOnShieldTest-job",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 11 Jun 2019 14:35:03 GMT"
+    }
+  },
+  "uuid" : "5b38801c-a450-4fc4-8640-45a910af9351",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-jobs",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-jobs-2",
+  "insertionIndex" : 19
+}

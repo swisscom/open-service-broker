@@ -1,0 +1,22 @@
+{
+  "id" : "e64a6cb8-8ee6-41df-863a-886d5927e92a",
+  "name" : "v1_status",
+  "request" : {
+    "url" : "/v1/status",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"version\":\"0.10.9\",\"name\":\"(none)\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 11 Jun 2019 14:34:57 GMT"
+    }
+  },
+  "uuid" : "e64a6cb8-8ee6-41df-863a-886d5927e92a",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-status",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-status-2",
+  "insertionIndex" : 5
+}

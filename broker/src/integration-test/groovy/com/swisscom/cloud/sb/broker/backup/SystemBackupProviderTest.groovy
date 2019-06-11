@@ -15,57 +15,121 @@
 
 package com.swisscom.cloud.sb.broker.backup
 
-import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.github.tomakehurst.wiremock.junit.WireMockRule
+import com.github.tomakehurst.wiremock.stubbing.Scenario
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.KubernetesRedisShieldTarget
-import spock.lang.IgnoreIf
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import org.junit.ClassRule
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import spock.lang.Specification
+import spock.lang.Stepwise
 
-@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
-class SystemBackupProviderTest extends BaseSpecification implements SystemBackupProvider {
+import static com.github.tomakehurst.wiremock.client.WireMock.*
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import static org.junit.Assert.assertEquals
 
-    private final String SERVICE_INSTANCE_ID = "44651d63-b7c0-4f20-86bb-efef081a99ca"
+@SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("default,test")
+@Stepwise
+class SystemBackupProviderTest extends Specification {
+    private static final Logger LOG = LoggerFactory.getLogger(SystemBackupProviderTest.class)
+    private static final String SERVICE_INSTANCE_ID = "44651d63-b7c0-4f20-86bb-efef081a99ca"
+    private static final boolean SHIELD_MOCKED = Boolean.valueOf(System.getProperty("shield.mocked"))
+    private static final String SHIELD_LIVE_TARGET_URL = System.getProperty("shield.live.target.url")
+
+    @Autowired
+    DummySystemBackupProvider backupProvider
+
+    @Autowired
+    BackupPersistenceService backupPersistenceService
+
+    @ClassRule
+    public static WireMockRule shieldWireMock
+
+    void setupSpec() {
+        if (!SHIELD_MOCKED) {
+            shieldWireMock = new WireMockRule(options().
+                    withRootDirectory("src/integration-test/resources/shield").
+                    port(8082))
+            LOG.info("Start recording with shield wiremock targeting '{}'", SHIELD_LIVE_TARGET_URL)
+            shieldWireMock.start()
+            shieldWireMock.startRecording(recordSpec().
+                    forTarget(SHIELD_LIVE_TARGET_URL).
+                    extractBinaryBodiesOver(10240).
+                    extractTextBodiesOver(256).
+                    makeStubsPersistent(true))
+        } else {
+            shieldWireMock = new WireMockRule(options().
+                    usingFilesUnderClasspath("shield").
+                    port(8082))
+            shieldWireMock.start()
+        }
+    }
+
     void setup() {
+        Set<Parameter> parameters = [new Parameter(name: "BACKUP_SCHEDULE", value: "default"),
+                                     new Parameter(name: "BACKUP_SCHEDULE_NAME", value: "default"),
+                                     new Parameter(name: "BACKUP_POLICY_NAME", value: "default"),
+                                     new Parameter(name: "BACKUP_STORAGE_NAME", value: "default")]
+        Plan plan = new Plan(parameters: parameters)
+        backupProvider.provisioningPersistenceService = new ProvisioningPersistenceService() {
+            ServiceInstance getServiceInstance(String guid) {
+                return new ServiceInstance(guid: SERVICE_INSTANCE_ID, plan: plan)
+            }
+        }
 
+        LOG.info("Testing against {}", SHIELD_MOCKED ? "mocked shield" : "live shield")
     }
 
-    def "register and run system backup on shield"() {
+    void cleanupSpec() {
+        if (!SHIELD_MOCKED) {
+            shieldWireMock.stopRecording()
+        }
+        shieldWireMock.stop()
+    }
+
+    void "register and run system backup with two 500 responses from shield api should succeed"() {
+        given:
+        shieldWireMock.stubFor(post(urlEqualTo("/v1/targets"))
+                                       .inScenario("flaky shield api")
+                                       .whenScenarioStateIs(Scenario.STARTED)
+                                       .willReturn(aResponse().withStatus(500))
+                                       .willSetStateTo("Failed targets once"))
+        shieldWireMock.stubFor(post(urlEqualTo("/v1/jobs"))
+                                       .inScenario("flaky shield api")
+                                       .whenScenarioStateIs("Failed targets once")
+                                       .willReturn(aResponse().withStatus(500))
+                                       .willSetStateTo("Failed jobs once"))
         when:
-        def status = configureSystemBackup(SERVICE_INSTANCE_ID)
+        Collection<ServiceDetail> status = backupProvider.configureSystemBackup(SERVICE_INSTANCE_ID)
         then:
-        status.size() == 2
+        assertEquals(status.size(), 2)
     }
 
-
-    def "delete system backup"() {
+    void "delete system backup with two 500 responses from shield api should succeed"() {
+        given:
+        shieldWireMock.stubFor(delete(urlMatching("/v1/job/([a-f0-9]{8}(\\-[a-f0-9]{4}){4}[a-f0-9]{8})"))
+                                       .inScenario("flaky delete shield api")
+                                       .whenScenarioStateIs(Scenario.STARTED)
+                                       .willReturn(aResponse().withStatus(500))
+                                       .willSetStateTo("Failed job once"))
+        shieldWireMock.stubFor(delete(urlMatching("/v1/target/([a-f0-9]{8}(\\-[a-f0-9]{4}){4}[a-f0-9]{8})"))
+                                       .inScenario("flaky delete shield api")
+                                       .whenScenarioStateIs("Failed job once")
+                                       .willReturn(aResponse().withStatus(500))
+                                       .willSetStateTo("Failed target once"))
         when:
-        unregisterSystemBackupOnShield(SERVICE_INSTANCE_ID)
+        backupProvider.unregisterSystemBackupOnShield(SERVICE_INSTANCE_ID)
         then:
         noExceptionThrown()
-    }
-
-    @Override
-    ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
-        return new KubernetesRedisShieldTarget(namespace: "dummy-namespace", port: 1234)
-    }
-
-    @Override
-    String systemBackupJobName(String jobPrefix, String serviceInstance) {
-        "SystemBackupOnShieldTest-job"
-    }
-
-    @Override
-    String systemBackupTargetName(String targetPrefix, String serviceInstance) {
-        "SystemBackupOnShieldTest-target"
-    }
-
-    @Override
-    String shieldAgentUrl(ServiceInstance serviceInstance) {
-        "localhost:1234"
-    }
-
-    Collection<Extension> buildExtensions(){
-
     }
 }

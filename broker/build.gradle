@@ -23,6 +23,11 @@ configurations {
     testArtifacts.extendsFrom testRuntime
 }
 
+integrationTest{
+    systemProperty 'shield.mocked', "${shieldMocked}"
+    systemProperty 'shield.live.target.url', "${shieldLiveTargetUrl}"
+}
+
 dependencies {
     compile project(':model')
     compile project(':client')

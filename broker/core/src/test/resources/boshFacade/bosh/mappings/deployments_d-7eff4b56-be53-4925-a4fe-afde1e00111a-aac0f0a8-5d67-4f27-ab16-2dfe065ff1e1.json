@@ -1,0 +1,27 @@
+{
+  "id" : "aac0f0a8-5d67-4f27-ab16-2dfe065ff1e1",
+  "name" : "deployments_d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "request" : {
+    "url" : "/deployments/d-7eff4b56-be53-4925-a4fe-afde1e00111a?force=true",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 404,
+    "body" : "{\"code\":70000,\"description\":\"Deployment 'd-7eff4b56-be53-4925-a4fe-afde1e00111a' doesn't exist\"}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 23 May 2019 14:37:52 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "aac0f0a8-5d67-4f27-ab16-2dfe065ff1e1",
+  "persistent" : true,
+  "scenarioName" : "scenario-deployments-d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "requiredScenarioState" : "scenario-deployments-d-7eff4b56-be53-4925-a4fe-afde1e00111a-2",
+  "insertionIndex" : 50
+}
