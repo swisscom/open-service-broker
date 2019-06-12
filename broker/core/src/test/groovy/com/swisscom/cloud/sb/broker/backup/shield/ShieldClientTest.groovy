@@ -36,7 +36,7 @@ import spock.lang.Unroll
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import static com.google.common.base.Strings.isNullOrEmpty
+import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupParameter
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_JOB_UUID
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_TARGET_UUID
 
@@ -51,10 +51,17 @@ class ShieldClientTest extends Specification {
     private static final String SHIELD_TEST = "TEST-SHIELD-CLIENT"
     private static final String SHIELD_SYSTEM_TEST = "TEST-SYSTEM-SHIELD-CLIENT"
     private static final String SHIELD_AGENT_URL = "127.0.0.1:5444"
+    private static ShieldConfig emptyShieldConfig = new ShieldConfig()
+    private static ShieldRestClientFactory shieldRestClientFactory = new ShieldRestClientFactory([new ShieldRestClientv1(
+            emptyShieldConfig)])
 
+    private static BackupParameter backupParameter = backupParameter().
+            storeName("default").
+            retentionName("default").
+            scheduleName("default").
+            schedule("daily 3am").
+            build()
     private ShieldTarget shieldTarget
-    private BackupParameter backupParameter
-
     private ShieldClient sut
 
     @ClassRule
@@ -79,25 +86,19 @@ class ShieldClientTest extends Specification {
 
     void setup() {
         shieldTarget = new TestShieldTarget()
-        backupParameter = new BackupParameter(storeName: "default",
-                                              retentionName: "default",
-                                              scheduleName: "default",
-                                              schedule: "daily 3am",
-                                              agent: SHIELD_AGENT_URL)
         ShieldConfig shieldConfig = new ShieldConfig()
         shieldConfig.baseUrl = "http://localhost:8082"
         shieldConfig.username = SHIELD_USERNAME
         shieldConfig.password = SHIELD_PASSWORD
         shieldConfig.apiKey = SHIELD_API_KEY
+        ShieldRestClientFactory shieldRestClientFactory = new ShieldRestClientFactory([new ShieldRestClientv1(
+                shieldConfig)])
         sut = new ShieldClient(shieldConfig,
-                               new ShieldRestClientFactory([new ShieldRestClientv1(shieldConfig)]),
+                               shieldRestClientFactory,
                                new BackupPersistenceService())
-        LOG.info("Testing against {} and with URL '{}' with username '{}' and password '{}' and api key '{}'",
+        LOG.info("Testing against {} with {}",
                  SHIELD_MOCKED ? "mocked shield" : "live shield",
-                 shieldConfig.getBaseUrl(),
-                 shieldConfig.getUsername(),
-                 isNullOrEmpty(shieldConfig.getPassword()) ? " NO PASSWORD PROVIDED" : "<CONFIDENTIAL>",
-                 isNullOrEmpty(shieldConfig.getApiKey()) ? " NO API KEY PROVIDED" : "<CONFIDENTIAL>")
+                 shieldConfig.toString())
     }
 
     def cleanupSpec() {
@@ -121,6 +122,23 @@ class ShieldClientTest extends Specification {
         }
     }
 
+    @Unroll
+    def "Create ShieldClient with false parameters because #message"() {
+        when:
+        ShieldClient shieldClient = new ShieldClient(config, restClientFactory, backupPersistenceService)
+
+        then:
+        shieldClient == null
+        def exception = thrown(IllegalArgumentException.class)
+        exception.message == message
+
+        where:
+        config            | restClientFactory       | backupPersistenceService       | message
+        null              | shieldRestClientFactory | new BackupPersistenceService() | "Shield config cannot be null!"
+        emptyShieldConfig | null                    | new BackupPersistenceService() | "Shield REST client factory cannot be null!"
+        emptyShieldConfig | shieldRestClientFactory | null                           | "Backup persistence service cannot be null!"
+    }
+
     def "register and run job"() {
         given:
         String jobName = SHIELD_TEST + "-JOB"
@@ -133,7 +151,6 @@ class ShieldClientTest extends Specification {
 
         then:
         Assert.notEmpty([result], "Result should show Task UUID of backup task")
-        noExceptionThrown()
     }
 
     def "should get task status in progress"() {
@@ -202,6 +219,105 @@ class ShieldClientTest extends Specification {
 
         then:
         noExceptionThrown()
+    }
+
+    def "unregister should not fail when trying to delete unknown job or target"() {
+        when:
+        sut.unregisterSystemBackup("JOBDOESNOTEXIST", "TARGETDOESNOTEXIST")
+
+        then:
+        noExceptionThrown()
+    }
+
+    @Unroll
+    def "register and run system backup should fail when given illegal arguments because #message"() {
+        when:
+        Collection<ServiceDetail> result = sut.registerAndRunSystemBackup(jobName,
+                                                                          targetName,
+                                                                          target,
+                                                                          parameters,
+                                                                          agentUrl)
+
+        then:
+        result == null
+        def exception = thrown(IllegalArgumentException.class)
+        exception.message == message
+
+        where:
+        jobName | targetName | target                 | parameters      | agentUrl         | message
+        null    | "target"   | new TestShieldTarget() | backupParameter | SHIELD_AGENT_URL | "Job name cannot be empty!"
+        ""      | "target"   | new TestShieldTarget() | backupParameter | SHIELD_AGENT_URL | "Job name cannot be empty!"
+        "job"   | null       | new TestShieldTarget() | backupParameter | SHIELD_AGENT_URL | "Target name cannot be empty!"
+        "job"   | ""         | new TestShieldTarget() | backupParameter | SHIELD_AGENT_URL | "Target name cannot be empty!"
+        "job"   | "target"   | null                   | backupParameter | SHIELD_AGENT_URL | "ShieldTarget cannot be null!"
+        "job"   | "target"   | new TestShieldTarget() | null            | SHIELD_AGENT_URL | "BackupParameter cannot be null!"
+        "job"   | "target"   | new TestShieldTarget() | backupParameter | null             | "Shield agent URL cannot be empty!"
+        "job"   | "target"   | new TestShieldTarget() | backupParameter | ""               | "Shield agent URL cannot be empty!"
+    }
+
+    @Unroll
+    def "unregister system backup should fail when given illegal arguments because #message"() {
+        when:
+        sut.unregisterSystemBackup(jobName, targetName)
+
+        then:
+        def exception = thrown(IllegalArgumentException.class)
+        exception.message == message
+
+        where:
+        jobName | targetName | message
+        null    | "target"   | "Job name cannot be empty!"
+        ""      | "target"   | "Job name cannot be empty!"
+        "job"   | null       | "Target name cannot be empty!"
+        "job"   | ""         | "Target name cannot be empty!"
+    }
+
+    def "restore backup should fail given an unknown taskUUID"() {
+        when:
+        String result = sut.restore("TASKDOESNOTEXIST")
+
+        then:
+        result == null
+        thrown(ShieldResourceNotFoundException.class)
+    }
+
+    def "delete jobs and backups should not fail when given unknown job"() {
+        when:
+        sut.deleteJobsAndBackups("JOBDOESNOTEXIST")
+
+        then:
+        noExceptionThrown()
+    }
+
+    @Unroll
+    def "delete jobs and backups should fail when given wrong parameters because #message"() {
+        when:
+        sut.deleteJobsAndBackups(jobName)
+
+        then:
+        def exception = thrown(IllegalArgumentException.class)
+        exception.message == message
+
+        where:
+        jobName | message
+        null    | "Service Instance GUID cannot be empty!"
+        ""      | "Service Instance GUID cannot be empty!"
+    }
+
+    @Unroll
+    def "get task status should fail because #message"() {
+        when:
+        JobStatus result = sut.getJobStatus(taskUUID)
+
+        then:
+        result == null
+        def exception = thrown(Exception.class)
+        exception.message == message
+
+        where:
+        taskUUID           | message
+        null               | "Task UUID cannot be empty!"
+        "TASKDOESNOTEXIST" | "Rest call to Shield failed with status:501 NOT_IMPLEMENTED"
     }
 
     @Unroll

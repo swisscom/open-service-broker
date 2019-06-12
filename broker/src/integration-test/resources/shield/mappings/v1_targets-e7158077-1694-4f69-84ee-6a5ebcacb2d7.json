@@ -1,0 +1,24 @@
+{
+  "id" : "e7158077-1694-4f69-84ee-6a5ebcacb2d7",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"SystemBackupOnShieldTest-target\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SYSTEM-BACKUP-PROVIDER\\\"}\",\"agent\":\"127.0.0.1:5444\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"78b2baa3-9d6b-4c9c-ab62-1d8d18e49471\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 12:53:59 GMT"
+    }
+  },
+  "uuid" : "e7158077-1694-4f69-84ee-6a5ebcacb2d7",
+  "persistent" : true,
+  "insertionIndex" : 11
+}

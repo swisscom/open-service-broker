@@ -1,0 +1,19 @@
+{
+  "id" : "e2e6c675-1316-4612-9d77-cce1b976c918",
+  "name" : "v1_target_cff83877-58f2-48b7-94a3-968d2cf1e9ed",
+  "request" : {
+    "url" : "/v1/target/cff83877-58f2-48b7-94a3-968d2cf1e9ed",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"deleted\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 13:00:12 GMT"
+    }
+  },
+  "uuid" : "e2e6c675-1316-4612-9d77-cce1b976c918",
+  "persistent" : true,
+  "insertionIndex" : 36
+}

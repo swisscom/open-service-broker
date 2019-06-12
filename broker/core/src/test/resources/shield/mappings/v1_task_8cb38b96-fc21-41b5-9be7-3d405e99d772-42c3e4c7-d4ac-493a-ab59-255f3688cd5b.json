@@ -1,0 +1,22 @@
+{
+  "id" : "42c3e4c7-d4ac-493a-ab59-255f3688cd5b",
+  "name" : "v1_task_8cb38b96-fc21-41b5-9be7-3d405e99d772",
+  "request" : {
+    "url" : "/v1/task/8cb38b96-fc21-41b5-9be7-3d405e99d772",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"uuid\":\"8cb38b96-fc21-41b5-9be7-3d405e99d772\",\"owner\":\"anon\",\"type\":\"backup\",\"job_uuid\":\"8383286b-2821-4b3c-8e80-5a58cad6cc2d\",\"archive_uuid\":\"\",\"status\":\"pending\",\"started_at\":\"\",\"stopped_at\":\"\",\"log\":\"\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 13:00:06 GMT"
+    }
+  },
+  "uuid" : "42c3e4c7-d4ac-493a-ab59-255f3688cd5b",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-8cb38b96-fc21-41b5-9be7-3d405e99d772",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-task-8cb38b96-fc21-41b5-9be7-3d405e99d772-2",
+  "insertionIndex" : 20
+}

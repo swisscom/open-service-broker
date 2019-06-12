@@ -1,0 +1,21 @@
+{
+  "id" : "b1ff78f3-3668-4dd2-8db9-ec266aba87c1",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SYSTEM-SHIELD-CLIENT-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"78eb1ace-4f4b-43b5-ad6e-7a0df608d4a6\",\"name\":\"TEST-SYSTEM-SHIELD-CLIENT-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 13:00:17 GMT"
+    }
+  },
+  "uuid" : "b1ff78f3-3668-4dd2-8db9-ec266aba87c1",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-targets",
+  "requiredScenarioState" : "scenario-v1-targets-2",
+  "insertionIndex" : 58
+}

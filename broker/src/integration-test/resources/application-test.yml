@@ -104,7 +104,7 @@ com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
 
 com.swisscom.cloud.sb.broker.shield:
   baseUrl: 'http://localhost:8082'
-  apiKey: h2rnWJzANBtnHx6T9jCoan3C
+  apiKey: 'api-key'
   agent: 'shield-agent:5444'
   jobPrefix: 'SB_CF_'
   targetPrefix: 'SB_CF_'
@@ -114,5 +114,5 @@ com.swisscom.cloud.sb.broker.shield:
   maxRetryBackup: 5
   defaultTenantName: tenant1
   username: admin
-  password: kXDkQiNzcVeVQim0HSr6EfB7
+  password: 'password'
   backOffDelay: 100L

@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("default,test")
+@ActiveProfiles("default,test,secrets")
 @Stepwise
 class SystemBackupProviderTest extends Specification {
     private static final Logger LOG = LoggerFactory.getLogger(SystemBackupProviderTest.class)

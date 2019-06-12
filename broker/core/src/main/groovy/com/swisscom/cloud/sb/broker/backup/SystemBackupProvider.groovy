@@ -22,11 +22,11 @@ import groovy.transform.CompileStatic
 @CompileStatic
 trait SystemBackupProvider extends BackupOnShield {
 
-    def systemBackupJobName(String jobPrefix, String serviceInstanceId) {
+    String systemBackupJobName(String jobPrefix, String serviceInstanceId) {
         backupJobName(jobPrefix, serviceInstanceId)
     }
 
-    def systemBackupTargetName(String targetPrefix, String serviceInstanceId) {
+    String systemBackupTargetName(String targetPrefix, String serviceInstanceId) {
         backupTargetName(targetPrefix, serviceInstanceId)
     }
 
@@ -39,7 +39,7 @@ trait SystemBackupProvider extends BackupOnShield {
         shieldClient.registerAndRunSystemBackup(jobName, targetName, shieldTarget, shieldServiceConfig, shieldAgentUrl(serviceInstance))
     }
 
-    def unregisterSystemBackupOnShield(String serviceInstanceId) {
+    void unregisterSystemBackupOnShield(String serviceInstanceId) {
         String jobName = systemBackupJobName(shieldConfig.jobPrefix, serviceInstanceId)
         String targetName = systemBackupTargetName(shieldConfig.targetPrefix, serviceInstanceId)
         shieldClient.unregisterSystemBackup(jobName, targetName)

@@ -15,16 +15,15 @@
 
 package com.swisscom.cloud.sb.broker.backup
 
-import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
+import com.swisscom.cloud.sb.broker.backup.shield.*
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+
+import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupParameter
 
 @CompileStatic
 trait BackupOnShield extends ExtensionProvider {
@@ -43,11 +42,11 @@ trait BackupOnShield extends ExtensionProvider {
 
     abstract String shieldAgentUrl(ServiceInstance serviceInstance)
 
-    def backupJobName(String jobPrefix, String serviceInstanceId) {
+    String backupJobName(String jobPrefix, String serviceInstanceId) {
         "${jobPrefix}${serviceInstanceId}"
     }
 
-    def backupTargetName(String targetPrefix, String serviceInstanceId) {
+    String backupTargetName(String targetPrefix, String serviceInstanceId) {
         "${targetPrefix}${serviceInstanceId}"
     }
 
@@ -71,6 +70,11 @@ trait BackupOnShield extends ExtensionProvider {
         String storageName = planParamtersForBackup.find {
             it.getName().equals("BACKUP_STORAGE_NAME")
         }?.getValue()
-        new BackupParameter(scheduleName: scheduleName, retentionName: policyName, storeName: storageName, schedule: schedule)
+        return backupParameter().
+                scheduleName(scheduleName).
+                retentionName(policyName).
+                storeName(storageName).
+                schedule(schedule).
+                build()
     }
 }

@@ -21,9 +21,9 @@ import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.util.Assert
 import org.springframework.web.client.RestTemplate
 
 abstract class ShieldRestClientImpl implements ShieldRestClient {
@@ -31,6 +31,7 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
     protected RestTemplate restTemplate
 
     ShieldRestClientImpl(ShieldConfig shieldConfig) {
+        Assert.notNull(shieldConfig, "Shield config cannot be null!")
         this.restTemplate = new RestTemplateBuilder().withSSLValidationDisabled().build()
         this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         this.config = shieldConfig

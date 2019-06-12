@@ -1,0 +1,21 @@
+{
+  "id" : "2fbc0250-9ef8-4be7-8c4d-88f5b23c8149",
+  "name" : "v1_retention",
+  "request" : {
+    "url" : "/v1/retention?name=default",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"name\":\"default\",\"summary\":\"\",\"expires\":31536000}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 12:54:01 GMT"
+    }
+  },
+  "uuid" : "2fbc0250-9ef8-4be7-8c4d-88f5b23c8149",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-retention",
+  "requiredScenarioState" : "scenario-v1-retention-2",
+  "insertionIndex" : 28
+}

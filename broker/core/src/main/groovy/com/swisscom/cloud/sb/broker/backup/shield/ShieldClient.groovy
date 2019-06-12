@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
+import org.springframework.util.Assert
 
 import javax.annotation.PostConstruct
 
@@ -46,7 +47,12 @@ class ShieldClient {
     protected BackupPersistenceService backupPersistenceService
 
     @Autowired
-    ShieldClient(ShieldConfig shieldConfig, ShieldRestClientFactory shieldRestClientFactory, BackupPersistenceService backupPersistenceService) {
+    ShieldClient(ShieldConfig shieldConfig,
+                 ShieldRestClientFactory shieldRestClientFactory,
+                 BackupPersistenceService backupPersistenceService) {
+        Assert.notNull(shieldConfig, "Shield config cannot be null!")
+        Assert.notNull(shieldRestClientFactory, "Shield REST client factory cannot be null!")
+        Assert.notNull(backupPersistenceService, "Backup persistence service cannot be null!")
         this.shieldConfig = shieldConfig
         this.shieldRestClientFactory = shieldRestClientFactory
         this.restTemplateBuilder = new RestTemplateBuilder()
@@ -58,20 +64,43 @@ class ShieldClient {
         LOG.info(shieldConfig.toString())
     }
 
-    String registerAndRunJob(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
+    String registerAndRunJob(String jobName,
+                             String targetName,
+                             ShieldTarget shieldTarget,
+                             BackupParameter backupParameter,
+                             String shieldAgentUrl) {
+        Assert.hasText(jobName, "Job name cannot be empty!")
+        Assert.hasText(targetName, "Target name cannot be empty!")
+        Assert.notNull(shieldTarget, "ShieldTarget cannot be null!")
+        Assert.notNull(backupParameter, "BackupParameter cannot be null!")
+        Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
-        String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig)
+        String jobUuid = registerJob(jobName, targetUuid, backupParameter)
 
         buildClient().runJob(jobUuid)
     }
 
+    /**
+     * As a workaround to an unstable shield API, we retry failed calls up to 3 times.
+     * Should we experience problems with this solution (due to higher load on the API),
+     * we will replace it with a circuit breaker solution.
+     */
     @Retryable(
             value = ServiceBrokerException.class,
             maxAttempts = 3,
             backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))
-    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName, String targetName, ShieldTarget shieldTarget, BackupParameter shieldServiceConfig, String shieldAgentUrl) {
+    Collection<ServiceDetail> registerAndRunSystemBackup(String jobName,
+                                                         String targetName,
+                                                         ShieldTarget shieldTarget,
+                                                         BackupParameter backupParameter,
+                                                         String shieldAgentUrl) {
+        Assert.hasText(jobName, "Job name cannot be empty!")
+        Assert.hasText(targetName, "Target name cannot be empty!")
+        Assert.notNull(shieldTarget, "ShieldTarget cannot be null!")
+        Assert.notNull(backupParameter, "BackupParameter cannot be null!")
+        Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
-        String jobUuid = registerJob(jobName, targetUuid, shieldServiceConfig, false)
+        String jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
 
         buildClient().runJob(jobUuid)
 
@@ -79,28 +108,37 @@ class ShieldClient {
          ServiceDetail.from(ShieldServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
     }
 
+    /**
+     * As a workaround to an unstable shield API, we retry failed calls up to 3 times.
+     * Should we experience problems with this solution (due to higher load on the API),
+     * we will replace it with a circuit breaker solution.
+     */
     @Retryable(
             value = ServiceBrokerException.class,
             maxAttempts = 3,
             backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))
-    def unregisterSystemBackup(String jobName, String targetName) {
+    void unregisterSystemBackup(String jobName, String targetName) {
+        Assert.hasText(jobName, "Job name cannot be empty!")
+        Assert.hasText(targetName, "Target name cannot be empty!")
         deleteJobIfExisting(jobName)
         deleteTargetIfExisting(targetName)
     }
 
-    def deleteTask(String taskUuid) {
+    void deleteTask(String taskUuid) {
+        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         buildClient().deleteTaskByUuid(taskUuid)
     }
 
     JobStatus getJobStatus(String taskUuid, Backup backup = null) {
+        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         if (task.statusParsed.isRunning()) {
             return JobStatus.RUNNING
         }
         if (task.statusParsed.isFailed()) {
             LOG.warn("Shield task failed: ${task}")
-            if (task.typeParsed.isBackup()){
-                if (backup.retryBackupCount < shieldConfig.maxRetryBackup){
+            if (task.typeParsed.isBackup()) {
+                if (backup.retryBackupCount < shieldConfig.maxRetryBackup) {
                     LOG.info("Retrying backup count: ${backup.retryBackupCount + 1}")
                     backup.retryBackupCount++
                     backup.externalId = buildClient().runJob(task.job_uuid)
@@ -126,10 +164,12 @@ class ShieldClient {
     }
 
     String getJobName(String jobUuid) {
+        Assert.hasText(jobUuid, "Job UUID cannot be empty!")
         buildClient().getJobByUuid(jobUuid).name
     }
 
     String restore(String taskUuid) {
+        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
         // TODO need to check for archive, status etc. here?
         buildClient().restoreArchive(task.archive_uuid)
@@ -137,6 +177,7 @@ class ShieldClient {
 
     // avoid throwing exceptions in this method so that users can delete failed backups.
     void deleteBackup(String taskUuid) {
+        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         try {
             TaskDto task = buildClient().getTaskByUuid(taskUuid)
             buildClient().deleteArchive(task.archive_uuid)
@@ -148,18 +189,19 @@ class ShieldClient {
     }
 
     void deleteJobsAndBackups(String serviceInstanceId) {
+        Assert.hasText(serviceInstanceId, "Service Instance GUID cannot be empty!")
         deleteJobIfExisting(serviceInstanceId)
         deleteTargetIfExisting(serviceInstanceId)
     }
 
-    private deleteJobIfExisting(String jobName) {
+    private void deleteJobIfExisting(String jobName) {
         JobDto job = buildClient().getJobByName(jobName)
         if (job != null) {
             buildClient().deleteJob(job.uuid)
         }
     }
 
-    private deleteTargetIfExisting(String targetName) {
+    private void deleteTargetIfExisting(String targetName) {
         TargetDto target = buildClient().getTargetByName(targetName)
         if (target != null) {
             buildClient().deleteTarget(target.uuid)
@@ -175,7 +217,10 @@ class ShieldClient {
         }
     }
 
-    private String registerJob(String jobName, String targetUuid, BackupParameter shieldServiceConfig, boolean paused = true) {
+    private String registerJob(String jobName,
+                               String targetUuid,
+                               BackupParameter shieldServiceConfig,
+                               boolean paused = true) {
         StoreDto store = buildClient().getStoreByName(shieldServiceConfig.storeName)
         if (store == null) {
             throw new RuntimeException("Store ${shieldServiceConfig.storeName} that is configured does not exist on shield")
@@ -197,7 +242,8 @@ class ShieldClient {
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
         TargetDto targetOnShield = buildClient().getTargetByName(targetName)
-        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) : buildClient().updateTarget(targetOnShield, target, agent)
+        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) :
+        buildClient().updateTarget(targetOnShield, target, agent)
     }
 
     private String createOrUpdateJob(String jobName,
@@ -208,8 +254,8 @@ class ShieldClient {
                                      boolean paused) {
         JobDto jobOnShield = buildClient().getJobByName(jobName)
         jobOnShield == null ?
-                buildClient().createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
-                buildClient().updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
+        buildClient().createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
+        buildClient().updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
     }
 
     private ShieldRestClient buildClient() {

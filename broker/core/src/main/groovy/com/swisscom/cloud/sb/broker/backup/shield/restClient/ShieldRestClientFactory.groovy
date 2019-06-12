@@ -16,19 +16,20 @@
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.util.Assert
 
+// TODO: Is not a factory
 @Component
 @CompileStatic
-@Slf4j
 class ShieldRestClientFactory {
 
     private List<ShieldRestClient> shieldRestClients
 
     @Autowired
     ShieldRestClientFactory(List<ShieldRestClient> shieldRestClients) {
+        Assert.notEmpty(shieldRestClients, "At least one ShieldRestClient has to be provided")
         this.shieldRestClients = shieldRestClients
     }
 
