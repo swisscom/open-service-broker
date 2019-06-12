@@ -71,10 +71,11 @@ trait BackupOnShield extends ExtensionProvider {
             it.getName().equals("BACKUP_STORAGE_NAME")
         }?.getValue()
         return backupParameter().
-                scheduleName(scheduleName).
+                scheduleName(Optional.ofNullable(scheduleName)).
+                schedule(Optional.ofNullable(schedule)).
                 retentionName(policyName).
                 storeName(storageName).
-                schedule(schedule).
                 build()
+
     }
 }

@@ -230,11 +230,11 @@ class ShieldClient {
             throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
         }
         // Either use BACKUP_SCHEDULE parameter or get the schedule UUID from shield v1 BACKUP_SCHEDULE_NAME parameter from service definition
-        ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName)
-        String schedule = scheduleDto != null ? scheduleDto.uuid : shieldServiceConfig.schedule
+        ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName.get())
+        String schedule = scheduleDto != null ? scheduleDto.uuid : shieldServiceConfig.schedule.get()
 
         if (schedule == null) {
-            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName} that is configured does not exist on shield")
+            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName.get()} that is configured does not exist on shield")
         }
 
         createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)

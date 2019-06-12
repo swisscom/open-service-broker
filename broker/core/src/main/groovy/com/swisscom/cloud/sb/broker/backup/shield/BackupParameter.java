@@ -18,12 +18,17 @@ package com.swisscom.cloud.sb.broker.backup.shield;
 import com.swisscom.cloud.sb.broker.config.BackupServiceConfig;
 import org.immutables.value.Value;
 
+import java.util.Optional;
+
 @Value.Immutable
 public interface BackupParameter extends BackupServiceConfig {
     String getStoreName();
+
     String getRetentionName();
-    String getScheduleName();
-    String getSchedule();
+
+    Optional<String> getScheduleName();
+
+    Optional<String> getSchedule();
 
     static ImmutableBackupParameter.Builder backupParameter() {
         return ImmutableBackupParameter.builder();
