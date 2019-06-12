@@ -27,6 +27,10 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 
+/**
+ * {@link ShieldRestClient} implementation for shield version 0.10.x
+ * See <a href="https://github.com/shieldproject/shield/tree/v0.10.9">Shield Version 0.10.9</a>
+ */
 @Component
 class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientv1.class)

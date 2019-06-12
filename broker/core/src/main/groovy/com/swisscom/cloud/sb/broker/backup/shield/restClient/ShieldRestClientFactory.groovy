@@ -20,6 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
+/**
+ * Strategy pattern to support multiple shield API versions
+ * See <a href="https://github.com/shieldproject/shield">Shield Project</a>
+ */
 // TODO: Is not a factory
 @Component
 @CompileStatic
@@ -33,9 +37,15 @@ class ShieldRestClientFactory {
         this.shieldRestClients = shieldRestClients
     }
 
+    /**
+     * Returns first {@link ShieldRestClient} implementation that returns true when executing
+     * {@link ShieldRestClient#matchVersion )}
+     */
     ShieldRestClient build() {
         for (ShieldRestClient shieldRestClient in shieldRestClients) {
-            if (shieldRestClient.matchVersion()) return shieldRestClient
+            if (shieldRestClient.matchVersion()) {
+                return shieldRestClient
+            }
         }
         throw new Exception("No matching shield implementation found")
     }

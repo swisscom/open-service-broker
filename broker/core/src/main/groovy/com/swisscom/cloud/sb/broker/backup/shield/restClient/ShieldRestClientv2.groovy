@@ -26,6 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
 
+/**
+ * {@link ShieldRestClient} implementation for shield version 8.x
+ * See <a href="https://github.com/shieldproject/shield/tree/v8.2.1">Shield Version 8.x</a>
+ */
 @Component
 class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientv2.class)
