@@ -17,9 +17,9 @@ package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -27,15 +27,15 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 
-@Slf4j
 @Component
 class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClient {
+    private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientv1.class)
     public static final String HEADER_API_KEY = 'X-Shield-Token'
     final int apiVersion = 1
 
     @Autowired
-    ShieldRestClientv1(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
-        super(shieldConfig, restTemplateBuilder)
+    ShieldRestClientv1(ShieldConfig shieldConfig) {
+        super(shieldConfig)
     }
 
     boolean matchVersion() {
@@ -43,7 +43,7 @@ class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClien
             def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
             return new JsonSlurper().parseText(response.body).version =~ /0\.10(.*)/
         } catch(Exception e) {
-            log.debug("Not shield API version v1")
+            LOG.info("Not shield API version v1")
         }
         return false
     }

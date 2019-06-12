@@ -26,13 +26,12 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
-@Slf4j
 abstract class ShieldRestClientImpl implements ShieldRestClient {
     protected ShieldConfig config
     protected RestTemplate restTemplate
 
-    ShieldRestClientImpl(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.withSSLValidationDisabled().build()
+    ShieldRestClientImpl(ShieldConfig shieldConfig) {
+        this.restTemplate = new RestTemplateBuilder().withSSLValidationDisabled().build()
         this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         this.config = shieldConfig
     }

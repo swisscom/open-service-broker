@@ -68,7 +68,7 @@ class ShieldRestClientSpec extends Specification {
                 .andExpect(header(ShieldRestClientv1.HEADER_API_KEY, shieldConfig.apiKey))
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess('{"version":"1.0"}', MediaType.APPLICATION_JSON))
-        shieldRestClient = new ShieldRestClientv1(shieldConfig, restTemplateBuilder)
+        shieldRestClient = new ShieldRestClientv1(shieldConfig)
         mockServer = MockRestServiceServer.createServer(restTemplateBuilder.build())
     }
 

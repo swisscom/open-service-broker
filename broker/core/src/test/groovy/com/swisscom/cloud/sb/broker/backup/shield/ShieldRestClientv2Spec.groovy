@@ -15,14 +15,12 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
-
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv1
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv2
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.web.client.MockRestServiceServer
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -63,18 +61,15 @@ class ShieldRestClientv2Spec extends Specification {
                 .andExpect(header(ShieldRestClientv1.HEADER_API_KEY, shieldConfig.apiKey))
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess('{"version":"1.0"}', MediaType.APPLICATION_JSON))
-        shieldRestClient = new ShieldRestClientv2(shieldConfig, restTemplateBuilder)
+        shieldRestClient = new ShieldRestClientv2(shieldConfig)
         mockServer = MockRestServiceServer.createServer(restTemplateBuilder.build())
     }
 
     def "check if parseAndCheckVersion works as expected"() {
-        given:
+        when:
         String body = '{"ip":"172.19.0.8","env":"sandbox","color":"yellow","motd":"Welcome to SHIELD!\\n","api":2}'
 
-        when:
-        Boolean matched = shieldRestClient.parseAndCheckVersion(body)
-
         then:
-        matched
+        shieldRestClient.parseAndCheckVersion(body)
     }
 }

@@ -19,12 +19,10 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClient
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientFactory
 import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv1
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonGenerator
 import org.junit.ClassRule
 import org.slf4j.Logger
@@ -45,7 +43,6 @@ import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetai
 @Stepwise
 class ShieldClientTest extends Specification {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldClientTest.class)
-
     private static final boolean SHIELD_MOCKED = Boolean.valueOf(System.getProperty("shield.mocked"))
     private static final String SHIELD_URL = System.getProperty("shield.url")
     private static final String SHIELD_USERNAME = System.getProperty("shield.username")
@@ -57,18 +54,16 @@ class ShieldClientTest extends Specification {
 
     private ShieldTarget shieldTarget
     private BackupParameter backupParameter
-    private String shieldAgentUrl
 
-    private ShieldRestClient restClient
     private ShieldClient sut
 
     @ClassRule
-    public static WireMockRule shieldWireMock = new WireMockRule(options().
+    private static WireMockRule shieldWireMock = new WireMockRule(options().
             withRootDirectory("src/test/resources/shield").
             port(8082))
 
     @Shared
-    String backupTaskUUID
+    private String backupTaskUUID
 
     void setupSpec() {
         shieldWireMock.start()
@@ -89,16 +84,13 @@ class ShieldClientTest extends Specification {
                                               scheduleName: "default",
                                               schedule: "daily 3am",
                                               agent: SHIELD_AGENT_URL)
-        shieldAgentUrl = SHIELD_AGENT_URL
         ShieldConfig shieldConfig = new ShieldConfig()
         shieldConfig.baseUrl = "http://localhost:8082"
         shieldConfig.username = SHIELD_USERNAME
         shieldConfig.password = SHIELD_PASSWORD
         shieldConfig.apiKey = SHIELD_API_KEY
-        restClient = new ShieldRestClientv1(shieldConfig, new RestTemplateBuilder())
         sut = new ShieldClient(shieldConfig,
-                               new ShieldRestClientFactory([new ShieldRestClientv1(shieldConfig,
-                                                                                   new RestTemplateBuilder())]),
+                               new ShieldRestClientFactory([new ShieldRestClientv1(shieldConfig)]),
                                new BackupPersistenceService())
         LOG.info("Testing against {} and with URL '{}' with username '{}' and password '{}' and api key '{}'",
                  SHIELD_MOCKED ? "mocked shield" : "live shield",
@@ -135,7 +127,7 @@ class ShieldClientTest extends Specification {
         String targetName = SHIELD_TEST + "-TARGET"
 
         when:
-        String result = sut.registerAndRunJob(jobName, targetName, shieldTarget, backupParameter, shieldAgentUrl)
+        String result = sut.registerAndRunJob(jobName, targetName, shieldTarget, backupParameter, SHIELD_AGENT_URL)
         backupTaskUUID = result
         LOG.info("Backup Task: " + result)
 
@@ -192,7 +184,7 @@ class ShieldClientTest extends Specification {
                                                                           SHIELD_SYSTEM_TEST + "-TARGET",
                                                                           shieldTarget,
                                                                           backupParameter,
-                                                                          shieldAgentUrl)
+                                                                          SHIELD_AGENT_URL)
 
         then:
         result.find {it.key == SHIELD_JOB_UUID.key}.value.length() > 0
@@ -223,7 +215,7 @@ class ShieldClientTest extends Specification {
                                                                           SHIELD_SYSTEM_TEST + "-FAILURE-TARGET",
                                                                           shieldTarget,
                                                                           backupParameter,
-                                                                          shieldAgentUrl)
+                                                                          SHIELD_AGENT_URL)
 
         then:
         result == null

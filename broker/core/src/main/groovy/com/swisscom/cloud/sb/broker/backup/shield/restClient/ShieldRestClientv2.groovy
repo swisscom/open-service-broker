@@ -19,22 +19,22 @@ import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
 import com.swisscom.cloud.sb.broker.backup.shield.dto.ScheduleDto
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Component
 
-@Slf4j
 @Component
 class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClient {
+    private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientv2.class)
     public static final String HEADER_API_SESSION = 'X-Shield-Session'
     final int apiVersion = 2
 
     @Autowired
-    ShieldRestClientv2(ShieldConfig shieldConfig, RestTemplateBuilder restTemplateBuilder) {
-        super(shieldConfig, restTemplateBuilder)
+    ShieldRestClientv2(ShieldConfig shieldConfig) {
+        super(shieldConfig)
     }
 
     boolean matchVersion() {
@@ -42,7 +42,7 @@ class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClien
             def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, null, String.class)
             return parseAndCheckVersion(response.body)
         } catch(Exception e) {
-            log.debug("Not shield API version v2")
+            LOG.info("Not shield API version v2")
         }
         return false
     }

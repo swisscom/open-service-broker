@@ -34,7 +34,7 @@ class ShieldRestClientTest extends Specification {
         shieldConfig.password = "shield"
         shieldConfig.defaultTenantName = "tenant1"
         shieldConfig.apiKey = "averyhardkey"
-        restClient = new ShieldRestClientv2(shieldConfig, new RestTemplateBuilder())
+        restClient = new ShieldRestClientv2(shieldConfig)
     }
 
     def "get store by name"() {
