@@ -219,25 +219,25 @@ class ShieldClient {
 
     private String registerJob(String jobName,
                                String targetUuid,
-                               BackupParameter shieldServiceConfig,
+                               BackupParameter backupParameter,
                                boolean paused = true) {
-        StoreDto store = buildClient().getStoreByName(shieldServiceConfig.storeName)
+        StoreDto store = buildClient().getStoreByName(backupParameter.getStoreName())
         if (store == null) {
-            throw new RuntimeException("Store ${shieldServiceConfig.storeName} that is configured does not exist on shield")
+            throw new IllegalStateException("Store ${backupParameter.getStoreName()} that is configured does not exist on shield")
         }
-        RetentionDto retention = buildClient().getRetentionByName(shieldServiceConfig.retentionName)
+        RetentionDto retention = buildClient().getRetentionByName(backupParameter.getRetentionName())
         if (retention == null) {
-            throw new RuntimeException("Retention ${shieldServiceConfig.retentionName} that is configured does not exist on shield")
+            throw new IllegalStateException("Retention ${backupParameter.getRetentionName()} that is configured does not exist on shield")
         }
+
         // Either use BACKUP_SCHEDULE parameter or get the schedule UUID from shield v1 BACKUP_SCHEDULE_NAME parameter from service definition
-        ScheduleDto scheduleDto = buildClient().getScheduleByName(shieldServiceConfig.scheduleName.get())
-        String schedule = scheduleDto != null ? scheduleDto.uuid : shieldServiceConfig.schedule.get()
-
-        if (schedule == null) {
-            throw new RuntimeException("Schedule ${shieldServiceConfig.scheduleName.get()} that is configured does not exist on shield")
+        String schedule = backupParameter.getScheduleName().isEmpty() ? backupParameter.getSchedule() :
+                          buildClient().getScheduleByName(backupParameter.getScheduleName()).getUuid()
+        if (schedule == null || schedule.isEmpty()) {
+            throw new IllegalStateException("Schedule ${backupParameter.getScheduleName()} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.uuid, retention.uuid, schedule, paused)
+        createOrUpdateJob(jobName, targetUuid, store.getUuid(), retention.getUuid(), schedule, paused)
     }
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
