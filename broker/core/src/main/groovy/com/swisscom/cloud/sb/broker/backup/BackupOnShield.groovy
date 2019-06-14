@@ -15,7 +15,10 @@
 
 package com.swisscom.cloud.sb.broker.backup
 
-import com.swisscom.cloud.sb.broker.backup.shield.*
+import com.swisscom.cloud.sb.broker.backup.shield.BackupParameter
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.ExtensionProvider
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -55,7 +58,7 @@ trait BackupOnShield extends ExtensionProvider {
     }
 
     BackupParameter getBackupParameter(ServiceInstance serviceInstance) {
-        getBackupParameterFromParameters(serviceInstance.getPlan().getParameters())
+        getBackupParameterFromParameters(serviceInstance.getPlan().getParameters().toSet())
     }
 
     private BackupParameter getBackupParameterFromParameters(Set<Parameter> parameters) {
@@ -69,7 +72,7 @@ trait BackupOnShield extends ExtensionProvider {
             }
         }
 
-        ImmutableBackupParameter.Builder backupParameterBuilder = backupParameter()
+        BackupParameter.Builder backupParameterBuilder = backupParameter()
 
         backupParameterBuilder.retentionName(backupParameters.get(POLICY_NAME))
         backupParameterBuilder.storeName(backupParameters.get(STORAGE_NAME))

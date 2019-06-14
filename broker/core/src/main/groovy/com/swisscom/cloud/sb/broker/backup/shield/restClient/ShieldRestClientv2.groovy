@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldResourceNotFoundException
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
 import com.swisscom.cloud.sb.broker.backup.shield.dto.ScheduleDto
@@ -45,14 +46,18 @@ class ShieldRestClientv2 extends ShieldRestClientImpl implements ShieldRestClien
         try {
             def response = restTemplate.exchange(infoUrl(), HttpMethod.GET, null, String.class)
             return parseAndCheckVersion(response.body)
-        } catch(Exception e) {
+        } catch(ShieldResourceNotFoundException e) {
             LOG.info("Not shield API version v2")
         }
         return false
     }
 
     boolean parseAndCheckVersion(String body) {
-        return new JsonSlurper().parseText(body).api == 2
+        if (body != null && !body.isEmpty()) {
+            def json = new JsonSlurper().parseText(body)
+            if (json.api != null) return json.api == 2
+        }
+        return false
     }
 
     String getTenantUuidByName(String name) {

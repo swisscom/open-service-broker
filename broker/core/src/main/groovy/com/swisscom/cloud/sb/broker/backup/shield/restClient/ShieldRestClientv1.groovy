@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.backup.shield.restClient
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
+import com.swisscom.cloud.sb.broker.backup.shield.ShieldResourceNotFoundException
 import com.swisscom.cloud.sb.broker.backup.shield.dto.JobDto
 import groovy.json.JsonSlurper
 import org.slf4j.Logger
@@ -45,8 +46,11 @@ class ShieldRestClientv1 extends ShieldRestClientImpl implements ShieldRestClien
     boolean matchVersion() {
         try {
             def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), String.class)
-            return new JsonSlurper().parseText(response.body).version =~ /0\.10(.*)/
-        } catch(Exception e) {
+            if (response.body != null && !response.body.isEmpty()) {
+                def json = new JsonSlurper().parseText(response.body)
+                if (json.version != null) return json.version =~ /0\.10(.*)/
+            }
+        } catch(ShieldResourceNotFoundException e) {
             LOG.info("Not shield API version v1")
         }
         return false

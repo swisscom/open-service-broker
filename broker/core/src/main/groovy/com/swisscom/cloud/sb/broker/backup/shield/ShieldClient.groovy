@@ -99,6 +99,7 @@ class ShieldClient {
         Assert.notNull(shieldTarget, "ShieldTarget cannot be null!")
         Assert.notNull(backupParameter, "BackupParameter cannot be null!")
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
+        LOG.debug("Registering Job '{}' and Target '{}' to Shield", jobName, targetName)
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
 
@@ -120,6 +121,7 @@ class ShieldClient {
     void unregisterSystemBackup(String jobName, String targetName) {
         Assert.hasText(jobName, "Job name cannot be empty!")
         Assert.hasText(targetName, "Target name cannot be empty!")
+        LOG.debug("Deregistering Job '{}' and Target '{}' from Shield", jobName, targetName)
         deleteJobIfExisting(jobName)
         deleteTargetIfExisting(targetName)
     }

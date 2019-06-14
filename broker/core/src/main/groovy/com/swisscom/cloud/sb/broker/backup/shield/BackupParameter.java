@@ -18,23 +18,28 @@ package com.swisscom.cloud.sb.broker.backup.shield;
 import com.swisscom.cloud.sb.broker.config.BackupServiceConfig;
 import org.immutables.value.Value;
 
+import static org.immutables.value.Value.Style.ImplementationVisibility.PACKAGE;
+
 @Value.Immutable
-public interface BackupParameter extends BackupServiceConfig {
-    String getStoreName();
+@Value.Style(visibility = PACKAGE, overshadowImplementation = true)
+public abstract class BackupParameter implements BackupServiceConfig {
+    public abstract String getStoreName();
 
-    String getRetentionName();
+    public abstract String getRetentionName();
 
     @Value.Default
-    default String getScheduleName() {
+    public String getScheduleName() {
         return "";
     }
 
     @Value.Default
-    default String getSchedule() {
+    public String getSchedule() {
         return "";
     }
 
-    static ImmutableBackupParameter.Builder backupParameter() {
-        return ImmutableBackupParameter.builder();
+    public static class Builder extends ImmutableBackupParameter.Builder {}
+
+    public static BackupParameter.Builder backupParameter() {
+        return new BackupParameter.Builder();
     }
 }
