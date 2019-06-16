@@ -31,10 +31,10 @@ import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupP
 @CompileStatic
 trait BackupOnShield extends ExtensionProvider {
     private static final String PLAN_PARAMETER_BACKUP_PREFIX = "BACKUP_"
-    private static final String POLICY_NAME = PLAN_PARAMETER_BACKUP_PREFIX + "BACKUP_POLICY_NAME"
-    private static final String STORAGE_NAME = PLAN_PARAMETER_BACKUP_PREFIX + "BACKUP_STORAGE_NAME"
-    private static final String SCHEDULE_NAME = PLAN_PARAMETER_BACKUP_PREFIX + "BACKUP_SCHEDULE_NAME"
-    private static final String SCHEDULE = PLAN_PARAMETER_BACKUP_PREFIX + "BACKUP_SCHEDULE"
+    private static final String POLICY_NAME = "BACKUP_POLICY_NAME"
+    private static final String STORAGE_NAME = "BACKUP_STORAGE_NAME"
+    private static final String SCHEDULE_NAME = "BACKUP_SCHEDULE_NAME"
+    private static final String SCHEDULE = "BACKUP_SCHEDULE"
 
     @Autowired
     ProvisioningPersistenceService provisioningPersistenceService
