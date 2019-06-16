@@ -73,19 +73,20 @@ trait BackupOnShield extends ExtensionProvider {
         }
 
         BackupParameter.Builder backupParameterBuilder = backupParameter()
-
         backupParameterBuilder.retentionName(backupParameters.get(POLICY_NAME))
         backupParameterBuilder.storeName(backupParameters.get(STORAGE_NAME))
 
         // Either BACKUP_SCHEDULE or BACKUP_SCHEDULE_NAME must be set
         if (backupParameters.containsKey(SCHEDULE)) {
             backupParameterBuilder.schedule(backupParameters.get(SCHEDULE))
-        } else {
-            if (!backupParameters.containsKey(SCHEDULE_NAME)) {
-                throw new IllegalArgumentException("Backup parameters must contain '${SCHEDULE}' or '${SCHEDULE_NAME}'!")
-            }
+        }
+        if (backupParameters.containsKey(SCHEDULE_NAME)) {
             backupParameterBuilder.scheduleName(backupParameters.get(SCHEDULE_NAME))
         }
+        if (!backupParameters.containsKey(SCHEDULE) || !backupParameters.containsKey(SCHEDULE_NAME)) {
+            throw new IllegalArgumentException("Backup parameters must contain '${SCHEDULE}' or '${SCHEDULE_NAME}'!")
+        }
+
         return backupParameterBuilder.build()
     }
 }
