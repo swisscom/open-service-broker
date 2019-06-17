@@ -83,7 +83,7 @@ trait BackupOnShield extends ExtensionProvider {
         if (backupParameters.containsKey(SCHEDULE_NAME)) {
             backupParameterBuilder.scheduleName(backupParameters.get(SCHEDULE_NAME))
         }
-        if (!backupParameters.containsKey(SCHEDULE) || !backupParameters.containsKey(SCHEDULE_NAME)) {
+        if (!backupParameters.containsKey(SCHEDULE) && !backupParameters.containsKey(SCHEDULE_NAME)) {
             throw new IllegalArgumentException("Backup parameters must contain '${SCHEDULE}' or '${SCHEDULE_NAME}'!")
         }
 

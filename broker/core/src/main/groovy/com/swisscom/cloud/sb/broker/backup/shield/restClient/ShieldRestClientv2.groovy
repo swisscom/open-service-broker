@@ -28,7 +28,9 @@ import org.springframework.http.*
 import org.springframework.stereotype.Component
 
 /**
- * {@link ShieldRestClient} implementation for shield version 8.x
+ * {@link ShieldRestClient} implementation for shield version 8.x. Shield v8 brought many changes
+ * in the shield API, this implementation takes care of the specific changes. Currently shield v8
+ * is not used, due instability and high migration effort.
  * See <a href="https://github.com/shieldproject/shield/tree/v8.2.1">Shield Version 8.x</a>
  */
 @Component

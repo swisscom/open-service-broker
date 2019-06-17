@@ -29,7 +29,8 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 
 /**
- * {@link ShieldRestClient} implementation for shield version 0.10.x
+ * {@link ShieldRestClient} implementation for shield version 0.10.x. Shield 0.10.x is currently used
+ * for multiple Systems.
  * See <a href="https://github.com/shieldproject/shield/tree/v0.10.9">Shield Version 0.10.9</a>
  */
 @Component

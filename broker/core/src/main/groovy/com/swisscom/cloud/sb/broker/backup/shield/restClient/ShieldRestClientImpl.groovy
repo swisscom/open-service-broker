@@ -26,6 +26,10 @@ import org.springframework.http.HttpMethod
 import org.springframework.util.Assert
 import org.springframework.web.client.RestTemplate
 
+/**
+ * ShieldRestClientImpl is used to reduce duplicate code between the different ShieldRestClient
+ * version implementations, like {@see ShieldRestClientv1}.
+ */
 abstract class ShieldRestClientImpl implements ShieldRestClient {
     protected ShieldConfig config
     protected RestTemplate restTemplate
