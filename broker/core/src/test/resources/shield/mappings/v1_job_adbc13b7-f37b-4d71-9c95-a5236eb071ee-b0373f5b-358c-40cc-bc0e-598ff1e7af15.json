@@ -1,0 +1,19 @@
+{
+  "id" : "b0373f5b-358c-40cc-bc0e-598ff1e7af15",
+  "name" : "v1_job_adbc13b7-f37b-4d71-9c95-a5236eb071ee",
+  "request" : {
+    "url" : "/v1/job/adbc13b7-f37b-4d71-9c95-a5236eb071ee",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"deleted\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:37 GMT"
+    }
+  },
+  "uuid" : "b0373f5b-358c-40cc-bc0e-598ff1e7af15",
+  "persistent" : true,
+  "insertionIndex" : 99
+}

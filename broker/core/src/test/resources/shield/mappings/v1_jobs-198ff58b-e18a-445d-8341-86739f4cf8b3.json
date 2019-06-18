@@ -1,0 +1,19 @@
+{
+  "id" : "198ff58b-e18a-445d-8341-86739f4cf8b3",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENTDELETE-JOB",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:33 GMT"
+    }
+  },
+  "uuid" : "198ff58b-e18a-445d-8341-86739f4cf8b3",
+  "persistent" : true,
+  "insertionIndex" : 85
+}

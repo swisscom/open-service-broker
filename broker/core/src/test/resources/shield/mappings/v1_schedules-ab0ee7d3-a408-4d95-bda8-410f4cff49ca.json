@@ -1,0 +1,22 @@
+{
+  "id" : "ab0ee7d3-a408-4d95-bda8-410f4cff49ca",
+  "name" : "v1_schedules",
+  "request" : {
+    "url" : "/v1/schedules?name=default",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"name\":\"default\",\"summary\":\"\",\"when\":\"1st sunday at 0am\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:25 GMT"
+    }
+  },
+  "uuid" : "ab0ee7d3-a408-4d95-bda8-410f4cff49ca",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-schedules",
+  "requiredScenarioState" : "scenario-v1-schedules-2",
+  "newScenarioState" : "scenario-v1-schedules-3",
+  "insertionIndex" : 45
+}

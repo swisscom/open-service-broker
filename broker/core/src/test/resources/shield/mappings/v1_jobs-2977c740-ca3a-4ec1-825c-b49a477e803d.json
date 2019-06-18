@@ -1,0 +1,21 @@
+{
+  "id" : "2977c740-ca3a-4ec1-825c-b49a477e803d",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SYSTEM-SHIELD-CLIENT-UNREGISTER-JOB",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-2977c740-ca3a-4ec1-825c-b49a477e803d.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:42 GMT"
+    }
+  },
+  "uuid" : "2977c740-ca3a-4ec1-825c-b49a477e803d",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-jobs",
+  "requiredScenarioState" : "scenario-v1-jobs-2",
+  "insertionIndex" : 145
+}

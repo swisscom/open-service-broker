@@ -1,0 +1,19 @@
+{
+  "id" : "d3f9ab5e-fe24-45ad-897e-f5b2da100594",
+  "name" : "v1_archive_967fb399-c639-4b78-b273-b8d0c31691e2",
+  "request" : {
+    "url" : "/v1/archive/967fb399-c639-4b78-b273-b8d0c31691e2",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_archive_967fb399-c639-4b78-b273-b8d0c31691e2-d3f9ab5e-fe24-45ad-897e-f5b2da100594.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:36 GMT"
+    }
+  },
+  "uuid" : "d3f9ab5e-fe24-45ad-897e-f5b2da100594",
+  "persistent" : true,
+  "insertionIndex" : 95
+}

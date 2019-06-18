@@ -1,0 +1,19 @@
+{
+  "id" : "8121e0a1-b4dd-43ae-90e5-15bc7a031e93",
+  "name" : "v1_archive_16db1b90-7621-4d41-ab26-1fad31111a24_restore",
+  "request" : {
+    "url" : "/v1/archive/16db1b90-7621-4d41-ab26-1fad31111a24/restore",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"scheduled\",\"task_uuid\":\"a426995e-2ffa-4c2a-b3fb-1c01dc2474d3\"}",
+    "headers" : {
+      "Date" : "Tue, 18 Jun 2019 16:49:28 GMT",
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  },
+  "uuid" : "8121e0a1-b4dd-43ae-90e5-15bc7a031e93",
+  "persistent" : true,
+  "insertionIndex" : 61
+}

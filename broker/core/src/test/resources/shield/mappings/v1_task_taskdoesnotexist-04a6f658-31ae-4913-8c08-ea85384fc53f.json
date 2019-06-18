@@ -1,0 +1,21 @@
+{
+  "id" : "04a6f658-31ae-4913-8c08-ea85384fc53f",
+  "name" : "v1_task_taskdoesnotexist",
+  "request" : {
+    "url" : "/v1/task/TASKDOESNOTEXIST",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 501,
+    "headers" : {
+      "Date" : "Tue, 18 Jun 2019 16:49:44 GMT",
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  },
+  "uuid" : "04a6f658-31ae-4913-8c08-ea85384fc53f",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-TASKDOESNOTEXIST",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-task-TASKDOESNOTEXIST-2",
+  "insertionIndex" : 157
+}

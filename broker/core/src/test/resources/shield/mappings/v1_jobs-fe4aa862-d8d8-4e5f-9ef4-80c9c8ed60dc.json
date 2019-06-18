@@ -1,0 +1,24 @@
+{
+  "id" : "fe4aa862-d8d8-4e5f-9ef4-80c9c8ed60dc",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SHIELD-CLIENTRESTORE-JOB\",\"target\":\"69aad3fe-381f-4cb6-a777-ab0ca01f77f2\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":true}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"4c6f2252-5391-4c13-9993-4e53a0cce562\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:25 GMT"
+    }
+  },
+  "uuid" : "fe4aa862-d8d8-4e5f-9ef4-80c9c8ed60dc",
+  "persistent" : true,
+  "insertionIndex" : 49
+}

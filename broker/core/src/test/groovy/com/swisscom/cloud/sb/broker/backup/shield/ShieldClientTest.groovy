@@ -29,19 +29,20 @@ import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
-import spock.lang.Shared
+import org.springframework.web.client.ResourceAccessException
 import spock.lang.Specification
-import spock.lang.Stepwise
 import spock.lang.Unroll
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import static com.github.tomakehurst.wiremock.http.Fault.MALFORMED_RESPONSE_CHUNK
+import static com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER
 import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupParameter
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_JOB_UUID
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_TARGET_UUID
 
-@Stepwise
 class ShieldClientTest extends Specification {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldClientTest.class)
     private static final boolean SHIELD_MOCKED = Boolean.valueOf(System.getProperty("shield.mocked"))
@@ -70,9 +71,6 @@ class ShieldClientTest extends Specification {
             withRootDirectory("src/test/resources/shield").
             port(8082))
 
-    @Shared
-    private String backupTaskUUID
-
     void setupSpec() {
         shieldWireMock.start()
         if (!SHIELD_MOCKED) {
@@ -100,18 +98,40 @@ class ShieldClientTest extends Specification {
         LOG.info("Testing against {} with {}",
                  SHIELD_MOCKED ? "mocked shield" : "live shield",
                  shieldConfig.toString())
+        shieldWireMock.resetScenarios()
     }
 
-    void waitUntilEndStateOrTimeout(String taskUuid, int timeoutInSeconds) {
+    JobStatus waitUntilEndStateOrTimeout(String taskUuid, int timeoutInSeconds) {
+        Assert.hasText(taskUuid, "Task UUID must be set!")
+        Assert.isTrue(timeoutInSeconds > 0, "Timeout in seconds must be positive!")
         int intervallInSeconds = SHIELD_MOCKED ? 0 : 2
         LocalTime start = LocalTime.now()
+        JobStatus result
         while (start.plusSeconds(timeoutInSeconds).isAfter(LocalTime.now())) {
-            JobStatus result = sut.getJobStatus(taskUuid)
+            result = sut.getJobStatus(taskUuid)
             if (result == JobStatus.SUCCESSFUL || result == JobStatus.FAILED) {
-                return
+                return result
             }
             Thread.sleep(intervallInSeconds * 1000)
         }
+        if (result == null) {
+            throw new IllegalStateException("No JobStatus received")
+        }
+        return result
+    }
+
+    String setupBackup(String jobName, String targetName) {
+        String backupTaskUUID = sut.registerAndRunJob(jobName,
+                                                      targetName,
+                                                      shieldTarget,
+                                                      backupParameter,
+                                                      SHIELD_AGENT_URL)
+        LOG.info("Backup Task: " + backupTaskUUID)
+        JobStatus status = waitUntilEndStateOrTimeout(backupTaskUUID, 5)
+        if (status != JobStatus.SUCCESSFUL) {
+            throw new IllegalStateException("Setup Backup failed!")
+        }
+        return backupTaskUUID
     }
 
     def cleanupSpec() {
@@ -131,7 +151,7 @@ class ShieldClientTest extends Specification {
         @Override
         String endpointJson() {
             new JsonGenerator.Options().excludeNulls().build().toJson(
-                    [data: SHIELD_TEST])
+                    [data: SHIELD_TEST, file: 'TEST'])
         }
     }
 
@@ -154,50 +174,50 @@ class ShieldClientTest extends Specification {
 
     def "register and run job"() {
         given:
-        String jobName = SHIELD_TEST + "-JOB"
-        String targetName = SHIELD_TEST + "-TARGET"
+        String jobName = SHIELD_TEST + "REGISTER-AND-RUN-JOB"
+        String targetName = SHIELD_TEST + "REGISTER-AND-RUN-TARGET"
 
         when:
-        String result = sut.registerAndRunJob(jobName, targetName, shieldTarget, backupParameter, SHIELD_AGENT_URL)
-        backupTaskUUID = result
-        LOG.info("Backup Task: " + result)
+        String backupTaskUUID = sut.registerAndRunJob(jobName,
+                                                      targetName,
+                                                      shieldTarget,
+                                                      backupParameter,
+                                                      SHIELD_AGENT_URL)
+        LOG.info("Backup Task: " + backupTaskUUID)
+        JobStatus firstStatus = sut.getJobStatus(backupTaskUUID)
+        JobStatus lastStatus = waitUntilEndStateOrTimeout(backupTaskUUID, 5)
 
         then:
-        Assert.notEmpty([result], "Result should show Task UUID of backup task")
-    }
-
-    def "should get task status in progress"() {
-        when:
-        JobStatus result = sut.getJobStatus(backupTaskUUID)
-
-        then:
-        result == JobStatus.RUNNING
+        Assert.notEmpty([backupTaskUUID], "Result should show Task UUID of backup task")
+        firstStatus == JobStatus.RUNNING
+        lastStatus == JobStatus.SUCCESSFUL
 
         cleanup:
-        waitUntilEndStateOrTimeout(backupTaskUUID, 5)
-    }
-
-    def "should get task status successful after wait"() {
-        when:
-        JobStatus result = sut.getJobStatus(backupTaskUUID)
-
-        then:
-        result == JobStatus.SUCCESSFUL
+        sut.deleteJobsAndBackups(SHIELD_TEST + "REGISTER-AND-RUN")
     }
 
     def "restore backup"() {
+        given:
+        String backupTaskUuid = setupBackup(SHIELD_TEST + "RESTORE-JOB", SHIELD_TEST + "RESTORE-TARGET")
+
         when:
-        String result = sut.restore(backupTaskUUID)
+        String result = sut.restore(backupTaskUuid)
         LOG.info("Restore Task: " + result)
+        JobStatus status = waitUntilEndStateOrTimeout(result, 5)
+
 
         then:
         Assert.notEmpty([result], "Result should show Task UUID of restore task")
+        status == JobStatus.SUCCESSFUL
 
         cleanup:
-        waitUntilEndStateOrTimeout(result, 5)
+        sut.deleteJobsAndBackups(SHIELD_TEST + "RESTORE")
     }
 
     def "delete jobs and backups"() {
+        given:
+        setupBackup(SHIELD_TEST + "DELETE-JOB", SHIELD_TEST + "DELETE-TARGET")
+
         when:
         sut.deleteJobsAndBackups(SHIELD_TEST)
 
@@ -207,8 +227,8 @@ class ShieldClientTest extends Specification {
 
     def "register and run system backup"() {
         when:
-        Collection<ServiceDetail> result = sut.registerAndRunSystemBackup(SHIELD_SYSTEM_TEST + "-JOB",
-                                                                          SHIELD_SYSTEM_TEST + "-TARGET",
+        Collection<ServiceDetail> result = sut.registerAndRunSystemBackup(SHIELD_SYSTEM_TEST + "-REGISTER-JOB",
+                                                                          SHIELD_SYSTEM_TEST + "-REGISTER-TARGET",
                                                                           shieldTarget,
                                                                           backupParameter,
                                                                           SHIELD_AGENT_URL)
@@ -216,11 +236,21 @@ class ShieldClientTest extends Specification {
         then:
         result.find {it.key == SHIELD_JOB_UUID.key}.value.length() > 0
         result.find {it.key == SHIELD_TARGET_UUID.key}.value.length() > 0
+
+        cleanup:
+        sut.unregisterSystemBackup(SHIELD_SYSTEM_TEST + "-REGISTER-JOB", SHIELD_SYSTEM_TEST + "-REGISTER-TARGET")
     }
 
     def "unregister system backup"() {
+        given:
+        sut.registerAndRunSystemBackup(SHIELD_SYSTEM_TEST + "-UNREGISTER-JOB",
+                                       SHIELD_SYSTEM_TEST + "-UNREGISTER-TARGET",
+                                       shieldTarget,
+                                       backupParameter,
+                                       SHIELD_AGENT_URL)
+
         when:
-        sut.unregisterSystemBackup(SHIELD_SYSTEM_TEST + "-JOB", SHIELD_SYSTEM_TEST + "-TARGET")
+        sut.unregisterSystemBackup(SHIELD_SYSTEM_TEST + "-UNREGISTER-JOB", SHIELD_SYSTEM_TEST + "-UNREGISTER-TARGET")
 
         then:
         noExceptionThrown()
@@ -326,11 +356,9 @@ class ShieldClientTest extends Specification {
     }
 
     @Unroll
-    def "register and run system backup throws ServiceBrokerException when given 500 or 504 failure at #failingUrl"() {
+    def "register and run system backup throws ServiceBrokerException when Shield responds with #reason"() {
         given:
-        shieldWireMock.stubFor(WireMock.post(urlEqualTo((String) failingUrl)).willReturn(
-                WireMock.aResponse().withStatus(500)
-        ))
+        shieldWireMock.stubFor(WireMock.post(urlEqualTo((String) "/v1/targets")).willReturn(failure))
         when:
         Collection<ServiceDetail> result = sut.registerAndRunSystemBackup(SHIELD_SYSTEM_TEST + "-FAILURE-JOB",
                                                                           SHIELD_SYSTEM_TEST + "-FAILURE-TARGET",
@@ -340,9 +368,14 @@ class ShieldClientTest extends Specification {
 
         then:
         result == null
-        thrown(ServiceBrokerException)
+        thrown(expectedException)
 
         where:
-        failingUrl << ["/v1/targets", "/v1/jobs"]
+        failure                                         | expectedException       | reason
+        aResponse().withStatus(500)                     | ServiceBrokerException  | "HTTP Status Code 500"
+        aResponse().withFault(MALFORMED_RESPONSE_CHUNK) | ResourceAccessException | "OK Status Code withGarbage body"
+        aResponse().withFault(CONNECTION_RESET_BY_PEER) | ResourceAccessException | "Connection reset by peer"
+
+
     }
 }

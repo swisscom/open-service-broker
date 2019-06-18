@@ -1,0 +1,19 @@
+{
+  "id" : "52b1db21-bd7e-48e0-a30a-e416351d0a57",
+  "name" : "v1_job_adbc13b7-f37b-4d71-9c95-a5236eb071ee_run",
+  "request" : {
+    "url" : "/v1/job/adbc13b7-f37b-4d71-9c95-a5236eb071ee/run",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"scheduled\",\"task_uuid\":\"12bdf8df-8cb8-49bc-a2eb-a2865dc82861\"}",
+    "headers" : {
+      "Date" : "Tue, 18 Jun 2019 16:49:34 GMT",
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  },
+  "uuid" : "52b1db21-bd7e-48e0-a30a-e416351d0a57",
+  "persistent" : true,
+  "insertionIndex" : 89
+}

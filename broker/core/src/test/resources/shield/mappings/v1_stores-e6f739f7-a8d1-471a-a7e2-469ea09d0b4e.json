@@ -1,0 +1,21 @@
+{
+  "id" : "e6f739f7-a8d1-471a-a7e2-469ea09d0b4e",
+  "name" : "v1_stores",
+  "request" : {
+    "url" : "/v1/stores?name=default",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_stores-e6f739f7-a8d1-471a-a7e2-469ea09d0b4e.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:41 GMT"
+    }
+  },
+  "uuid" : "e6f739f7-a8d1-471a-a7e2-469ea09d0b4e",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-stores",
+  "requiredScenarioState" : "scenario-v1-stores-5",
+  "insertionIndex" : 133
+}

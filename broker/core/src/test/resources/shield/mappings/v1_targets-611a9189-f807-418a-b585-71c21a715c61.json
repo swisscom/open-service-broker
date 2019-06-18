@@ -1,0 +1,24 @@
+{
+  "id" : "611a9189-f807-418a-b585-71c21a715c61",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SYSTEM-SHIELD-CLIENT-UNREGISTER-TARGET\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\",\\\"file\\\":\\\"TEST\\\"}\",\"agent\":\"127.0.0.1:5444\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"07763f3b-4cd2-4c1b-9c9c-c0f2595e98da\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 16:49:40 GMT"
+    }
+  },
+  "uuid" : "611a9189-f807-418a-b585-71c21a715c61",
+  "persistent" : true,
+  "insertionIndex" : 131
+}
