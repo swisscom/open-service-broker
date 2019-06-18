@@ -24,6 +24,7 @@ import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv1
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.json.JsonGenerator
+import org.joda.time.LocalTime
 import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -101,6 +102,18 @@ class ShieldClientTest extends Specification {
                  shieldConfig.toString())
     }
 
+    void waitUntilEndStateOrTimeout(String taskUuid, int timeoutInSeconds) {
+        int intervallInSeconds = SHIELD_MOCKED ? 0 : 2
+        LocalTime start = LocalTime.now()
+        while (start.plusSeconds(timeoutInSeconds).isAfter(LocalTime.now())) {
+            JobStatus result = sut.getJobStatus(taskUuid)
+            if (result == JobStatus.SUCCESSFUL || result == JobStatus.FAILED) {
+                return
+            }
+            Thread.sleep(intervallInSeconds * 1000)
+        }
+    }
+
     def cleanupSpec() {
         if (!SHIELD_MOCKED) {
             shieldWireMock.stopRecording()
@@ -159,14 +172,12 @@ class ShieldClientTest extends Specification {
 
         then:
         result == JobStatus.RUNNING
+
+        cleanup:
+        waitUntilEndStateOrTimeout(backupTaskUUID, 5)
     }
 
     def "should get task status successful after wait"() {
-        given:
-        if (!SHIELD_MOCKED) {
-            sleep(2000)
-        }
-
         when:
         JobStatus result = sut.getJobStatus(backupTaskUUID)
 
@@ -181,13 +192,12 @@ class ShieldClientTest extends Specification {
 
         then:
         Assert.notEmpty([result], "Result should show Task UUID of restore task")
+
+        cleanup:
+        waitUntilEndStateOrTimeout(result, 5)
     }
 
     def "delete jobs and backups"() {
-        given:
-        if (!SHIELD_MOCKED) {
-            sleep(2000)
-        }
         when:
         sut.deleteJobsAndBackups(SHIELD_TEST)
 
@@ -209,11 +219,6 @@ class ShieldClientTest extends Specification {
     }
 
     def "unregister system backup"() {
-        given:
-        if (!SHIELD_MOCKED) {
-            sleep(2000)
-        }
-
         when:
         sut.unregisterSystemBackup(SHIELD_SYSTEM_TEST + "-JOB", SHIELD_SYSTEM_TEST + "-TARGET")
 

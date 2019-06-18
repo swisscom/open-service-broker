@@ -1,0 +1,22 @@
+{
+  "id" : "bd95d090-bfdc-42ea-b2e2-cecb26f8e9f4",
+  "name" : "v1_task_1130a368-dfaa-4e45-a22e-8b971b2ad30b",
+  "request" : {
+    "url" : "/v1/task/1130a368-dfaa-4e45-a22e-8b971b2ad30b",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_task_1130a368-dfaa-4e45-a22e-8b971b2ad30b-bd95d090-bfdc-42ea-b2e2-cecb26f8e9f4.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 08:54:23 GMT"
+    }
+  },
+  "uuid" : "bd95d090-bfdc-42ea-b2e2-cecb26f8e9f4",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-1130a368-dfaa-4e45-a22e-8b971b2ad30b",
+  "requiredScenarioState" : "scenario-v1-task-1130a368-dfaa-4e45-a22e-8b971b2ad30b-4",
+  "newScenarioState" : "scenario-v1-task-1130a368-dfaa-4e45-a22e-8b971b2ad30b-5",
+  "insertionIndex" : 28
+}

@@ -1,0 +1,19 @@
+{
+  "id" : "781d2b49-bf07-449d-a01c-915b56e81bf8",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENT",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-781d2b49-bf07-449d-a01c-915b56e81bf8.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 08:54:27 GMT"
+    }
+  },
+  "uuid" : "781d2b49-bf07-449d-a01c-915b56e81bf8",
+  "persistent" : true,
+  "insertionIndex" : 40
+}

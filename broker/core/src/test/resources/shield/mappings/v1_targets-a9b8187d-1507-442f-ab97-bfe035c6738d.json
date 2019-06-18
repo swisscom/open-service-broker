@@ -1,0 +1,21 @@
+{
+  "id" : "a9b8187d-1507-442f-ab97-bfe035c6738d",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SYSTEM-SHIELD-CLIENT-FAILURE-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 08:54:32 GMT"
+    }
+  },
+  "uuid" : "a9b8187d-1507-442f-ab97-bfe035c6738d",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-targets",
+  "requiredScenarioState" : "scenario-v1-targets-2",
+  "insertionIndex" : 87
+}

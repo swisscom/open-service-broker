@@ -1,0 +1,19 @@
+{
+  "id" : "bac0957b-1f5d-4376-b2e7-9ce50861d7f8",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=JOBDOESNOTEXIST",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Tue, 18 Jun 2019 08:54:31 GMT"
+    }
+  },
+  "uuid" : "bac0957b-1f5d-4376-b2e7-9ce50861d7f8",
+  "persistent" : true,
+  "insertionIndex" : 80
+}
