@@ -131,6 +131,7 @@ class ShieldClient {
         buildClient().deleteTaskByUuid(taskUuid)
     }
 
+    //FIXME: Do not retry within getJobStatus, as it's not expected
     JobStatus getJobStatus(String taskUuid, Backup backup = null) {
         Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         TaskDto task = buildClient().getTaskByUuid(taskUuid)
