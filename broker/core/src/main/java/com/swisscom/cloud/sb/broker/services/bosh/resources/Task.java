@@ -24,6 +24,6 @@ public interface Task {
     String getUser();
 
     enum State {
-        queued, processing, cancelled, cancelling, done, errored
+        queued, processing, cancelled, cancelling, done, errored, error
     }
 }
