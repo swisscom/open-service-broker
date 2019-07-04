@@ -39,9 +39,9 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
             Optional<String> optionalTaskId = context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext)
             Collection<ServiceDetail> details = []
             if(optionalTaskId.present) {
-                details.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get()))
+                details.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get(), true))
             }
-            return new StateChangeActionResult(go2NextState: true,details: details)
+            return new StateChangeActionResult(go2NextState: true, details: details)
         }
     }),
     CHECK_BOSH_UNDEPLOY_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
