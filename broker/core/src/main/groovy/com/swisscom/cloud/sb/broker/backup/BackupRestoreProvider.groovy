@@ -41,7 +41,7 @@ trait BackupRestoreProvider extends BackupOnShield {
     }
 
     void deleteBackup(Backup backup) {
-        shieldClient.deleteBackup(backup.externalId)
+        shieldClient.deleteBackupIfExisting(backup.externalId)
     }
 
     Backup.Status getBackupStatus(Backup backup) {

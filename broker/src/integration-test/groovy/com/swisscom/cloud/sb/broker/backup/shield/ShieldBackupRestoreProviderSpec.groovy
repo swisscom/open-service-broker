@@ -88,7 +88,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
     def "delete backup"() {
         given:
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.DELETE, externalId: 'externalId')
-        1 * shieldClient.deleteBackup(backup.externalId)
+        1 * shieldClient.deleteBackupIfExisting(backup.externalId)
         when:
         shieldBackupRestoreProvider.deleteBackup(backup)
         then:

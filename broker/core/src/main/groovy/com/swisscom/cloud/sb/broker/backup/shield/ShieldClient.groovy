@@ -34,17 +34,15 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
-import javax.annotation.PostConstruct
-
 @Component
 @CompileStatic
-class ShieldClient {
+final class ShieldClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldClient.class)
 
-    protected ShieldConfig shieldConfig
-    protected ShieldRestClientFactory shieldRestClientFactory
-    protected RestTemplateBuilder restTemplateBuilder
-    protected BackupPersistenceService backupPersistenceService
+    private final ShieldConfig shieldConfig
+    private final ShieldRestClientFactory shieldRestClientFactory
+    private final RestTemplateBuilder restTemplateBuilder
+    private final BackupPersistenceService backupPersistenceService
 
     @Autowired
     ShieldClient(ShieldConfig shieldConfig,
@@ -57,10 +55,6 @@ class ShieldClient {
         this.shieldRestClientFactory = shieldRestClientFactory
         this.restTemplateBuilder = new RestTemplateBuilder()
         this.backupPersistenceService = backupPersistenceService
-    }
-
-    @PostConstruct
-    void init() {
         LOG.info(shieldConfig.toString())
     }
 
@@ -76,7 +70,7 @@ class ShieldClient {
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, backupParameter)
-
+        LOG.debug("Running registered backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         buildClient().runJob(jobUuid)
     }
 
@@ -102,7 +96,7 @@ class ShieldClient {
         LOG.debug("Registering Job '{}' and Target '{}' to Shield", jobName, targetName)
         String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         String jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
-
+        LOG.debug("Running registered system backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         buildClient().runJob(jobUuid)
 
         [ServiceDetail.from(ShieldServiceDetailKey.SHIELD_JOB_UUID, jobUuid),
@@ -179,7 +173,7 @@ class ShieldClient {
     }
 
     // avoid throwing exceptions in this method so that users can delete failed backups.
-    void deleteBackup(String taskUuid) {
+    void deleteBackupIfExisting(String taskUuid) {
         Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         try {
             TaskDto task = buildClient().getTaskByUuid(taskUuid)
@@ -245,8 +239,9 @@ class ShieldClient {
 
     private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
         TargetDto targetOnShield = buildClient().getTargetByName(targetName)
-        targetOnShield == null ? buildClient().createTarget(targetName, target, agent) :
-        buildClient().updateTarget(targetOnShield, target, agent)
+        targetOnShield != null && (targetOnShield.getUuid() != null && targetOnShield.getUuid().length() > 0) ? buildClient().
+                updateTarget(targetOnShield, target, agent) : buildClient().createTarget(targetName, target, agent)
+
     }
 
     private String createOrUpdateJob(String jobName,
@@ -256,9 +251,9 @@ class ShieldClient {
                                      String scheduleUuid,
                                      boolean paused) {
         JobDto jobOnShield = buildClient().getJobByName(jobName)
-        jobOnShield == null ?
-        buildClient().createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
-        buildClient().updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
+        jobOnShield != null && (jobOnShield.getUuid() != null && jobOnShield.getUuid().length() > 0) ?
+        buildClient().updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
+        buildClient().createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
     }
 
     private ShieldRestClient buildClient() {
