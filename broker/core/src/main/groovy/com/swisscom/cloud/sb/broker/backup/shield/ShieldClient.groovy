@@ -36,7 +36,7 @@ import org.springframework.util.Assert
 
 @Component
 @CompileStatic
-final class ShieldClient {
+class ShieldClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldClient.class)
 
     private final ShieldConfig shieldConfig
