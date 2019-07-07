@@ -16,9 +16,7 @@
 package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
-import com.swisscom.cloud.sb.broker.util.GsonFactory
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
-import groovy.json.JsonSlurper
 import groovy.transform.PackageScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,12 +24,15 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.util.Assert
 import org.springframework.web.client.RestTemplate
 
 @PackageScope
 class ShieldRestClientV1 implements ShieldRestClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientV1.class)
+
     private static final String HEADER_API_KEY = 'X-Shield-Token'
     private static final int apiVersion = 1
     private final ShieldConfig config
@@ -43,14 +44,12 @@ class ShieldRestClientV1 implements ShieldRestClient {
 
     private ShieldRestClientV1(ShieldConfig shieldConfig) {
         Assert.notNull(shieldConfig, "Shield config cannot be null!")
-        this.restTemplate = new RestTemplateBuilder().build()
-        this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
+        this.restTemplate = addCustomRestTemplateConfig(new RestTemplateBuilder().build())
         this.config = shieldConfig
     }
 
     Object getStatus() {
-        def response = restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), Object.class)
-        return response.getBody()
+        restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), Object.class).getBody()
     }
 
     StoreDto getStoreByName(String name) {
@@ -63,7 +62,8 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<StoreDto> getStores(String arguments) {
-        getResources(storesUrl() + arguments, StoreDto[].class)
+        restTemplate.exchange(storesUrl() + arguments, HttpMethod.GET, configureRequestEntity(), StoreDto[].class).
+                getBody()
     }
 
     RetentionDto getRetentionByName(String name) {
@@ -76,7 +76,10 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<RetentionDto> getRetentions(String arguments) {
-        getResources(retentionsUrl() + arguments, RetentionDto[].class)
+        restTemplate.exchange(retentionsUrl() + arguments,
+                              HttpMethod.GET,
+                              configureRequestEntity(),
+                              RetentionDto[].class).getBody()
     }
 
     ScheduleDto getScheduleByName(String name) {
@@ -89,7 +92,10 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<ScheduleDto> getSchedules(String arguments) {
-        getResources(schedulesUrl() + arguments, ScheduleDto[].class)
+        restTemplate.exchange(schedulesUrl() + arguments,
+                              HttpMethod.GET,
+                              configureRequestEntity(),
+                              ScheduleDto[].class).getBody()
     }
 
     TargetDto getTargetByName(String name) {
@@ -102,7 +108,8 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<TargetDto> getTargets(String arguments) {
-        getResources(targetsUrl() + arguments, TargetDto[].class)
+        restTemplate.exchange(targetsUrl() + arguments, HttpMethod.GET, configureRequestEntity(), TargetDto[].class).
+                getBody()
     }
 
     String createTarget(String targetName, ShieldTarget target, String agent) {
@@ -111,9 +118,9 @@ class ShieldRestClientV1 implements ShieldRestClient {
                     endpoint: target.endpointJson(),
                     agent   : agent]
 
-        def response = restTemplate.exchange(targetsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
-
-        new JsonSlurper().parseText(response.body).uuid
+        restTemplate.exchange(targetsUrl(), HttpMethod.POST, configureRequestEntity(body), CreateResponseDto.class).
+                getBody().
+                getUuid()
     }
 
     String updateTarget(TargetDto existingTarget, ShieldTarget target, String agent) {
@@ -122,7 +129,10 @@ class ShieldRestClientV1 implements ShieldRestClient {
                     plugin  : target.pluginName(),
                     endpoint: target.endpointJson(),
                     agent   : agent]
-        restTemplate.exchange(targetUrl(existingTarget.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
+        restTemplate.exchange(targetUrl(existingTarget.uuid),
+                              HttpMethod.PUT,
+                              configureRequestEntity(body),
+                              (Class) null)
 
         existingTarget.uuid
     }
@@ -136,7 +146,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     JobDto getJobByUuid(String uuid) {
-        getResources(jobUrl(uuid), JobDto.class).first()
+        restTemplate.exchange(jobUrl(uuid), HttpMethod.GET, configureRequestEntity(), JobDto[].class).getBody().first()
     }
 
     JobDto getJob(String arguments) {
@@ -145,7 +155,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<JobDto> getJobs(String arguments) {
-        getResources(jobsUrl() + arguments, JobDto[].class)
+        restTemplate.exchange(jobsUrl() + arguments, HttpMethod.GET, configureRequestEntity(), JobDto[].class).getBody()
     }
 
     String createJob(String jobName,
@@ -155,8 +165,9 @@ class ShieldRestClientV1 implements ShieldRestClient {
                      String scheduleUuid,
                      boolean paused = true) {
         def body = getCreateJobBody(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
-        def response = restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), String.class)
-        new JsonSlurper().parseText(response.body).uuid
+        restTemplate.exchange(jobsUrl(), HttpMethod.POST, configureRequestEntity(body), CreateResponseDto.class).
+                getBody().
+                getUuid()
     }
 
     String updateJob(JobDto existingJob,
@@ -171,8 +182,10 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     String runJob(String uuid) {
-        def response = restTemplate.exchange(jobUrl(uuid) + "/run", HttpMethod.POST, configureRequestEntity(), String.class)
-        new JsonSlurper().parseText(response.body).task_uuid
+        restTemplate.exchange(jobUrl(uuid) + "/run",
+                              HttpMethod.POST,
+                              configureRequestEntity(),
+                              TaskResponseDto.class).getBody().getTaskUuid()
     }
 
     void deleteJob(String uuid) {
@@ -180,11 +193,11 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     TaskDto getTaskByUuid(String uuid) {
-        def response = restTemplate.exchange(taskUrl(uuid), HttpMethod.GET, configureRequestEntity(), String.class)
-        def dto = GsonFactory.withISO8601Datetime().fromJson(response.body, TaskDto)
+        restTemplate.exchange(taskUrl(uuid), HttpMethod.GET, configureRequestEntity(), TaskDto.class).getBody()
+        /*def dto = GsonFactory.withISO8601Datetime().fromJson(response.body, TaskDto)
         dto.typeParsed = TaskDto.Type.of(dto.type)
         dto.statusParsed = TaskDto.Status.of(dto.status)
-        dto
+        dto*/
     }
 
     void deleteTaskByUuid(String uuid) {
@@ -192,33 +205,26 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     ArchiveDto getArchiveByUuid(String uuid) {
-        def response = restTemplate.exchange(archiveUrl(uuid), HttpMethod.GET, configureRequestEntity(), String.class)
-        def dto = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), ArchiveDto)
-        dto.statusParsed = ArchiveDto.Status.of(dto.status)
-        dto
+        restTemplate.exchange(archiveUrl(uuid), HttpMethod.GET, configureRequestEntity(), ArchiveDto.class).getBody()
     }
 
     String restoreArchive(String uuid) {
-        def response = restTemplate.exchange(archiveUrl(uuid) + "/restore", HttpMethod.POST, configureRequestEntity(), String.class)
-        new JsonSlurper().parseText(response.body).task_uuid
+        restTemplate.exchange(archiveUrl(uuid) + "/restore",
+                              HttpMethod.POST,
+                              configureRequestEntity(),
+                              TaskResponseDto.class).getBody().getTaskUuid()
     }
 
     void deleteArchive(String uuid) {
         restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
     }
 
-    private <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
-        def response = restTemplate.exchange(endpoint, HttpMethod.GET, configureRequestEntity(), String.class)
-        final T[] jsonToObject = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), clazz)
-        return Arrays.asList(jsonToObject)
-    }
-
     private static Map<String, ?> getCreateJobBody(String jobName,
-                                    String targetUuid,
-                                    String storeUuid,
-                                    String retentionUuid,
-                                    String scheduleUuid,
-                                    boolean paused) {
+                                                   String targetUuid,
+                                                   String storeUuid,
+                                                   String retentionUuid,
+                                                   String scheduleUuid,
+                                                   boolean paused) {
         [name     : jobName,
          target   : targetUuid,
          store    : storeUuid,
@@ -228,11 +234,11 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     private static Map<String, ?> getUpdateJobBody(JobDto existingJob,
-                                    String targetUuid,
-                                    String storeUuid,
-                                    String retentionUuid,
-                                    String scheduleUuid,
-                                    boolean paused = true) {
+                                                   String targetUuid,
+                                                   String storeUuid,
+                                                   String retentionUuid,
+                                                   String scheduleUuid,
+                                                   boolean paused = true) {
         [name     : existingJob.name,
          summary  : existingJob.summary,
          target   : targetUuid,
@@ -294,15 +300,14 @@ class ShieldRestClientV1 implements ShieldRestClient {
         "${baseUrl()}/status"
     }
 
-    private String infoUrl() {
-        "${baseUrl()}/info"
-    }
+    private static RestTemplate addCustomRestTemplateConfig(RestTemplate restTemplate) {
+        restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler());
 
-    private String tenantsUrl() {
-        "${baseUrl()}/tenants"
-    }
-
-    private String loginUrl() {
-        "${baseUrl()}/auth/login"
+        // Support text/plain Content-Type for JSON parsing, because SHIELD API sets wrong Content-Type
+        HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON,
+                                                       MediaType.TEXT_PLAIN));
+        restTemplate.getMessageConverters().add(converter);
+        return restTemplate
     }
 }

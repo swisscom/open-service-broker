@@ -125,12 +125,12 @@ class ShieldClient {
     JobStatus getJobStatus(String taskUuid, Backup backup = null) {
         Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         TaskDto task = apiClient.getTaskByUuid(taskUuid)
-        if (task.statusParsed.isRunning()) {
+        if (task.status.isRunning()) {
             return JobStatus.RUNNING
         }
-        if (task.statusParsed.isFailed()) {
+        if (task.status.isFailed()) {
             LOG.warn("Shield task failed: ${task}")
-            if (task.typeParsed.isBackup()) {
+            if (task.type.isBackup()) {
                 if (backup.retryBackupCount < shieldConfig.maxRetryBackup) {
                     LOG.info("Retrying backup count: ${backup.retryBackupCount + 1}")
                     backup.retryBackupCount++
@@ -144,8 +144,8 @@ class ShieldClient {
                 return JobStatus.FAILED
             }
         }
-        if (task.statusParsed.isDone()) {
-            if (task.typeParsed.isBackup()) {
+        if (task.status.isDone()) {
+            if (task.type.isBackup()) {
                 // if backup tasks are done, they should have an associated archive now
                 return statusOfArchive(task)
             } else {
@@ -203,7 +203,7 @@ class ShieldClient {
 
     private JobStatus statusOfArchive(TaskDto task) {
         ArchiveDto archive = apiClient.getArchiveByUuid(task.archive_uuid)
-        if (archive != null && archive.statusParsed.isValid()) {
+        if (archive != null && archive.status.isValid()) {
             return JobStatus.SUCCESSFUL
         } else {
             return JobStatus.FAILED
