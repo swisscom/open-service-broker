@@ -13,15 +13,13 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield.restClient
+package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 
 interface ShieldRestClient {
     Object getStatus()
-
-    boolean matchVersion()
 
     StoreDto getStoreByName(String name)
 

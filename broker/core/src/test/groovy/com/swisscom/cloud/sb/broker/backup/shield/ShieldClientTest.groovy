@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientFactory
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv1
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.json.JsonGenerator
@@ -33,12 +31,10 @@ import org.springframework.web.client.ResourceAccessException
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import static com.github.tomakehurst.wiremock.http.Fault.MALFORMED_RESPONSE_CHUNK
 import static com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER
+import static com.github.tomakehurst.wiremock.http.Fault.MALFORMED_RESPONSE_CHUNK
 import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupParameter
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_JOB_UUID
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey.SHIELD_TARGET_UUID
@@ -54,9 +50,6 @@ class ShieldClientTest extends Specification {
     private static final String SHIELD_SYSTEM_TEST = "TEST-SYSTEM-SHIELD-CLIENT"
     private static final String SHIELD_AGENT_URL = "127.0.0.1:5444"
     private static ShieldConfig emptyShieldConfig = new ShieldConfig()
-    private static ShieldRestClientFactory shieldRestClientFactory = new ShieldRestClientFactory([new ShieldRestClientv1(
-            emptyShieldConfig)])
-
     private static BackupParameter backupParameter = backupParameter().
             storeName("default").
             retentionName("default").
@@ -90,10 +83,7 @@ class ShieldClientTest extends Specification {
         shieldConfig.username = SHIELD_USERNAME
         shieldConfig.password = SHIELD_PASSWORD
         shieldConfig.apiKey = SHIELD_API_KEY
-        ShieldRestClientFactory shieldRestClientFactory = new ShieldRestClientFactory([new ShieldRestClientv1(
-                shieldConfig)])
         sut = new ShieldClient(shieldConfig,
-                               shieldRestClientFactory,
                                new BackupPersistenceService())
         LOG.info("Testing against {} with {}",
                  SHIELD_MOCKED ? "mocked shield" : "live shield",
@@ -158,7 +148,7 @@ class ShieldClientTest extends Specification {
     @Unroll
     def "Create ShieldClient with false parameters because #message"() {
         when:
-        ShieldClient shieldClient = new ShieldClient(config, restClientFactory, backupPersistenceService)
+        ShieldClient shieldClient = new ShieldClient(config, backupPersistenceService)
 
         then:
         shieldClient == null
@@ -166,10 +156,9 @@ class ShieldClientTest extends Specification {
         exception.message == message
 
         where:
-        config            | restClientFactory       | backupPersistenceService       | message
-        null              | shieldRestClientFactory | new BackupPersistenceService() | "Shield config cannot be null!"
-        emptyShieldConfig | null                    | new BackupPersistenceService() | "Shield REST client factory cannot be null!"
-        emptyShieldConfig | shieldRestClientFactory | null                           | "Backup persistence service cannot be null!"
+        config            | backupPersistenceService       | message
+        null              | new BackupPersistenceService() | "Shield config cannot be null!"
+        emptyShieldConfig | null                           | "Backup persistence service cannot be null!"
     }
 
     def "register and run job"() {

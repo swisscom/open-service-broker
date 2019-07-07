@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield.restClient
+package com.swisscom.cloud.sb.broker.backup.shield
 
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldResourceNotFoundException
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException

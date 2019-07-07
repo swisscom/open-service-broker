@@ -13,30 +13,37 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.backup.shield.restClient
+package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.GsonFactory
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.json.JsonSlurper
+import groovy.transform.PackageScope
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.util.Assert
 import org.springframework.web.client.RestTemplate
 
-/**
- * ShieldRestClientImpl is used to reduce duplicate code between the different ShieldRestClient
- * version implementations, like {@see ShieldRestClientv1}.
- */
-abstract class ShieldRestClientImpl implements ShieldRestClient {
-    protected ShieldConfig config
-    protected RestTemplate restTemplate
+@PackageScope
+class ShieldRestClientV1 implements ShieldRestClient {
+    private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientV1.class)
+    private static final String HEADER_API_KEY = 'X-Shield-Token'
+    private static final int apiVersion = 1
+    private final ShieldConfig config
+    private final RestTemplate restTemplate
 
-    ShieldRestClientImpl(ShieldConfig shieldConfig) {
+    static ShieldRestClientV1 of(ShieldConfig config) {
+        return new ShieldRestClientV1(config)
+    }
+
+    private ShieldRestClientV1(ShieldConfig shieldConfig) {
         Assert.notNull(shieldConfig, "Shield config cannot be null!")
-        this.restTemplate = new RestTemplateBuilder().withSSLValidationDisabled().build()
+        this.restTemplate = new RestTemplateBuilder().build()
         this.restTemplate.setErrorHandler(new ShieldRestResponseErrorHandler())
         this.config = shieldConfig
     }
@@ -152,8 +159,6 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
         new JsonSlurper().parseText(response.body).uuid
     }
 
-    abstract Map<String, ?> getCreateJobBody(String jobName, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused)
-
     String updateJob(JobDto existingJob,
                      String targetUuid,
                      String storeUuid,
@@ -164,8 +169,6 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
         restTemplate.exchange(jobUrl(existingJob.uuid), HttpMethod.PUT, configureRequestEntity(body), (Class) null)
         existingJob.uuid
     }
-
-    abstract Map<String, ?> getUpdateJobBody(JobDto existingJob, String targetUuid, String storeUuid, String retentionUuid, String scheduleUuid, boolean paused = true)
 
     String runJob(String uuid) {
         def response = restTemplate.exchange(jobUrl(uuid) + "/run", HttpMethod.POST, configureRequestEntity(), String.class)
@@ -204,67 +207,102 @@ abstract class ShieldRestClientImpl implements ShieldRestClient {
         restTemplate.exchange(archiveUrl(uuid), HttpMethod.DELETE, configureRequestEntity(), String.class)
     }
 
-    protected <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
+    private <T> List<T> getResources(String endpoint, final Class<T[]> clazz) {
         def response = restTemplate.exchange(endpoint, HttpMethod.GET, configureRequestEntity(), String.class)
         final T[] jsonToObject = GsonFactory.withISO8601Datetime().fromJson(response.body.toString(), clazz)
         return Arrays.asList(jsonToObject)
     }
 
+    private static Map<String, ?> getCreateJobBody(String jobName,
+                                    String targetUuid,
+                                    String storeUuid,
+                                    String retentionUuid,
+                                    String scheduleUuid,
+                                    boolean paused) {
+        [name     : jobName,
+         target   : targetUuid,
+         store    : storeUuid,
+         retention: retentionUuid,
+         schedule : scheduleUuid,
+         paused   : paused]
+    }
 
-    abstract protected <T> HttpEntity<T> configureRequestEntity(T t)
+    private static Map<String, ?> getUpdateJobBody(JobDto existingJob,
+                                    String targetUuid,
+                                    String storeUuid,
+                                    String retentionUuid,
+                                    String scheduleUuid,
+                                    boolean paused = true) {
+        [name     : existingJob.name,
+         summary  : existingJob.summary,
+         target   : targetUuid,
+         store    : storeUuid,
+         retention: retentionUuid,
+         schedule : scheduleUuid,
+         paused   : paused]
+    }
 
-    protected String storesUrl() {
+    private <T> HttpEntity<T> configureRequestEntity(T t) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+        headers.add(HEADER_API_KEY, config.apiKey)
+        HttpEntity<T> entity = t ? new HttpEntity<T>(t, headers) : new HttpEntity<T>(headers)
+        return entity
+    }
+
+    private String baseUrl() {
+        "${config.baseUrl}/v${apiVersion}"
+    }
+
+    private String storesUrl() {
         "${baseUrl()}/stores"
     }
 
-    protected String retentionsUrl() {
+    private String retentionsUrl() {
         "${baseUrl()}/retention"
     }
 
-    protected String schedulesUrl() {
+    private String schedulesUrl() {
         "${baseUrl()}/schedules"
     }
 
-    protected String taskUrl(String uuid) {
+    private String taskUrl(String uuid) {
         "${baseUrl()}/task/${uuid}"
     }
 
-    protected String archiveUrl(String uuid) {
+    private String archiveUrl(String uuid) {
         "${baseUrl()}/archive/${uuid}"
     }
 
-    protected String targetsUrl() {
+    private String targetsUrl() {
         "${baseUrl()}/targets"
     }
 
-    protected String targetUrl(String uuid) {
+    private String targetUrl(String uuid) {
         "${baseUrl()}/target/${uuid}"
     }
 
-    protected String jobsUrl() {
+    private String jobsUrl() {
         "${baseUrl()}/jobs"
     }
 
-    protected String jobUrl(String uuid) {
+    private String jobUrl(String uuid) {
         "${baseUrl()}/job/${uuid}"
     }
 
-    protected String statusUrl() {
+    private String statusUrl() {
         "${baseUrl()}/status"
     }
 
-    protected String infoUrl() {
+    private String infoUrl() {
         "${baseUrl()}/info"
     }
 
-    protected String tenantsUrl() {
+    private String tenantsUrl() {
         "${baseUrl()}/tenants"
     }
 
-    protected String loginUrl() {
+    private String loginUrl() {
         "${baseUrl()}/auth/login"
     }
-
-    abstract protected String baseUrl()
-
 }

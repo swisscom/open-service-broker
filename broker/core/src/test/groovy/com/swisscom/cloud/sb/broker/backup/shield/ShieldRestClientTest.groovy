@@ -15,9 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientImpl
-import com.swisscom.cloud.sb.broker.backup.shield.restClient.ShieldRestClientv2
-import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
+
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -25,7 +23,7 @@ import spock.lang.Stepwise
 @Stepwise
 @Ignore
 class ShieldRestClientTest extends Specification {
-    ShieldRestClientImpl restClient
+    ShieldRestClientV1 restClient
 
     void setup() {
         ShieldConfig shieldConfig = new ShieldConfig()
@@ -34,7 +32,7 @@ class ShieldRestClientTest extends Specification {
         shieldConfig.password = "shield"
         shieldConfig.defaultTenantName = "tenant1"
         shieldConfig.apiKey = "averyhardkey"
-        restClient = new ShieldRestClientv2(shieldConfig)
+        restClient = ShieldRestClientV1.of(shieldConfig)
     }
 
     def "get store by name"() {
