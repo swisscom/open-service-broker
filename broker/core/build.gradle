@@ -57,6 +57,8 @@ dependencies {
     compile libs.log4j_to_slf4j
     compile libs.tomcat_juli
 
+    compile libs.resilience4j_retry
+
     testCompile libs.groovy
     testCompile libs.groovy_test
     testCompile libs.junit

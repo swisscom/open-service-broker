@@ -18,6 +18,8 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.PackageScope
+import io.github.resilience4j.retry.Retry
+import io.vavr.control.Try
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -29,14 +31,20 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.Assert
 import org.springframework.web.client.RestTemplate
 
+import java.util.function.Function
+import java.util.function.Supplier
+
 @PackageScope
 class ShieldRestClientV1 implements ShieldRestClient {
     private static final Logger LOG = LoggerFactory.getLogger(ShieldRestClientV1.class)
+    private static final String RETRY_NAME = "shield-api-client-default";
 
     private static final String HEADER_API_KEY = 'X-Shield-Token'
     private static final int apiVersion = 1
     private final ShieldConfig config
     private final RestTemplate restTemplate
+
+    private Retry defaultRetry
 
     static ShieldRestClientV1 of(ShieldConfig config) {
         return new ShieldRestClientV1(config)
@@ -46,7 +54,38 @@ class ShieldRestClientV1 implements ShieldRestClient {
         Assert.notNull(shieldConfig, "Shield config cannot be null!")
         this.restTemplate = addCustomRestTemplateConfig(new RestTemplateBuilder().build())
         this.config = shieldConfig
+        initRetry()
     }
+
+    private void initRetry() {
+        this.defaultRetry = Retry.ofDefaults(RETRY_NAME);
+        initRetryEventsListeners();
+    }
+
+    private void initRetryEventsListeners() {
+        this.defaultRetry.getEventPublisher()
+                         .onRetry({e -> LOG.debug("Retrying {} because received error '{}': {}",
+                                                  e.getNumberOfRetryAttempts(),
+                                                  e.getLastThrowable().getClass().getSimpleName(),
+                                                  e.getLastThrowable().getMessage())});
+    }
+
+    /**
+     * All calls to shield API methods MUST be executed using this {@link #execute(java.util.function.Supplier, java.util.function.Function)} for being retried
+     * in case nsxApiException failing.
+     *
+     * @param <R>
+     * @param toExecute
+     * @param exceptionSupplier
+     * @return the intended NSX object or collection nsxApiException objects returned by toExecute
+     */
+    private <R> R execute(Supplier<R> toExecute,
+                          Function<? super Throwable, RuntimeException> exceptionSupplier) {
+        LOG.debug("Executing request to {}", baseUrl());
+        return Try.ofSupplier(Retry.decorateSupplier(this.defaultRetry, toExecute))
+                  .getOrElseThrow(exceptionSupplier);
+    }
+
 
     Object getStatus() {
         restTemplate.exchange(statusUrl(), HttpMethod.GET, configureRequestEntity(), Object.class).getBody()
@@ -62,8 +101,10 @@ class ShieldRestClientV1 implements ShieldRestClient {
     }
 
     List<StoreDto> getStores(String arguments) {
-        restTemplate.exchange(storesUrl() + arguments, HttpMethod.GET, configureRequestEntity(), StoreDto[].class).
-                getBody()
+        execute(
+                { -> restTemplate.exchange(storesUrl() + arguments, HttpMethod.GET, configureRequestEntity(), StoreDto[].class).getBody()},
+                {ex -> listShieldApiException(StoreDto[].class, ex, arguments)}
+        )
     }
 
     RetentionDto getRetentionByName(String name) {

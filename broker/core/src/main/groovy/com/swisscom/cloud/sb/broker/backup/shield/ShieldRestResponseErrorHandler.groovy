@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.swisscom.cloud.sb.broker.backup.shield.ShieldResourceNotFoundException
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpResponse
