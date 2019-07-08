@@ -29,11 +29,11 @@ class MethodSchemaDto {
      */
     @JsonProperty("parameters")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    Map<String, Object> configParametersSchema = null
+    com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto configParametersSchema = null
 
     MethodSchemaDto() {}
 
-    MethodSchemaDto(Map<String, Object> configParametersSchema) {
+    MethodSchemaDto(com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto configParametersSchema) {
         this.configParametersSchema = configParametersSchema
     }
 
