@@ -67,15 +67,6 @@ class ShieldClient {
         apiClient.runJob(jobUuid)
     }
 
-    /**
-     * As a workaround to an unstable shield API, we retry failed calls up to 3 times.
-     * Should we experience problems with this solution (due to higher load on the API),
-     * we will replace it with a circuit breaker solution.
-     */
-    /*@Retryable(
-            value = ServiceBrokerException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))*/
     Collection<ServiceDetail> registerAndRunSystemBackup(String jobName,
                                                          String targetName,
                                                          ShieldTarget shieldTarget,
@@ -96,15 +87,6 @@ class ShieldClient {
          ServiceDetail.from(ShieldServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
     }
 
-    /**
-     * As a workaround to an unstable shield API, we retry failed calls up to 3 times.
-     * Should we experience problems with this solution (due to higher load on the API),
-     * we will replace it with a circuit breaker solution.
-     */
-    /*@Retryable(
-            value = ServiceBrokerException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))*/
     void unregisterSystemBackup(String jobName, String targetName) {
         Assert.hasText(jobName, "Job name cannot be empty!")
         Assert.hasText(targetName, "Target name cannot be empty!")

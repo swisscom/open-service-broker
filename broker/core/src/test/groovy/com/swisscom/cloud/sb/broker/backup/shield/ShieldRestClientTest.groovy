@@ -30,7 +30,6 @@ class ShieldRestClientTest extends Specification {
         shieldConfig.baseUrl = "https://localhost:8443"
         shieldConfig.username = "admin"
         shieldConfig.password = "shield"
-        shieldConfig.defaultTenantName = "tenant1"
         shieldConfig.apiKey = "averyhardkey"
         restClient = ShieldRestClientV1.of(shieldConfig)
     }
