@@ -1,63 +1,36 @@
 package com.swisscom.cloud.sb.broker.backup.shield;
 
-import java.util.StringJoiner;
-
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.join;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 
 public class ShieldApiException extends RuntimeException {
-/*
-    private enum ErrorInformation {
-        INVALID_PARAMETERS(3000, "Can't %s %s: %s"),
-        ERROR_LIST(3001, "Can't list %s %s: %s"),
-        ERROR_GET(3002, "Can't get %s %s: %s"),
-        ERROR_CREATE(3003, "Can't create %s %s: %s"),
-        ERROR_DELETE(3004, "Can't delete %s %s: %s");
+    private final String description;
+    private final HttpStatus httpStatus;
 
-        private final long errorCode;
-        private final String format;
-
-        ErrorInformation(long errorCode, String format) {
-            this.errorCode = errorCode;
-            this.format = format;
-        }
-
-        public long getErrorCode() {
-            return errorCode;
-        }
-
-        public String getFormat() {
-            return format;
-        }
-
-        public String formatExceptionMessage(Class clazz, Object[] params, String reason) {
-            return format(format,
-                          clazz.getSimpleName(),
-                          params == null || params.length == 0
-                          ? ""
-                          : new StringJoiner(" ", "with parameters:{", "}")
-                                  .add(join(params, ", "))
-                                  .toString(),
-                          reason);
-        }
+    private ShieldApiException(String description, Throwable ex) {
+        super(description, ex);
+        this.description = description;
+        httpStatus = (ex instanceof HttpStatusCodeException) ? ((HttpStatusCodeException) ex).getStatusCode(): null;
     }
 
-    private final ErrorInformation errorInformation;
-
-
-    static ShieldApiException of(ErrorInformation errorInformation,
-                              Class clazz,
-                              Throwable throwable,
-                              Object[] params) {
-        return Match(throwable).of(
-                Case($(instanceOf(Error.class)), e -> shieldApiException(errorInformation, clazz, e, params)),
-                Case($(), e -> otherException(errorInformation, clazz, e, params))
-        );
+    public static ShieldApiException of(String description, Throwable ex) {
+        return new ShieldApiException(description, ex);
     }
 
-    static ShieldApiException listShieldApiException(Class clazz, Throwable throwable, Object... params) {
-        return of(ErrorInformation.ERROR_LIST, clazz, throwable, params);
-    }*/
+    public boolean isHttpStatusCodeException() {
+        return httpStatus != null;
+    }
+
+    public boolean isNotFound() {
+        return isHttpStatusCodeException() && (httpStatus.value() == 404) || httpStatus.value() == 501;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("ShieldApiException");
+        if (isHttpStatusCodeException()) sb.append(String.format(" with HTTP status code %d. ", httpStatus.value()));
+        sb.append(description);
+        return sb.toString();
+    }
+
+
 }

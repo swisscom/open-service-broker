@@ -18,7 +18,6 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -27,8 +26,6 @@ import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
@@ -75,10 +72,10 @@ class ShieldClient {
      * Should we experience problems with this solution (due to higher load on the API),
      * we will replace it with a circuit breaker solution.
      */
-    @Retryable(
+    /*@Retryable(
             value = ServiceBrokerException.class,
             maxAttempts = 3,
-            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))
+            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))*/
     Collection<ServiceDetail> registerAndRunSystemBackup(String jobName,
                                                          String targetName,
                                                          ShieldTarget shieldTarget,
@@ -104,10 +101,10 @@ class ShieldClient {
      * Should we experience problems with this solution (due to higher load on the API),
      * we will replace it with a circuit breaker solution.
      */
-    @Retryable(
+    /*@Retryable(
             value = ServiceBrokerException.class,
             maxAttempts = 3,
-            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))
+            backoff = @Backoff(delayExpression = "#{\${com.swisscom.cloud.sb.broker.shield.backOffDelay}}"))*/
     void unregisterSystemBackup(String jobName, String targetName) {
         Assert.hasText(jobName, "Job name cannot be empty!")
         Assert.hasText(targetName, "Target name cannot be empty!")
@@ -175,9 +172,13 @@ class ShieldClient {
             TaskDto task = apiClient.getTaskByUuid(taskUuid)
             apiClient.deleteArchive(task.archive_uuid)
         }
-        catch (ShieldResourceNotFoundException e) {
-            // either task or archive is not existing on shield (anymore); probably because it was deleted already
-            LOG.warn("Could not delete backup because it was not found anymore on Shield; do not fail though", e)
+        catch (ShieldApiException e) {
+            if (e.isNotFound()) {
+                // either task or archive is not existing on shield (anymore); probably because it was deleted already
+                LOG.warn("Could not delete backup because it was not found anymore on Shield; do not fail though", e)
+            } else {
+                throw e
+            }
         }
     }
 

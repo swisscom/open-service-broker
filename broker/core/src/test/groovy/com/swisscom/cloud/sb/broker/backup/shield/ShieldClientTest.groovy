@@ -15,11 +15,9 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import groovy.json.JsonGenerator
 import org.joda.time.LocalTime
@@ -27,9 +25,9 @@ import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
-import org.springframework.web.client.ResourceAccessException
 import spock.lang.Specification
 import spock.lang.Unroll
+import java.time.Duration
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
@@ -83,6 +81,8 @@ class ShieldClientTest extends Specification {
         shieldConfig.username = SHIELD_USERNAME
         shieldConfig.password = SHIELD_PASSWORD
         shieldConfig.apiKey = SHIELD_API_KEY
+        shieldConfig.maxNumberOfApiRetries = 3
+        shieldConfig.waitBetweenApiRetries = Duration.ofMillis(10)
         sut = new ShieldClient(shieldConfig,
                                new BackupPersistenceService())
         LOG.info("Testing against {} with {}",
@@ -302,7 +302,7 @@ class ShieldClientTest extends Specification {
 
         then:
         result == null
-        thrown(ShieldResourceNotFoundException.class)
+        thrown(ShieldApiException.class)
     }
 
     def "delete jobs and backups should not fail when given unknown job"() {
@@ -341,13 +341,13 @@ class ShieldClientTest extends Specification {
         where:
         taskUUID           | message
         null               | "Task UUID cannot be empty!"
-        "TASKDOESNOTEXIST" | "Rest call to Shield failed with status:501 NOT_IMPLEMENTED"
+        "TASKDOESNOTEXIST" | "Failed to get task"
     }
 
     @Unroll
     def "register and run system backup throws ServiceBrokerException when Shield responds with #reason"() {
         given:
-        shieldWireMock.stubFor(WireMock.post(urlEqualTo((String) "/v1/targets")).willReturn(failure))
+        shieldWireMock.stubFor(post(urlEqualTo((String) "/v1/targets")).willReturn(failure))
         when:
         Collection<ServiceDetail> result = sut.registerAndRunSystemBackup(SHIELD_SYSTEM_TEST + "-FAILURE-JOB",
                                                                           SHIELD_SYSTEM_TEST + "-FAILURE-TARGET",
@@ -357,13 +357,13 @@ class ShieldClientTest extends Specification {
 
         then:
         result == null
-        thrown(expectedException)
+        thrown(ShieldApiException)
 
         where:
-        failure                                         | expectedException       | reason
-        aResponse().withStatus(500)                     | ServiceBrokerException  | "HTTP Status Code 500"
-        aResponse().withFault(MALFORMED_RESPONSE_CHUNK) | ResourceAccessException | "OK Status Code withGarbage body"
-        aResponse().withFault(CONNECTION_RESET_BY_PEER) | ResourceAccessException | "Connection reset by peer"
+        failure                                         | reason
+        aResponse().withStatus(500)                     | "HTTP Status Code 500"
+        aResponse().withFault(MALFORMED_RESPONSE_CHUNK) | "OK Status Code withGarbage body"
+        aResponse().withFault(CONNECTION_RESET_BY_PEER) | "Connection reset by peer"
 
 
     }

@@ -20,6 +20,8 @@ import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.HttpClientErrorException
 
 class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
     class DummyShieldBackupRestoreProvider implements ShieldBackupRestoreProvider {
@@ -120,11 +122,12 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.CREATE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId, backup) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
+        shieldClient.getJobStatus(backup.externalId, backup) >> { throw ShieldApiException.of("Doesntmatter", new HttpClientErrorException(
+                HttpStatus.NOT_FOUND)) }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:
-        def ex = thrown(ShieldResourceNotFoundException)
+        def ex = thrown(ShieldApiException)
         ex.message == 'Doesntmatter'
     }
 
@@ -132,7 +135,8 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         given:
         String taskId = 'task-uuid'
         Backup backup = new Backup(serviceInstanceGuid: 'service-guid', operation: Backup.Operation.DELETE, externalId: taskId)
-        shieldClient.getJobStatus(backup.externalId) >> { throw new ShieldResourceNotFoundException("Doesntmatter") }
+        shieldClient.getJobStatus(backup.externalId) >> { throw ShieldApiException.of("Doesntmatter", new HttpClientErrorException(
+                HttpStatus.NOT_FOUND)) }
         when:
         Backup.Status status = shieldBackupRestoreProvider.getBackupStatus(backup)
         then:

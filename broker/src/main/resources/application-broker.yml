@@ -17,7 +17,7 @@ com.swisscom.cloud.sb.broker.security.platformUsers:
      role: CF_ADMIN
      platformId: 00000000-0000-0000-0000-000000000000
    - username: cc_ext
-     password: change_me
+     password: change_m
      role: CF_EXT_ADMIN
      platformId: 00000000-0000-0000-0000-000000000000
 

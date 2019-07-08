@@ -115,4 +115,5 @@ com.swisscom.cloud.sb.broker.shield:
   defaultTenantName: tenant1
   username: admin
   password: 'password'
-  backOffDelay: 100L
+  maxNumberOfApiRetries: 3
+  waitBetweenApiRetries: 1s

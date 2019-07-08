@@ -20,6 +20,8 @@ import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
+import java.time.Duration
+
 import static com.google.common.base.Strings.isNullOrEmpty
 
 @CompileStatic
@@ -34,7 +36,8 @@ class ShieldConfig implements Config {
     String defaultTenantName
     String username
     String password
-    String backOffDelay
+    int maxNumberOfApiRetries
+    Duration waitBetweenApiRetries
 
     @Override
     String toString() {
