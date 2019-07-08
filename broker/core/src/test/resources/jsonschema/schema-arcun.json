@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "instance_name",
+    "availability_zone",
+    "network1"
+  ],
+  "properties": {
+    "instance_name": {
+      "description": "Display name for this service instance",
+      "type": "string"
+    },
+    "availability_zone": {
+      "description": "Availability configuration (gold=single site, platinum=dual site)",
+      "type": "string",
+      "enum": [
+        "gold",
+        "platinum"
+      ]
+    },
+    "network1": {
+      "description": "First network ip",
+      "type": "string",
+      "format": "ipv4"
+    },
+    "subnet_suffix1": {
+      "description": "NetMask for first network",
+      "type": "number",
+      "default": "27"
+    },
+    "network2": {
+      "description": "Second network ip",
+      "type": "string",
+      "format": "ipv4"
+    },
+    "subnet_suffix2": {
+      "description": "NetMask for second network",
+      "type": "number",
+      "default": "27"
+    },
+    "dns_domain_name": {
+      "description": "DNS Domain name for hostname based white listing",
+      "type": "string",
+      "format": "hostname"
+    },
+    "dns_servers": {
+      "description": "DNS Server IPs",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "ipv4"
+      }
+    },
+    "nfsv4_domain_name": {
+      "description": "Domain Name for NFSv4",
+      "type": "string",
+      "format": "hostname"
+    }
+  }
+}
