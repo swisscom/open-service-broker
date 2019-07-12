@@ -33,11 +33,11 @@ Example:
  */
 
 class TaskDto {
-    String uuid
+    UUID uuid
     String owner
     Type type
-    String job_uuid
-    String archive_uuid
+    UUID job_uuid
+    UUID archive_uuid
     Status status
     String started_at
     String stopped_at
@@ -46,11 +46,11 @@ class TaskDto {
     @Override
     public String toString() {
         return "TaskDto{" +
-                "uuid='" + uuid + '\'' +
+                "uuid='" + uuid.toString() + '\'' +
                 ", owner='" + owner + '\'' +
                 ", type='" + type + '\'' +
-                ", job_uuid='" + job_uuid + '\'' +
-                ", archive_uuid='" + archive_uuid + '\'' +
+                ", job_uuid='" + job_uuid.toString() + '\'' +
+                ", archive_uuid='" + archive_uuid.toString() + '\'' +
                 ", status='" + status + '\'' +
                 ", started_at='" + started_at + '\'' +
                 ", stopped_at='" + stopped_at + '\'' +

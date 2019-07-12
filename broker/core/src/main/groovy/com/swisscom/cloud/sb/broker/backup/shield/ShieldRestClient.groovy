@@ -29,41 +29,41 @@ interface ShieldRestClient {
 
     TargetDto getTargetByName(String name)
 
-    String createTarget(String targetName, ShieldTarget target, String agent)
+    UUID createTarget(String targetName, ShieldTarget target, String agent)
 
-    String updateTarget(TargetDto existingTarget, ShieldTarget target, String agent)
+    UUID updateTarget(TargetDto existingTarget, ShieldTarget target, String agent)
 
-    void deleteTarget(String uuid)
+    void deleteTarget(UUID uuid)
 
     JobDto getJobByName(String name)
 
-    JobDto getJobByUuid(String uuid)
+    JobDto getJobByUuid(UUID uuid)
 
-    String createJob(String jobName,
-                     String targetUuid,
-                     String storeUuid,
-                     String retentionUuid,
-                     String scheduleUuid,
+    UUID createJob(String jobName,
+                     UUID targetUuid,
+                     UUID storeUuid,
+                     UUID retentionUuid,
+                     UUID scheduleUuid,
                      boolean paused)
 
-    String updateJob(JobDto existingJob,
-                     String targetUuid,
-                     String storeUuid,
-                     String retentionUuid,
-                     String scheduleUuid,
+    UUID updateJob(JobDto existingJob,
+                     UUID targetUuid,
+                     UUID storeUuid,
+                     UUID retentionUuid,
+                     UUID scheduleUuid,
                      boolean paused)
 
-    String runJob(String uuid)
+    UUID runJob(UUID uuid)
 
-    void deleteJob(String uuid)
+    void deleteJob(UUID uuid)
 
-    TaskDto getTaskByUuid(String uuid)
+    TaskDto getTaskByUuid(UUID uuid)
 
-    void deleteTaskByUuid(String uuid)
+    void deleteTaskByUuid(UUID uuid)
 
-    ArchiveDto getArchiveByUuid(String uuid)
+    ArchiveDto getArchiveByUuid(UUID uuid)
 
-    String restoreArchive(String uuid)
+    String restoreArchive(UUID uuid)
 
-    void deleteArchive(String uuid)
+    void deleteArchive(UUID uuid)
 }

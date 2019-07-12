@@ -36,7 +36,7 @@ Example:
  */
 
 class ArchiveDto {
-    String uuid
+    UUID uuid
     String key
     Status status
 
