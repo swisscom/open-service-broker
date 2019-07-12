@@ -34,7 +34,6 @@ trait BackupOnShield extends ExtensionProvider {
     private static final String POLICY_NAME = "BACKUP_POLICY_NAME"
     private static final String STORAGE_NAME = "BACKUP_STORAGE_NAME"
     private static final String SCHEDULE_NAME = "BACKUP_SCHEDULE_NAME"
-    private static final String SCHEDULE = "BACKUP_SCHEDULE"
 
     @Autowired
     ProvisioningPersistenceService provisioningPersistenceService
@@ -66,27 +65,17 @@ trait BackupOnShield extends ExtensionProvider {
             p.getName().startsWith(PLAN_PARAMETER_BACKUP_PREFIX)
         }.collectEntries {[it.getName(), it.getValue()]}
 
-        [POLICY_NAME, STORAGE_NAME].each {key ->
+        [POLICY_NAME, STORAGE_NAME, SCHEDULE_NAME].each {key ->
             if (!backupParameters.containsKey(key)) {
                 throw new IllegalArgumentException("Backup parameters must contain '${key}'")
             }
         }
 
-        BackupParameter.Builder backupParameterBuilder = backupParameter()
-        backupParameterBuilder.retentionName(backupParameters.get(POLICY_NAME))
-        backupParameterBuilder.storeName(backupParameters.get(STORAGE_NAME))
-
-        // Either BACKUP_SCHEDULE or BACKUP_SCHEDULE_NAME must be set
-        if (backupParameters.containsKey(SCHEDULE)) {
-            backupParameterBuilder.schedule(backupParameters.get(SCHEDULE))
-        }
-        if (backupParameters.containsKey(SCHEDULE_NAME)) {
-            backupParameterBuilder.scheduleName(backupParameters.get(SCHEDULE_NAME))
-        }
-        if (!backupParameters.containsKey(SCHEDULE) && !backupParameters.containsKey(SCHEDULE_NAME)) {
-            throw new IllegalArgumentException("Backup parameters must contain '${SCHEDULE}' or '${SCHEDULE_NAME}'!")
-        }
-
-        return backupParameterBuilder.build()
+        BackupParameter.Builder resultBuilder = backupParameter()
+        resultBuilder.retentionName(backupParameters.get(POLICY_NAME))
+        resultBuilder.storeName(backupParameters.get(STORAGE_NAME))
+        resultBuilder.scheduleName(backupParameters.get(SCHEDULE_NAME))
+        
+        return resultBuilder.build()
     }
 }

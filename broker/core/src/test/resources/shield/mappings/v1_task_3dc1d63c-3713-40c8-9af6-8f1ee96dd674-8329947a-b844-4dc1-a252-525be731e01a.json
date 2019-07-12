@@ -1,0 +1,18 @@
+{
+  "id" : "8329947a-b844-4dc1-a252-525be731e01a",
+  "name" : "v1_task_3dc1d63c-3713-40c8-9af6-8f1ee96dd674",
+  "request" : {
+    "url" : "/v1/task/3dc1d63c-3713-40c8-9af6-8f1ee96dd674",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 404,
+    "headers" : {
+      "Date" : "Fri, 12 Jul 2019 13:08:04 GMT",
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  },
+  "uuid" : "8329947a-b844-4dc1-a252-525be731e01a",
+  "persistent" : true,
+  "insertionIndex" : 87
+}

@@ -1,0 +1,22 @@
+{
+  "id" : "02a21e49-2cbc-412c-aa7b-bf151b2244d2",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SYSTEM-SHIELD-CLIENT-REGISTER-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:00 GMT"
+    }
+  },
+  "uuid" : "02a21e49-2cbc-412c-aa7b-bf151b2244d2",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-targets",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-targets-2",
+  "insertionIndex" : 57
+}

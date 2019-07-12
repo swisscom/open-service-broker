@@ -25,14 +25,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.util.Assert
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 
 import java.time.Duration
@@ -64,7 +62,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
 
     private ShieldRestClientV1(ShieldConfig shieldConfig) {
         Assert.notNull(shieldConfig, "Shield config cannot be null!")
-        this.restTemplate = addCustomRestTemplateConfig(new RestTemplateBuilder().build())
+        this.restTemplate = hackForResolvingTheShieldBadSupportedMediaBug(new RestTemplateBuilder().build())
         this.config = shieldConfig
         initRetry(shieldConfig.maxNumberOfApiRetries, shieldConfig.waitBetweenApiRetries)
     }
@@ -102,7 +100,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
      * All calls to shield API methods MUST be executed using this {@link #execute(java.util.function.Supplier, java.util.function.Function)} for being retried
      * in case shieldApiException failing.
      *
-     * @param < R >
+     * @param <R >
      * @param toExecute
      * @param exceptionSupplier
      * @return the intended object or collection shieldApiException objects returned by toExecute
@@ -113,7 +111,6 @@ class ShieldRestClientV1 implements ShieldRestClient {
         return Try.ofSupplier(Retry.decorateSupplier(this.defaultRetry, toExecute))
                   .getOrElseThrow(exceptionSupplier)
     }
-
 
     Object getStatus() {
         execute({-> restTemplate.exchange(statusUrl(), GET, configureRequestEntity(), Object.class).getBody()},
@@ -137,7 +134,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
                                           configureRequestEntity(),
                                           StoreDto[].class).getBody()
                 },
-                {ex -> ShieldApiException.of("Failed to get list of stores", ex)}
+                {ex -> ShieldApiException.of("Failed to get list of stores", ex, arguments)}
         )
     }
 
@@ -157,7 +154,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
                                           GET,
                                           configureRequestEntity(),
                                           RetentionDto[].class).getBody()
-                }, {ex -> ShieldApiException.of("Failed to get list of retentions", ex)}
+                }, {ex -> ShieldApiException.of("Failed to get list of retentions", ex, arguments)}
         )
     }
 
@@ -178,7 +175,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
                                           configureRequestEntity(),
                                           ScheduleDto[].class).getBody()
                 },
-                {ex -> ShieldApiException.of("Failed to get list of schedules", ex)})
+                {ex -> ShieldApiException.of("Failed to get list of schedules", ex, arguments)})
     }
 
     TargetDto getTargetByName(String name) {
@@ -194,30 +191,29 @@ class ShieldRestClientV1 implements ShieldRestClient {
         execute({->
                     restTemplate.exchange(targetsUrl() + arguments, GET, configureRequestEntity(), TargetDto[].class).
                             getBody()
-                }, {ex -> ShieldApiException.of("Failed to get list of targets", ex)})
+                }, {ex -> ShieldApiException.of("Failed to get list of targets", ex, arguments)})
 
     }
 
-    String createTarget(String targetName, ShieldTarget target, String agent) {
-        def body = [name    : targetName,
-                    plugin  : target.pluginName(),
-                    endpoint: target.endpointJson(),
-                    agent   : agent]
-
+    UUID createTarget(String targetName, ShieldTarget target, String agent) {
         execute({->
+                    def body = [name    : targetName,
+                                plugin  : target.pluginName(),
+                                endpoint: target.endpointJson(),
+                                agent   : agent]
                     restTemplate.exchange(targetsUrl(), POST, configureRequestEntity(body), CreateResponseDto.class).
                             getBody().
                             getUuid()
                 }, {ex -> ShieldApiException.of("Failed to create target", ex)})
     }
 
-    String updateTarget(TargetDto existingTarget, ShieldTarget target, String agent) {
-        def body = [name    : existingTarget.name,
-                    summary : existingTarget.summary,
-                    plugin  : target.pluginName(),
-                    endpoint: target.endpointJson(),
-                    agent   : agent]
+    UUID updateTarget(TargetDto existingTarget, ShieldTarget target, String agent) {
         execute({->
+                    def body = [name    : existingTarget.name,
+                                summary : existingTarget.summary,
+                                plugin  : target.pluginName(),
+                                endpoint: target.endpointJson(),
+                                agent   : agent]
                     restTemplate.exchange(targetUrl(existingTarget.uuid),
                                           PUT,
                                           configureRequestEntity(body),
@@ -227,13 +223,13 @@ class ShieldRestClientV1 implements ShieldRestClient {
         existingTarget.uuid
     }
 
-    void deleteTarget(String uuid) {
+    void deleteTarget(UUID uuid) {
         execute({->
                     restTemplate.exchange(targetUrl(uuid),
                                           DELETE,
                                           configureRequestEntity((String) null),
                                           String.class)
-                }, {ex -> ShieldApiException.of("Failed to delete target", ex)})
+                }, {ex -> ShieldApiException.of("Failed to delete target", ex, uuid.toString())})
 
     }
 
@@ -241,9 +237,9 @@ class ShieldRestClientV1 implements ShieldRestClient {
         getJob("?name=${name}")
     }
 
-    JobDto getJobByUuid(String uuid) {
+    JobDto getJobByUuid(UUID uuid) {
         execute({-> restTemplate.exchange(jobUrl(uuid), GET, configureRequestEntity(), JobDto[].class).getBody().first()
-                }, {ex -> ShieldApiException.of("Failed to get job", ex)})
+                }, {ex -> ShieldApiException.of("Failed to get job", ex, uuid.toString())})
 
     }
 
@@ -256,18 +252,19 @@ class ShieldRestClientV1 implements ShieldRestClient {
         execute({->
                     restTemplate.exchange(jobsUrl() + arguments, GET, configureRequestEntity(), JobDto[].class).
                             getBody()
-                }, {ex -> ShieldApiException.of("Failed to get list of jobs", ex)})
+                }, {ex -> ShieldApiException.of("Failed to get list of jobs", ex, arguments)})
 
     }
 
-    String createJob(String jobName,
-                     String targetUuid,
-                     String storeUuid,
-                     String retentionUuid,
-                     String scheduleUuid,
-                     boolean paused = true) {
-        def body = getCreateJobBody(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
+    UUID createJob(String jobName,
+                   UUID targetUuid,
+                   UUID storeUuid,
+                   UUID retentionUuid,
+                   UUID scheduleUuid,
+                   boolean paused = true) {
         execute({->
+                    def body = getCreateJobBody(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
+
                     restTemplate.exchange(jobsUrl(), POST, configureRequestEntity(body), CreateResponseDto.class).
                             getBody().
                             getUuid()
@@ -275,92 +272,94 @@ class ShieldRestClientV1 implements ShieldRestClient {
 
     }
 
-    String updateJob(JobDto existingJob,
-                     String targetUuid,
-                     String storeUuid,
-                     String retentionUuid,
-                     String scheduleUuid,
-                     boolean paused = true) {
-        def body = getUpdateJobBody(existingJob, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
-        execute({-> restTemplate.exchange(jobUrl(existingJob.uuid), PUT, configureRequestEntity(body), (Class) null)},
+    UUID updateJob(JobDto existingJob,
+                   UUID targetUuid,
+                   UUID storeUuid,
+                   UUID retentionUuid,
+                   UUID scheduleUuid,
+                   boolean paused = true) {
+        execute({->
+                    def body = getUpdateJobBody(existingJob, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
+                    restTemplate.exchange(jobUrl(existingJob.uuid), PUT, configureRequestEntity(body), (Class) null)
+                },
                 {ex -> ShieldApiException.of("Failed to update job", ex)})
 
         existingJob.uuid
     }
 
-    String runJob(String uuid) {
+    UUID runJob(UUID uuid) {
         execute({->
                     restTemplate.exchange(jobUrl(uuid) + "/run", POST, configureRequestEntity(), TaskResponseDto.class).
                             getBody().
                             getTaskUuid()
-                }, {ex -> ShieldApiException.of("Failed to run backup", ex)})
+                }, {ex -> ShieldApiException.of("Failed to run backup", ex, uuid.toString())})
     }
 
-    void deleteJob(String uuid) {
+    void deleteJob(UUID uuid) {
         execute({-> restTemplate.exchange(jobUrl(uuid), DELETE, configureRequestEntity(), (Class) null)},
-                {ex -> ShieldApiException.of("Failed to delete job", ex)})
+                {ex -> ShieldApiException.of("Failed to delete job", ex, uuid.toString())})
 
     }
 
-    TaskDto getTaskByUuid(String uuid) {
+    TaskDto getTaskByUuid(UUID uuid) {
         execute({-> restTemplate.exchange(taskUrl(uuid), GET, configureRequestEntity(), TaskDto.class).getBody()},
-                {ex -> ShieldApiException.of("Failed to get task", ex)})
+                {ex -> ShieldApiException.of("Failed to get task", ex, uuid.toString())})
     }
 
-    void deleteTaskByUuid(String uuid) {
+    void deleteTaskByUuid(UUID uuid) {
         execute({-> restTemplate.exchange(taskUrl(uuid), DELETE, configureRequestEntity(), String.class)},
-                {ex -> ShieldApiException.of("Failed to delete task", ex)})
+                {ex -> ShieldApiException.of("Failed to delete task", ex, uuid.toString())})
 
     }
 
-    ArchiveDto getArchiveByUuid(String uuid) {
+    ArchiveDto getArchiveByUuid(UUID uuid) {
         execute({-> restTemplate.exchange(archiveUrl(uuid), GET, configureRequestEntity(), ArchiveDto.class).getBody()},
-                {ex -> ShieldApiException.of("Failed to get archive", ex)})
+                {ex -> ShieldApiException.of("Failed to get archive", ex, uuid.toString())})
 
     }
 
-    String restoreArchive(String uuid) {
+    String restoreArchive(UUID uuid) {
         execute({->
                     restTemplate.exchange(archiveUrl(uuid) + "/restore",
                                           POST,
                                           configureRequestEntity(),
                                           TaskResponseDto.class).getBody().getTaskUuid()
-                }, {ex -> ShieldApiException.of("Failed to restore archive", ex)})
+                }, {ex -> ShieldApiException.of("Failed to restore archive", ex, uuid.toString())})
 
     }
 
-    void deleteArchive(String uuid) {
+    void deleteArchive(UUID uuid) {
         execute({-> restTemplate.exchange(archiveUrl(uuid), DELETE, configureRequestEntity(), String.class)},
-                {ex -> ShieldApiException.of("Failed to delete archive", ex)})
+                {ex -> ShieldApiException.of("Failed to delete archive", ex, uuid.toString())})
 
     }
 
     private static Map<String, ?> getCreateJobBody(String jobName,
-                                                   String targetUuid,
-                                                   String storeUuid,
-                                                   String retentionUuid,
-                                                   String scheduleUuid,
+                                                   UUID targetUuid,
+                                                   UUID storeUuid,
+                                                   UUID retentionUuid,
+                                                   UUID scheduleUuid,
                                                    boolean paused) {
         [name     : jobName,
-         target   : targetUuid,
-         store    : storeUuid,
-         retention: retentionUuid,
-         schedule : scheduleUuid,
+         target   : targetUuid.toString(),
+         store    : storeUuid.toString(),
+         retention: retentionUuid.toString(),
+         schedule : scheduleUuid.toString(),
          paused   : paused]
     }
 
     private static Map<String, ?> getUpdateJobBody(JobDto existingJob,
-                                                   String targetUuid,
-                                                   String storeUuid,
-                                                   String retentionUuid,
-                                                   String scheduleUuid,
+                                                   UUID targetUuid,
+                                                   UUID storeUuid,
+                                                   UUID retentionUuid,
+                                                   UUID scheduleUuid,
                                                    boolean paused = true) {
         [name     : existingJob.name,
          summary  : existingJob.summary,
-         target   : targetUuid,
-         store    : storeUuid,
-         retention: retentionUuid,
-         schedule : scheduleUuid,
+         target   : targetUuid.toString(),
+         store    : storeUuid.toString(),
+         retention: retentionUuid.toString(),
+         schedule : scheduleUuid.toString(),
          paused   : paused]
     }
 
@@ -388,36 +387,38 @@ class ShieldRestClientV1 implements ShieldRestClient {
         "${baseUrl()}/schedules"
     }
 
-    private String taskUrl(String uuid) {
-        "${baseUrl()}/task/${uuid}"
+    private String taskUrl(UUID uuid) {
+        "${baseUrl()}/task/${uuid.toString()}"
     }
 
-    private String archiveUrl(String uuid) {
-        "${baseUrl()}/archive/${uuid}"
+    private String archiveUrl(UUID uuid) {
+        "${baseUrl()}/archive/${uuid.toString()}"
     }
 
     private String targetsUrl() {
         "${baseUrl()}/targets"
     }
 
-    private String targetUrl(String uuid) {
-        "${baseUrl()}/target/${uuid}"
+    private String targetUrl(UUID uuid) {
+        "${baseUrl()}/target/${uuid.toString()}"
     }
 
     private String jobsUrl() {
         "${baseUrl()}/jobs"
     }
 
-    private String jobUrl(String uuid) {
-        "${baseUrl()}/job/${uuid}"
+    private String jobUrl(UUID uuid) {
+        "${baseUrl()}/job/${uuid.toString()}"
     }
 
     private String statusUrl() {
         "${baseUrl()}/status"
     }
 
-    private static RestTemplate addCustomRestTemplateConfig(RestTemplate restTemplate) {
-        // Support text/plain Content-Type for JSON parsing, because SHIELD API sets wrong Content-Type
+    /**
+     * Support text/plain Content-Type for JSON parsing, because SHIELD API sets wrong Content-Type
+     */
+    private static RestTemplate hackForResolvingTheShieldBadSupportedMediaBug(RestTemplate restTemplate) {
         HttpMessageConverter converter = new MappingJackson2HttpMessageConverter()
         converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON,
                                                        MediaType.TEXT_PLAIN))

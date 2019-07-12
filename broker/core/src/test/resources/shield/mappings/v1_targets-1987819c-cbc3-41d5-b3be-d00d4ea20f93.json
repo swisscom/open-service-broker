@@ -1,0 +1,19 @@
+{
+  "id" : "1987819c-cbc3-41d5-b3be-d00d4ea20f93",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TARGETDOESNOTEXIST",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:04 GMT"
+    }
+  },
+  "uuid" : "1987819c-cbc3-41d5-b3be-d00d4ea20f93",
+  "persistent" : true,
+  "insertionIndex" : 82
+}

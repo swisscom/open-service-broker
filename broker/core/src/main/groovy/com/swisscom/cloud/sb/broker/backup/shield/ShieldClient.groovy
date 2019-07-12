@@ -61,8 +61,8 @@ class ShieldClient {
         Assert.notNull(shieldTarget, "ShieldTarget cannot be null!")
         Assert.notNull(backupParameter, "BackupParameter cannot be null!")
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
-        String jobUuid = registerJob(jobName, targetUuid, backupParameter)
+        UUID targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
+        UUID jobUuid = registerJob(jobName, targetUuid, backupParameter)
         LOG.debug("Running registered backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         apiClient.runJob(jobUuid)
     }
@@ -78,13 +78,13 @@ class ShieldClient {
         Assert.notNull(backupParameter, "BackupParameter cannot be null!")
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
         LOG.debug("Registering Job '{}' and Target '{}' to Shield", jobName, targetName)
-        String targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
-        String jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
+        UUID targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
+        UUID jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
         LOG.debug("Running registered system backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         apiClient.runJob(jobUuid)
 
-        [ServiceDetail.from(ShieldServiceDetailKey.SHIELD_JOB_UUID, jobUuid),
-         ServiceDetail.from(ShieldServiceDetailKey.SHIELD_TARGET_UUID, targetUuid)]
+        [ServiceDetail.from(ShieldServiceDetailKey.SHIELD_JOB_UUID, jobUuid.toString()),
+         ServiceDetail.from(ShieldServiceDetailKey.SHIELD_TARGET_UUID, targetUuid.toString())]
     }
 
     void unregisterSystemBackup(String jobName, String targetName) {
@@ -96,14 +96,14 @@ class ShieldClient {
     }
 
     void deleteTask(String taskUuid) {
-        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
-        apiClient.deleteTaskByUuid(taskUuid)
+        Assert.hasText(taskUuid, "Task UUID cannot be null!")
+        apiClient.deleteTaskByUuid(UUID.fromString(taskUuid))
     }
 
     //FIXME: Do not retry within getJobStatus, as it's not expected
     JobStatus getJobStatus(String taskUuid, Backup backup = null) {
-        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
-        TaskDto task = apiClient.getTaskByUuid(taskUuid)
+        Assert.notNull(taskUuid, "Task UUID cannot be null!")
+        TaskDto task = apiClient.getTaskByUuid(UUID.fromString(taskUuid))
         if (task.status.isRunning()) {
             return JobStatus.RUNNING
         }
@@ -135,23 +135,21 @@ class ShieldClient {
         throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
     }
 
-    String getJobName(String jobUuid) {
-        Assert.hasText(jobUuid, "Job UUID cannot be empty!")
+    String getJobName(UUID jobUuid) {
         apiClient.getJobByUuid(jobUuid).name
     }
 
     String restore(String taskUuid) {
-        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
-        TaskDto task = apiClient.getTaskByUuid(taskUuid)
+        Assert.hasText(taskUuid, "Task UUID cannot be null!")
+        TaskDto task = apiClient.getTaskByUuid(UUID.fromString(taskUuid))
         // TODO need to check for archive, status etc. here?
         apiClient.restoreArchive(task.archive_uuid)
     }
 
     // avoid throwing exceptions in this method so that users can delete failed backups.
     void deleteBackupIfExisting(String taskUuid) {
-        Assert.hasText(taskUuid, "Task UUID cannot be empty!")
         try {
-            TaskDto task = apiClient.getTaskByUuid(taskUuid)
+            TaskDto task = apiClient.getTaskByUuid(UUID.fromString(taskUuid))
             apiClient.deleteArchive(task.archive_uuid)
         }
         catch (ShieldApiException e) {
@@ -193,10 +191,10 @@ class ShieldClient {
         }
     }
 
-    private String registerJob(String jobName,
-                               String targetUuid,
-                               BackupParameter backupParameter,
-                               boolean paused = true) {
+    private UUID registerJob(String jobName,
+                             UUID targetUuid,
+                             BackupParameter backupParameter,
+                             boolean paused = true) {
         StoreDto store = apiClient.getStoreByName(backupParameter.getStoreName())
         if (store == null) {
             throw new IllegalStateException("Store ${backupParameter.getStoreName()} that is configured does not exist on shield")
@@ -205,32 +203,29 @@ class ShieldClient {
         if (retention == null) {
             throw new IllegalStateException("Retention ${backupParameter.getRetentionName()} that is configured does not exist on shield")
         }
-
-        // Either use BACKUP_SCHEDULE parameter or get the schedule UUID from shield v1 BACKUP_SCHEDULE_NAME parameter from service definition
-        String schedule = backupParameter.getScheduleName().isEmpty() ? backupParameter.getSchedule() :
-                          apiClient.getScheduleByName(backupParameter.getScheduleName()).getUuid()
-        if (schedule == null || schedule.isEmpty()) {
+        UUID scheduleUuid = apiClient.getScheduleByName(backupParameter.getScheduleName()).getUuid()
+        if (scheduleUuid == null) {
             throw new IllegalStateException("Schedule ${backupParameter.getScheduleName()} that is configured does not exist on shield")
         }
 
-        createOrUpdateJob(jobName, targetUuid, store.getUuid(), retention.getUuid(), schedule, paused)
+        createOrUpdateJob(jobName, targetUuid, store.getUuid(), retention.getUuid(), scheduleUuid, paused)
     }
 
-    private String createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
+    private UUID createOrUpdateTarget(ShieldTarget target, String targetName, String agent) {
         TargetDto targetOnShield = apiClient.getTargetByName(targetName)
-        targetOnShield != null && (targetOnShield.getUuid() != null && targetOnShield.getUuid().length() > 0) ? apiClient.
+        targetOnShield != null && (targetOnShield.getUuid() != null) ? apiClient.
                 updateTarget(targetOnShield, target, agent) : apiClient.createTarget(targetName, target, agent)
 
     }
 
-    private String createOrUpdateJob(String jobName,
-                                     String targetUuid,
-                                     String storeUuid,
-                                     String retentionUuid,
-                                     String scheduleUuid,
-                                     boolean paused) {
+    private UUID createOrUpdateJob(String jobName,
+                                   UUID targetUuid,
+                                   UUID storeUuid,
+                                   UUID retentionUuid,
+                                   UUID scheduleUuid,
+                                   boolean paused) {
         JobDto jobOnShield = apiClient.getJobByName(jobName)
-        jobOnShield != null && (jobOnShield.getUuid() != null && jobOnShield.getUuid().length() > 0) ?
+        jobOnShield != null && (jobOnShield.getUuid() != null) ?
         apiClient.updateJob(jobOnShield, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused) :
         apiClient.createJob(jobName, targetUuid, storeUuid, retentionUuid, scheduleUuid, paused)
     }

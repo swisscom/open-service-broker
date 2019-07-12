@@ -1,0 +1,19 @@
+{
+  "id" : "22836d00-05a8-4135-8e51-86073baff327",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENTREGISTER-AND-RUN",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-22836d00-05a8-4135-8e51-86073baff327.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:46 GMT"
+    }
+  },
+  "uuid" : "22836d00-05a8-4135-8e51-86073baff327",
+  "persistent" : true,
+  "insertionIndex" : 17
+}

@@ -117,7 +117,7 @@ class ShieldClientTest extends Specification {
                                                       backupParameter,
                                                       SHIELD_AGENT_URL)
         LOG.info("Backup Task: " + backupTaskUUID)
-        JobStatus status = waitUntilEndStateOrTimeout(backupTaskUUID, 5)
+        JobStatus status = waitUntilEndStateOrTimeout(backupTaskUUID, 10)
         if (status != JobStatus.SUCCESSFUL) {
             throw new IllegalStateException("Setup Backup failed!")
         }
@@ -174,7 +174,7 @@ class ShieldClientTest extends Specification {
                                                       SHIELD_AGENT_URL)
         LOG.info("Backup Task: " + backupTaskUUID)
         JobStatus firstStatus = sut.getJobStatus(backupTaskUUID)
-        JobStatus lastStatus = waitUntilEndStateOrTimeout(backupTaskUUID, 5)
+        JobStatus lastStatus = waitUntilEndStateOrTimeout(backupTaskUUID, 10)
 
         then:
         Assert.notEmpty([backupTaskUUID], "Result should show Task UUID of backup task")
@@ -192,7 +192,7 @@ class ShieldClientTest extends Specification {
         when:
         String result = sut.restore(backupTaskUuid)
         LOG.info("Restore Task: " + result)
-        JobStatus status = waitUntilEndStateOrTimeout(result, 5)
+        JobStatus status = waitUntilEndStateOrTimeout(result, 10)
 
 
         then:
@@ -296,13 +296,13 @@ class ShieldClientTest extends Specification {
         "job"   | ""         | "Target name cannot be empty!"
     }
 
-    def "restore backup should fail given an unknown taskUUID"() {
+    def "restore backup should fail given an invalid taskUUID"() {
         when:
         String result = sut.restore("TASKDOESNOTEXIST")
 
         then:
         result == null
-        thrown(ShieldApiException.class)
+        thrown(IllegalArgumentException.class)
     }
 
     def "delete jobs and backups should not fail when given unknown job"() {
@@ -339,9 +339,10 @@ class ShieldClientTest extends Specification {
         exception.message == message
 
         where:
-        taskUUID           | message
-        null               | "Task UUID cannot be empty!"
-        "TASKDOESNOTEXIST" | "Failed to get task"
+        taskUUID                               | message
+        null                                   | "Task UUID cannot be null!"
+        "TASKDOESNOTEXIST"                     | "Invalid UUID string: TASKDOESNOTEXIST"
+        "3dc1d63c-3713-40c8-9af6-8f1ee96dd674" | "Failed to get task"
     }
 
     @Unroll
@@ -357,13 +358,17 @@ class ShieldClientTest extends Specification {
 
         then:
         result == null
-        thrown(ShieldApiException)
+        def ex = thrown(ShieldApiException)
+        ex.toString() == message
 
         where:
-        failure                                         | reason
-        aResponse().withStatus(500)                     | "HTTP Status Code 500"
-        aResponse().withFault(MALFORMED_RESPONSE_CHUNK) | "OK Status Code withGarbage body"
-        aResponse().withFault(CONNECTION_RESET_BY_PEER) | "Connection reset by peer"
+        failure                                         | message                                                                                                                                                                                                 | reason
+        aResponse().
+                withStatus(500)                         | "ShieldApiException[500 - Failed to create target: 500 Server Error]"                                                                                                                                   | "HTTP Status Code 500"
+        aResponse().
+                withFault(MALFORMED_RESPONSE_CHUNK)     | "ShieldApiException[- - Failed to create target: I/O error on POST request for \"http://localhost:8082/v1/targets\": null; nested exception is org.apache.http.client.ClientProtocolException]"         | "OK Status Code withGarbage body"
+        aResponse().
+                withFault(CONNECTION_RESET_BY_PEER)     | "ShieldApiException[- - Failed to create target: I/O error on POST request for \"http://localhost:8082/v1/targets\": Connection reset; nested exception is java.net.SocketException: Connection reset]" | "Connection reset by peer"
 
 
     }

@@ -42,11 +42,11 @@ Example:
  */
 
 class JobDto implements Serializable {
-    String uuid
+    UUID uuid
     String name
     String summary
-    String retention_uuid
-    String schedule_uuid
-    String store_uuid
-    String target_uuid
+    UUID retention_uuid
+    UUID schedule_uuid
+    UUID store_uuid
+    UUID target_uuid
 }

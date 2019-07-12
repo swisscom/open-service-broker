@@ -1,0 +1,24 @@
+{
+  "id" : "ed3d9d52-0317-41f8-a3b8-9b69fcbf2b98",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SYSTEM-SHIELD-CLIENT-UNREGISTER-JOB\",\"target\":\"658ed174-205c-4b13-9350-3433a41afdf1\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":false}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"cd8a018c-9b31-44d5-9b0d-f7bb241e07cb\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:03 GMT"
+    }
+  },
+  "uuid" : "ed3d9d52-0317-41f8-a3b8-9b69fcbf2b98",
+  "persistent" : true,
+  "insertionIndex" : 75
+}

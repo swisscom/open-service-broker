@@ -1,0 +1,19 @@
+{
+  "id" : "b542cdb8-9085-4377-ba35-ff4a63dbe23d",
+  "name" : "v1_job_cd8a018c-9b31-44d5-9b0d-f7bb241e07cb_run",
+  "request" : {
+    "url" : "/v1/job/cd8a018c-9b31-44d5-9b0d-f7bb241e07cb/run",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"scheduled\",\"task_uuid\":\"cd77a4ce-f390-4684-b109-361d20fde490\"}",
+    "headers" : {
+      "Date" : "Fri, 12 Jul 2019 13:08:03 GMT",
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  },
+  "uuid" : "b542cdb8-9085-4377-ba35-ff4a63dbe23d",
+  "persistent" : true,
+  "insertionIndex" : 76
+}

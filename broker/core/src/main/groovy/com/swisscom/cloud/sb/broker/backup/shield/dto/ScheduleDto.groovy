@@ -25,7 +25,7 @@ Example:
  */
 
 class ScheduleDto implements Serializable {
-    String uuid
+    UUID uuid
     String name
     String summary
     String when

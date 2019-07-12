@@ -1,0 +1,19 @@
+{
+  "id" : "d19db573-2c48-4216-9d24-eea443c6f504",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENTREGISTER-AND-RUN",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"ce21cbad-ccd3-4669-a19e-580fbf6dcde1\",\"name\":\"TEST-SHIELD-CLIENTREGISTER-AND-RUN-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\",\\\"file\\\":\\\"TEST\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:46 GMT"
+    }
+  },
+  "uuid" : "d19db573-2c48-4216-9d24-eea443c6f504",
+  "persistent" : true,
+  "insertionIndex" : 19
+}

@@ -1,0 +1,24 @@
+{
+  "id" : "a8ad031d-519b-4a68-93a9-1e2dbb191092",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SYSTEM-SHIELD-CLIENT-REGISTER-JOB\",\"target\":\"5b3b825a-096f-4060-8ece-37bb76c9f585\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":false}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"15695032-6d07-407d-8579-ab7da91e028a\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:01 GMT"
+    }
+  },
+  "uuid" : "a8ad031d-519b-4a68-93a9-1e2dbb191092",
+  "persistent" : true,
+  "insertionIndex" : 63
+}

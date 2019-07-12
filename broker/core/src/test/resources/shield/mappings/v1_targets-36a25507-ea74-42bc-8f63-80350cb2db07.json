@@ -1,0 +1,19 @@
+{
+  "id" : "36a25507-ea74-42bc-8f63-80350cb2db07",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENTRESTORE-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:47 GMT"
+    }
+  },
+  "uuid" : "36a25507-ea74-42bc-8f63-80350cb2db07",
+  "persistent" : true,
+  "insertionIndex" : 21
+}

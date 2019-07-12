@@ -1,0 +1,19 @@
+{
+  "id" : "c3757aa3-373f-469e-aa17-476c34140ab4",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENTDELETE-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"e99b053c-cd74-4726-accb-44c560ac73f7\",\"name\":\"TEST-SHIELD-CLIENTDELETE-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\",\\\"file\\\":\\\"TEST\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:55 GMT"
+    }
+  },
+  "uuid" : "c3757aa3-373f-469e-aa17-476c34140ab4",
+  "persistent" : true,
+  "insertionIndex" : 41
+}

@@ -1,0 +1,19 @@
+{
+  "id" : "14f4799b-28b5-4382-ac33-00aff78e4ddf",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENTRESTORE-JOB",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:47 GMT"
+    }
+  },
+  "uuid" : "14f4799b-28b5-4382-ac33-00aff78e4ddf",
+  "persistent" : true,
+  "insertionIndex" : 26
+}

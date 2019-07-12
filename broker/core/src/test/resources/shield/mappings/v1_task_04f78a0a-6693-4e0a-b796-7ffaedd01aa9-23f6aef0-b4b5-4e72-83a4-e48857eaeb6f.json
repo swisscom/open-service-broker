@@ -1,0 +1,22 @@
+{
+  "id" : "23f6aef0-b4b5-4e72-83a4-e48857eaeb6f",
+  "name" : "v1_task_04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+  "request" : {
+    "url" : "/v1/task/04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"uuid\":\"04f78a0a-6693-4e0a-b796-7ffaedd01aa9\",\"owner\":\"anon\",\"type\":\"backup\",\"job_uuid\":\"c395a4ff-38af-4a5d-a59f-f5ae13de53e6\",\"archive_uuid\":\"\",\"status\":\"pending\",\"started_at\":\"\",\"stopped_at\":\"\",\"log\":\"\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:42 GMT"
+    }
+  },
+  "uuid" : "23f6aef0-b4b5-4e72-83a4-e48857eaeb6f",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-task-04f78a0a-6693-4e0a-b796-7ffaedd01aa9-2",
+  "insertionIndex" : 12
+}
