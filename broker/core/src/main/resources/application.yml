@@ -98,6 +98,7 @@ com.swisscom.cloud.sb.broker.shield:
   retentionName: 'default'
   scheduleName: 'schedu'
   maxRetryBackup: 5
-  defaultTenantName: tenant1
   username: admin
   password: shield
+  maxNumberOfApiRetries: 3
+  waitBetweenApiRetries: 1s

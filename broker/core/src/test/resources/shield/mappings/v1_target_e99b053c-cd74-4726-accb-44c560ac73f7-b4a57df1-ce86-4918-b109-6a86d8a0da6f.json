@@ -1,0 +1,24 @@
+{
+  "id" : "b4a57df1-ce86-4918-b109-6a86d8a0da6f",
+  "name" : "v1_target_e99b053c-cd74-4726-accb-44c560ac73f7",
+  "request" : {
+    "url" : "/v1/target/e99b053c-cd74-4726-accb-44c560ac73f7",
+    "method" : "PUT",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SHIELD-CLIENTDELETE-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\",\\\"file\\\":\\\"TEST\\\"}\",\"agent\":\"127.0.0.1:5444\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"updated\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:55 GMT"
+    }
+  },
+  "uuid" : "b4a57df1-ce86-4918-b109-6a86d8a0da6f",
+  "persistent" : true,
+  "insertionIndex" : 42
+}

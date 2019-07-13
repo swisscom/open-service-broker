@@ -15,6 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield.dto
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 /*
 Example:
 {
@@ -34,10 +36,9 @@ Example:
  */
 
 class ArchiveDto {
-    String uuid
+    UUID uuid
     String key
-    String status
-    Status statusParsed
+    Status status
 
     // possible statuses guessed by looking at https://github.com/starkandwayne/shield/blob/master/db/archives.go
     enum Status {
@@ -46,10 +47,15 @@ class ArchiveDto {
         PURGED("purged"),
         EXPIRED("expired")
 
-        final String status
+        private final String status
 
         Status(final String status) {
             this.status = status
+        }
+
+        @JsonValue
+        public String status() {
+            return this.status
         }
 
         String toString() {

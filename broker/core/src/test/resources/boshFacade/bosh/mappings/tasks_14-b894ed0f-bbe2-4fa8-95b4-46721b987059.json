@@ -1,0 +1,26 @@
+{
+  "id" : "b894ed0f-bbe2-4fa8-95b4-46721b987059",
+  "name" : "tasks_14",
+  "request" : {
+    "url" : "/tasks/14",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\":14,\"state\":\"queued\",\"description\":\"delete deployment d-7eff4b56-be53-4925-a4fe-afde1e00111a\",\"timestamp\":1558622151,\"started_at\":null,\"result\":null,\"user\":\"admin\",\"deployment\":\"d-7eff4b56-be53-4925-a4fe-afde1e00111a\",\"context_id\":\"\"}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 23 May 2019 14:35:51 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "b894ed0f-bbe2-4fa8-95b4-46721b987059",
+  "persistent" : true,
+  "scenarioName" : "scenario-tasks-14",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-tasks-14-2",
+  "insertionIndex" : 40
+}

@@ -1,0 +1,21 @@
+{
+  "id" : "43b974b2-b820-4c44-b38c-d069c7ec64ab",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SYSTEM-SHIELD-CLIENT-REGISTER-JOB",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-43b974b2-b820-4c44-b38c-d069c7ec64ab.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:01 GMT"
+    }
+  },
+  "uuid" : "43b974b2-b820-4c44-b38c-d069c7ec64ab",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-jobs",
+  "requiredScenarioState" : "scenario-v1-jobs-2",
+  "insertionIndex" : 65
+}

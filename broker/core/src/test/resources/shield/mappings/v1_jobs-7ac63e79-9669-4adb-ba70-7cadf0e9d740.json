@@ -1,0 +1,22 @@
+{
+  "id" : "7ac63e79-9669-4adb-ba70-7cadf0e9d740",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=JOBDOESNOTEXIST",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:04 GMT"
+    }
+  },
+  "uuid" : "7ac63e79-9669-4adb-ba70-7cadf0e9d740",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-jobs",
+  "requiredScenarioState" : "Started",
+  "newScenarioState" : "scenario-v1-jobs-2",
+  "insertionIndex" : 81
+}

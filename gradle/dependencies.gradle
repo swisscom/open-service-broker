@@ -42,7 +42,9 @@ ext {
             junit                              : '4.12',             // Unit Testing
             spock                              : '1.2-groovy-2.5',   // THE testing framework
             cglib                              : '3.2.7',            // For mocking classes without default constructor
-            wiremock                           : '2.23.2'
+            wiremock                           : '2.23.2',
+
+            resilience4j                       : '0.16.0'
     ]
     libs = [
             groovy                                         : "org.codehaus.groovy:groovy-all:${versions.groovy}",
@@ -107,6 +109,11 @@ ext {
             influxdb_java                                  : "org.influxdb:influxdb-java:${versions.influxdb_java}",
             micrometer_registry_influx                     : "io.micrometer:micrometer-registry-influx:${versions.micrometer_registry_influx}",
             immutables                                     : "org.immutables:value:${versions.immutables}",
+
+            resilience4j_circuitbreaker                    : "io.github.resilience4j:resilience4j-circuitbreaker:${versions.resilience4j}",
+            resilience4j_ratelimiter                       : "io.github.resilience4j:resilience4j-ratelimiter:${versions.resilience4j}",
+            resilience4j_retry                             : "io.github.resilience4j:resilience4j-retry:${versions.resilience4j}",
+            resilience4j_bulkhead                          : "io.github.resilience4j:resilience4j-bulkhead:${versions.resilience4j}",
 
             //Test
             junit                                          : "junit:junit:${versions.junit}",

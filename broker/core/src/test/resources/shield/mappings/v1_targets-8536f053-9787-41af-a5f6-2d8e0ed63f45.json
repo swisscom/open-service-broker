@@ -1,0 +1,21 @@
+{
+  "id" : "8536f053-9787-41af-a5f6-2d8e0ed63f45",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SYSTEM-SHIELD-CLIENT-UNREGISTER-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"658ed174-205c-4b13-9350-3433a41afdf1\",\"name\":\"TEST-SYSTEM-SHIELD-CLIENT-UNREGISTER-TARGET\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SHIELD-CLIENT\\\",\\\"file\\\":\\\"TEST\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:08:03 GMT"
+    }
+  },
+  "uuid" : "8536f053-9787-41af-a5f6-2d8e0ed63f45",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-targets",
+  "requiredScenarioState" : "scenario-v1-targets-2",
+  "insertionIndex" : 79
+}

@@ -26,7 +26,7 @@ Example:
  */
 
 class RetentionDto implements Serializable {
-    String uuid
+    UUID uuid
     String name
     String summary
     int expires

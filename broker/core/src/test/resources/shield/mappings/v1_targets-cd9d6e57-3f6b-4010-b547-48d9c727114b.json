@@ -1,0 +1,19 @@
+{
+  "id" : "cd9d6e57-3f6b-4010-b547-48d9c727114b",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=TEST-SHIELD-CLIENTREGISTER-AND-RUN-TARGET",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:41 GMT"
+    }
+  },
+  "uuid" : "cd9d6e57-3f6b-4010-b547-48d9c727114b",
+  "persistent" : true,
+  "insertionIndex" : 4
+}

@@ -18,10 +18,13 @@ package com.swisscom.cloud.sb.broker.backup.shield
 import com.swisscom.cloud.sb.broker.config.Config
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
+import java.time.Duration
+
+import static com.google.common.base.Strings.isNullOrEmpty
 
 @CompileStatic
-@Configuration
+@Component
 @ConfigurationProperties(prefix = "com.swisscom.cloud.sb.broker.shield")
 class ShieldConfig implements Config {
     String baseUrl
@@ -29,7 +32,20 @@ class ShieldConfig implements Config {
     String jobPrefix
     String targetPrefix
     int maxRetryBackup
-    String defaultTenantName
     String username
     String password
+    int maxNumberOfApiRetries
+    Duration waitBetweenApiRetries
+
+    @Override
+    String toString() {
+        return String.format(
+                "ShieldConfig with URL '%s' with username '%s' and password '%s' and api key '%s'. API will be retried '%d' times with a wait of '%dms'",
+                getBaseUrl(),
+                getUsername(),
+                isNullOrEmpty(getPassword()) ? " NO PASSWORD PROVIDED" : "<CONFIDENTIAL>",
+                isNullOrEmpty(getApiKey()) ? " NO API KEY PROVIDED" : "<CONFIDENTIAL>",
+                maxNumberOfApiRetries,
+                waitBetweenApiRetries.toMillis())
+    }
 }

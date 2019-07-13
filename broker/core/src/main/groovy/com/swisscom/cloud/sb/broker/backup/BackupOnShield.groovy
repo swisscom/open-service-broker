@@ -26,9 +26,14 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 
+import static com.swisscom.cloud.sb.broker.backup.shield.BackupParameter.backupParameter
+
 @CompileStatic
 trait BackupOnShield extends ExtensionProvider {
-    private final String PLAN_PARAMETER_BACKUP_PREFIX = "BACKUP_"
+    private static final String PLAN_PARAMETER_BACKUP_PREFIX = "BACKUP_"
+    private static final String POLICY_NAME = "BACKUP_POLICY_NAME"
+    private static final String STORAGE_NAME = "BACKUP_STORAGE_NAME"
+    private static final String SCHEDULE_NAME = "BACKUP_SCHEDULE_NAME"
 
     @Autowired
     ProvisioningPersistenceService provisioningPersistenceService
@@ -43,34 +48,34 @@ trait BackupOnShield extends ExtensionProvider {
 
     abstract String shieldAgentUrl(ServiceInstance serviceInstance)
 
-    def backupJobName(String jobPrefix, String serviceInstanceId) {
+    String backupJobName(String jobPrefix, String serviceInstanceId) {
         "${jobPrefix}${serviceInstanceId}"
     }
 
-    def backupTargetName(String targetPrefix, String serviceInstanceId) {
+    String backupTargetName(String targetPrefix, String serviceInstanceId) {
         "${targetPrefix}${serviceInstanceId}"
     }
 
     BackupParameter getBackupParameter(ServiceInstance serviceInstance) {
-        getBackupParameter(serviceInstance.plan.parameters)
+        getBackupParameterFromParameters(serviceInstance.getPlan().getParameters().toSet())
     }
 
-    BackupParameter getBackupParameter(Set<Parameter> parameters) {
-        def planParamtersForBackup = parameters.findAll {
-            it.getName().startsWith(PLAN_PARAMETER_BACKUP_PREFIX)
+    private BackupParameter getBackupParameterFromParameters(Set<Parameter> parameters) {
+        Map<String, String> backupParameters = parameters.findAll {p ->
+            p.getName().startsWith(PLAN_PARAMETER_BACKUP_PREFIX)
+        }.collectEntries {[it.getName(), it.getValue()]}
+
+        [POLICY_NAME, STORAGE_NAME, SCHEDULE_NAME].each {key ->
+            if (!backupParameters.containsKey(key)) {
+                throw new IllegalArgumentException("Backup parameters must contain '${key}'")
+            }
         }
-        String schedule = planParamtersForBackup.find {
-            it.getName().equals("BACKUP_SCHEDULE")
-        }?.getValue()
-        String scheduleName = planParamtersForBackup.find {
-            it.getName().equals("BACKUP_SCHEDULE_NAME")
-        }?.getValue()
-        String policyName = planParamtersForBackup.find {
-            it.getName().equals("BACKUP_POLICY_NAME")
-        }?.getValue()
-        String storageName = planParamtersForBackup.find {
-            it.getName().equals("BACKUP_STORAGE_NAME")
-        }?.getValue()
-        new BackupParameter(scheduleName: scheduleName, retentionName: policyName, storeName: storageName, schedule: schedule)
+
+        BackupParameter.Builder resultBuilder = backupParameter()
+        resultBuilder.retentionName(backupParameters.get(POLICY_NAME))
+        resultBuilder.storeName(backupParameters.get(STORAGE_NAME))
+        resultBuilder.scheduleName(backupParameters.get(SCHEDULE_NAME))
+        
+        return resultBuilder.build()
     }
 }

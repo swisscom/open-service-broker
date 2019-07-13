@@ -1,0 +1,19 @@
+{
+  "id" : "687951ac-3161-4113-ba50-497d97aed202",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs?name=TEST-SHIELD-CLIENTRESTORE",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "v1_jobs-687951ac-3161-4113-ba50-497d97aed202.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:54 GMT"
+    }
+  },
+  "uuid" : "687951ac-3161-4113-ba50-497d97aed202",
+  "persistent" : true,
+  "insertionIndex" : 37
+}

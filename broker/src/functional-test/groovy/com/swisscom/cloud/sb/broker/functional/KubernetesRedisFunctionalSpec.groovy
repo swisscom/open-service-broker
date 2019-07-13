@@ -103,7 +103,7 @@ class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {
             serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(1000, true, true)
             def serviceInstance = serviceInstanceRepository.findByGuid(serviceLifeCycler.serviceInstanceId)
             def jobUuid = serviceInstance.details.find { it.key.equals(ShieldServiceDetailKey.SHIELD_JOB_UUID.key) }?.value
-            def jobName = shieldClient.getJobName(jobUuid)
+            def jobName = shieldClient.getJobName(UUID.fromString(jobUuid))
             def createBU = serviceBrokerClient.createBackup(serviceInstance.guid).getBody()
             serviceLifeCycler.setBackupId(createBU.id)
             Backup backup = backupPersistenceService.findBackupByGuid(createBU.id)

@@ -1,0 +1,24 @@
+{
+  "id" : "221de71f-bf53-414d-9237-e6e2d5e216b7",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"SystemBackupOnShieldTest-job\",\"target\":\"78b2baa3-9d6b-4c9c-ab62-1d8d18e49471\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":false}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"7561ecf5-ce34-413a-9456-fd8946c98ff1\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 12:54:01 GMT"
+    }
+  },
+  "uuid" : "221de71f-bf53-414d-9237-e6e2d5e216b7",
+  "persistent" : true,
+  "insertionIndex" : 34
+}

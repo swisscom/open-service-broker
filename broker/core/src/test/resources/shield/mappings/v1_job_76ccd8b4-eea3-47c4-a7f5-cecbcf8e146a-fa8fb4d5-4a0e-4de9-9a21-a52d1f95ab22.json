@@ -1,0 +1,24 @@
+{
+  "id" : "fa8fb4d5-4a0e-4de9-9a21-a52d1f95ab22",
+  "name" : "v1_job_76ccd8b4-eea3-47c4-a7f5-cecbcf8e146a",
+  "request" : {
+    "url" : "/v1/job/76ccd8b4-eea3-47c4-a7f5-cecbcf8e146a",
+    "method" : "PUT",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SHIELD-CLIENTDELETE-JOB\",\"summary\":\"\",\"target\":\"e99b053c-cd74-4726-accb-44c560ac73f7\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":true}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"updated\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:55 GMT"
+    }
+  },
+  "uuid" : "fa8fb4d5-4a0e-4de9-9a21-a52d1f95ab22",
+  "persistent" : true,
+  "insertionIndex" : 47
+}

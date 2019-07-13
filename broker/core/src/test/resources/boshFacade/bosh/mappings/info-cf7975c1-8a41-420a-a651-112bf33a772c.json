@@ -1,0 +1,22 @@
+{
+  "id" : "cf7975c1-8a41-420a-a651-112bf33a772c",
+  "name" : "info",
+  "request" : {
+    "url" : "/info",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "info-cf7975c1-8a41-420a-a651-112bf33a772c.json",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 23 May 2019 14:20:52 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "cf7975c1-8a41-420a-a651-112bf33a772c",
+  "persistent" : true,
+  "insertionIndex" : 24
+}

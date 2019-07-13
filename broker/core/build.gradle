@@ -10,6 +10,11 @@ test{
     systemProperty 'bosh.username', "${boshUsername}"
     systemProperty 'bosh.password', "${boshPassword}"
     systemProperty 'uaa.url', "${uaaUrl}"
+    systemProperty 'shield.mocked', "${shieldMocked}"
+    systemProperty 'shield.url', "${shieldUrl}"
+    systemProperty 'shield.username', "${shieldUsername}"
+    systemProperty 'shield.password', "${shieldPassword}"
+    systemProperty 'shield.api.key', "${shieldApiKey}"
 }
 
 dependencies {
@@ -51,6 +56,8 @@ dependencies {
     compile libs.log4j
     compile libs.log4j_to_slf4j
     compile libs.tomcat_juli
+
+    compile libs.resilience4j_retry
 
     testCompile libs.groovy
     testCompile libs.groovy_test

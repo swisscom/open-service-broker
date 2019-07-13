@@ -1,0 +1,22 @@
+{
+  "id" : "d1b1af33-a776-43c7-b1ba-67e51d2f7cbd",
+  "name" : "v1_task_04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+  "request" : {
+    "url" : "/v1/task/04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"uuid\":\"04f78a0a-6693-4e0a-b796-7ffaedd01aa9\",\"owner\":\"anon\",\"type\":\"backup\",\"job_uuid\":\"c395a4ff-38af-4a5d-a59f-f5ae13de53e6\",\"archive_uuid\":\"\",\"status\":\"running\",\"started_at\":\"2019-07-12 13:07:44\",\"stopped_at\":\"\",\"log\":\"\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:44 GMT"
+    }
+  },
+  "uuid" : "d1b1af33-a776-43c7-b1ba-67e51d2f7cbd",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-task-04f78a0a-6693-4e0a-b796-7ffaedd01aa9",
+  "requiredScenarioState" : "scenario-v1-task-04f78a0a-6693-4e0a-b796-7ffaedd01aa9-3",
+  "newScenarioState" : "scenario-v1-task-04f78a0a-6693-4e0a-b796-7ffaedd01aa9-4",
+  "insertionIndex" : 14
+}

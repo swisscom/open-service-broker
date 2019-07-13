@@ -51,7 +51,7 @@ class MongoDbEnterpriseServiceProviderTest extends BaseTransactionalSpecificatio
                 binding_guid: UUID.randomUUID().toString(),
                 service: serviceInstance.plan.service,
                 plan: serviceInstance.plan,
-        )
+                )
 
         when:
         def bindResponse = mongoDbEnterpriseServiceProvider.bind(bindRequest)
@@ -77,21 +77,21 @@ class MongoDbEnterpriseServiceProviderTest extends BaseTransactionalSpecificatio
                         binding_guid: UUID.randomUUID().toString(),
                         service: serviceInstance.plan.service,
                         plan: serviceInstance.plan,
-                )
+                        )
                 def bindResponse = mongoDbEnterpriseServiceProvider.bind(bindRequest)
                 log.info("New binding created: ${ServiceDetailsHelper.from(bindResponse.details).getValue(ServiceDetailKey.USER)}")
                 bindingQueue.add(bindResponse)
             })
             t.start()
             threads.add(t)
-            Thread.sleep(10*1000)
+            Thread.sleep(10 * 1000)
         }
         then:
         for (int i = 0; i < threads.size(); i++) {
             ((Thread) threads.get(i)).join()
         }
         noExceptionThrown()
-        bindingQueue.findAll{ it }.size() == numberOfThreads
+        bindingQueue.findAll {it}.size() == numberOfThreads
     }
 
 }

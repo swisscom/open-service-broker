@@ -15,6 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield.dto
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 /*
 Example:
 {
@@ -31,14 +33,12 @@ Example:
  */
 
 class TaskDto {
-    String uuid
+    UUID uuid
     String owner
-    String type
-    Type typeParsed
-    String job_uuid
-    String archive_uuid
-    String status
-    Status statusParsed
+    Type type
+    UUID job_uuid
+    UUID archive_uuid
+    Status status
     String started_at
     String stopped_at
     String log
@@ -46,14 +46,12 @@ class TaskDto {
     @Override
     public String toString() {
         return "TaskDto{" +
-                "uuid='" + uuid + '\'' +
+                "uuid='" + uuid.toString() + '\'' +
                 ", owner='" + owner + '\'' +
                 ", type='" + type + '\'' +
-                ", typeParsed=" + typeParsed +
-                ", job_uuid='" + job_uuid + '\'' +
-                ", archive_uuid='" + archive_uuid + '\'' +
+                ", job_uuid='" + job_uuid.toString() + '\'' +
+                ", archive_uuid='" + archive_uuid.toString() + '\'' +
                 ", status='" + status + '\'' +
-                ", statusParsed=" + statusParsed +
                 ", started_at='" + started_at + '\'' +
                 ", stopped_at='" + stopped_at + '\'' +
                 ", log='" + log + '\'' +
@@ -66,7 +64,7 @@ class TaskDto {
         RESTORE("restore"),
         PURGE("purge")
 
-        final String type
+        private final String type
 
         Type(final String type) {
             this.type = type
@@ -74,6 +72,11 @@ class TaskDto {
 
         String toString() {
             type
+        }
+
+        @JsonValue
+        public String type() {
+            return this.type
         }
 
         boolean isBackup() {
@@ -97,7 +100,7 @@ class TaskDto {
         FAILED("failed"),
         DONE("done")
 
-        final String status
+        private final String status
 
         Status(final String status) {
             this.status = status
@@ -105,6 +108,11 @@ class TaskDto {
 
         String toString() {
             status
+        }
+
+        @JsonValue
+        public String status() {
+            return this.status
         }
 
         boolean isRunning() {

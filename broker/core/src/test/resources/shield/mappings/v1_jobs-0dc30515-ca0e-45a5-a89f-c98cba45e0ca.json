@@ -1,0 +1,24 @@
+{
+  "id" : "0dc30515-ca0e-45a5-a89f-c98cba45e0ca",
+  "name" : "v1_jobs",
+  "request" : {
+    "url" : "/v1/jobs",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"TEST-SHIELD-CLIENTREGISTER-AND-RUN-JOB\",\"target\":\"ce21cbad-ccd3-4669-a19e-580fbf6dcde1\",\"store\":\"f87c9643-b05d-41f0-a074-d9772f1d4597\",\"retention\":\"b178c6a8-a1ea-43c8-b547-175da66db495\",\"schedule\":\"4cc137f8-bbaf-4061-99ff-42cd242e14d8\",\"paused\":true}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"ok\":\"created\",\"uuid\":\"c395a4ff-38af-4a5d-a59f-f5ae13de53e6\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Fri, 12 Jul 2019 13:07:42 GMT"
+    }
+  },
+  "uuid" : "0dc30515-ca0e-45a5-a89f-c98cba45e0ca",
+  "persistent" : true,
+  "insertionIndex" : 10
+}

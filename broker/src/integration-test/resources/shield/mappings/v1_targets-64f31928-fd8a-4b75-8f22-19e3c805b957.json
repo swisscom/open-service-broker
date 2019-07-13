@@ -1,0 +1,22 @@
+{
+  "id" : "64f31928-fd8a-4b75-8f22-19e3c805b957",
+  "name" : "v1_targets",
+  "request" : {
+    "url" : "/v1/targets?name=SystemBackupOnShieldTest-target",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"uuid\":\"78b2baa3-9d6b-4c9c-ab62-1d8d18e49471\",\"name\":\"SystemBackupOnShieldTest-target\",\"summary\":\"\",\"plugin\":\"dummy\",\"endpoint\":\"{\\\"data\\\":\\\"TEST-SYSTEM-BACKUP-PROVIDER\\\"}\",\"agent\":\"127.0.0.1:5444\"}]",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Date" : "Wed, 12 Jun 2019 12:54:00 GMT"
+    }
+  },
+  "uuid" : "64f31928-fd8a-4b75-8f22-19e3c805b957",
+  "persistent" : true,
+  "scenarioName" : "scenario-v1-targets",
+  "requiredScenarioState" : "scenario-v1-targets-3",
+  "newScenarioState" : "scenario-v1-targets-4",
+  "insertionIndex" : 22
+}
