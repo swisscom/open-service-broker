@@ -31,10 +31,16 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
+/**
+ * Any modification of the service definition during runtime is considered dangerous, as the  ServiceDefinitionInitializer
+ * overwrites service definitions on startup.
+ */
+
 @Api(value = "Service definition", description = "Endpoint for service definition")
 @RestController
 @CompileStatic
 @Slf4j
+@Deprecated
 class ServiceDefinitionController extends BaseController {
     @VisibleForTesting
     @Autowired

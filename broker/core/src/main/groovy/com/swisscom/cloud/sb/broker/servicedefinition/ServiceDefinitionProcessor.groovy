@@ -69,6 +69,7 @@ class ServiceDefinitionProcessor {
     @Autowired
     private List<PlanBasedMetricsService> planBasedMetricServices
 
+    @Deprecated
     def createOrUpdateServiceDefinition(String content) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(content), "Service Definition can't be empty")
         // Preconditions.checkArgument() // TODO: check content type is application/json
@@ -95,6 +96,7 @@ class ServiceDefinitionProcessor {
         processPlans(service, serviceDto)
     }
 
+    @Deprecated
     def deleteServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
@@ -113,6 +115,7 @@ class ServiceDefinitionProcessor {
         cfServiceRepository.flush()
     }
 
+    @Deprecated
     ServiceDto getServiceDefinition(String id) {
         CFService service = cfServiceRepository.findByGuid(id)
         if (!service) {
