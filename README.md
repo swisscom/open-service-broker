@@ -177,7 +177,12 @@ serviceDefinitions:
       displayName: 'Small'
 ```
 
+
+
 Updating/Creating Service Definitions over the service-definition API (defined below) requires the JSON format like following example.
+
+> **DEPRECATED**: The service-definition API is deprecated and will be removed in future releases
+
 ```json
 {
     "guid": "udn9276f-hod4-5432-vw34-6c33d7359c12",
@@ -228,6 +233,7 @@ Updating/Creating Service Definitions over the service-definition API (defined b
 
 **_Following endpoints are deprecated_**
 ### Get service definition
+> **DEPRECATED**: The service-definition API is deprecated and will be removed in future releases
 
 Via the example call below, service definitions for a given service id can be retrieved.
 
@@ -236,6 +242,7 @@ curl -u 'username:password' -X GET 'http://localhost:8080/custom/admin/service-d
 ```
 
 ### Add service definition
+> **DEPRECATED**: The service-definition API is deprecated and will be removed in future releases
 
 Service Broker provides a way to update service definitions via HTTP calls.
 
@@ -248,6 +255,7 @@ curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-b
 This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
 
 ### Remove service definition
+> **DEPRECATED**: The service-definition API is deprecated and will be removed in future releases
 
 A service and its plan(s), which are not used i.e. which have no service instances, can be removed via a REST interface.
 Here is an example for how to delete a service that has the id `service_id`:
