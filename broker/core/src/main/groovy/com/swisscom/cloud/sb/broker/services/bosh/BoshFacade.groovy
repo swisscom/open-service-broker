@@ -32,13 +32,11 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest.boshConfigRequest
 
-@Component
 @CompileStatic
 class BoshFacade {
     private static final Logger LOG = LoggerFactory.getLogger(BoshFacade.class);
