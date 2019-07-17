@@ -16,7 +16,9 @@
 package com.swisscom.cloud.sb.broker.provisioning.statemachine
 
 import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.AsyncServiceConfig
@@ -24,7 +26,14 @@ import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import groovy.transform.CompileStatic
 
 @CompileStatic
-abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> extends AsyncServiceProvider<T> {
+abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> extends AsyncServiceProvider {
+
+    StateMachineBasedServiceProvider(
+            AsyncProvisioningService asyncProvisioningService,
+            ProvisioningPersistenceService provisioningPersistenceService,
+            T serviceConfig) {
+        super(asyncProvisioningService, provisioningPersistenceService, serviceConfig)
+    }
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext lastOperationJobContext) {
@@ -47,7 +56,8 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
 
     protected abstract StateMachine getUpdateStateMachine(LastOperationJobContext lastOperationJobContext)
 
-    protected StateMachine getStateMachineForOperation(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
+    protected StateMachine getStateMachineForOperation(LastOperationJobContext lastOperationJobContext,
+                                                       LastOperation.Operation operation) {
         switch (operation) {
             case LastOperation.Operation.DEPROVISION:
                 return getDeprovisionStateMachine(lastOperationJobContext)
@@ -70,7 +80,8 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
         getStateMachineForOperation(lastOperationJobContext, LastOperation.Operation.UPDATE).states.first()
     }
 
-    protected ServiceStateWithAction getInitialState(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
+    protected ServiceStateWithAction getInitialState(LastOperationJobContext lastOperationJobContext,
+                                                     LastOperation.Operation operation) {
         switch (operation) {
             case LastOperation.Operation.DEPROVISION:
                 return getDeprovisionInitialState(lastOperationJobContext)
@@ -83,10 +94,12 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
 
     protected abstract StateMachineContext createStateMachineContext(LastOperationJobContext lastOperationJobContext)
 
-    protected AsyncOperationResult ExecuteStateTransition(LastOperationJobContext lastOperationJobContext, LastOperation.Operation operation) {
+    protected AsyncOperationResult ExecuteStateTransition(LastOperationJobContext lastOperationJobContext,
+                                                          LastOperation.Operation operation) {
         def stateMachine = getStateMachineForOperation(lastOperationJobContext, operation)
         def currentState = getCurrentStateForContext(stateMachine, lastOperationJobContext, operation)
-        def actionResult = stateMachine.setCurrentState(currentState, createStateMachineContext(lastOperationJobContext))
+        def actionResult = stateMachine.setCurrentState(currentState,
+                                                        createStateMachineContext(lastOperationJobContext))
 
         AsyncOperationResult.of(
                 actionResult.go2NextState ? stateMachine.nextState(currentState) : currentState,
@@ -100,9 +113,10 @@ abstract class StateMachineBasedServiceProvider<T extends AsyncServiceConfig> ex
             LastOperation.Operation operation) {
         String stateName = context.lastOperation.internalState
 
-        if (!stateName)
+        if (!stateName) {
             return getInitialState(context, operation)
+        }
 
-        stateMachine.states.find { it -> it.serviceInternalState == context.lastOperation.internalState }
+        stateMachine.states.find {it -> it.serviceInternalState == context.lastOperation.internalState}
     }
 }
