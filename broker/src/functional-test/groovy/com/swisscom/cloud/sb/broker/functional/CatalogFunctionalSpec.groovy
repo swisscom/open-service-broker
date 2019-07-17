@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.util.JsonHelper
+import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -65,8 +66,10 @@ class CatalogFunctionalSpec extends BaseFunctionalSpec {
         newAddedService.plans.size() == 1
 
         def plan = newAddedService.plans[0]
-        JsonHelper.toJsonString(plan.schemas.serviceInstanceSchema.createMethodSchema.parameters) == serviceInstanceCreateSchema
+
+        and:
+        JSONAssert.assertEquals(serviceInstanceCreateSchema, JsonHelper.toJsonString(plan.schemas.serviceInstanceSchema.createMethodSchema.parameters), false)
+        JSONAssert.assertEquals(serviceInstanceUpdateSchema, JsonHelper.toJsonString(plan.schemas.serviceInstanceSchema.updateMethodSchema.parameters), false)
+        JSONAssert.assertEquals(serviceBindingCreateSchema, JsonHelper.toJsonString(plan.schemas.serviceBindingSchema.createMethodSchema.parameters), false)
     }
-
-
 }
