@@ -101,7 +101,8 @@ class BoshRestClient {
 
     void deleteConfig(String name, String type) {
         createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS + GenericConfigAPIQueryFilter.builder()
-                .withName(name).withType(type).build().asUriString()),
+                                                                                              .withName(name).withType(
+                type).build().asUriString()),
                                           HttpMethod.DELETE, null, String.class);
     }
 
@@ -157,8 +158,8 @@ class BoshRestClient {
     }
 
     private RestTemplate createAuthRestTemplate() {
-        String token = checkAuthTypeAndLogin()
-        def restTemplate = token != null ? createBearerAuthRestTemplate(token) :
+        Optional<String> token = checkAuthTypeAndLogin()
+        def restTemplate = token.isPresent() ? createBearerAuthRestTemplate(token.get()) :
                            createBasicAuthRestTemplate(boshConfig.getBoshDirectorUsername(),
                                                        boshConfig.getBoshDirectorPassword())
         return addCustomRestTemplateConfig(restTemplate);
@@ -174,6 +175,7 @@ class BoshRestClient {
     }
 
     private RestTemplate createBearerAuthRestTemplate(String token) {
+        LOG.info("Authenticating with Bearer token (length ${token.length()})")
         return createRestTemplateBuilder().withBearerAuthentication(token).build()
     }
 
