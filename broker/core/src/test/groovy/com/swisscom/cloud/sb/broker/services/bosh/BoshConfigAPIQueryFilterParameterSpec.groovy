@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.swisscom.cloud.sb.broker.services.bosh.GenericConfigAPIQueryFilter
+
 import spock.lang.Specification
 
 class BoshConfigAPIQueryFilterParameterSpec extends Specification {
@@ -24,7 +24,7 @@ class BoshConfigAPIQueryFilterParameterSpec extends Specification {
         String name = 'test'
         String type = 'cloud'
         when:
-        String filter = (new GenericConfigAPIQueryFilter.Builder()).withName(name).withType(type).withLatest(true).build().asUriString()
+        String filter = (new GenericConfigAPIQueryFilter.Builder()).name(name).type(type).latest(true).build().asUriString()
         then:
         "?name=${name}&type=${type}&latest=true" == filter
     }
@@ -33,7 +33,7 @@ class BoshConfigAPIQueryFilterParameterSpec extends Specification {
         given:
         String name = 'test'
         when:
-        String filter = (new GenericConfigAPIQueryFilter.Builder()).withName(name).withLatest(true).build().asUriString()
+        String filter = (new GenericConfigAPIQueryFilter.Builder()).name(name).latest(true).build().asUriString()
         then:
         "?name=${name}&latest=true" == filter
     }
@@ -42,7 +42,7 @@ class BoshConfigAPIQueryFilterParameterSpec extends Specification {
         given:
         String type = 'cloud'
         when:
-        String filter = (new GenericConfigAPIQueryFilter.Builder()).withType(type).withLatest(true).build().asUriString()
+        String filter = (new GenericConfigAPIQueryFilter.Builder()).type(type).latest(true).build().asUriString()
 
         then:
         "?type=${type}&latest=true" == filter
@@ -50,7 +50,7 @@ class BoshConfigAPIQueryFilterParameterSpec extends Specification {
 
     def "happy path: query correctly built without any params"() {
         when:
-        String filter = (new GenericConfigAPIQueryFilter.Builder()).withLatest(true).build().asUriString()
+        String filter = (new GenericConfigAPIQueryFilter.Builder()).latest(true).build().asUriString()
         then:
         "?latest=true" == filter
     }

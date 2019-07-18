@@ -17,7 +17,6 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshResourceNotFoundException
-import com.swisscom.cloud.sb.broker.services.bosh.GenericConfigAPIQueryFilter
 import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
 import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshInfo
 import com.swisscom.cloud.sb.broker.services.bosh.resources.Task
@@ -33,6 +32,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.Assert
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
+
+import static com.swisscom.cloud.sb.broker.services.bosh.GenericConfigAPIQueryFilter.createQueryFilter
+import static org.springframework.http.HttpMethod.DELETE
 
 @PackageScope
 class BoshRestClient {
@@ -74,7 +76,7 @@ class BoshRestClient {
     String deleteDeployment(String id) {
         ResponseEntity response = createAuthRestTemplate().
                 exchange(prependBaseUrl(DEPLOYMENTS + '/' + id) + "?force=true",
-                         HttpMethod.DELETE,
+                         DELETE,
                          null,
                          Void.class);
         return handleRedirectonAndExtractTaskId(response);
@@ -100,10 +102,11 @@ class BoshRestClient {
     }
 
     void deleteConfig(String name, String type) {
-        createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS + GenericConfigAPIQueryFilter.builder()
-                                                                                              .withName(name).withType(
-                type).build().asUriString()),
-                                          HttpMethod.DELETE, null, String.class);
+        createAuthRestTemplate().
+                exchange(prependBaseUrl(CONFIGS + createQueryFilter().name(name).type(type).build().asUriString()),
+                         DELETE,
+                         null,
+                         String.class);
     }
 
     private Optional<String> checkAuthTypeAndLogin() {

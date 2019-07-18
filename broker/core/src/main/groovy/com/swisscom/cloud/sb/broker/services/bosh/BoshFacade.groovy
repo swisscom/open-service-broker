@@ -28,7 +28,6 @@ import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -36,6 +35,7 @@ import org.springframework.util.Assert
 
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest.boshConfigRequest
+import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 
 @CompileStatic
 class BoshFacade {
@@ -145,8 +145,7 @@ class BoshFacade {
      */
     boolean isBoshUndeployTaskSuccessful(LastOperationJobContext context) {
         Assert.notNull(context.serviceInstance.details, "details should not be null")
-        Optional<String> maybe = ServiceDetailsHelper.from(context.serviceInstance.details).
-                findValue(BOSH_TASK_ID_FOR_UNDEPLOY)
+        Optional<String> maybe = from(context.serviceInstance.details).findValue(BOSH_TASK_ID_FOR_UNDEPLOY)
         if (maybe.present) {
             return isBoshTaskSuccessful(maybe.get())
         } else {
@@ -193,8 +192,7 @@ class BoshFacade {
 
     private static String findBoshTaskIdForDeploy(LastOperationJobContext context) {
         Assert.notNull(context.serviceInstance.details, "details should not be null")
-        return ServiceDetailsHelper.from(context.serviceInstance.details).
-                getValue(BOSH_TASK_ID_FOR_DEPLOY)
+        return from(context.serviceInstance.details).getValue(BOSH_TASK_ID_FOR_DEPLOY)
     }
 
     private static List<String> generateHostNames(String guid, int hostCount) {
@@ -234,7 +232,7 @@ class BoshFacade {
 
 
     private static String findBoshDeploymentId(LastOperationJobContext context) {
-        return ServiceDetailsHelper.from(context.serviceInstance.details).
+        return from(context.serviceInstance.details).
                 findValue(BOSH_DEPLOYMENT_ID).
                 or(generateDeploymentId(context.serviceInstance.guid))
     }
