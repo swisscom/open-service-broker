@@ -73,7 +73,7 @@ class UpdatingController extends BaseController {
                     createUpdateRequest(serviceInstance, updateDto, acceptsIncomplete),
                     acceptsIncomplete)
 
-            return new ResponseEntity<UpdateResponseDto>(new UpdateResponseDto(), updatingResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.CREATED)
+            return new ResponseEntity<UpdateResponseDto>(new UpdateResponseDto(), updatingResponse.isAsync ? HttpStatus.ACCEPTED : HttpStatus.OK)
         } catch (Exception ex) {
             failed = true
             throw ex

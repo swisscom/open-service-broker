@@ -309,7 +309,7 @@ class ServiceUpdateFunctionalSpec extends BaseFunctionalSpec {
         def response = serviceLifeCycler.requestUpdateServiceInstance(serviceInstanceGuid, defaultServiceGuid, secondPlanGuid)
 
         then:
-        response.statusCode == HttpStatus.CREATED
+        response.statusCode == HttpStatus.OK
         response.body.operation == null
 
         cleanup:
