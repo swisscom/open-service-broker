@@ -33,7 +33,7 @@ final class GenericConfigAPIQueryFilter {
         latest = builder.latest
     }
 
-    static Builder builder() {
+    static Builder createQueryFilter() {
         return new Builder()
     }
 
@@ -44,17 +44,17 @@ final class GenericConfigAPIQueryFilter {
 
         Builder() {}
 
-        Builder withName(String name) {
+        Builder name(String name) {
             this.name = name
             return this
         }
 
-        Builder withType(String type) {
+        Builder type(String type) {
             this.type = type
             return this
         }
 
-        Builder withLatest(boolean latest) {
+        Builder latest(boolean latest) {
             this.latest = latest.toString()
             return this
         }

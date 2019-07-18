@@ -1,0 +1,33 @@
+{
+  "id" : "4d1c2b04-6a9b-48c4-ab22-b1501f75a946",
+  "name" : "oauth_token",
+  "request" : {
+    "url" : "/oauth/token?grant_type=client_credentials",
+    "method" : "GET",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Basic YWRtaW46bGY5azk1MTlqaWhtd2hob3Y4bjA="
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "oauth_token-4d1c2b04-6a9b-48c4-ab22-b1501f75a946.json",
+    "headers" : {
+      "Pragma" : "no-cache",
+      "Cache-Control" : "no-store",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Frame-Options" : "DENY",
+      "X-Content-Type-Options" : "nosniff",
+      "Content-Type" : "application/json;charset=UTF-8",
+      "Date" : "Thu, 18 Jul 2019 13:35:31 GMT"
+    }
+  },
+  "uuid" : "4d1c2b04-6a9b-48c4-ab22-b1501f75a946",
+  "persistent" : true,
+  "scenarioName" : "scenario-oauth-token",
+  "requiredScenarioState" : "scenario-oauth-token-5",
+  "newScenarioState" : "scenario-oauth-token-6",
+  "insertionIndex" : 5
+}

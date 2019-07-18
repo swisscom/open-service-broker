@@ -90,12 +90,14 @@ class BoshFacadeTest extends Specification {
                     extractBinaryBodiesOver(10240).
                     extractTextBodiesOver(256).
                     makeStubsPersistent(true).
+                    captureHeader("Authorization").
                     transformers(BOSH_INFO_TRANSFORMER_NAME))
 
             uaaWireMock.startRecording(recordSpec().
                     forTarget(UAA_URL).
                     extractBinaryBodiesOver(10240).
                     extractTextBodiesOver(256).
+                    captureHeader("Authorization").
                     makeStubsPersistent(true)
             )
         }
