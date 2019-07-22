@@ -76,9 +76,10 @@ class MongoDbEnterpriseServiceProvider
     MongoDbEnterpriseServiceProvider(AsyncProvisioningService asyncProvisioningService,
                                      ProvisioningPersistenceService provisioningPersistenceService,
                                      MongoDbEnterpriseConfig serviceConfig,
-                                     MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder) {
+                                     MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder,
+                                     OpsManagerFacade opsManagerFacade) {
         super(asyncProvisioningService, provisioningPersistenceService, serviceConfig)
-        this.opsManagerFacade = new OpsManagerFacade(serviceConfig)
+        this.opsManagerFacade = opsManagerFacade
         this.mongoDbEnterpriseFreePortFinder = mongoDbEnterpriseFreePortFinder
     }
 
@@ -245,11 +246,11 @@ class MongoDbEnterpriseServiceProvider
         return new BindResponse(details: [from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
                                           from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME,
-                                                             opsManagerCredentials.user),
+                                               opsManagerCredentials.user),
                                           from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_PASSWORD,
-                                                             opsManagerCredentials.password),
+                                               opsManagerCredentials.password),
                                           from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID,
-                                                             opsManagerCredentials.userId)],
+                                               opsManagerCredentials.userId)],
                                 credentials: new MongoDbEnterpriseBindResponseDto(
                                         database: database,
                                         username: dbUserCredentials.username,

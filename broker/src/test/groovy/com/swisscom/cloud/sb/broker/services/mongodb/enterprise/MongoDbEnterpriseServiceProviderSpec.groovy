@@ -68,7 +68,8 @@ class MongoDbEnterpriseServiceProviderSpec extends Specification {
         serviceProvider = new MongoDbEnterpriseServiceProvider(Mock(AsyncProvisioningService),
                                                                Mock(ProvisioningPersistenceService),
                                                                mongoDbEnterpriseConfig,
-                                                               Mock(MongoDbEnterpriseFreePortFinder))
+                                                               Mock(MongoDbEnterpriseFreePortFinder),
+                                                               mockedOpsManagerFacade)
     }
 
     def "synchronous provisioning requests are not allowed"() {

@@ -176,6 +176,7 @@ class OpsManagerFacade {
         throw new NotImplementedException()
     }
 
+    // TODO: Replace retryable with systematic usage of resilience4j
     @Retryable(
             value = MongoDBAutomationConfigUpdateNotCompletedException.class,
             maxAttempts = 10,
