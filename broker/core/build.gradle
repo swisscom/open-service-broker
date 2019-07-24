@@ -41,7 +41,6 @@ dependencies {
     compile libs.quartz
     compile libs.flyway
     compile libs.joda_time
-    compile libs.bouncycastle
     compile libs.commons_lang
     compile libs.passay
 

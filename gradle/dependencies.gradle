@@ -14,7 +14,7 @@ ext {
             commons_codec                      : '1.11',
             quartz                             : '2.3.0',             // THE java scheduler of tasks
             joda_time                          : '2.10', //FIXME Why using joda-time? Starting from java 8 we should be using java.time
-            bouncycastle                       : '1.46',              // For cryptography
+            bouncycastle                       : '1.60',              // For cryptography
 
             flyway                             : '5.1.4',             // Database migration
             mysql_connector_java               : '8.0.12',            // OSB uses a MySQL database
@@ -82,7 +82,8 @@ ext {
             commons_codec                                  : "commons-codec:commons-codec:${versions.commons_codec}",
             guava                                          : "com.google.guava:guava:${versions.guava}",
             gson                                           : "com.google.code.gson:gson:${versions.gson}",
-            bouncycastle                                   : "org.bouncycastle:bcprov-jdk16:${versions.bouncycastle}", //FIXME What is the -jdk16? is there a bouncycastle for -jdk18?
+            bouncycastle                                   : "org.bouncycastle:bcprov-jdk15on:${versions.bouncycastle}", //Using same version as spring-security
+            bouncycastle_pkix                              : "org.bouncycastle:bcpkix-jdk15on:${versions.bouncycastle}", //bcpkix only necessary in jdk15on
             quartz                                         : "org.quartz-scheduler:quartz:${versions.quartz}",
             joda_time                                      : "joda-time:joda-time:${versions.joda_time}",
 
