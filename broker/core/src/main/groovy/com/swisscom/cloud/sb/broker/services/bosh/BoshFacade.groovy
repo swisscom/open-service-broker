@@ -180,7 +180,7 @@ class BoshFacade {
         if (task.state == null) {
             throw new RuntimeException("Unknown bosh task state: ${task.toString()}")
         }
-        if ([Task.State.cancelled, Task.State.cancelling, Task.State.errored].contains(task.state)) {
+        if ([Task.State.cancelled, Task.State.cancelling, Task.State.errored, Task.State.error].contains(task.state)) {
             throw new RuntimeException("Task failed: ${task.toString()}")
         }
         return Task.State.done == task.state
