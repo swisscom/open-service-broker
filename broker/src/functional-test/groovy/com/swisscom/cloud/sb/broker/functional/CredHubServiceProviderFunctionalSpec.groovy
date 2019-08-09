@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceProvider
 import groovy.json.JsonSlurper
@@ -41,7 +42,7 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('credHubTest', ServiceProviderLookup.findInternalName(CredHubServiceProvider), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('credHubTest', ServiceProviderService.findInternalName(CredHubServiceProvider), null, null, null, 0, true, true)
     }
 
     def "provision chaas service instance"() {

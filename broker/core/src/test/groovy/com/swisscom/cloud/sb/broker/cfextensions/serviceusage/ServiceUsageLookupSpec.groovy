@@ -15,12 +15,13 @@
 
 package com.swisscom.cloud.sb.broker.cfextensions.serviceusage
 
-import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.shield.dto.TaskDto
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -28,12 +29,11 @@ import com.swisscom.cloud.sb.broker.model.UpdateRequest
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
 import spock.lang.Specification
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class ServiceUsageLookupSpec extends Specification {
     ServiceProviderLookup serviceProviderLookup
@@ -120,8 +120,25 @@ class ServiceUsageLookupSpec extends Specification {
             return [new Extension("discovery_url": "discoveryURL")]
         }
 
+        @Override
+        String getApi() {
+            return null
+        }
+
+        @Override
+        String getApi(List<String> tags, String url) {
+            return null
+        }
+
+        @Override
+        JobStatus getJobStatus(Status status) {
+            return null
+        }
+
         TaskDto getTask(String taskUuid){
             new TaskDto()
         }
+
+
     }
 }

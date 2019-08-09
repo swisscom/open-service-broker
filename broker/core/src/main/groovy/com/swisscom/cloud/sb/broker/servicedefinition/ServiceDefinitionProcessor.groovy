@@ -23,10 +23,10 @@ import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
 import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.converter.ServiceDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.JsonSchemaHelper
 import groovy.json.JsonSlurper

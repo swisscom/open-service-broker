@@ -16,7 +16,6 @@
 package com.swisscom.cloud.sb.broker.services.mariadb
 
 import com.google.common.annotations.VisibleForTesting
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
@@ -25,7 +24,7 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbClient
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbFacade
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbServiceProvider

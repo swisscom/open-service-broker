@@ -15,11 +15,11 @@
 
 package com.swisscom.cloud.sb.broker.cfextensions.serviceusage
 
-import com.google.common.base.Optional
+
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,10 +28,10 @@ import org.springframework.stereotype.Component
 @Component
 @CompileStatic
 class ServiceUsageLookup {
-    private final ServiceProviderLookup serviceProviderLookup
+    private final ServiceProviderService serviceProviderLookup
 
     @Autowired
-    ServiceUsageLookup(ServiceProviderLookup serviceProviderLookup) {
+    ServiceUsageLookup(ServiceProviderService serviceProviderLookup) {
         this.serviceProviderLookup = serviceProviderLookup
     }
 

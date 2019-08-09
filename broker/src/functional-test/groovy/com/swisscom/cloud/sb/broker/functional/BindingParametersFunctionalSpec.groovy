@@ -17,9 +17,9 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import org.apache.commons.io.FileUtils
@@ -49,7 +49,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      ServiceProviderService.findInternalName(
                                                               DummySynchronousServiceProvider.class))
     }
 
@@ -85,7 +85,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      ServiceProviderService.findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -116,7 +116,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and bind with parameters with bindings retrievable"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      ServiceProviderService.findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -148,7 +148,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and fetch non existing binding"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      ServiceProviderService.findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -174,7 +174,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and unbind non existing binding"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      ServiceProviderService.findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,

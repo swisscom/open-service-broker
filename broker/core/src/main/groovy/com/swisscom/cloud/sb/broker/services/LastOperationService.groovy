@@ -17,10 +17,10 @@ package com.swisscom.cloud.sb.broker.services
 
 import com.swisscom.cloud.sb.broker.async.job.JobManager
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.model.repository.DeprovisionRequestRepository
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
-import com.swisscom.cloud.sb.broker.model.repository.ProvisionRequestRepository
-import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
+import com.swisscom.cloud.sb.broker.repository.DeprovisionRequestRepository
+import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.ProvisionRequestRepository
+import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
 import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
 import org.springframework.stereotype.Service

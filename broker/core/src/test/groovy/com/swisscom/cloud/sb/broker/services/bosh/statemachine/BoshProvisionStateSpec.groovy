@@ -54,7 +54,7 @@ class BoshProvisionStateSpec extends Specification {
         context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(
                 serviceInstanceGuid: "guid"))
         and:
-        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext) >> isBoshDeploySuccessful
+        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext.serviceInstance.details) >> isBoshDeploySuccessful
         when:
         def result = BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.triggerAction(context)
         then:

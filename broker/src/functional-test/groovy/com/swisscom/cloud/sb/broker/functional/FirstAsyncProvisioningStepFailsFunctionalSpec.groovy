@@ -15,14 +15,15 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.test.DummyFailingServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
 
 class FirstAsyncProvisioningStepFailsFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyFailing', ServiceProviderLookup.findInternalName(DummyFailingServiceProvider))
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyFailing', ServiceProviderService.findInternalName(DummyFailingServiceProvider))
     }
 
     def cleanupSpec() {

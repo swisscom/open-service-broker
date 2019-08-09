@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.*
+import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic

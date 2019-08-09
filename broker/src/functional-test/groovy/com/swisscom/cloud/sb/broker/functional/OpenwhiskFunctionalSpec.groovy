@@ -24,7 +24,7 @@ import org.springframework.http.*
 import org.springframework.web.client.RestTemplate
 import spock.lang.IgnoreIf
 
-import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class OpenwhiskFunctionalSpec extends BaseFunctionalSpec {

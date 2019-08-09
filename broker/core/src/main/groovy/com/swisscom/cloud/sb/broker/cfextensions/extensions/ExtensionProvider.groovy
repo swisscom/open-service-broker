@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 
 @Slf4j
-trait ExtensionProvider{
+trait ExtensionProvider implements CFExtensionProvider{
     //Trying to manage both sync and async extensions in this trait. Maybe I should create an AsyncExtensionProvider
     @Autowired
     JobManager jobManager
@@ -35,7 +35,6 @@ trait ExtensionProvider{
     @Autowired
     Environment env
 
-    abstract Collection<Extension> buildExtensions()
 
     String getApi(){
         getApi(null)

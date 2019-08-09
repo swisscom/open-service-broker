@@ -7,7 +7,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import groovy.json.JsonSlurper
 import org.springframework.credhub.support.password.PasswordCredential
 import org.springframework.credhub.support.permissions.Operation

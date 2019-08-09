@@ -21,6 +21,7 @@ dependencies {
     annotationProcessor "org.immutables:value:2.7.5"
     compile project(':model')
     compile project(':client')
+    compile project(':broker:core:bosh-service')
 
     compile libs.gpars
 

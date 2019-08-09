@@ -351,7 +351,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -368,7 +368,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         boshTaskSuccessful
@@ -398,7 +398,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -416,7 +416,7 @@ class BoshFacadeTest extends Specification {
 
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         boshTaskSuccessful
@@ -439,7 +439,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -476,7 +476,8 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context)
+        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context.serviceInstance.details,
+                                                                                   context.serviceInstance.guid)
 
         then:
         !deploymentDeleteTaskId.isPresent()

@@ -19,19 +19,20 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.google.common.annotations.VisibleForTesting
-import com.google.common.base.Optional
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -232,5 +233,20 @@ class OpenWhiskServiceProvider implements ServiceProvider, ServiceUsageProvider{
     @Override
     Collection<Extension> buildExtensions(){
         return [new Extension("discovery_url": openWhiskConfig.discoveryURL)]
+    }
+
+    @Override
+    String getApi() {
+        return null
+    }
+
+    @Override
+    String getApi(List<String> tags, String url) {
+        return null
+    }
+
+    @Override
+    JobStatus getJobStatus(Status status) {
+        return null
     }
 }

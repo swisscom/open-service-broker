@@ -19,7 +19,7 @@ import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.Lists
 import com.swisscom.cloud.sb.broker.cfapi.converter.CatalogDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.CatalogDto
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation

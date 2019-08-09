@@ -17,7 +17,7 @@ package com.swisscom.cloud.sb.broker.controller
 
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import spock.lang.Specification
 
 class ProvisioningControllerSpec extends Specification {

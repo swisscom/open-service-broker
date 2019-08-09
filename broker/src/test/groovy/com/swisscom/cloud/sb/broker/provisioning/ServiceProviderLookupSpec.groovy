@@ -17,9 +17,9 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskConfig
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskDbClient
 import com.swisscom.cloud.sb.broker.services.openwhisk.OpenWhiskServiceProvider

@@ -3,8 +3,8 @@ package com.swisscom.cloud.sb.broker.services.inventory
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Service

@@ -15,7 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.services.mariadb.MariaDBServiceProvider
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
@@ -29,7 +30,7 @@ import spock.lang.IgnoreIf
 class MariaDBUsageFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderLookup.findInternalName(MariaDBServiceProvider))
+        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderService.findInternalName(MariaDBServiceProvider))
     }
 
     def cleanupSpec() {

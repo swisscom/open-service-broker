@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.backup
 
 import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.model.repository.BackupRepository
+import com.swisscom.cloud.sb.broker.repository.BackupRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.joda.time.LocalDateTime

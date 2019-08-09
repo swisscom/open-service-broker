@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.services.usage
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j

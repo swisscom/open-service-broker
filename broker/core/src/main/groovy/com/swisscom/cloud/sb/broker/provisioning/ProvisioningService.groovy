@@ -23,7 +23,7 @@ import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.ParentServiceProvider
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper

@@ -15,13 +15,14 @@
 
 package com.swisscom.cloud.sb.broker.util.test
 
-import com.google.common.base.Optional
 import com.google.gson.Gson
+import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
+import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
@@ -83,5 +84,20 @@ class DummySynchronousServiceProvider implements ServiceProvider, ServiceUsagePr
     @Override
     Collection<Extension> buildExtensions(){
         return [new Extension("discovery_url": "discoveryURL")]
+    }
+
+    @Override
+    String getApi() {
+        return null
+    }
+
+    @Override
+    String getApi(List<String> tags, String url) {
+        return null
+    }
+
+    @Override
+    JobStatus getJobStatus(Status status) {
+        return null
     }
 }

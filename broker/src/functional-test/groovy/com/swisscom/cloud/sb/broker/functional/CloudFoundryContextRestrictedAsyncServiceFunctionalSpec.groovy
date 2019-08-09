@@ -20,9 +20,9 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.CloudFoundryContextRestrictedDummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
@@ -39,7 +39,7 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
     private ServiceContextDetailRepository contextRepository
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('CloudFoundryContextRestrictedAsyncDummy', ServiceProviderLookup.findInternalName(CloudFoundryContextRestrictedDummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('CloudFoundryContextRestrictedAsyncDummy', ServiceProviderService.findInternalName(CloudFoundryContextRestrictedDummyServiceProvider.class))
     }
 
     def cleanupSpec() {

@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.usage.ExtendedServiceUsageLookup
 import com.swisscom.cloud.sb.model.usage.extended.ServiceUsageItem
 import groovy.transform.CompileStatic

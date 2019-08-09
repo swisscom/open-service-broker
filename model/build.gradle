@@ -1,5 +1,18 @@
 dependencies {
+    annotationProcessor "org.immutables:value:2.7.5"
+    compile libs.immutables
+
     compile libs.groovy
     compile libs.jackson_dataformat_yaml
     compile libs.jackson_databind
+    compile libs.spring_boot_starter_data_jpa
+    //Just for having HttpStatus in ErrorCode
+    compile libs.spring_boot_starter_web
+    compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+    compile libs.bouncycastle
+    compile libs.httpclient
+
+    compile libs.guava
+    compile libs.gpars
 }

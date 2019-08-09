@@ -15,7 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.test.DummyExtension.DummyExtensionsServiceProvider
 
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
@@ -25,7 +26,7 @@ import org.yaml.snakeyaml.Yaml
 class ExtensionProviderFunctionalSpec extends BaseFunctionalSpec{
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('extensionServiceProvider', ServiceProviderLookup.findInternalName(DummyExtensionsServiceProvider.class), null, null,"dummyExtensions")
+        serviceLifeCycler.createServiceIfDoesNotExist('extensionServiceProvider', ServiceProviderService.findInternalName(DummyExtensionsServiceProvider.class), null, null, "dummyExtensions")
     }
 
     def cleanupSpec() {

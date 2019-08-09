@@ -16,8 +16,8 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.binding.CredentialService
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
@@ -45,7 +45,7 @@ class CredHubBindingParametersFunctionalSpec extends BaseFunctionalSpec {
     }
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable', ServiceProviderService.findInternalName(DummySynchronousServiceProvider.class), null, null, null, 0, true, true)
     }
 
     def cleanupSpec() {

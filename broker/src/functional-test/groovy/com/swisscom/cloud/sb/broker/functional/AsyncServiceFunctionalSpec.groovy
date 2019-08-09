@@ -18,9 +18,9 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
@@ -41,7 +41,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     private int processDelayInSeconds = DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderService.findInternalName(DummyServiceProvider.class))
     }
 
     def cleanupSpec() {
@@ -193,7 +193,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
     def "provision and get service instance is retrievable"() {
         given:
-        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyInstancesRetrievable', ServiceProviderLookup.findInternalName(DummyServiceProvider.class), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyInstancesRetrievable', ServiceProviderService.findInternalName(DummyServiceProvider.class), null, null, null, 0, true, true)
 
         def serviceInstanceGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)

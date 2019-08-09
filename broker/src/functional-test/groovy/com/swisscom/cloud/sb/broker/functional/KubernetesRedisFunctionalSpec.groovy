@@ -19,7 +19,7 @@ import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldClient
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldConfig
 import com.swisscom.cloud.sb.broker.model.Backup
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.kubernetes.facade.redis.service.KubernetesRedisServiceProvider
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import com.swisscom.cloud.sb.model.backup.BackupStatus
@@ -29,7 +29,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import spock.lang.IgnoreIf
 
-import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class KubernetesRedisFunctionalSpec extends BaseFunctionalSpec {

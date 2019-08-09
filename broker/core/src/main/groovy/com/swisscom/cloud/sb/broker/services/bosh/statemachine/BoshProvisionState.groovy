@@ -47,7 +47,7 @@ enum BoshProvisionState implements ServiceStateWithAction<BoshStateMachineContex
     CHECK_BOSH_DEPLOYMENT_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext))
+            return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext.serviceInstance.details))
         }
     })
 

@@ -17,10 +17,10 @@ package com.swisscom.cloud.sb.broker.metrics
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired

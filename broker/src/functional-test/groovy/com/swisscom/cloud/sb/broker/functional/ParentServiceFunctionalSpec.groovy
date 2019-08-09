@@ -21,9 +21,9 @@ import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.ParentDummyServiceProvider
@@ -53,7 +53,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
     private String childServiceInstanceGuid
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('ParentDummy', ServiceProviderLookup.findInternalName(ParentDummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('ParentDummy', ServiceProviderService.findInternalName(ParentDummyServiceProvider.class))
     }
 
     def cleanupSpec() {

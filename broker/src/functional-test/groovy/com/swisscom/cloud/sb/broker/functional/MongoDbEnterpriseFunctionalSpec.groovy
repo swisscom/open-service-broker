@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import spock.lang.IgnoreIf
 
-import static com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup.findInternalName
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
 class MongoDbEnterpriseFunctionalSpec extends BaseFunctionalSpec {

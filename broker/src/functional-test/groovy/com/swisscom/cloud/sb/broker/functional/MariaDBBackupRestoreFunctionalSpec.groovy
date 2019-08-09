@@ -16,9 +16,9 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
-import com.swisscom.cloud.sb.broker.model.repository.BackupRepository
-import com.swisscom.cloud.sb.broker.model.repository.RestoreRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.BackupRepository
+import com.swisscom.cloud.sb.broker.repository.RestoreRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.services.mariadb.MariaDBServiceProvider
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.BackupStatus
@@ -54,7 +54,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
     private List<String> backupsToCleanup = new ArrayList<>()
 
     def setup(){
-        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderLookup.findInternalName(MariaDBServiceProvider), null, null, null, 5)
+        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderService.findInternalName(MariaDBServiceProvider), null, null, null, 5)
         serviceLifeCycler.createParameter('BACKUP_SCHEDULE', 'daily 4am', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_POLICY_NAME', 'month', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)

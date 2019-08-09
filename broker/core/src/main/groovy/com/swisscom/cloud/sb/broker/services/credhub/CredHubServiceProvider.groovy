@@ -22,8 +22,9 @@ import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
+import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -78,10 +79,10 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
 
         def val = credHubServiceImpl.writeCredential(constructKey(request.serviceInstanceGuid), object)
 
-        return new ProvisionResponse(details: [from(CREDHUB_CREDENTIAL_ID, val.id),
-                                               from(CREDHUB_CREDENTIAL_NAME, val.name.getName()),
-                                               from(CREDHUB_CREDENTIAL_TYPE, val.credentialType.getValueType()),
-                                               from(CREDHUB_CREDENTIAL_TIMESTAMP, val.versionCreatedAt.toString())], isAsync: false)
+        return new ProvisionResponse(details: [ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_ID, val.id),
+                                               ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_NAME, val.name.getName()),
+                                               ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_TYPE, val.credentialType.getValueType()),
+                                               ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_TIMESTAMP, val.versionCreatedAt.toString())], isAsync: false)
     }
 
     ///credhub-service-broker/credhub/ac517e09-2f5e-475a-bf87-ca4275faa536/credentials
@@ -129,7 +130,7 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
             ErrorCode.SERVICEBROKERSERVICEPROVIDER_BINDING_BAD_REQUEST.throwNew("Permission not added. Service instance not bound.")
         }
 
-        return new BindResponse(details: [from(CREDHUB_CREDENTIAL_NAME, "/" + constructKey(request.serviceInstance.guid)),
+        return new BindResponse(details: [ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_NAME, "/" + constructKey(request.serviceInstance.guid)),
                                           from(request.binding_guid, request.app_guid)],
                 credentials: new CredHubResponseDto(credhubName: "/" + constructKey(request.serviceInstance.guid))
         )
@@ -158,9 +159,9 @@ class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvi
 
         def val = credHubServiceImpl.writeCredential(constructKey(request.serviceInstanceGuid), object)
 
-        return new UpdateResponse(details: [from(CREDHUB_CREDENTIAL_ID, val.id),
-                                            from(CREDHUB_CREDENTIAL_NAME, val.name.getName()),
-                                            from(CREDHUB_CREDENTIAL_TYPE, val.credentialType.getValueType()),
-                                            from(CREDHUB_CREDENTIAL_TIMESTAMP, val.versionCreatedAt.toString())], isAsync: false)
+        return new UpdateResponse(details: [ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_ID, val.id),
+                                            ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_NAME, val.name.getName()),
+                                            ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_TYPE, val.credentialType.getValueType()),
+                                            ServiceDetail.from(com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.CREDHUB_CREDENTIAL_TIMESTAMP, val.versionCreatedAt.toString())], isAsync: false)
     }
 }

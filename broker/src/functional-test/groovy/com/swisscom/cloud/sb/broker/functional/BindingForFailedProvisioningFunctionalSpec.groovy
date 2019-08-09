@@ -15,7 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
+import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
 import org.springframework.http.HttpStatus
@@ -24,7 +25,7 @@ import org.springframework.web.client.HttpClientErrorException
 class BindingForFailedProvisioningFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyServiceManagerBased', ServiceProviderLookup.findInternalName(DummyServiceProvider))
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummyServiceManagerBased', ServiceProviderService.findInternalName(DummyServiceProvider))
     }
 
     def cleanupSpec() {

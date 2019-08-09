@@ -2,7 +2,7 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import org.springframework.beans.factory.annotation.Autowired
 
 import static com.swisscom.cloud.sb.broker.model.LastOperation.Status.IN_PROGRESS

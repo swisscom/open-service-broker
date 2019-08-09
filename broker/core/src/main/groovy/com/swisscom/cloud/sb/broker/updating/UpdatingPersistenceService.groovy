@@ -17,8 +17,8 @@ package com.swisscom.cloud.sb.broker.updating
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.model.*
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
