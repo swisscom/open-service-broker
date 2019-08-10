@@ -382,7 +382,8 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context)
+        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context.serviceInstance.details,
+                                                                                   context.serviceInstance.guid)
         deleteDeploymentTaskId = deploymentDeleteTaskId.get()
 
         then:

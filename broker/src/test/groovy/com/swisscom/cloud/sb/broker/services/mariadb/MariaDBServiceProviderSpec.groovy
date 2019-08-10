@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.mariadb
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
@@ -208,7 +207,7 @@ class MariaDBServiceProviderSpec extends Specification {
         given:
         mariaDBClient.getUsageInBytes(ServiceDetailsHelper.from(serviceInstance.details).getValue(ServiceDetailKey.DATABASE)) >> '5'
         when:
-        def usage = mariaDBServiceProvider.findUsage(serviceInstance, Optional.absent())
+        def usage = mariaDBServiceProvider.findUsage(serviceInstance, Optional.empty())
         then:
         usage.value == "5"
         usage.type == ServiceUsageType.WATERMARK

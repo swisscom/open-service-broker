@@ -60,7 +60,7 @@ class ServiceUsageLookupSpec extends Specification {
         serviceProviderLookup.findServiceProvider(_) >> service
 
         when:
-        ServiceUsage serviceUsage = serviceUsageLookup.usage(new ServiceInstance(), Optional.absent())
+        ServiceUsage serviceUsage = serviceUsageLookup.usage(new ServiceInstance(), Optional.empty())
 
         then:
         serviceUsage.value == service.serviceUsageValue

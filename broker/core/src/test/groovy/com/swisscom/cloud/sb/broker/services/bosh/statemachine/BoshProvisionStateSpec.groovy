@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
@@ -51,10 +52,12 @@ class BoshProvisionStateSpec extends Specification {
 
     def "CHECK_BOSH_DEPLOYMENT_TASK_STATE "() {
         given:
-        context.lastOperationJobContext = new LastOperationJobContext(provisionRequest: new ProvisionRequest(
-                serviceInstanceGuid: "guid"))
+        context.lastOperationJobContext = new LastOperationJobContext(
+                provisionRequest: new ProvisionRequest(serviceInstanceGuid: "guid"),
+                serviceInstance: new ServiceInstance(details: []))
         and:
-        1 * context.boshFacade.isBoshDeployTaskSuccessful(context.lastOperationJobContext.serviceInstance.details) >> isBoshDeploySuccessful
+        1 * context.boshFacade.isBoshDeployTaskSuccessful(_) >> isBoshDeploySuccessful
+
         when:
         def result = BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE.triggerAction(context)
         then:
