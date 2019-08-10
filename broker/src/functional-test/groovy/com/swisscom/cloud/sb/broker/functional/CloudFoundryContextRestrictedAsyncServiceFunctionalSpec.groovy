@@ -22,7 +22,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.CloudFoundryContextRestrictedDummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
@@ -32,6 +31,8 @@ import org.springframework.cloud.servicebroker.model.KubernetesContext
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+
 class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
@@ -39,7 +40,8 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
     private ServiceContextDetailRepository contextRepository
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('CloudFoundryContextRestrictedAsyncDummy', ServiceProviderService.findInternalName(CloudFoundryContextRestrictedDummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('CloudFoundryContextRestrictedAsyncDummy',
+                                                      findInternalName(CloudFoundryContextRestrictedDummyServiceProvider.class))
     }
 
     def cleanupSpec() {
@@ -92,13 +94,19 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
         responseBody.code == ErrorCode.CLOUDFOUNDRY_CONTEXT_REQUIRED.code
     }
 
-    void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
+    void assertCloudFoundryContext(String serviceInstanceGuid,
+                                   String org_guid = "org_id",
+                                   String space_guid = "space_id") {
         ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid) as ServiceInstance
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find {
+            it.key == ServiceContextHelper.CF_ORGANIZATION_GUID
+        }.value == org_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find {
+            it.key == ServiceContextHelper.CF_SPACE_GUID
+        }.value == space_guid
     }
 
 }

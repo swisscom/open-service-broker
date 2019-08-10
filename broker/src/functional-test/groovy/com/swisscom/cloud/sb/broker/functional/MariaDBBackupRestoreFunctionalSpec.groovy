@@ -18,7 +18,6 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.repository.BackupRepository
 import com.swisscom.cloud.sb.broker.repository.RestoreRepository
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.services.mariadb.MariaDBServiceProvider
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.BackupStatus
@@ -32,8 +31,10 @@ import org.springframework.http.ResponseEntity
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+
 @Slf4j
-@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec']) })
+@IgnoreIf({!Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBBackupRestoreFunctionalSpec'])})
 class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
 
     @Shared
@@ -45,7 +46,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private BackupPersistenceService backupPersistenceService
 
-    private  BackupRestoreHelper backupRestoreHelper
+    private BackupRestoreHelper backupRestoreHelper
 
     @Shared
     private List<String> restoresToCleanup = new ArrayList<>()
@@ -53,8 +54,13 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
     @Shared
     private List<String> backupsToCleanup = new ArrayList<>()
 
-    def setup(){
-        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderService.findInternalName(MariaDBServiceProvider), null, null, null, 5)
+    def setup() {
+        serviceLifeCycler.createServiceIfDoesNotExist("mariadb",
+                                                      findInternalName(MariaDBServiceProvider),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      5)
         serviceLifeCycler.createParameter('BACKUP_SCHEDULE', 'daily 4am', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_POLICY_NAME', 'month', serviceLifeCycler.plan)
         serviceLifeCycler.createParameter('BACKUP_STORAGE_NAME', 'default', serviceLifeCycler.plan)
@@ -72,12 +78,12 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
         cleanupBackups()
     }
 
-    def cleanupSpec(){
+    def cleanupSpec() {
         this.cleanupBackupsRestores()
         serviceLifeCycler.cleanup()
     }
 
-    def "provision and bind MariaDB service instance"(){
+    def "provision and bind MariaDB service instance"() {
         given:
         serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert()
         def credentialJson = serviceLifeCycler.getCredentials()
@@ -94,7 +100,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
                 funcResultAfterCreation = sql.firstRow("SELECT func1() as one").one
 
                 sql.execute("CREATE PROCEDURE proc1 (OUT id INT) BEGIN select idnew_table INTO id from new_table1; END")
-                sql.call("{ call proc1(?) }", [Sql.INTEGER]) { res ->
+                sql.call("{ call proc1(?) }", [Sql.INTEGER]) {res ->
                     procResultAfterCreation = res
                 }
 
@@ -124,12 +130,15 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
         })
 
         and: 'backup is restored'
-        ResponseEntity<RestoreDto> createRestoreRestResponse = backupRestoreHelper.restoreBackup(instance, createBackupDto.id)
+        ResponseEntity<RestoreDto> createRestoreRestResponse = backupRestoreHelper.restoreBackup(instance,
+                                                                                                 createBackupDto.id)
         def createRestoreDto = createRestoreRestResponse.getBody()
 
         createRestoreDto.getStatus() == RestoreStatus.IN_PROGRESS
         waitABit()
-        ResponseEntity<RestoreDto> getRestoreRestResponse = backupRestoreHelper.getRestore(instance, createBackupDto.id, createRestoreDto.id)
+        ResponseEntity<RestoreDto> getRestoreRestResponse = backupRestoreHelper.getRestore(instance,
+                                                                                           createBackupDto.id,
+                                                                                           createRestoreDto.id)
         def getRestoreDto = getRestoreRestResponse.getBody()
         restoresToCleanup.add(createRestoreDto.id)
         getRestoreDto.status == RestoreStatus.SUCCEEDED
@@ -141,7 +150,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
                 tableResultAfterRestore = sql.firstRow("SELECT idnew_table FROM new_table1").idnew_table
                 funcResultAfterCreation = sql.firstRow("SELECT func1() as one").one
 
-                sql.call("{ call proc1(?) }", [Sql.INTEGER]) { res ->
+                sql.call("{ call proc1(?) }", [Sql.INTEGER]) {res ->
                     procResultAfterCreation = res
                 }
 
@@ -160,7 +169,7 @@ class MariaDBBackupRestoreFunctionalSpec extends BaseFunctionalSpec {
         deleteBackupRestResponse.getStatusCodeValue() == 202
     }
 
-    def "unbind and deprovision MariaDB service instance" (){
+    def "unbind and deprovision MariaDB service instance"() {
         expect:
         serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()
     }

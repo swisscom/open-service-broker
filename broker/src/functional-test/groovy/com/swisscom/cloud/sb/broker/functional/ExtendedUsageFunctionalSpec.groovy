@@ -16,13 +16,14 @@
 package com.swisscom.cloud.sb.broker.functional
 
 
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousExtendedUsageServiceProvider
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class ExtendedUsageFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('DummySynchronousService', ServiceProviderService.findInternalName(DummySynchronousExtendedUsageServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('DummySynchronousService', findInternalName(DummySynchronousExtendedUsageServiceProvider.class))
     }
 
     def cleanupSpec() {

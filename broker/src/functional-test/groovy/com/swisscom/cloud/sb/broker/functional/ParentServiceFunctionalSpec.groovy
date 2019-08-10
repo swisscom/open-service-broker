@@ -23,7 +23,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.ParentDummyServiceProvider
@@ -36,6 +35,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 import spock.lang.Shared
 import spock.lang.Stepwise
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 @Stepwise
 class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
@@ -53,7 +54,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
     private String childServiceInstanceGuid
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('ParentDummy', ServiceProviderService.findInternalName(ParentDummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('ParentDummy', findInternalName(ParentDummyServiceProvider.class))
     }
 
     def cleanupSpec() {
@@ -138,7 +139,8 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                 asyncAccepted(true).
                 build()
         )
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, childServiceInstanceGuid)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                                                        childServiceInstanceGuid)
 
         serviceBrokerClient.deleteServiceInstance(DeleteServiceInstanceRequest.builder().
                 serviceDefinitionId(serviceLifeCycler.cfService.guid).
@@ -148,19 +150,26 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                 build()
         )
         serviceLifeCycler.setServiceInstanceId(parentServiceInstanceGuid)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, parentServiceInstanceGuid)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                                                        parentServiceInstanceGuid)
 
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
 
-    void assertCloudFoundryContext(String serviceInstanceGuid, String org_guid = "org_id", String space_guid = "space_id") {
+    void assertCloudFoundryContext(String serviceInstanceGuid,
+                                   String org_guid = "org_id",
+                                   String space_guid = "space_id") {
         ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid) as ServiceInstance
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find { key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find { key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find {
+            key == ServiceContextHelper.CF_ORGANIZATION_GUID
+        }.value == org_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find {
+            key == ServiceContextHelper.CF_SPACE_GUID
+        }.value == space_guid
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
@@ -168,7 +177,9 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == KubernetesContext.KUBERNETES_PLATFORM
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find { key == ServiceContextHelper.KUBERNETES_NAMESPACE }.value == "namespace_guid"
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail> find {
+            key == ServiceContextHelper.KUBERNETES_NAMESPACE
+        }.value == "namespace_guid"
     }
 
 }

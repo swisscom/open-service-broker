@@ -16,11 +16,12 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
 
@@ -28,7 +29,8 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
     ServiceInstanceRepository serviceInstanceRepository
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyServiceManagerBased', ServiceProviderService.findInternalName(DummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyServiceManagerBased',
+                                                      findInternalName(DummyServiceProvider.class))
     }
 
     def cleanupSpec() {
@@ -52,7 +54,8 @@ class EndpointLookupFunctionalSpec extends BaseFunctionalSpec {
     def "should get an empty response for a *NON* service manager based service"() {
         given:
         ServiceLifeCycler lifeCycler = applicationContext.getBean(ServiceLifeCycler.class)
-        lifeCycler.createServiceIfDoesNotExist('SynchronousDummy', ServiceProviderService.findInternalName(DummySynchronousServiceProvider.class))
+        lifeCycler.createServiceIfDoesNotExist('SynchronousDummy',
+                                               findInternalName(DummySynchronousServiceProvider.class))
         lifeCycler.createServiceInstanceAndAssert(0, false, false)
         when:
         def response = serviceBrokerClient.getEndpoint(lifeCycler.serviceInstanceId)
