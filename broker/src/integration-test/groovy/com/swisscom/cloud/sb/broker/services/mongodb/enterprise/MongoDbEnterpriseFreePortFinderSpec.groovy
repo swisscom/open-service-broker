@@ -21,10 +21,14 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification {
     private MongoDbEnterpriseFreePortFinder mongoDbEnterpriseFreePortFinder
@@ -50,7 +54,7 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         and:
         def plan = dbTestUtil.createPlan('plan1', UUID.randomUUID().toString(), true, 'test', 'id')
         and:
-        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderService.findInternalName(MongoDbEnterpriseServiceProvider)))
+        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: findInternalName(MongoDbEnterpriseServiceProvider)))
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:
@@ -69,7 +73,7 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         and:
         def plan = dbTestUtil.createPlan('plan1', UUID.randomUUID().toString(), true, 'test', 'id')
         and:
-        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: ServiceProviderService.findInternalName(MongoDbEnterpriseServiceProvider)))
+        CFService cfService = cfServiceRepository.save(new CFService(guid: UUID.randomUUID().toString(), name: 'MongoDbEnterpriseFreePortFinderSpec', internalName: findInternalName(MongoDbEnterpriseServiceProvider)))
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:

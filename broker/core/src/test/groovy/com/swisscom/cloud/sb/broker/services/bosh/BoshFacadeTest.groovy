@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance

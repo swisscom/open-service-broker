@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.client
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
@@ -64,7 +63,7 @@ class BoshClient {
 
     /**
      * Deletes a deployment if it exists and returns the id of the task deleting the deployment
-     * if the deployment does not exist, an {@link Optional#absent} is returned
+     * if the deployment does not exist, an {@link Optional#empty} is returned
      *
      * @param id deploymentId to be deleted
      * @return String indicating task id that is created.
@@ -74,7 +73,7 @@ class BoshClient {
             return Optional.of(boshRestClient.deleteDeployment(id))
         } catch (BoshResourceNotFoundException e) {
             LOG.warn("[delete]: Bosh deployment ${id} not found")
-            return Optional.absent()
+            return Optional.empty()
         }
     }
 

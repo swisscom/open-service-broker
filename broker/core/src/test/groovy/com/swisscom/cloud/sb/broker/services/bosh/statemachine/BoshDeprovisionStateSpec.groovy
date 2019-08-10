@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -23,7 +22,9 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshFacade
 import com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey
 import spock.lang.Specification
 
-import static com.google.common.base.Optional.of
+import static java.util.Optional.empty
+import static java.util.Optional.of
+
 
 class BoshDeprovisionStateSpec extends Specification {
     private BoshStateMachineContext context
@@ -56,7 +57,7 @@ class BoshDeprovisionStateSpec extends Specification {
         and:
         1 * context.boshFacade.
                 deleteBoshDeploymentIfExists(context.lastOperationJobContext.serviceInstance.details,
-                                             context.lastOperationJobContext.serviceInstance.guid) >> Optional.absent()
+                                             context.lastOperationJobContext.serviceInstance.guid) >> empty()
         when:
         def result = BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT.triggerAction(context)
         then:

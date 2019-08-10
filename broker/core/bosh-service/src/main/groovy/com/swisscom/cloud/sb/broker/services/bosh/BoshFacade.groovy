@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
@@ -231,9 +230,7 @@ class BoshFacade {
     }
 
     private static String findBoshDeploymentId(Collection<ServiceDetail> details, String guid) {
-        return from(details).
-                findValue(BOSH_DEPLOYMENT_ID).
-                or(generateDeploymentId(guid))
+        return from(details).findValue(BOSH_DEPLOYMENT_ID).orElse(generateDeploymentId(guid))
     }
 
     private Optional<String> deleteBoshDeployment(String id) {

@@ -6,8 +6,6 @@ import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 
 interface ServiceProviderService {
 
-    String findInternalName(Class clazz)
-
     ServiceProvider findServiceProvider(String name)
 
     ServiceProvider findServiceProvider(Plan plan)

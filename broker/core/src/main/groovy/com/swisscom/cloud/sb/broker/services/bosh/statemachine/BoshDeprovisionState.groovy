@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
@@ -75,7 +74,7 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
     static Optional<BoshDeprovisionState> of(String text) {
         def result = BoshDeprovisionState.values().find {it.name() == text}
         if (!result) {
-            return Optional.absent()
+            return Optional.empty()
         }
         return Optional.of(result)
     }

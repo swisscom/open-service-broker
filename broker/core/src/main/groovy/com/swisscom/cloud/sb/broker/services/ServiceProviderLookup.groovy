@@ -78,8 +78,7 @@ class ServiceProviderLookup implements ServiceProviderService{
         return findServiceProvider(plan)
     }
 
-    @Override
-    String findInternalName(Class clazz) {
+    static String findInternalName(Class clazz) {
         def partialClassName = clazz.getSimpleName().substring(0, clazz.getSimpleName().lastIndexOf(POSTFIX_SERVICE_PROVIDER))
         return Introspector.decapitalize(partialClassName)
     }
