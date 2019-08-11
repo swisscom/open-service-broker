@@ -6,7 +6,7 @@ A service for using [BOSH](https://bosh.io/docs/)
 In your Spring boot application `build.gradle`, include the following dependency:
 ```$groovy
 dependencies {
-    compile 'com.swisscom.cloud.sb:bosh-service:6.1.1-SNAPSHOT'
+    compile 'com.swisscom.cloud.sb:bosh-service:6.7.0'
 ```
 
 ## Configuration 
@@ -43,4 +43,4 @@ Run:
 $ ./gradlew build
 ```
 
-The resulting jar will be at `build/libs/bosh-service-6.1.1-SNAPSHOT.jar`
+The resulting jar will be at `build/libs/bosh-service-6.7.0.jar`
