@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.util.JsonHelper
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,16 +47,17 @@ class SchemasDto {
 
     SchemasDto(Plan plan) {
         MethodSchemaDto serviceInstanceCreateSchema = null
+        ObjectMapper objectMapper = new ObjectMapper()
         if (plan.serviceInstanceCreateSchema) {
-            serviceInstanceCreateSchema = new MethodSchemaDto(JsonHelper.parse(plan.serviceInstanceCreateSchema, Map) as Map)
+            serviceInstanceCreateSchema = new MethodSchemaDto(objectMapper.readValue(plan.serviceInstanceCreateSchema, Map) as Map)
         }
         MethodSchemaDto serviceInstanceUpdateSchema = null
         if (plan.serviceInstanceUpdateSchema) {
-            serviceInstanceUpdateSchema = new MethodSchemaDto(JsonHelper.parse(plan.serviceInstanceUpdateSchema, Map) as Map)
+            serviceInstanceUpdateSchema = new MethodSchemaDto(objectMapper.readValue(plan.serviceInstanceUpdateSchema, Map) as Map)
         }
         MethodSchemaDto serviceBindingCreateSchema = null
         if (plan.serviceBindingCreateSchema) {
-            serviceBindingCreateSchema = new MethodSchemaDto(JsonHelper.parse(plan.serviceBindingCreateSchema, Map) as Map)
+            serviceBindingCreateSchema = new MethodSchemaDto(objectMapper.readValue(plan.serviceBindingCreateSchema, Map) as Map)
         }
 
         if (serviceInstanceCreateSchema || serviceInstanceUpdateSchema) {
