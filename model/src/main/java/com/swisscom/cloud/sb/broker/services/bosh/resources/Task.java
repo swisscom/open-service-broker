@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.resources;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
@@ -31,13 +32,21 @@ public interface Task {
     String getUser();
 
     enum State {
+        @JsonProperty("queued")
         QUEUED("queued", false),
+        @JsonProperty("processing")
         PROCESSING("processing", false),
+        @JsonProperty("cancelled")
         CANCELLED("cancelled", false),
-        CANCELLING("cancelled", false),
+        @JsonProperty("cancelling")
+        CANCELLING("cancelling", false),
+        @JsonProperty("done")
         DONE("done", true),
+        @JsonProperty("errored")
         ERRORED("errored", false),
+        @JsonProperty("error")
         ERROR("error", false),
+        @JsonProperty("")
         UNKNOWN("", false);
 
         private final String value;
@@ -59,7 +68,6 @@ public interface Task {
         private static final Map<String, State> stringToEnum = Stream.of(values())
                                                                      .collect(toMap(Object::toString, e -> e));
 
-        @JsonCreator
         public static Optional<State> fromString(String symbol) {
             return Optional.ofNullable(stringToEnum.get(symbol));
         }
