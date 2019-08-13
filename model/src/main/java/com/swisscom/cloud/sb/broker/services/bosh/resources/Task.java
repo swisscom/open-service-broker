@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.bosh.resources;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
@@ -58,6 +59,7 @@ public interface Task {
         private static final Map<String, State> stringToEnum = Stream.of(values())
                                                                      .collect(toMap(Object::toString, e -> e));
 
+        @JsonCreator
         public static Optional<State> fromString(String symbol) {
             return Optional.ofNullable(stringToEnum.get(symbol));
         }
