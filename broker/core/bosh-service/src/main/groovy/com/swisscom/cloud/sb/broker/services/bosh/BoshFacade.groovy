@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-import com.google.common.base.Strings
+
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
@@ -151,6 +151,10 @@ class BoshFacade {
         } else {
             return true
         }
+    }
+
+    Task.State getBoshTaskState(Map<String,ServiceDetail> details) {
+        return getBoshTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
     }
 
     void deleteConfig(String name, String type) {
