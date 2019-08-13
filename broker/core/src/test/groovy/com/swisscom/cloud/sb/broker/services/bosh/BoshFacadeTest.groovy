@@ -454,7 +454,7 @@ class BoshFacadeTest extends Specification {
 
     def "should delete generic config"() {
         when:
-        sut.deleteConfig(SERVICE_INSTANCE_GUID, "cloud")
+        sut.deleteBoshConfigs(SERVICE_INSTANCE_GUID)
 
         then:
         // Second deletion will throw BoshResourceNotFoundException when this command is successful, see test below
@@ -463,7 +463,7 @@ class BoshFacadeTest extends Specification {
 
     def "should throw BoshResourceNotFoundException when deleting non-existing generic config"() {
         when:
-        sut.deleteConfig(SERVICE_INSTANCE_GUID, "cloud")
+        sut.deleteBoshConfigs(SERVICE_INSTANCE_GUID)
 
         then:
         thrown(BoshResourceNotFoundException)

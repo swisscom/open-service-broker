@@ -61,6 +61,17 @@ class BoshFacade {
         return new BoshFacade(serviceConfig)
     }
 
+    /**
+     * Replaces the placeholders in the deployment manifest template and deploys to BOSH. See
+     * <a href="https://bosh.io/docs/deploying/">Bosh Deploying</a> for more information on BOSH deployment.
+     * @param serviceInstanceGuid Id of the service instance to be deployed
+     * @param templateUniqueIdentifier Name of the service template to be used from
+     * {@link com.swisscom.cloud.sb.broker.services.common.TemplateConfig#getServiceTemplates()}
+     * @param parameters Parameters defined in service plan
+     * {@link com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto#getParameters()}
+     * @param templateCustomizer Customizer to replace non-standard placeholders
+     * @return Collection of {@link com.swisscom.cloud.sb.broker.model.ServiceDetail}
+     */
     Collection<ServiceDetail> handleTemplatingAndCreateDeployment(String serviceInstanceGuid,
                                                                   String templateUniqueIdentifier,
                                                                   Set<Parameter> parameters,
@@ -94,8 +105,10 @@ class BoshFacade {
     }
 
     /**
-     * Replaces placeholders in BoshTemplate and creates all configs defined in serviceConfig.genericConfigs
-     * @return List of all created BoshConfigs, which is empty if there were none or there was an Exception
+     * Replaces placeholders in BoshTemplate and creates all configs (like networks or vm types) defined in
+     * {@link BoshBasedServiceConfig#getGenericConfigs()}. See <a href="https://bosh.io/docs/configs/">Generic Configs</a>
+     * for more information.
+     * @return List of all created BoshConfigs, which is empty if there were none defined or there was an Exception
      */
     List<BoshConfigResponse> handleTemplatingAndCreateConfigs(String serviceInstanceGuid,
                                                               BoshTemplateCustomizer templateCustomizer) {
@@ -117,12 +130,24 @@ class BoshFacade {
         return result
     }
 
+    /**
+     * Note: RuntimeException is thrown if task was not found, is cancelled or failed!
+     * @param details
+     * @return true if successful and false if still in progress
+     * @deprecated use {@link #getBoshTaskState()} instead
+     */
+    @Deprecated
     boolean isBoshDeployTaskSuccessful(Collection<ServiceDetail> details) {
         Assert.notNull(details, "details should not be null")
         return isBoshTaskSuccessful(findBoshTaskIdForDeploy(details))
     }
 
 
+    /**
+     * Deletes all configured {@link BoshBasedServiceConfig#getGenericConfigs()} and throws Exception if the deletion
+     * failed.
+     * @param guid id of the serviceinstance to be deleted
+     */
     void deleteBoshConfigs(String guid) {
         Assert.notNull(guid, "guid should not be null")
         Assert.hasText(guid, "guid should not be empty")
@@ -157,7 +182,7 @@ class BoshFacade {
         return getBoshTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
     }
 
-    void deleteConfig(String name, String type) {
+    private void deleteConfig(String name, String type) {
         this.boshClient.deleteConfig(name, type)
     }
 
