@@ -24,6 +24,8 @@ dependencies {
 
     compile libs.spring_credhub_starter
 
+    compile libs.commons_lang
+
     testCompile libs.groovy
     testCompile libs.groovy_test
     testCompile libs.junit

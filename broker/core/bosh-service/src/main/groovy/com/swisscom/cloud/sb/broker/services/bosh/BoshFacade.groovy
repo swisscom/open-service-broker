@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
+import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
@@ -175,14 +176,20 @@ class BoshFacade {
 
     private boolean isBoshTaskSuccessful(String taskId) {
         Assert.hasText(taskId, "Task ID cannot be empty!")
+        Task.State state = getBoshTaskState(taskId)
+        if (state == null) {
+            throw new RuntimeException("Unknown bosh task state: ${state}")
+        }
+        if ([Task.State.CANCELLED, Task.State.CANCELLING, Task.State.ERRORED].contains(state)) {
+            throw new RuntimeException("Task failed: ${taskId}")
+        }
+        return state.isSuccessful()
+    }
+
+    Task.State getBoshTaskState(String taskId) {
+        Assert.hasText(taskId, "Task ID cannot be empty!")
         Task task = this.boshClient.getTask(taskId)
-        if (task.state == null) {
-            throw new RuntimeException("Unknown bosh task state: ${task.toString()}")
-        }
-        if ([Task.State.cancelled, Task.State.cancelling, Task.State.errored].contains(task.state)) {
-            throw new RuntimeException("Task failed: ${task.toString()}")
-        }
-        return Task.State.done == task.state
+        return task.state
     }
 
     private static String generateDeploymentId(String serviceInstanceGuid) {
