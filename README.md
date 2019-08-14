@@ -16,13 +16,15 @@ client: [ ![client Download](https://api.bintray.com/packages/swisscom/open-serv
 
 ## Introduction
 
-Open Service Broker is an implementation of the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md). It enables platforms such as [Cloud Foundry](https://www.cloudfoundry.org/) & [Kubernetes](https://kubernetes.io/) to provision and manage services.
+Open Service Broker is an implementation of the [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md). 
+It enables platforms such as [Cloud Foundry](https://www.cloudfoundry.org/) & [Kubernetes](https://kubernetes.io/) to provision and manage services.
 
 Open Service Broker is built in a modular way and one service broker can host multiple services.
 
 Service broker offers extra functionality regarding Billing, Backup/Restore on top of the Open Service Broker API.
 
-Services can be provisioned synchronously and/or asynchronously and the goal of this project is to provide a framework with which any service can easily be provisioned.  
+Services can be provisioned synchronously and/or asynchronously and the goal of this project is to provide a framework
+with which any service can easily be provisioned.  
 
 ![Service Broker](./img/SB.png)The image above shows the high level architecture.
 
@@ -62,7 +64,9 @@ $ cd docker
 $ docker-compose up -d
 ``` 
 
-Configurations for test purposes with the docker-compose environment can be put into [broker/src/main/resources/application-test.yml](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/resources/application-test.yml). The profile can be activated by annotating the test class with `@ActiveProfiles("info,default,extensions,secrets,test")`.
+Configurations for test purposes with the docker-compose environment can be put into
+[broker/src/main/resources/application-test.yml](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/resources/application-test.yml).
+The profile can be activated by annotating the test class with `@ActiveProfiles("info,default,extensions,secrets,test")`.
 
 #### Database
 
@@ -75,7 +79,8 @@ To run the built artifact, from the root directory the following commands can be
 ```bash
 java -jar -Dspring.config.additional-location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
 ```
-The config file passed can overwrite any default values. Providing an external config file is optional and when no external config file is provided, the default values are dictated by application.yml file(s).
+The config file passed can overwrite any default values. Providing an external config file is optional and when no
+external config file is provided, the default values are dictated by application.yml file(s).
 
 or
 
@@ -87,7 +92,8 @@ At the time being, Service Broker is recommended to run with only one instance t
 This issue will be fixed soon.
 
 ### Openshift Deployment
-For installing Service Broker on Openshift, use the *openshift-deploy.sh* script. This script creates a new MariaDB instance and provisions a new Service Broker instance & configures SB to use the newly created DB.
+For installing Service Broker on Openshift, use the *openshift-deploy.sh* script. This script creates a new MariaDB
+instance and provisions a new Service Broker instance & configures SB to use the newly created DB.
 
 ### IDE/IntelliJ
 When importing this project into IntelliJ, select the "create separate module per source set option".
@@ -252,7 +258,8 @@ Here is an example:
 curl -u 'username:password' -X POST -H 'Content-Type: application/json' --data-binary '@path/to/definition/file.json' 'http://localhost:8080/custom/admin/service-definition'
 ```
 
-This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan that is in use is tried to be removed an exception will be thrown.
+This interface can be used for both adding a new service or updating an existing one. For an existing service, if a plan
+that is in use is tried to be removed an exception will be thrown.
 
 ### Remove service definition
 > **DEPRECATED**: The service-definition API is deprecated and will be removed in future releases
@@ -277,7 +284,13 @@ Check the class [`BoshBasedServiceProvider`](broker/src/main/groovy/com/swisscom
 https://github.com/swisscom/mongodb-enterprise-boshrelease
 
 ### Kubernetes based services
-Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task is being created to prepare the provisioning of the service instance. Kubernetes [Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy) is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy) to execute a bunch of "templated" HTTP calls on Kubernetes API. All the templates can be read from the `application.yml` and are automatically read inside a specific [ServiceProvider](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/redis/service/KubernetesRedisServiceProvider.groovy).
+Any [Kubernetes](http://kubernetes.io) based service can be provisioned with Open Service Broker. The asynchronous task
+is being created to prepare the provisioning of the service instance. Kubernetes
+[Facade](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/KubernetesFacade.groovy)
+is using the [client](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/client/rest/KubernetesClient.groovy)
+to execute a bunch of "templated" HTTP calls on Kubernetes API. All the templates can be read from the `application.yml`
+and are automatically read inside a specific
+[ServiceProvider](https://github.com/swisscom/open-service-broker/blob/develop/broker/src/main/groovy/com/swisscom/cloud/sb/broker/services/kubernetes/facade/redis/service/KubernetesRedisServiceProvider.groovy).
      
 ### OpenWhisk
 Open Service Broker can broker your local deployment of OpenWhisk.
@@ -323,7 +336,8 @@ Binding will return the HOST, UUID, and KEY. With these credentials, you can con
 wsk property set --apihost HOST --auth UUID:KEY
 ```
 
-As the OpenWhisk API does not provide the create/update/delete functionality that we were hoping for, we perform CRUD namespace/subject directly into the CouchDB.
+As the OpenWhisk API does not provide the create/update/delete functionality that we were hoping for, we perform CRUD
+namespace/subject directly into the CouchDB.
 
 ### Eden
 
@@ -338,7 +352,9 @@ eden provision -s redis -p small -i test_redis
 Before you are able to run these commands above make sure to have Open Service Broker running and desired service definitions got published.
 
 ### Logging
-The logging is based on [Slf4j](https://www.slf4j.org/) with the [Log4J2 Extension](https://logging.apache.org/log4j/2.0/log4j-slf4j-impl/). The log output can be modified with the default [log4j2 configuration](https://logging.apache.org/log4j/2.x/manual/configuration.html) methods (e.g. log4j2.properties, log4j2.yaml ...).
+The logging is based on [Slf4j](https://www.slf4j.org/) with the [Log4J2 Extension](https://logging.apache.org/log4j/2.0/log4j-slf4j-impl/).
+The log output can be modified with the default [log4j2 configuration](https://logging.apache.org/log4j/2.x/manual/configuration.html)
+methods (e.g. log4j2.properties, log4j2.yaml ...).
 The default configuration returns a compacts json format with every item on a single line.
 
 to allow local logging in human readable format the following files have been added to .gitIgnore:
