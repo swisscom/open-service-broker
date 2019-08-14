@@ -1,0 +1,38 @@
+apply plugin: "io.spring.dependency-management"
+
+jar{
+    enabled = true
+}
+
+test{
+    systemProperty 'bosh.mocked', "${boshMocked}"
+    systemProperty 'bosh.url', "${boshUrl}"
+    systemProperty 'bosh.username', "${boshUsername}"
+    systemProperty 'bosh.password', "${boshPassword}"
+    systemProperty 'uaa.url', "${uaaUrl}"
+    systemProperty 'shield.mocked', "${shieldMocked}"
+    systemProperty 'shield.url', "${shieldUrl}"
+    systemProperty 'shield.username', "${shieldUsername}"
+    systemProperty 'shield.password', "${shieldPassword}"
+    systemProperty 'shield.api.key', "${shieldApiKey}"
+}
+
+dependencies {
+    annotationProcessor "org.immutables:value:2.7.5"
+    compile project(':model')
+    compile project(':broker:core:credhub-service')
+
+    compile libs.spring_credhub_starter
+
+    compile libs.commons_lang
+
+    testCompile libs.groovy
+    testCompile libs.groovy_test
+    testCompile libs.junit
+    testCompile libs.spock
+    testCompile libs.spock_spring
+    testCompile libs.cglib
+    testCompile libs.groovy_test
+    testCompile libs.spring_boot_starter_test
+    testCompile libs.wiremock
+}

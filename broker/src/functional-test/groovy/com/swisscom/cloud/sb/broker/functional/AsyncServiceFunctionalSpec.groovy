@@ -18,9 +18,9 @@ package com.swisscom.cloud.sb.broker.functional
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceContextDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceContextDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import com.swisscom.cloud.sb.client.model.LastOperationState
@@ -32,6 +32,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+
 class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
@@ -41,7 +43,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
     private int processDelayInSeconds = DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 2
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', ServiceProviderLookup.findInternalName(DummyServiceProvider.class))
+        serviceLifeCycler.createServiceIfDoesNotExist('AsyncDummy', findInternalName(DummyServiceProvider.class))
     }
 
     def cleanupSpec() {

@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh.statemachine
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
@@ -26,20 +25,23 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineContext> {
-    DELETE_CONFIGS(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
+    DELETE_CONFIGS(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            context.boshFacade.deleteBoshConfigs(context.lastOperationJobContext)
+            context.boshFacade.deleteBoshConfigs(context.lastOperationJobContext.serviceInstance.guid)
             return new StateChangeActionResult(go2NextState: true)
         }
     }),
-    DELETE_BOSH_DEPLOYMENT(LastOperation.Status.IN_PROGRESS,new OnStateChange<BoshStateMachineContext>() {
+    DELETE_BOSH_DEPLOYMENT(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            Optional<String> optionalTaskId = context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext)
+            Optional<String> optionalTaskId = context.boshFacade.deleteBoshDeploymentIfExists(context.lastOperationJobContext.serviceInstance.details,
+                                                                                              context.lastOperationJobContext.serviceInstance.guid)
             Collection<ServiceDetail> details = []
-            if(optionalTaskId.present) {
-                details.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY, optionalTaskId.get(), true))
+            if (optionalTaskId.present) {
+                details.add(ServiceDetail.from(BoshServiceDetailKey.BOSH_TASK_ID_FOR_UNDEPLOY,
+                                               optionalTaskId.get(),
+                                               true))
             }
             return new StateChangeActionResult(go2NextState: true, details: details)
         }
@@ -47,14 +49,14 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
     CHECK_BOSH_UNDEPLOY_TASK_STATE(LastOperation.Status.IN_PROGRESS, new OnStateChange<BoshStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(BoshStateMachineContext context) {
-            return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext))
+            return new StateChangeActionResult(go2NextState: context.boshFacade.isBoshUndeployTaskSuccessful(context.lastOperationJobContext.serviceInstance.details))
         }
     })
 
     final LastOperation.Status status
     final OnStateChange<BoshStateMachineContext> onStateChange
 
-    BoshDeprovisionState(final LastOperation.Status status,OnStateChange<BoshStateMachineContext> onStateChange) {
+    BoshDeprovisionState(final LastOperation.Status status, OnStateChange<BoshStateMachineContext> onStateChange) {
         this.status = status
         this.onStateChange = onStateChange
     }
@@ -70,9 +72,9 @@ enum BoshDeprovisionState implements ServiceStateWithAction<BoshStateMachineCont
     }
 
     static Optional<BoshDeprovisionState> of(String text) {
-        def result = BoshDeprovisionState.values().find { it.name() == text }
+        def result = BoshDeprovisionState.values().find {it.name() == text}
         if (!result) {
-            return Optional.absent()
+            return Optional.empty()
         }
         return Optional.of(result)
     }

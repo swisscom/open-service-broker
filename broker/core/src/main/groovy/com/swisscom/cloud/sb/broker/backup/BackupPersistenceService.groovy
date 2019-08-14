@@ -18,8 +18,8 @@ package com.swisscom.cloud.sb.broker.backup
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.BackupRepository
-import com.swisscom.cloud.sb.broker.model.repository.RestoreRepository
+import com.swisscom.cloud.sb.broker.repository.BackupRepository
+import com.swisscom.cloud.sb.broker.repository.RestoreRepository
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

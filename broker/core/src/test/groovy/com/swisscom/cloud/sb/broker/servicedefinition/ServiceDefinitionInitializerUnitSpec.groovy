@@ -19,11 +19,11 @@ import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.model.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.repository.ParameterRepository
+import com.swisscom.cloud.sb.broker.repository.PlanMetadataRepository
+import com.swisscom.cloud.sb.broker.repository.PlanRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import spock.lang.Specification
 

@@ -17,7 +17,7 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic

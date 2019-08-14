@@ -15,8 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.updating
 
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.model.repository.UpdateRequestRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import spock.lang.Specification
 

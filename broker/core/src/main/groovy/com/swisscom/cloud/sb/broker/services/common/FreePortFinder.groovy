@@ -15,13 +15,16 @@
 
 package com.swisscom.cloud.sb.broker.services.common
 
-import com.google.common.base.Optional
+
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 
 import java.lang.reflect.ParameterizedType
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 abstract class FreePortFinder<T extends ServiceProvider> {
     private final String portRange
@@ -58,7 +61,7 @@ abstract class FreePortFinder<T extends ServiceProvider> {
     }
 
     private List<ServiceInstance> findServiceInstancesOfServiceProvider() {
-        return serviceInstanceRepository.listAllForInternalName(ServiceProviderLookup.findInternalName(findGenericType()))
+        return serviceInstanceRepository.listAllForInternalName(findInternalName(findGenericType()))
     }
 
     private Class findGenericType() {

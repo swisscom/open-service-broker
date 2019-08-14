@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -351,7 +350,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -368,7 +367,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshDeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         boshTaskSuccessful
@@ -382,7 +381,8 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context)
+        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context.serviceInstance.details,
+                                                                                   context.serviceInstance.guid)
         deleteDeploymentTaskId = deploymentDeleteTaskId.get()
 
         then:
@@ -398,7 +398,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -416,7 +416,7 @@ class BoshFacadeTest extends Specification {
 
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         boshTaskSuccessful
@@ -439,7 +439,7 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context)
+        boolean boshTaskSuccessful = sut.isBoshUndeployTaskSuccessful(context.serviceInstance.details)
 
         then:
         !boshTaskSuccessful
@@ -454,7 +454,7 @@ class BoshFacadeTest extends Specification {
 
     def "should delete generic config"() {
         when:
-        sut.deleteConfig(SERVICE_INSTANCE_GUID, "cloud")
+        sut.deleteBoshConfigs(SERVICE_INSTANCE_GUID)
 
         then:
         // Second deletion will throw BoshResourceNotFoundException when this command is successful, see test below
@@ -463,7 +463,7 @@ class BoshFacadeTest extends Specification {
 
     def "should throw BoshResourceNotFoundException when deleting non-existing generic config"() {
         when:
-        sut.deleteConfig(SERVICE_INSTANCE_GUID, "cloud")
+        sut.deleteBoshConfigs(SERVICE_INSTANCE_GUID)
 
         then:
         thrown(BoshResourceNotFoundException)
@@ -476,7 +476,8 @@ class BoshFacadeTest extends Specification {
         LastOperationJobContext context = new LastOperationJobContext(serviceInstance: serviceInstance)
 
         when:
-        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context)
+        Optional<String> deploymentDeleteTaskId = sut.deleteBoshDeploymentIfExists(context.serviceInstance.details,
+                                                                                   context.serviceInstance.guid)
 
         then:
         !deploymentDeleteTaskId.isPresent()

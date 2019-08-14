@@ -1,6 +1,6 @@
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceProvider
 import groovy.json.JsonSlurper
@@ -18,7 +18,9 @@ import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Stepwise
 
-@IgnoreIf({ !CredHubServiceProviderFunctionalSpec.checkCredHubConfigSet() })
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+
+@IgnoreIf({!CredHubServiceProviderFunctionalSpec.checkCredHubConfigSet()})
 @ActiveProfiles("info,default,extensions,secrets,test")
 @Stepwise
 class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
@@ -34,19 +36,28 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
 
     def setupSpec() {
         System.setProperty('http.nonProxyHosts', 'localhost|127.0.0.1|uaa.service.cf.internal|credhub.service.consul')
-        System.setProperty('javax.net.ssl.keyStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.keyStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.keyStorePassword', 'changeit')
-        System.setProperty('javax.net.ssl.trustStore', FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
+        System.setProperty('javax.net.ssl.trustStore',
+                           FileUtils.getFile('src/functional-test/resources/credhub_client.jks').toURI().getPath())
         System.setProperty('javax.net.ssl.trustStorePassword', 'changeit')
     }
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist('credHubTest', ServiceProviderLookup.findInternalName(CredHubServiceProvider), null, null, null, 0, true, true)
+        serviceLifeCycler.createServiceIfDoesNotExist('credHubTest',
+                                                      findInternalName(CredHubServiceProvider),
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      0,
+                                                      true,
+                                                      true)
     }
 
     def "provision chaas service instance"() {
         when:
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false,false, null, ["password":"pass"])
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false, false, null, ["password": "pass"])
         creds = serviceLifeCycler.getCredentials()
         println("Credentials: ${creds.get("credhub-ref")}")
 
@@ -57,18 +68,24 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     def "interpolate credhub ref"() {
         when:
         def jsonSlurper = new JsonSlurper()
-        def object = jsonSlurper.parseText("""{"chaas": [{ "credentials": { "credhub-ref": "${creds.get("credhub-ref")}" }, "instance_name": "creds", "label": "chaas", "name": "creds", "plan": "basic", "tags": [] }]}""")
+        def object = jsonSlurper.parseText("""{"chaas": [{ "credentials": { "credhub-ref": "${
+            creds.get("credhub-ref")
+        }" }, "instance_name": "creds", "label": "chaas", "name": "creds", "plan": "basic", "tags": [] }]}""")
         ServicesData data = new ServicesData(object as HashMap)
-        CredHubInterpolationOperations credHubInterpolationOperations = new CredHubInterpolationTemplate(credHubOperations)
+        CredHubInterpolationOperations credHubInterpolationOperations = new CredHubInterpolationTemplate(
+                credHubOperations)
 
         then:
         ServicesData newData = credHubInterpolationOperations.interpolateServiceData(data)
-        assert newData.get("chaas").get(0).get("credentials") == ["password":"pass"]
+        assert newData.get("chaas").get(0).get("credentials") == ["password": "pass"]
     }
 
     def "update chaas service instance"() {
         when:
-        serviceLifeCycler.requestUpdateServiceInstance(serviceLifeCycler.serviceInstanceId, serviceLifeCycler.cfService.guid, serviceLifeCycler.cfService.plans.first().guid, ["password":"anotherpass"])
+        serviceLifeCycler.requestUpdateServiceInstance(serviceLifeCycler.serviceInstanceId,
+                                                       serviceLifeCycler.cfService.guid,
+                                                       serviceLifeCycler.cfService.plans.first().guid,
+                                                       ["password": "anotherpass"])
         creds = serviceLifeCycler.getCredentials()
         println("Credentials: ${creds.get("credhub-ref")}")
 
@@ -79,13 +96,16 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     def "interpolate updated credhub ref"() {
         when:
         def jsonSlurper = new JsonSlurper()
-        def object = jsonSlurper.parseText("""{"chaas": [{ "credentials": { "credhub-ref": "${creds.get("credhub-ref")}" }, "instance_name": "creds", "label": "chaas", "name": "creds", "plan": "basic", "tags": [] }]}""")
+        def object = jsonSlurper.parseText("""{"chaas": [{ "credentials": { "credhub-ref": "${
+            creds.get("credhub-ref")
+        }" }, "instance_name": "creds", "label": "chaas", "name": "creds", "plan": "basic", "tags": [] }]}""")
         ServicesData data = new ServicesData(object as HashMap)
-        CredHubInterpolationOperations credHubInterpolationOperations = new CredHubInterpolationTemplate(credHubOperations)
+        CredHubInterpolationOperations credHubInterpolationOperations = new CredHubInterpolationTemplate(
+                credHubOperations)
 
         then:
         ServicesData newData = credHubInterpolationOperations.interpolateServiceData(data)
-        assert newData.get("chaas").get(0).get("credentials") == ["password":"anotherpass"]
+        assert newData.get("chaas").get(0).get("credentials") == ["password": "anotherpass"]
     }
 
     def "deprovision chaas service instance"() {
@@ -100,8 +120,9 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     def "unbind already removed permission"() {
         when:
         serviceLifeCycler.serviceInstanceId = UUID.randomUUID().toString()
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false,false, null, ["password":"pass"])
-        credHubService.deletePermission("/swisscom-service-broker/credhub/" + serviceLifeCycler.serviceInstanceId + "/credentials", "app-id")
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false, false, null, ["password": "pass"])
+        credHubService.deletePermission("/swisscom-service-broker/credhub/" + serviceLifeCycler.serviceInstanceId + "/credentials",
+                                        "app-id")
 
         serviceLifeCycler.deleteServiceBindingAndAssert(serviceLifeCycler.serviceBindingId)
 
@@ -115,7 +136,7 @@ class CredHubServiceProviderFunctionalSpec extends BaseFunctionalSpec {
     def "deprovision chaas service instance not existing in credhub"() {
         when:
         serviceLifeCycler.serviceInstanceId = UUID.randomUUID().toString()
-        serviceLifeCycler.createServiceInstanceAndAssert(0, false,false, ["password":"pass"])
+        serviceLifeCycler.createServiceInstanceAndAssert(0, false, false, ["password": "pass"])
         creds = serviceLifeCycler.getCredentials()
         println("Credentials: ${creds.get("credhub-ref")}")
 

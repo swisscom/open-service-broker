@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
 import com.swisscom.cloud.sb.broker.services.mariadb.MariaDBServiceProvider
 import com.swisscom.cloud.sb.model.usage.ServiceUsage
 import com.swisscom.cloud.sb.model.usage.ServiceUsageType
@@ -24,12 +24,14 @@ import groovy.util.logging.Log4j
 import org.springframework.http.ResponseEntity
 import spock.lang.IgnoreIf
 
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
+
 @Log4j
-@IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBUsageFunctionalSpec']) })
+@IgnoreIf({!Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBUsageFunctionalSpec'])})
 class MariaDBUsageFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
-        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", ServiceProviderLookup.findInternalName(MariaDBServiceProvider))
+        serviceLifeCycler.createServiceIfDoesNotExist("mariadb", findInternalName(MariaDBServiceProvider))
     }
 
     def cleanupSpec() {

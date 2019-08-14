@@ -19,8 +19,8 @@ import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
 import com.swisscom.cloud.sb.broker.metrics.ServiceInstanceMetricsService
-import com.swisscom.cloud.sb.broker.model.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import groovy.transform.CompileStatic

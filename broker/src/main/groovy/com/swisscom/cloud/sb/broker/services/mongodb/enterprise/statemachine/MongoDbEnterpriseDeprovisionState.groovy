@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.OnStateChange
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceState

@@ -19,9 +19,9 @@ package com.swisscom.cloud.sb.broker.services.health
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.model.health.ServiceHealth
 import com.swisscom.cloud.sb.model.health.ServiceHealthStatus
 import groovy.transform.CompileStatic

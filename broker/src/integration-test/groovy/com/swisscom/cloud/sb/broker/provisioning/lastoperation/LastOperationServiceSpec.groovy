@@ -19,7 +19,7 @@ import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.model.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import org.springframework.beans.factory.annotation.Autowired
 

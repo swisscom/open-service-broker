@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.config
 
-import com.swisscom.cloud.sb.broker.model.repository.BaseRepositoryImpl
+import com.swisscom.cloud.sb.broker.repository.BaseRepositoryImpl
 import com.swisscom.cloud.sb.broker.util.LogContextEnrichInterceptor
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
@@ -34,7 +34,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @CompileStatic
 @Configuration
-@EnableJpaRepositories(value = 'com.swisscom.cloud.sb.broker.model.repository', repositoryBaseClass = BaseRepositoryImpl.class)
+@EnableJpaRepositories(value = 'com.swisscom.cloud.sb.broker.repository', repositoryBaseClass = BaseRepositoryImpl.class)
 @ImportResource(value = 'classpath:beans.xml')
 @EnableSwagger2
 @EnableTransactionManagement

@@ -18,8 +18,8 @@ package com.swisscom.cloud.sb.broker.util
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.repository.ServiceDetailRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 

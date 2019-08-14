@@ -15,16 +15,18 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceHealthServiceProvider
 import com.swisscom.cloud.sb.model.health.ServiceHealthStatus
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class ServiceHealthProviderFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist(
                 'DummyServiceProvider',
-                ServiceProviderLookup.findInternalName(DummyServiceHealthServiceProvider.class))
+                findInternalName(DummyServiceHealthServiceProvider.class))
     }
 
     def cleanupSpec() {

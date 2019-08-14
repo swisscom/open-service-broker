@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.model.ApplicationUser
-import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
+import com.swisscom.cloud.sb.broker.repository.ApplicationUserRepository
 import com.swisscom.cloud.sb.broker.security.ApplicationUserInitializer
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder

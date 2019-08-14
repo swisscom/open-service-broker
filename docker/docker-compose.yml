@@ -7,7 +7,7 @@ services:
     volumes:
       - ./uaa.yml:/uaa/uaa.yml
     ports:
-    - 8081:8080
+    - 9091:8080
     restart: always
 
   credhub:

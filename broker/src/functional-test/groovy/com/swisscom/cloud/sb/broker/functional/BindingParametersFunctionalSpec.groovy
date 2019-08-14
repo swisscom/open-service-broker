@@ -17,9 +17,8 @@ package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.model.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import com.swisscom.cloud.sb.broker.util.test.DummySynchronousServiceProvider
 import org.apache.commons.io.FileUtils
@@ -27,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
+
+import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
@@ -49,7 +50,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      findInternalName(
                                                               DummySynchronousServiceProvider.class))
     }
 
@@ -85,7 +86,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and bind with parameters with bindings not retrievable"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummy',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -116,7 +117,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and bind with parameters with bindings retrievable"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -148,7 +149,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and fetch non existing binding"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,
@@ -174,7 +175,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
     def "provision async service instance and unbind non existing binding"() {
         given:
         serviceLifeCycler.createServiceIfDoesNotExist('SyncDummyInstancesRetrievable',
-                                                      ServiceProviderLookup.findInternalName(
+                                                      findInternalName(
                                                               DummySynchronousServiceProvider.class),
                                                       null,
                                                       null,

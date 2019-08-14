@@ -32,4 +32,5 @@ dependencies {
     testCompile libs.spring_boot_starter_tomcat
     testCompile libs.spock
     testCompile libs.spock_spring
+    testRuntime libs.mysql_connector_java
 }

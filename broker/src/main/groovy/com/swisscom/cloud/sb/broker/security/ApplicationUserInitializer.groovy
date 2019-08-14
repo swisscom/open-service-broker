@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.security
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.model.ApplicationUser
-import com.swisscom.cloud.sb.broker.model.repository.ApplicationUserRepository
+import com.swisscom.cloud.sb.broker.repository.ApplicationUserRepository
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties

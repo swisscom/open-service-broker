@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.functional
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import com.swisscom.cloud.sb.broker.model.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubMigrationInitializer
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.IgnoreIf

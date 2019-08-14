@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.util.test
 
-import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
@@ -107,10 +106,6 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
         new DateTime(dateCreation).plusSeconds(10).isBeforeNow()
     }
 
-    @Override
-    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
-        return new ServiceUsage(value: "0", type: ServiceUsageType.TRANSACTIONS)
-    }
 
     @Override
     ShieldTarget buildShieldTarget(ServiceInstance serviceInstance) {
@@ -126,5 +121,10 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
     @Override
     Collection<Extension> buildExtensions(){
         return [new Extension(discovery_url: "URL")]
+    }
+
+    @Override
+    ServiceUsage findUsage(ServiceInstance serviceInstance, Optional<Date> enddate) {
+        return new ServiceUsage(value: "0", type: ServiceUsageType.TRANSACTIONS)
     }
 }
