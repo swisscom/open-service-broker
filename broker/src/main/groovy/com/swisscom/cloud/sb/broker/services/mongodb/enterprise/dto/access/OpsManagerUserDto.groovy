@@ -35,6 +35,8 @@ class OpsManagerUserDto implements Serializable {
         GROUP_BACKUP_ADMIN,
         GROUP_MONITORING_ADMIN,
         GROUP_DATA_ACCESS_ADMIN,
+        GROUP_DATA_ACCESS_READ_ONLY,
+        GROUP_DATA_ACCESS_READ_WRITE,
         GROUP_OWNER,
         GROUP_READ_ONLY,
         GROUP_USER_ADMIN
