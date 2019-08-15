@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
-import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
+import com.swisscom.cloud.sb.broker.cfapi.dto.CFPlanDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -26,10 +26,10 @@ import static MetadataJsonHelper.getValue
 
 @Component
 @CompileStatic
-class PlanDtoConverter extends AbstractGenericConverter<Plan, PlanDto> {
+class PlanDtoConverter extends AbstractGenericConverter<Plan, CFPlanDto> {
 
     @Override
-    void convert(Plan source, PlanDto prototype) {
+    void convert(Plan source, CFPlanDto prototype) {
         prototype.id = source.guid
         prototype.name = source.name
         prototype.active = source.active

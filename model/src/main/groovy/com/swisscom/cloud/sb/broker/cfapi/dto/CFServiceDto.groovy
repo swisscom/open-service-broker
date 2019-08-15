@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -26,7 +27,8 @@ class CFServiceDto implements Serializable {
     String description
     boolean bindable
     boolean active = true
-    List<PlanDto> plans
+    @JsonProperty("plans")
+    List<CFPlanDto> cfPlans
     List<String> tags
     List<String> requires
     Map<String, Object> metadata = new HashMap<String, Object>()

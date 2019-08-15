@@ -15,10 +15,11 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition.dto
 
+import com.swisscom.cloud.sb.broker.cfapi.dto.CFPlanDto
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class PlanDto extends com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto {
+class PlanDto extends CFPlanDto {
     String guid
     String templateId
     String templateVersion
