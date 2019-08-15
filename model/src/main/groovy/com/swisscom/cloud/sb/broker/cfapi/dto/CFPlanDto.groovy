@@ -20,7 +20,7 @@ import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class PlanDto {
+class CFPlanDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String id
     String name

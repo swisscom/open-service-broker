@@ -39,7 +39,7 @@ class CFServiceDtoConverter extends AbstractGenericConverter<CFService, CFServic
         prototype.name = source.name
         prototype.description = source.description
         prototype.metadata = convertMetadata(source)
-        prototype.plans = planDtoConverter.convertAll(source.plans.sort { it.displayIndex })
+        prototype.cfPlans = planDtoConverter.convertAll(source.plans.sort { it.displayIndex })
         prototype.tags = source.tags.collect { Tag t -> t.tag }
         prototype.requires = source.permissions.collect { CFServicePermission p -> p.permission }
         prototype.dashboard_client = dashboardClientDtoConverter.convert(source)

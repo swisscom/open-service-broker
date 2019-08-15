@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
-import com.swisscom.cloud.sb.broker.cfapi.dto.PlanDto
+import com.swisscom.cloud.sb.broker.cfapi.dto.CFPlanDto
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import spock.lang.Specification
@@ -47,7 +47,7 @@ class PlanDtoConverterSpec extends Specification {
         def planDtoConverter = new PlanDtoConverter()
         def plan = new Plan(metadata: [new PlanMetadata(key: "key1", value: value, type: type)])
         when:
-        PlanDto planMetadataDto = planDtoConverter.convert(plan)
+        CFPlanDto planMetadataDto = planDtoConverter.convert(plan)
         then:
         planMetadataDto.metadata.get('key1') == result
         where:
