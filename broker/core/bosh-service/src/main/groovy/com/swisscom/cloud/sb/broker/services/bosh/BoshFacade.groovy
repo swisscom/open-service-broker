@@ -92,7 +92,7 @@ class BoshFacade {
 
         updateTemplateFromDatabaseConfiguration(template, parameters)
 
-        Collection<ServiceDetail> result = templateCustomizer.customizeBoshTemplate(template, serviceInstanceGuid) ?: []
+        Collection<ServiceDetail> result = new ArrayList<>(templateCustomizer.customizeBoshTemplate(template, serviceInstanceGuid) ?: [])
 
         result.add(ServiceDetail.from(BOSH_DEPLOYMENT_ID, generateDeploymentId(serviceInstanceGuid)))
         result.add(ServiceDetail.from(BOSH_TASK_ID_FOR_DEPLOY, this.boshClient.postDeployment(template.build()), true))
