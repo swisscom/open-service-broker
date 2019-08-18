@@ -22,6 +22,8 @@ import org.yaml.snakeyaml.Yaml
 import java.util.regex.Pattern
 
 class BoshTemplate {
+    private static final String BOSH_TEMPLATE_REGEX_FOR_VARIABLES = "\"\\{\\{VARIABLE}}\"|\\{\\{VARIABLE}}";
+
     public static final String REGEX_PLACEHOLDER_PREFIX = '\\{\\{'
     public static final String REGEX_PLACEHOLDER_POSTFIX = '\\}\\}'
     public static final Pattern anyPlaceHolder = createPattern('.*')
@@ -47,9 +49,23 @@ class BoshTemplate {
         return new BoshTemplate(template)
     }
 
+    /**
+     * @deprecated Use{@link BoshTemplate#replaceAllNamed(java.lang.String, java.lang.String)}
+     * @param key
+     * @param value
+     */
+    @Deprecated
     void replace(String key, String value) {
         processed = processed.replaceAll(createPatternWithQuotes(key), value)
         processed = processed.replaceAll(createPattern(key), value)
+    }
+
+    void replaceAllNamed(String boshVariableName, String replacement) {
+        replaceAll(BOSH_TEMPLATE_REGEX_FOR_VARIABLES.replaceAll("VARIABLE", boshVariableName), replacement)
+    }
+
+    void replaceAll(String regularExpression, String replacement) {
+        processed = processed.replaceAll(regularExpression, replacement)
     }
 
     String build() {
