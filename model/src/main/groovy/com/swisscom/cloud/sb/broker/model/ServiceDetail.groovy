@@ -58,4 +58,16 @@ class ServiceDetail extends BaseModel{
         return (serviceDetail.id > 0 && serviceDetail.id == this.id) ||
                 (this.uniqueKey && serviceDetail.key == this.key)
     }
+
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ServiceDetail.class.getSimpleName() + "[", "]")
+                .add("key='" + key + "'")
+                .add("value='" + value + "'")
+                .add("type='" + type + "'")
+                .add("uniqueKey=" + uniqueKey)
+                .add("serviceInstance=" + serviceInstance)
+                .toString();
+    }
 }
