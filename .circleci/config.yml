@@ -82,6 +82,11 @@ workflows:
       - functional_test:
           requires:
             - integration_test
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /v.*/
       - tag_release:
           requires:
             - integration_test
