@@ -35,6 +35,7 @@ import org.springframework.util.Assert
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest.boshConfigRequest
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
+import static java.lang.String.format
 
 @CompileStatic
 class BoshFacade {
@@ -45,6 +46,7 @@ class BoshFacade {
     private static final String PARAM_BOSH_DIRECTOR_UUID = "bosh-director-uuid"
     private static final String PARAM_PREFIX = 'prefix'
     private static final String PARAM_GUID = 'guid'
+    public static final String NO_DETAIL_WITH_ID_IN_SERVICE_DETAILS_MESSAGE = "Not any ServiceDetail with key='%s' in %s"
 
     private final BoshBasedServiceConfig serviceConfig
     private final BoshClient boshClient
@@ -92,7 +94,10 @@ class BoshFacade {
 
         updateTemplateFromDatabaseConfiguration(template, parameters)
 
-        Collection<ServiceDetail> result = new ArrayList<>(templateCustomizer.customizeBoshTemplate(template, serviceInstanceGuid) ?: [])
+        Collection<ServiceDetail> result = new ArrayList<>(templateCustomizer.customizeBoshTemplate(template,
+                                                                                                    serviceInstanceGuid)
+                                                                   ?:
+                                                           [])
 
         result.add(ServiceDetail.from(BOSH_DEPLOYMENT_ID, generateDeploymentId(serviceInstanceGuid)))
         result.add(ServiceDetail.from(BOSH_TASK_ID_FOR_DEPLOY, this.boshClient.postDeployment(template.build()), true))
@@ -134,7 +139,7 @@ class BoshFacade {
      * Note: RuntimeException is thrown if task was not found, is cancelled or failed!
      * @param details
      * @return true if successful and false if still in progress
-     * @deprecated use {@link #getBoshTaskState()} instead
+     * @deprecated use{@link #getBoshTaskState()} instead
      */
     @Deprecated
     boolean isBoshDeployTaskSuccessful(Collection<ServiceDetail> details) {
@@ -178,8 +183,19 @@ class BoshFacade {
         }
     }
 
-    Task.State getBoshTaskState(Map<String,ServiceDetail> details) {
+    Task.State getBoshTaskState(Map<String, ServiceDetail> details) {
         return getBoshTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
+    }
+
+    Task.State getBoshTaskState(Collection<ServiceDetail> details) {
+        for (ServiceDetail detail : details) {
+            if (detail.key == BOSH_TASK_ID_FOR_DEPLOY.key) {
+                return getBoshTaskState(detail.value)
+            }
+        }
+        throw new IllegalArgumentException(format(NO_DETAIL_WITH_ID_IN_SERVICE_DETAILS_MESSAGE,
+                                                  BOSH_TASK_ID_FOR_DEPLOY.name(),
+                                                  details))
     }
 
     private void deleteConfig(String name, String type) {
@@ -252,9 +268,9 @@ class BoshFacade {
                 LOG.info("Will try to read file:${fileName} from embedded resources")
                 return Resource.readTestFileContent(fileName.startsWith('/') ? fileName : ('/' + fileName))
             } catch (Exception ex) {
-                LOG.error(String.format("No template could be found for templateIdentifier \"%s\"", templateIdentifier),
+                LOG.error(format("No template could be found for templateIdentifier \"%s\"", templateIdentifier),
                           ex)
-                throw new IllegalArgumentException(String.format(
+                throw new IllegalArgumentException(format(
                         "No template could be found for templateIdentifier \"%s\"!",
                         templateIdentifier))
             }
