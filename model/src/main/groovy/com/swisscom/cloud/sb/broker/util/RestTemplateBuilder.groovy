@@ -34,8 +34,12 @@ import org.apache.http.impl.client.ProxyAuthenticationStrategy
 import org.apache.http.protocol.BasicHttpContext
 import org.apache.http.protocol.HttpContext
 import org.apache.http.ssl.SSLContexts
+import org.bouncycastle.cert.X509CertificateHolder
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.openssl.PEMReader
+import org.bouncycastle.openssl.PEMKeyPair
+import org.bouncycastle.openssl.PEMParser
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpRequest
@@ -43,7 +47,7 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
-import org.springframework.http.client.support.BasicAuthorizationInterceptor
+import org.springframework.http.client.support.BasicAuthenticationInterceptor
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
@@ -54,7 +58,6 @@ import javax.net.ssl.SSLSocket
 import java.security.KeyPair
 import java.security.KeyStore
 import java.security.Security
-import java.security.cert.Certificate
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 
@@ -66,7 +69,7 @@ class RestTemplateBuilder {
     protected RestTemplate restTemplate
     protected HttpClientBuilder httpClientBuilder
     private boolean useDigestAuth = false
-    private TrustStrategy trustStrategy
+    private org.apache.http.ssl.TrustStrategy trustStrategy
     private KeyStore keyStore
     private boolean disableHostNameVerification
 
@@ -80,7 +83,8 @@ class RestTemplateBuilder {
         if (disableHostNameVerification) {
             httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
         }
-        def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
+        def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(
+                httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
         addLoggingRequestInterceptor()
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
@@ -92,7 +96,7 @@ class RestTemplateBuilder {
         if (interceptors == null) {
             interceptors = Collections.emptyList()
         } else {
-            interceptors.removeAll { it instanceof LoggingRequestInterceptor }
+            interceptors.removeAll {it instanceof LoggingRequestInterceptor}
         }
         interceptors.add(new LoggingRequestInterceptor())
         restTemplate.setInterceptors(interceptors)
@@ -115,9 +119,9 @@ class RestTemplateBuilder {
         if (interceptors == null) {
             interceptors = Collections.emptyList()
         } else {
-            interceptors.removeAll { it instanceof BasicAuthorizationInterceptor }
+            interceptors.removeAll {it instanceof BasicAuthenticationInterceptor}
         }
-        interceptors.add(new BasicAuthorizationInterceptor(username, password))
+        interceptors.add(new BasicAuthenticationInterceptor(username, password))
         restTemplate.setInterceptors(interceptors)
         this
     }
@@ -133,7 +137,7 @@ class RestTemplateBuilder {
         if (interceptors == null) {
             interceptors = Collections.emptyList()
         } else {
-            interceptors.removeAll{ it instanceof HeaderRequestInterceptor && it.headerName == "Authorization" }
+            interceptors.removeAll {it instanceof HeaderRequestInterceptor && it.headerName == "Authorization"}
         }
         interceptors.add(new HeaderRequestInterceptor("Authorization", "Bearer ${bearerToken}"))
         restTemplate.setInterceptors(interceptors)
@@ -160,10 +164,15 @@ class RestTemplateBuilder {
         this
     }
 
-    RestTemplateBuilder withAuthenticatedProxy(String proxyHost, String proxyPort, String proxyProtocol, String proxyUser, String proxyPassword) {
+    RestTemplateBuilder withAuthenticatedProxy(String proxyHost,
+                                               String proxyPort,
+                                               String proxyProtocol,
+                                               String proxyUser,
+                                               String proxyPassword) {
         withProxy(proxyHost, proxyPort, proxyProtocol)
         CredentialsProvider credsProvider = new BasicCredentialsProvider()
-        credsProvider.setCredentials(new AuthScope(proxyHost, Integer.parseInt(proxyPort)), new UsernamePasswordCredentials(proxyUser, proxyPassword))
+        credsProvider.setCredentials(new AuthScope(proxyHost, Integer.parseInt(proxyPort)),
+                                     new UsernamePasswordCredentials(proxyUser, proxyPassword))
         httpClientBuilder.setDefaultCredentialsProvider(credsProvider)
         httpClientBuilder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy())
         this
@@ -172,12 +181,16 @@ class RestTemplateBuilder {
     private KeyStore createKeyStore(String certificate, String key) {
         def keyStore = KeyStore.getInstance("PKCS12")
         Security.addProvider(new BouncyCastleProvider())
-        X509Certificate cert = (X509Certificate) (new PEMReader((new StringReader(certificate)))).readObject()
+        X509CertificateHolder certHolder = (X509CertificateHolder) (new PEMParser((new StringReader(certificate)))).
+                readObject()
+        X509Certificate cert = new JcaX509CertificateConverter().getCertificate(certHolder)
         keyStore.load(null, "".toCharArray())
         keyStore.setCertificateEntry("", cert)
-        keyStore.setKeyEntry("1", ((KeyPair) (new PEMReader(new StringReader(key))).readObject()).getPrivate(),
+        KeyPair keyPair = new JcaPEMKeyConverter().getKeyPair(((PEMKeyPair) (new PEMParser(new StringReader(key)).
+                readObject())))
+        keyStore.setKeyEntry("1", keyPair.getPrivate(),
                              "".toCharArray(),
-                             [cert].toArray(new Certificate[0]))
+                             cert)
         return keyStore
     }
 
@@ -200,7 +213,8 @@ class RestTemplateBuilder {
         }
 
         @Override
-        ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws
+                IOException {
             request.getHeaders().set(headerName, headerValue)
             return execution.execute(request, body)
         }

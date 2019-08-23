@@ -17,6 +17,8 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.swisscom.cloud.sb.test.httpserver.HttpServerApp
 import com.swisscom.cloud.sb.test.httpserver.HttpServerConfig
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -24,8 +26,9 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore
+@Ignore("The flyway migration is not working and we are substituting RestTemplateBuilder by WebClient")
 class RestTemplateBuilderTest extends Specification {
+    private static final Logger LOG = LoggerFactory.getLogger(RestTemplateBuilderTest.class);
     private static final int http_port = 36000
     private static final int https_port = 36001
 
@@ -56,6 +59,7 @@ class RestTemplateBuilderTest extends Specification {
         httpServer?.stop()
     }
 
+    @Ignore
     def "restTemplate with digest"() {
         given:
         String username = 'aUsername'
@@ -128,9 +132,11 @@ class RestTemplateBuilderTest extends Specification {
 
     def 'GET request over https with a server that expects a client side certificate in pcks #12 should fail when certificate don\'t match'() {
         given:
+        LOG.info("show the keystore:")
+        //LOG.info(new File(HttpServerApp.class.getResource('/anotherkeystore').file).getText('UTF-8'))
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
-                .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
-                .withTrustStore(this.getClass().getResource('/anotherkeystore').file, '123456'))
+                .withKeyStore(this.getClass().getResource('/test-server-keystore.jks').file, 'secret', 'secure-server')
+                .withTrustStore(this.getClass().getResource('/test-server-truststore.jks').file, 'secret'))
 
         when:
         def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
