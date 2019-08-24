@@ -1,11 +1,14 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
+import com.github.tomakehurst.wiremock.core.Options
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigResponse
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
 import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
@@ -66,22 +69,38 @@ class BoshFacadeTest extends Specification {
     BoshFacade sut
 
     @ClassRule
-    public static WireMockRule boshWireMock = new WireMockRule(options().
-            withRootDirectory("src/test/resources/boshFacade/bosh").
-            port(35555).
-            extensions(BoshInfoContentTransformer.of(UAA_URL,
-                                                     "http://localhost:18443",
-                                                     BOSH_INFO_TRANSFORMER_NAME)))
+    public static WireMockRule boshWireMock
 
     @ClassRule
-    public static WireMockRule uaaWireMock = new WireMockRule(options().
-            withRootDirectory("src/test/resources/boshFacade/uaa").
-            port(18443))
+    public static WireMockRule uaaWireMock
 
     def setupSpec() {
         templateCustomizer = Mock(BoshTemplateCustomizer)
+
+        WireMockConfiguration boshWireMockConfiguration = options().
+                withRootDirectory("src/test/resources/boshFacade/bosh").
+                port(35555).
+                useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
+                extensions(BoshInfoContentTransformer.of(UAA_URL,
+                                                         "http://localhost:18443",
+                                                         BOSH_INFO_TRANSFORMER_NAME))
+        WireMockConfiguration uaaWireMockConfiguration = options().
+                withRootDirectory("src/test/resources/boshFacade/uaa").
+                useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
+                port(18443)
+
+        if (LOG.isTraceEnabled()) {
+            boshWireMockConfiguration = boshWireMockConfiguration.networkTrafficListener(
+                    new ConsoleNotifyingWiremockNetworkTrafficListener())
+            uaaWireMockConfiguration = uaaWireMockConfiguration.networkTrafficListener(
+                    new ConsoleNotifyingWiremockNetworkTrafficListener())
+        }
+
+        boshWireMock = new WireMockRule(boshWireMockConfiguration)
+        uaaWireMock = new WireMockRule(uaaWireMockConfiguration)
         boshWireMock.start()
         uaaWireMock.start()
+
         if (!BOSH_MOCKED) {
             LOG.info("Start recording with bosh wiremock targeting '${BOSH_URL}' and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
@@ -316,7 +335,7 @@ class BoshFacadeTest extends Specification {
         then:
         boshConfigResponses.size() == boshFacadeConfiguration.getGenericConfigs().size()
         BoshConfigResponse boshConfigResponse = boshConfigResponses.first()
-        boshConfigResponse.getId() > 0
+        !boshConfigResponse.getId().isEmpty()
         boshConfigResponse.getType() == "cloud"
         boshConfigResponse.getCurrent()
         boshConfigResponse.getCreatedAt().isBefore(LocalDateTime.now())

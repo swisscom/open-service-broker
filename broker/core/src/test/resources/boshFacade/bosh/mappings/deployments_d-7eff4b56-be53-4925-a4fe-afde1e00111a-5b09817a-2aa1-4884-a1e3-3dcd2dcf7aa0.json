@@ -1,0 +1,30 @@
+{
+  "id" : "5b09817a-2aa1-4884-a1e3-3dcd2dcf7aa0",
+  "name" : "deployments_d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "request" : {
+    "url" : "/deployments/d-7eff4b56-be53-4925-a4fe-afde1e00111a?force=true",
+    "method" : "DELETE",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTkyLjE2OC41MC42Ojg0NDMvdG9rZW5fa2V5cyIsImtpZCI6InVhYS1qd3Qta2V5LTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI1OTcyMmU5NzU5ODI0ODgyYTU2ZmViODgyZDc2NjEzMSIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiI2MzhlODIzMSIsImlhdCI6MTU2NzA3OTk1MiwiZXhwIjoxNTY3MTIzMTUyLCJpc3MiOiJodHRwczovLzE5Mi4xNjguNTAuNjo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbImFkbWluIiwiYm9zaCJdfQ.WVxNNsRStxsvIuTsMdpuj37MyAgQ9QqQF_NH5JECRIWuY6FObP7ugVGUTaJaeQjyIAXQi30u6ZA-PWjZDFujoJDw8Z6ArBuDcJSWifdXqq7qZ3flsp0z54VRLQJZPx3QRUlQM34otNiWRIsmtlp0rXsYUyg7AL3VttlJW7z6RhsRddJJcGLneXZ41Az0-DUMeIrr9J8JA5pPKgIIrEf034Uwn0ZB7P_RVFVTDDP4bQa24FO0fK-8mkCCi2HWC6B_MWteeCaO_jL7_UM6Dd21wMiLAhLAhPPyl0frkt6s4bmkszAUMZNdZ0X4Wltz7GgElIFxa-Kv-3mmYFi7NvwfqA"
+      }
+    }
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 29 Aug 2019 11:59:13 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://192.168.50.6/tasks/5",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "5b09817a-2aa1-4884-a1e3-3dcd2dcf7aa0",
+  "persistent" : true,
+  "insertionIndex" : 11
+}

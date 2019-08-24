@@ -15,14 +15,13 @@
 
 package com.swisscom.cloud.sb.broker.services.bosh
 
-
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigResponse
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
-import com.swisscom.cloud.sb.broker.services.bosh.resources.Task
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
 
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
-import static com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest.boshConfigRequest
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 import static java.lang.String.format
 
@@ -125,7 +124,7 @@ class BoshFacade {
                     templateConfig.getTemplateForServiceKey(config.templateName).first())
             template.replace(PARAM_GUID, serviceInstanceGuid)
             templateCustomizer.customizeBoshConfigTemplate(template, config.type, serviceInstanceGuid)
-            BoshConfigRequest request = boshConfigRequest()
+            BoshConfigRequest request = configRequest()
                     .name(serviceInstanceGuid)
                     .type(config.type)
                     .content(template.build())
@@ -183,11 +182,11 @@ class BoshFacade {
         }
     }
 
-    Task.State getBoshTaskState(Map<String, ServiceDetail> details) {
+    BoshTask.State getBoshTaskState(Map<String, ServiceDetail> details) {
         return getBoshTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
     }
 
-    Task.State getBoshTaskState(Collection<ServiceDetail> details) {
+    BoshTask.State getBoshTaskState(Collection<ServiceDetail> details) {
         for (ServiceDetail detail : details) {
             if (detail.key == BOSH_TASK_ID_FOR_DEPLOY.key) {
                 return getBoshTaskState(detail.value)
@@ -221,19 +220,19 @@ class BoshFacade {
 
     private boolean isBoshTaskSuccessful(String taskId) {
         Assert.hasText(taskId, "Task ID cannot be empty!")
-        Task.State state = getBoshTaskState(taskId)
+        BoshTask.State state = getBoshTaskState(taskId)
         if (state == null) {
             throw new RuntimeException("Unknown bosh task state: ${state}")
         }
-        if ([Task.State.CANCELLED, Task.State.CANCELLING, Task.State.ERRORED].contains(state)) {
+        if ([BoshTask.State.CANCELLED, BoshTask.State.CANCELLING, BoshTask.State.ERRORED].contains(state)) {
             throw new RuntimeException("Task failed: ${taskId}")
         }
         return state.isSuccessful()
     }
 
-    Task.State getBoshTaskState(String taskId) {
+    BoshTask.State getBoshTaskState(String taskId) {
         Assert.hasText(taskId, "Task ID cannot be empty!")
-        Task task = this.boshClient.getTask(taskId)
+        BoshTask task = this.boshClient.getTask(taskId)
         return task.state
     }
 

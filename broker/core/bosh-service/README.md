@@ -13,7 +13,8 @@ dependencies {
 
 ## Testing
 
-### Test BOSH
+## Development
+### BOSH Lite Installation for local development
 For running the `BoshFacadeTest` or `BoshClientTest` against your bosh, the
 [dummy bosh-release](https://github.com/pivotal-cf-experimental/dummy-boshrelease) needs to be uploaded.
 You can set your bosh credentials in `~/.gradle/gradle.properties`:

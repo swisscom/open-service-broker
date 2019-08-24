@@ -1,0 +1,15 @@
+spring:
+  profiles: bosh
+
+  security:
+    oauth2:
+      client:
+        registration:
+          bosh-web-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token

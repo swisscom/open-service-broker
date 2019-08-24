@@ -1,0 +1,32 @@
+{"time":1567066857,"stage":"Downloading remote release","tags":[],"total":1,"task":"Downloading remote release","index":1,"state":"started","progress":0}
+{"time":1567066865,"stage":"Downloading remote release","tags":[],"total":1,"task":"Downloading remote release","index":1,"state":"finished","progress":100}
+{"time":1567066865,"stage":"Verifying remote release","tags":[],"total":1,"task":"Verifying remote release","index":1,"state":"started","progress":0}
+{"time":1567066866,"stage":"Verifying remote release","tags":[],"total":1,"task":"Verifying remote release","index":1,"state":"finished","progress":100}
+{"time":1567066866,"stage":"Extracting release","tags":[],"total":1,"task":"Extracting release","index":1,"state":"started","progress":0}
+{"time":1567066867,"stage":"Extracting release","tags":[],"total":1,"task":"Extracting release","index":1,"state":"finished","progress":100}
+{"time":1567066867,"stage":"Verifying manifest","tags":[],"total":1,"task":"Verifying manifest","index":1,"state":"started","progress":0}
+{"time":1567066867,"stage":"Verifying manifest","tags":[],"total":1,"task":"Verifying manifest","index":1,"state":"finished","progress":100}
+{"time":1567066867,"stage":"Resolving package dependencies","tags":[],"total":1,"task":"Resolving package dependencies","index":1,"state":"started","progress":0}
+{"time":1567066867,"stage":"Resolving package dependencies","tags":[],"total":1,"task":"Resolving package dependencies","index":1,"state":"finished","progress":100}
+{"time":1567066867,"stage":"Creating new packages","tags":[],"total":6,"task":"acceptance-tests/017c79edd4909c891b404b7d785e0171b7153929885aef22d1574a0f3826356d","index":1,"state":"started","progress":0}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"acceptance-tests/017c79edd4909c891b404b7d785e0171b7153929885aef22d1574a0f3826356d","index":1,"state":"finished","progress":100}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"acceptance-tests-windows/b43c187ed26f56b8683768ef8384ea1765b55f96736399873878b7fbf64ef540","index":2,"state":"started","progress":0}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"acceptance-tests-windows/b43c187ed26f56b8683768ef8384ea1765b55f96736399873878b7fbf64ef540","index":2,"state":"finished","progress":100}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"bosh-dns/58c7e157ad34bbd80c0d13dc6d1e3e073c8f0daf071bba8b4ca2ce0f10a3dbac","index":3,"state":"started","progress":0}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"bosh-dns/58c7e157ad34bbd80c0d13dc6d1e3e073c8f0daf071bba8b4ca2ce0f10a3dbac","index":3,"state":"finished","progress":100}
+{"time":1567066868,"stage":"Creating new packages","tags":[],"total":6,"task":"bosh-dns-windows/443bacefcde26d883481fea5adf3a3ef1fd140d099937450cc308cea83b4165b","index":4,"state":"started","progress":0}
+{"time":1567066869,"stage":"Creating new packages","tags":[],"total":6,"task":"bosh-dns-windows/443bacefcde26d883481fea5adf3a3ef1fd140d099937450cc308cea83b4165b","index":4,"state":"finished","progress":100}
+{"time":1567066869,"stage":"Creating new packages","tags":[],"total":6,"task":"golang-1-linux/a58647561918778c52fb932074e6099497a9063bce3a1531e5c60ba643e1f4df","index":5,"state":"started","progress":0}
+{"time":1567066870,"stage":"Creating new packages","tags":[],"total":6,"task":"golang-1-linux/a58647561918778c52fb932074e6099497a9063bce3a1531e5c60ba643e1f4df","index":5,"state":"finished","progress":100}
+{"time":1567066870,"stage":"Creating new packages","tags":[],"total":6,"task":"golang-1-windows/e40c2867fa9a1471a95b912afbd37763a41099d0df5bcb6a6ad6d20ae768b253","index":6,"state":"started","progress":0}
+{"time":1567066871,"stage":"Creating new packages","tags":[],"total":6,"task":"golang-1-windows/e40c2867fa9a1471a95b912afbd37763a41099d0df5bcb6a6ad6d20ae768b253","index":6,"state":"finished","progress":100}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"acceptance-tests/0c3a657f50916d60e2a6fd41221ac066dcfd595b78f46000ea07ef87cf48acd4","index":1,"state":"started","progress":0}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"acceptance-tests/0c3a657f50916d60e2a6fd41221ac066dcfd595b78f46000ea07ef87cf48acd4","index":1,"state":"finished","progress":100}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"acceptance-tests-windows/4514ca587c0fb0dc95e8b75132c01b227e7bf5ac431b628c25e2b78bc2bd7632","index":2,"state":"started","progress":0}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"acceptance-tests-windows/4514ca587c0fb0dc95e8b75132c01b227e7bf5ac431b628c25e2b78bc2bd7632","index":2,"state":"finished","progress":100}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"bosh-dns/bc06c3fb38d04d42f25615fd03f766219986a26c94cb08b77616a0019b603522","index":3,"state":"started","progress":0}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"bosh-dns/bc06c3fb38d04d42f25615fd03f766219986a26c94cb08b77616a0019b603522","index":3,"state":"finished","progress":100}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"bosh-dns-windows/08843899383d37151fab0c58d2a3b6166cf08b63bdc2dfc00a466baa3205aa21","index":4,"state":"started","progress":0}
+{"time":1567066871,"stage":"Creating new jobs","tags":[],"total":4,"task":"bosh-dns-windows/08843899383d37151fab0c58d2a3b6166cf08b63bdc2dfc00a466baa3205aa21","index":4,"state":"finished","progress":100}
+{"time":1567066871,"stage":"Release has been created","tags":[],"total":1,"task":"bosh-dns/1.12.0","index":1,"state":"started","progress":0}
+{"time":1567066871,"stage":"Release has been created","tags":[],"total":1,"task":"bosh-dns/1.12.0","index":1,"state":"finished","progress":100}

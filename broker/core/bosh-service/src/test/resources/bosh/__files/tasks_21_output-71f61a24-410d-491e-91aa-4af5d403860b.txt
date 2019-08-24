@@ -1,0 +1,11 @@
+{"time":1567086618,"stage":"Preparing deployment","tags":[],"total":1,"task":"Preparing deployment","index":1,"state":"started","progress":0}
+{"time":1567086624,"stage":"Preparing deployment","tags":[],"total":1,"task":"Preparing deployment","index":1,"state":"finished","progress":100}
+{"time":1567086624,"stage":"Preparing deployment","tags":[],"total":1,"task":"Rendering templates","index":2,"state":"started","progress":0}
+{"time":1567086625,"stage":"Preparing deployment","tags":[],"total":1,"task":"Rendering templates","index":2,"state":"finished","progress":100}
+{"time":1567086625,"stage":"Preparing package compilation","tags":[],"total":1,"task":"Finding packages to compile","index":1,"state":"started","progress":0}
+{"time":1567086625,"stage":"Preparing package compilation","tags":[],"total":1,"task":"Finding packages to compile","index":1,"state":"finished","progress":100}
+{"time":1567086625,"stage":"Creating missing vms","tags":[],"total":1,"task":"test_pxc/dbef2ddd-28a1-4b2e-ad56-f710dde9643a (0)","index":1,"state":"started","progress":0}
+{"time":1567086637,"stage":"Creating missing vms","tags":[],"total":1,"task":"test_pxc/dbef2ddd-28a1-4b2e-ad56-f710dde9643a (0)","index":1,"state":"finished","progress":100}
+{"time":1567086637,"stage":"Updating instance","tags":["test_pxc"],"total":1,"task":"test_pxc/dbef2ddd-28a1-4b2e-ad56-f710dde9643a (0) (canary)","index":1,"state":"started","progress":0}
+{"time":1567086668,"stage":"Updating instance","tags":["test_pxc"],"total":1,"task":"test_pxc/dbef2ddd-28a1-4b2e-ad56-f710dde9643a (0) (canary)","index":1,"state":"failed","progress":100,"data":{"error":"Action Failed get_task: Task deb20943-b1bb-45ec-52f3-dd41fe8f2369 result: 1 of 2 pre-start scripts failed. Failed Jobs: pxc-mysql. Successful Jobs: bosh-dns."}}
+{"time":1567086668,"error":{"code":450001,"message":"Action Failed get_task: Task deb20943-b1bb-45ec-52f3-dd41fe8f2369 result: 1 of 2 pre-start scripts failed. Failed Jobs: pxc-mysql. Successful Jobs: bosh-dns."}}
