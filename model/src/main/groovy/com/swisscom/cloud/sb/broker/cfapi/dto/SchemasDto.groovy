@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto
 import com.swisscom.cloud.sb.broker.model.Plan

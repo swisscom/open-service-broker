@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,11 +30,11 @@ class MethodSchemaDto {
      */
     @JsonProperty("parameters")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto configParametersSchema = null
+    SchemaDto configParametersSchema = null
 
     MethodSchemaDto() {}
 
-    MethodSchemaDto(com.swisscom.cloud.sb.broker.cfapi.dto.jsonschema.v7.SchemaDto configParametersSchema) {
+    MethodSchemaDto(SchemaDto configParametersSchema) {
         this.configParametersSchema = configParametersSchema
     }
 
