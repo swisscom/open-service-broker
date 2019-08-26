@@ -22,7 +22,7 @@ dependencies {
     compile project(':model')
     compile project(':client')
     compile project(':broker:core:bosh-service')
-    compile project(':broker:core:flyway')
+    compile project(':broker:core:database')
 
     compile libs.gpars
 
