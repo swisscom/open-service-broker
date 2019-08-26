@@ -1,4 +1,5 @@
 
 dependencies {
     compile libs.flyway
+    compile project(':model')
 }
