@@ -73,7 +73,7 @@ class BoshClient {
         }
     }
 
-    BoshTask getTask(String id) {
+    BoshDirectorTask getTask(String id) {
         return boshRestClient.getTask(id);
     }
 
@@ -81,7 +81,7 @@ class BoshClient {
         return boshRestClient.fetchBoshInfo();
     }
 
-    BoshConfigResponse postConfig(BoshConfigRequest config) {
+    BoshCloudConfig postConfig(BoshConfigRequest config) {
         return boshRestClient.postConfig(config.toJson())
     }
 

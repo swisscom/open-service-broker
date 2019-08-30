@@ -19,10 +19,9 @@ import spock.lang.Unroll
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask.Event.State.UNKNOWN
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask.State.PROCESSING
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask.State.QUEUED
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event.State.UNKNOWN
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.PROCESSING
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.QUEUED
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClientTest.BoshInfoContentTransformer.of
 import static org.apache.commons.lang3.StringUtils.isNumeric
 
@@ -106,7 +105,7 @@ class BoshWebClientTest extends Specification {
     BoshWebClient boshWebClient
 
     void setup() {
-        boshWebClient = BoshWebClient.of(boshWireMock.baseUrl(), BOSH_USERNAME, BOSH_PASSWORD)
+        boshWebClient = BoshWebClient.boshWebClient(boshWireMock.baseUrl(), BOSH_USERNAME, BOSH_PASSWORD)
     }
 
     void cleanup() {
@@ -126,7 +125,7 @@ class BoshWebClientTest extends Specification {
 
     def "should post to /configs"() {
         when:
-        BoshConfigResponse response = boshWebClient.requestConfig(request)
+        BoshCloudConfig response = boshWebClient.requestConfig(request)
 
         then:
         response != null
@@ -146,12 +145,12 @@ class BoshWebClientTest extends Specification {
 
     def "should get all /configs"() {
         when:
-        Collection<BoshConfigResponse> result = boshWebClient.getConfigs()
+        Collection<BoshCloudConfig> result = boshWebClient.getConfigs()
 
         then:
         result != null
         !result.isEmpty()
-        for (BoshConfigResponse config : result) {
+        for (BoshCloudConfig config : result) {
             LOG.info("configs/{} {}", config.id, config)
         }
     }
@@ -159,7 +158,7 @@ class BoshWebClientTest extends Specification {
 
     def "should delete a /config"() {
         given: "An existing config"
-        BoshConfigResponse response = boshWebClient.requestConfig(request)
+        BoshCloudConfig response = boshWebClient.requestConfig(request)
 
         response != null
         !response.name.isEmpty()
@@ -184,7 +183,7 @@ class BoshWebClientTest extends Specification {
 
     def "should post to /deployments"() {
         given:
-        BoshConfigResponse response = boshWebClient.requestConfig(request)
+        BoshCloudConfig response = boshWebClient.requestConfig(request)
         response != null
         !response.name.isEmpty()
         response.createdAt != null
@@ -193,10 +192,7 @@ class BoshWebClientTest extends Specification {
         LOG.info("POST /configs {}", response)
 
         when:
-        BoshDeploymentResponse boshDeployment = boshWebClient.requestDeployment(
-                deploymentRequest().
-                        yamlContent(ymlContent).
-                        build())
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
 
         then:
         boshDeployment != null
@@ -215,10 +211,7 @@ class BoshWebClientTest extends Specification {
 
     def "should get certain /deployments"() {
         given: "A successful boshDeployment"
-        BoshDeploymentResponse boshDeployment = boshWebClient.requestDeployment(
-                deploymentRequest().
-                        yamlContent(ymlContent).
-                        build())
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
 
         and:
         boshDeployment != null
@@ -227,7 +220,7 @@ class BoshWebClientTest extends Specification {
         LOG.info("/deployments {}", boshDeployment)
 
         when:
-        BoshDeploymentResponse result = boshWebClient.getDeployment(BOSH_TEMPLATE_TEST_NAME)
+        BoshDeployment result = boshWebClient.getDeployment(BOSH_TEMPLATE_TEST_NAME)
 
         then:
         result != null
@@ -239,24 +232,24 @@ class BoshWebClientTest extends Specification {
 
     def "should get all /deployments"() {
         when:
-        Collection<BoshDeploymentResponse> result = boshWebClient.getDeployments()
+        Collection<BoshDeployment> result = boshWebClient.getDeployments()
 
         then:
         result != null
         !result.isEmpty()
-        for (BoshDeploymentResponse deployment : result) {
+        for (BoshDeployment deployment : result) {
             LOG.info("get /deployments {}", deployment)
         }
     }
 
     def "should get all tasks associated with certain deployment"() {
         when:
-        Collection<BoshTask> result = boshWebClient.getTaskAssociatedWithDeployment(BOSH_TEMPLATE_TEST_NAME)
+        Collection<BoshDirectorTask> result = boshWebClient.getTaskAssociatedWithDeployment(BOSH_TEMPLATE_TEST_NAME)
 
         then:
         result != null
         LOG.info("################################ tasks associated to deployment '{}'", BOSH_TEMPLATE_TEST_NAME)
-        for (BoshTask task : result) {
+        for (BoshDirectorTask task : result) {
             assert !task.id.isEmpty()
             assert task.deployment == BOSH_TEMPLATE_TEST_NAME
             if (task.state != PROCESSING && task.state != QUEUED) {
@@ -269,10 +262,7 @@ class BoshWebClientTest extends Specification {
 
     def "should get a /task"() {
         given: "A deployment posted which has a task associated"
-        BoshDeploymentResponse boshDeployment = boshWebClient.requestDeployment(
-                deploymentRequest().
-                        yamlContent(ymlContent).
-                        build())
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
 
         and:
         boshDeployment != null
@@ -281,13 +271,13 @@ class BoshWebClientTest extends Specification {
         LOG.info("/deployments {}", boshDeployment)
 
         when:
-        BoshTask task = boshWebClient.getTask(boshDeployment.taskId)
+        BoshDirectorTask task = boshWebClient.getTask(boshDeployment.taskId)
 
         then:
         task != null
         task.id == boshDeployment.taskId
         !task.description.isEmpty()
-        task.state != BoshTask.State.UNKNOWN
+        task.state != BoshDirectorTask.State.UNKNOWN
         if (task.state != PROCESSING && task.state != QUEUED) {
             task.timestamp > 0
         }
@@ -303,18 +293,18 @@ class BoshWebClientTest extends Specification {
     @Unroll
     def "should get a /task with its /events"() {
         when:
-        BoshTask task = boshWebClient.getTaskWithEvents(taskId)
+        BoshDirectorTask task = boshWebClient.getTaskWithEvents(taskId)
 
         then:
         task != null
         task.id == taskId
         !task.description.isEmpty()
-        task.state != BoshTask.State.UNKNOWN
+        task.state != BoshDirectorTask.State.UNKNOWN
         task.timestamp > 0
         !task.user.isEmpty()
         task.deployment != null
         LOG.info("tasks/{} {}", task.id, task)
-        for (BoshTask.Event event : task.events) {
+        for (BoshDirectorTask.Event event : task.events) {
             if(event.hasError()){
                 assert event.time > 0
                 assert !event.error.message.isEmpty()

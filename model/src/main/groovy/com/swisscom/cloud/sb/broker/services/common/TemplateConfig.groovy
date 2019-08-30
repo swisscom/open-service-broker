@@ -38,10 +38,20 @@ class TemplateConfig implements Config {
         serviceTemplates.find {it.name == templateUniqueIdentifier}?.templates ?: Collections.EMPTY_LIST
     }
 
+    String getFirstTemplateForServiceKey(String templateUniqueIdentifier) {
+        List<String> templates = getTemplateForServiceKey(templateUniqueIdentifier)
+        return templates.isEmpty() ? "" : templates.first()
+    }
+
     List<String> getTemplateForServiceKey(String templateUniqueIdentifier, String templateVersion) {
         serviceTemplates.find {
             it.name == templateUniqueIdentifier && it.version == templateVersion
         }?.templates ?: Collections.EMPTY_LIST
+    }
+
+    String getFirstTemplateForServiceKey(String templateUniqueIdentifier, String templateVersion) {
+        List<String> templates = getTemplateForServiceKey(templateUniqueIdentifier, templateVersion)
+        return templates.isEmpty() ? "" : templates.first()
     }
 
     List<String> getTemplates(String templateUniqueIdentifier) {

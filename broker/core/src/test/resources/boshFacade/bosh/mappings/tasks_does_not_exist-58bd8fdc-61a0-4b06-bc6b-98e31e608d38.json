@@ -1,0 +1,29 @@
+{
+  "id" : "58bd8fdc-61a0-4b06-bc6b-98e31e608d38",
+  "name" : "tasks_does_not_exist",
+  "request" : {
+    "url" : "/tasks/DOES_NOT_EXIST",
+    "method" : "GET",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTkyLjE2OC41MC42Ojg0NDMvdG9rZW5fa2V5cyIsImtpZCI6InVhYS1qd3Qta2V5LTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiJlMTA2Yjk2ZTAwYjQ0MjEwYjU0YTA3ZjhiYmEwZTliZiIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiI3NjM0OWY2OSIsImlhdCI6MTU2NzQxMTY1NiwiZXhwIjoxNTY3NDU0ODU2LCJpc3MiOiJodHRwczovLzE5Mi4xNjguNTAuNjo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbImFkbWluIiwiYm9zaCJdfQ.xg67qHrJK66iF3y2Y1THahLQd0Xl46mpDtJtwdJVHLZBvFC3iCyZvo-sLCznO1Ep3Zu6ctVm-A1Ayq4AceJZWW5tyqrk7PrTKkZa3_cELnAVv-Lgn_RDwuQeLb4WXAd_6b1zXNRLzFX-ZhVu7wrYuqTQwhutlrIy6y-zEKZYnpctAFltAL0aNIkV2rHFQyVBpdEAeWjFz2l_l7nTaEFGET6WY5phFQLPMi7ybaMNjPfbMN80eo1n2zx-Fu0Nd2mBEKkWuZtWsN8WQfHPZgSMx0neEqhPRMGM_DmKHP9a7tjjOj5qJkQwiXyMYNk3pEHIQSNPdpKbJxu-Q5Xva_FVCA"
+      }
+    }
+  },
+  "response" : {
+    "status" : 500,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 02 Sep 2019 08:07:36 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "58bd8fdc-61a0-4b06-bc6b-98e31e608d38",
+  "persistent" : true,
+  "insertionIndex" : 17
+}

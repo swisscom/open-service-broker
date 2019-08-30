@@ -83,14 +83,14 @@ class BoshRestClient {
         return handleRedirectonAndExtractTaskId(response);
     }
 
-    BoshTask getTask(String id) {
+    BoshDirectorTask getTask(String id) {
         return createAuthRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),
                                                  HttpMethod.GET,
                                                  null,
-                                                 BoshTask.class).getBody();
+                                                 BoshDirectorTask.class).getBody();
     }
 
-    BoshConfigResponse postConfig(String config) {
+    BoshCloudConfig postConfig(String config) {
         LOG.debug("Posting new config: \n${config}");
         HttpHeaders headers = new HttpHeaders()
         headers.add(CONTENT_TYPE, CONTENT_TYPE_JSON);
@@ -98,7 +98,7 @@ class BoshRestClient {
         return createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS),
                                                  HttpMethod.POST,
                                                  request,
-                                                 BoshConfigResponse.class)
+                                                 BoshCloudConfig.class)
                                        .getBody();
     }
 

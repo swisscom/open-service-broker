@@ -13,3 +13,15 @@ spring:
         provider:
           uaa:
             token-uri: http://localhost:8081/uaa/oauth/token
+
+com:
+  swisscom:
+    cloud:
+      sb:
+        broker:
+          services:
+            bosh:
+              client:
+                boshBaseUrl: https://192.168.50.6:25555
+                boshDirectorUsername: admin
+                boshDirectorPassword: 74v98dv1cuofsj4o8mct

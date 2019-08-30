@@ -1,0 +1,30 @@
+{
+  "id" : "ed54ec9f-bce5-4e9a-bb66-650ec2d12978",
+  "name" : "configs",
+  "request" : {
+    "url" : "/configs?name=7eff4b56-be53-4925-a4fe-afde1e00111a&type=cloud",
+    "method" : "DELETE",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTkyLjE2OC41MC42Ojg0NDMvdG9rZW5fa2V5cyIsImtpZCI6InVhYS1qd3Qta2V5LTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI0ODU4NWM3NzU3ZjQ0NzI2ODNjYzNlMTU1Yzc4N2UyZSIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiI3NjM0OWY2OSIsImlhdCI6MTU2NzQxMTcxNiwiZXhwIjoxNTY3NDU0OTE2LCJpc3MiOiJodHRwczovLzE5Mi4xNjguNTAuNjo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbImFkbWluIiwiYm9zaCJdfQ.OPo_HfKwUgAPa5OwvdE4me8WkGQZo2Vzz79BlRMvdVWML2jIJWRcxNOaCaBteQBvXdQRuHt2uaF9eoW2bi0sHwdSxvI4e_CGZiepRC89foHgMzETv92Z4lOAK8Mn3HaI7_zl8RLRSFBqMMiCQll_k6Wrik88fV-sxEWKuRqSb0-7b4e6HrHMhGfO4dL7UqeuVSk7dq4AEq2qngFJl7KA05fCAl5DoXtCk-k5MYH2uL4PW460xPZIJIHpKaV3T7hVlhnHYuI5wUTz9Ii0FZP6A0iN7UYiBC7Kzw1vTz5RYU0zX5Uo2iLlyCL5K_ePsa3N4Pzqz9vqPKy9n-sNujm-Bg"
+      }
+    }
+  },
+  "response" : {
+    "status" : 404,
+    "body" : "Endpoint '/configs' not found. Please consider upgrading your director",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 02 Sep 2019 08:08:36 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "ed54ec9f-bce5-4e9a-bb66-650ec2d12978",
+  "persistent" : true,
+  "insertionIndex" : 21
+}

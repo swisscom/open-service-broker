@@ -8,7 +8,7 @@ import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
 import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
@@ -146,11 +146,6 @@ class BoshFacadeTest extends Specification {
             }
 
             @Override
-            boolean getShuffleAzs() {
-                return false
-            }
-
-            @Override
             List<GenericConfig> getGenericConfigs() {
                 return singletonList(
                         genericConfig().
@@ -248,11 +243,6 @@ class BoshFacadeTest extends Specification {
             }
 
             @Override
-            boolean getShuffleAzs() {
-                return false
-            }
-
-            @Override
             List<GenericConfig> getGenericConfigs() {
                 return params[2]
             }
@@ -329,12 +319,12 @@ class BoshFacadeTest extends Specification {
 
     def "should create generic config"() {
         when:
-        List<BoshConfigResponse> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(SERVICE_INSTANCE_GUID,
-                                                                                            templateCustomizer)
+        List<BoshCloudConfig> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(SERVICE_INSTANCE_GUID,
+                                                                                         templateCustomizer)
 
         then:
         boshConfigResponses.size() == boshFacadeConfiguration.getGenericConfigs().size()
-        BoshConfigResponse boshConfigResponse = boshConfigResponses.first()
+        BoshCloudConfig boshConfigResponse = boshConfigResponses.first()
         !boshConfigResponse.getId().isEmpty()
         boshConfigResponse.getType() == "cloud"
         boshConfigResponse.getCurrent()
@@ -506,7 +496,7 @@ class BoshFacadeTest extends Specification {
     @Unroll
     def "should fail creating config because #message"() {
         when:
-        List<BoshConfigResponse> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(guid, customizer)
+        List<BoshCloudConfig> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(guid, customizer)
 
         then:
         boshConfigResponses == null

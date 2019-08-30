@@ -2,6 +2,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException;
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig;
 import io.netty.channel.ChannelOption;
@@ -36,8 +37,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentResponse.deploymentResponse;
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask.boshTask;
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeployment.boshDeployment;
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.boshTask;
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient.BoshUri.*;
 import static java.lang.String.format;
 import static java.net.URI.create;
 import static java.util.Collections.*;
@@ -51,12 +53,11 @@ import static reactor.core.publisher.Mono.just;
  *
  * @see <a href='https://bosh.io/docs/director-api-v1/'>BOSH Director API v1</a>
  */
-@Component
 public class BoshWebClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(BoshWebClient.class);
 
-    private enum BoshUri {
+    enum BoshUri {
         INFO("/info"),
         TASKS("/tasks"),
         TASK("/tasks/{id}"),
@@ -96,9 +97,9 @@ public class BoshWebClient {
         this.webClient = webClient;
     }
 
-    public static BoshWebClient of(String baseUrl,
-                                   String directorUsername,
-                                   char[] directorPassword) {
+    public static BoshWebClient boshWebClient(String baseUrl,
+                                              String directorUsername,
+                                              char[] directorPassword) {
         try {
             return new BoshWebClient(buildBoshConfig(baseUrl, directorUsername, directorPassword),
                                      buildWebClient(baseUrl));
@@ -186,14 +187,14 @@ public class BoshWebClient {
                         .block();
     }
 
-    public BoshDeploymentResponse requestDeployment(BoshDeploymentRequest request) {
-        return getPostWithAuthorizationToken(BoshUri.DEPLOYMENTS.value())
+    public BoshDeployment requestDeployment(String deploymentConfigurationYaml) {
+        return getPostWithAuthorizationToken(DEPLOYMENTS.value())
                 .flatMap(cl -> cl.header(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_YAML)
-                                 .body(just(request.getYamlContent()), String.class)
+                                 .body(just(deploymentConfigurationYaml), String.class)
                                  .exchange()
                                  .flatMap(response -> {
                                      if (response.statusCode().is3xxRedirection()) {
-                                         return Mono.just(deploymentResponse()
+                                         return Mono.just(boshDeployment()
                                                                   .taskUri(create(response.headers()
                                                                                           .header(HttpHeaders.LOCATION)
                                                                                           .get(0)))
@@ -209,34 +210,38 @@ public class BoshWebClient {
                 .block();
     }
 
-    public void deleteDeployment(BoshDeploymentRequest request) {
-        getDeleteWithAuthorizationToken(BoshUri.DEPLOYMENTS.value, request.getName())
+    public BoshDeployment deleteDeployment(BoshDeploymentRequest request) {
+        BoshDeployment result = getDeployment(request.getName());
+        if (!result.isEmpty()) {
+            getDeleteWithAuthorizationToken(DEPLOYMENTS.value(), request.getName())
+                    .flatMap(cl -> cl.retrieve()
+                                     .bodyToMono(Void.class)
+                                     .onErrorResume(WebClientResponseException.class, t -> {
+                                         if (t.getStatusCode() == HttpStatus.NOT_FOUND) {
+                                             return Mono.empty();
+                                         } else {
+                                             throw t;
+                                         }
+                                     }))
+                    .block();
+        }
+        return result;
+    }
+
+    public BoshDeployment getDeployment(String deploymentId) {
+        return getGetWithAuthorizationToken(DEPLOYMENT.value(), deploymentId)
                 .flatMap(cl -> cl.retrieve()
-                                 .bodyToMono(Void.class)
-                                 .onErrorResume(WebClientResponseException.class, t -> {
-                                     if (t.getStatusCode() == HttpStatus.NOT_FOUND) {
-                                         return Mono.empty();
-                                     } else {
-                                         throw t;
-                                     }
-                                 }))
+                                 .bodyToMono(BoshDeployment.class))
                 .block();
     }
 
-    public BoshDeploymentResponse getDeployment(String deploymentId) {
-        return getGetWithAuthorizationToken(BoshUri.DEPLOYMENT.value, deploymentId)
-                .flatMap(cl -> cl.retrieve()
-                                 .bodyToMono(BoshDeploymentResponse.class))
-                .block();
-    }
-
-    public BoshConfigResponse requestConfig(BoshConfigRequest request) {
-        return getPostWithAuthorizationToken(BoshUri.CONFIGS.value)
+    public BoshCloudConfig requestConfig(BoshConfigRequest request) {
+        return getPostWithAuthorizationToken(CONFIGS.value())
                 .flatMap(cl -> cl.body(just(request.toJson()), String.class)
                                  .exchange()
                                  .flatMap(response -> {
                                      if (response.statusCode() == HttpStatus.CREATED) {
-                                         return response.bodyToMono(BoshConfigResponse.class);
+                                         return response.bodyToMono(BoshCloudConfig.class);
                                      } else {
                                          return onError(response,
                                                         format("Error accessing BOSH with %s@%s: %s",
@@ -248,35 +253,53 @@ public class BoshWebClient {
                 .block();
     }
 
-    public Collection<BoshConfigResponse> getConfigs() {
-        return getGetWithAuthorizationToken(BoshUri.CONFIGS.value(), emptyMap())
+    public Collection<BoshCloudConfig> getConfigs() {
+        return getGetWithAuthorizationToken(CONFIGS.value(), emptyMap())
                 .flatMap(cl -> cl.retrieve()
-                                 .bodyToFlux(BoshConfigResponse.class)
+                                 .bodyToFlux(BoshCloudConfig.class)
                                  .collectList())
                 .block();
     }
 
-    public void deleteConfig(BoshConfigRequest request) {
-        getDeleteWithAuthorizationToken(BoshUri.CONFIGS.value(), request.getId()).flatMap(cl -> cl.retrieve()
-                                                                                                  .bodyToMono(Void.class))
-                                                                                 .block();
+    public Collection<BoshCloudConfig> getConfig(String name) {
+        return getGetWithAuthorizationToken(CONFIGS.value(), singletonMap("name", singletonList(name)))
+                .flatMap(cl -> cl.retrieve()
+                                 .bodyToFlux(BoshCloudConfig.class)
+                                 .collectList())
+                .block();
     }
 
-    public BoshTask getTask(String taskId) {
-        return getGetWithAuthorizationToken(BoshUri.TASK.value(), taskId).flatMap(cl -> cl.retrieve()
-                                                                                          .bodyToMono(BoshTask.class))
-                                                                         .block();
+    public BoshCloudConfig deleteConfig(BoshConfigRequest request) {
+        Collection<BoshCloudConfig> result = getConfig(request.getName());
+        if (!result.isEmpty()) {
+            getDeleteWithAuthorizationToken(CONFIGS.value(),
+                                            ImmutableMap.of("name", singletonList(request.getName()),
+                                                            "type", singletonList(request.getType())))
+                    .flatMap(cl -> cl.retrieve()
+                                     .bodyToMono(
+                                             Void.class))
+                    .block();
+            return result.iterator().next();
+        }
+        return BoshCloudConfig.EMPTY;
     }
 
-    public BoshTask getTaskWithEvents(String taskId) {
-        BoshTask task = getTask(taskId);
-        Collection<BoshTask.Event> events =
-                getGetWithAuthorizationToken(BoshUri.TASK_OUTPUT.value,
+    public BoshDirectorTask getTask(String taskId) {
+        return getGetWithAuthorizationToken(TASK.value(), taskId)
+                .flatMap(cl -> cl.retrieve()
+                                 .bodyToMono(BoshDirectorTask.class))
+                .block();
+    }
+
+    public BoshDirectorTask getTaskWithEvents(String taskId) {
+        BoshDirectorTask task = getTask(taskId);
+        Collection<BoshDirectorTask.Event> events =
+                getGetWithAuthorizationToken(TASK_OUTPUT.value(),
                                              taskId,
                                              singletonMap("type", singletonList("event")))
                         .flatMap(
                                 cl -> cl.retrieve()
-                                        .bodyToFlux(BoshTask.Event.class)
+                                        .bodyToFlux(BoshDirectorTask.Event.class)
                                         .sort()
                                         .collectList())
                         .block();
@@ -286,26 +309,26 @@ public class BoshWebClient {
                 .build();
     }
 
-    public Collection<BoshTask> getTaskAssociatedWithDeployment(String deploymentName) {
-        return getGetWithAuthorizationToken(BoshUri.TASKS.value,
+    public Collection<BoshDirectorTask> getTaskAssociatedWithDeployment(String deploymentName) {
+        return getGetWithAuthorizationToken(TASKS.value(),
                                             singletonMap("deployment", singletonList(deploymentName)))
                 .flatMap(cl -> cl.retrieve()
-                                 .bodyToFlux(BoshTask.class)
+                                 .bodyToFlux(BoshDirectorTask.class)
                                  .collectList())
                 .block();
     }
 
 
-    public Collection<BoshDeploymentResponse> getDeployments() {
-        return getGetWithAuthorizationToken(BoshUri.DEPLOYMENTS.value(), emptyMap())
+    public Collection<BoshDeployment> getDeployments() {
+        return getGetWithAuthorizationToken(DEPLOYMENTS.value(), emptyMap())
                 .flatMap(cl -> cl.retrieve()
-                                 .bodyToFlux(BoshDeploymentResponse.class)
+                                 .bodyToFlux(BoshDeployment.class)
                                  .collectList())
                 .block();
     }
 
     public Collection<BoshStemcell> getStemcells() {
-        return getGetWithAuthorizationToken(BoshUri.STEMCELLS.value(), emptyMap())
+        return getGetWithAuthorizationToken(STEMCELLS.value(), emptyMap())
                 .flatMap(cl -> cl.retrieve()
                                  .bodyToFlux(BoshStemcell.class)
                                  .collectList())
@@ -313,7 +336,7 @@ public class BoshWebClient {
     }
 
     public Collection<BoshRelease> getReleases() {
-        return getGetWithAuthorizationToken(BoshUri.RELEASES.value(), emptyMap())
+        return getGetWithAuthorizationToken(RELEASES.value(), emptyMap())
                 .flatMap(cl -> cl.retrieve()
                                  .bodyToFlux(BoshRelease.class)
                                  .collectList())
@@ -381,6 +404,15 @@ public class BoshWebClient {
                                                                   .headers(h -> h.setBearerAuth(t))));
     }
 
+    private Mono<WebClient.RequestHeadersSpec> getDeleteWithAuthorizationToken(String path,
+                                                                               Map<String, List<String>> params) {
+        return getAuthorizationToken().flatMap(t -> just(webClient.delete()
+                                                                  .uri(uriBuilder -> uriBuilder
+                                                                          .path(path)
+                                                                          .queryParams(toMultiValueMap(params))
+                                                                          .build())
+                                                                  .headers(h -> h.setBearerAuth(t))));
+    }
 
     private Mono<String> getAuthorizationToken() {
         return getAuthorization().flatMap(response -> just(response.get("access_token").textValue()));

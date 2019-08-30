@@ -1,0 +1,28 @@
+{
+  "id" : "4a0c5715-52a7-4243-bee2-0322120dea06",
+  "name" : "tasks_14",
+  "request" : {
+    "url" : "/tasks/14",
+    "method" : "GET",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTkyLjE2OC41MC42Ojg0NDMvdG9rZW5fa2V5cyIsImtpZCI6InVhYS1qd3Qta2V5LTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI4MmQ2MjcwMTU2OGE0YWFiOGUzMzgzMDBiZDZmNjJjOSIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiI3NjM0OWY2OSIsImlhdCI6MTU2NzQxMTU2NiwiZXhwIjoxNTY3NDU0NzY2LCJpc3MiOiJodHRwczovLzE5Mi4xNjguNTAuNjo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbImFkbWluIiwiYm9zaCJdfQ.WENN3_7D0ZYw4GuU_h6zTaZUcJBtR7eFfFEmrS4kTWTBbvEvPkpwAvyhqiO3chL2Xr5AuoJWe4F6rm2qqPjHK5UjXse5_2THnncjSFOmdM1XzWdqbGNfACbblz9Uw4oz9qiqYEOcyrEJDQdJnJfgpRismXCpHZ4IiOdF2DWnpiPzkoiAJtCD4QHVkPS3dbjybgjMleGirQCT4PkkNQkeyCewspGNHIL6BEwMvxjbsVFCTA6vA-3gFnOjFzuPe6QISQXn-BbJWI2uqK82egc3VJ7KSVetSb_mbIjuava5DZXASQ1QraO69xK35ycyjQbWV-E8W5rFJLMy68VNVlbIYA"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\":14,\"state\":\"queued\",\"description\":\"delete deployment d-7eff4b56-be53-4925-a4fe-afde1e00111a\",\"timestamp\":1567411566,\"started_at\":null,\"result\":null,\"user\":\"admin\",\"deployment\":\"d-7eff4b56-be53-4925-a4fe-afde1e00111a\",\"context_id\":\"\"}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 02 Sep 2019 08:06:06 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "4a0c5715-52a7-4243-bee2-0322120dea06",
+  "persistent" : true,
+  "insertionIndex" : 13
+}

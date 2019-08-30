@@ -1,0 +1,34 @@
+{
+  "id" : "c3a8219c-5c2a-4dae-8f91-784a15c30964",
+  "name" : "deployments",
+  "request" : {
+    "url" : "/deployments",
+    "method" : "POST",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTkyLjE2OC41MC42Ojg0NDMvdG9rZW5fa2V5cyIsImtpZCI6InVhYS1qd3Qta2V5LTEiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI5ZWY3NmJlMjc2Mjg0ODE2YTE3YzllYzM0YjVmMTQ4MCIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiI3NjM0OWY2OSIsImlhdCI6MTU2NzQxMTM4NSwiZXhwIjoxNTY3NDU0NTg1LCJpc3MiOiJodHRwczovLzE5Mi4xNjguNTAuNjo4NDQzL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbImFkbWluIiwiYm9zaCJdfQ.0XWIzwzZF0HmJ6KSAlCMuAvpyYmtdA1EcEAk4ulmVmWW5v6ECfJjqRK_ATwgrqi7sjvdHNrjSBUfRlZ5p2EWP3WNn03JJ1V1Kv3yyACWRO7YOVHPjFcoovzSVL5ZKJQTGFZiT_zgLqk3ABRRYwjVgZ1xczO5uyh-Z_ms40Mldbuz6UO0QXoUjCrssmCBeuMAWBcaXy7VJ83zhc8E_ERyU6Sv1ixXd-d2K45zqKfEuYwiLN4NgDGGUXfPF4vf-90EFCasIL46wRYF64Z48J7T5Wn9pCoroOWhLeA8ksoecPz1WM-WGVMaC0SRlkri2ZwFmgtzoZg1CuyBuRCrcUHyJg"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalTo" : "name: \"d-7eff4b56-be53-4925-a4fe-afde1e00111a\"\n\nreleases:\n  - name: dummy\n    version: latest\n\nstemcells:\n  - alias: ubuntu\n    os: ubuntu-xenial\n    version: latest\n\ninstance_groups:\n  - name: dummy\n    azs: [z1]\n    instances: 1\n    vm_type: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    stemcell: ubuntu\n    networks:\n      - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    jobs:\n      - name: dummy\n        release: dummy\n\nupdate:\n  canaries: 1\n  max_in_flight: 6\n  serial: false\n  canary_watch_time: 1000-60000\n  update_watch_time: 1000-60000",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 02 Sep 2019 08:03:05 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://192.168.50.6/tasks/13",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "c3a8219c-5c2a-4dae-8f91-784a15c30964",
+  "persistent" : true,
+  "insertionIndex" : 5
+}

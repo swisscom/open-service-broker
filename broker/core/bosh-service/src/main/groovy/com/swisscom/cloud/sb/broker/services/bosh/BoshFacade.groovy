@@ -19,9 +19,9 @@ import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshTask
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
@@ -36,7 +36,11 @@ import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigReques
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 import static java.lang.String.format
 
+/**
+ * @deprecated Use {@link com.swisscom.cloud.sb.broker.services.bosh.BoshDirectorService} instead
+ */
 @CompileStatic
+@Deprecated
 class BoshFacade {
     private static final Logger LOG = LoggerFactory.getLogger(BoshFacade.class);
 
@@ -81,11 +85,7 @@ class BoshFacade {
         Assert.hasText(templateUniqueIdentifier, "Template identifier cannot be empty!")
         Assert.notNull(parameters, "Parameters cannot be null!")
         Assert.notNull(templateCustomizer, "Template customizer cannot be null!")
-        BoshTemplate template = BoshTemplate.of(readTemplateContent(templateUniqueIdentifier))
-
-        if (serviceConfig.shuffleAzs) {
-            template.shuffleAzs()
-        }
+        BoshTemplate template = BoshTemplate.boshTemplateOf(readTemplateContent(templateUniqueIdentifier))
 
         template.replace(PARAM_GUID, serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
@@ -114,13 +114,13 @@ class BoshFacade {
      * for more information.
      * @return List of all created BoshConfigs, which is empty if there were none defined or there was an Exception
      */
-    List<BoshConfigResponse> handleTemplatingAndCreateConfigs(String serviceInstanceGuid,
-                                                              BoshTemplateCustomizer templateCustomizer) {
+    List<BoshCloudConfig> handleTemplatingAndCreateConfigs(String serviceInstanceGuid,
+                                                           BoshTemplateCustomizer templateCustomizer) {
         Assert.hasText(serviceInstanceGuid, "Service Instance GUID cannot be empty!")
         Assert.notNull(templateCustomizer, "Template customizer cannot be null!")
-        List<BoshConfigResponse> result = new ArrayList<>(serviceConfig.getGenericConfigs().size())
+        List<BoshCloudConfig> result = new ArrayList<>(serviceConfig.getGenericConfigs().size())
         for (GenericConfig config : serviceConfig.getGenericConfigs()) {
-            BoshTemplate template = BoshTemplate.of(
+            BoshTemplate template = BoshTemplate.boshTemplateOf(
                     templateConfig.getTemplateForServiceKey(config.templateName).first())
             template.replace(PARAM_GUID, serviceInstanceGuid)
             templateCustomizer.customizeBoshConfigTemplate(template, config.type, serviceInstanceGuid)
@@ -138,12 +138,12 @@ class BoshFacade {
      * Note: RuntimeException is thrown if task was not found, is cancelled or failed!
      * @param details
      * @return true if successful and false if still in progress
-     * @deprecated use{@link #getBoshTaskState()} instead
+     * @deprecated use{@link #getBoshDirectorTaskState()} instead
      */
     @Deprecated
     boolean isBoshDeployTaskSuccessful(Collection<ServiceDetail> details) {
         Assert.notNull(details, "details should not be null")
-        return isBoshTaskSuccessful(findBoshTaskIdForDeploy(details))
+        return isBoshDirectorTaskSuccessful(findBoshDirectorTaskIdForDeploy(details))
     }
 
 
@@ -176,20 +176,20 @@ class BoshFacade {
         Assert.notNull(details, "details should not be null")
         Optional<String> maybe = from(details).findValue(BOSH_TASK_ID_FOR_UNDEPLOY)
         if (maybe.present) {
-            return isBoshTaskSuccessful(maybe.get())
+            return isBoshDirectorTaskSuccessful(maybe.get())
         } else {
             return true
         }
     }
 
-    BoshTask.State getBoshTaskState(Map<String, ServiceDetail> details) {
-        return getBoshTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
+    BoshDirectorTask.State getBoshDirectorTaskState(Map<String, ServiceDetail> details) {
+        return getBoshDirectorTaskState(details.get(BOSH_TASK_ID_FOR_DEPLOY).value)
     }
 
-    BoshTask.State getBoshTaskState(Collection<ServiceDetail> details) {
+    BoshDirectorTask.State getBoshDirectorTaskState(Collection<ServiceDetail> details) {
         for (ServiceDetail detail : details) {
             if (detail.key == BOSH_TASK_ID_FOR_DEPLOY.key) {
-                return getBoshTaskState(detail.value)
+                return getBoshDirectorTaskState(detail.value)
             }
         }
         throw new IllegalArgumentException(format(NO_DETAIL_WITH_ID_IN_SERVICE_DETAILS_MESSAGE,
@@ -204,7 +204,6 @@ class BoshFacade {
     private static void validateConfig(BoshBasedServiceConfig config) {
         Assert.notNull(config.getPortRange(), "Port range cannot be null!")
         Assert.notNull(config.getBoshManifestFolder(), "Bosh manifest folder cannot be null!")
-        Assert.notNull(config.getShuffleAzs(), "Shuffle AZs cannot be null!")
         Assert.notNull(config.getGenericConfigs(), "Bosh generic configs cannot be null!")
         Assert.notNull(config.getTemplateConfig(), "TemplateConfig cannot be null!")
         Assert.notNull(config.getIpRanges(), "IP ranges cannot be null!")
@@ -218,21 +217,21 @@ class BoshFacade {
         }
     }
 
-    private boolean isBoshTaskSuccessful(String taskId) {
+    private boolean isBoshDirectorTaskSuccessful(String taskId) {
         Assert.hasText(taskId, "Task ID cannot be empty!")
-        BoshTask.State state = getBoshTaskState(taskId)
+        BoshDirectorTask.State state = getBoshDirectorTaskState(taskId)
         if (state == null) {
             throw new RuntimeException("Unknown bosh task state: ${state}")
         }
-        if ([BoshTask.State.CANCELLED, BoshTask.State.CANCELLING, BoshTask.State.ERRORED].contains(state)) {
+        if ([BoshDirectorTask.State.CANCELLED, BoshDirectorTask.State.CANCELLING, BoshDirectorTask.State.ERRORED].contains(state)) {
             throw new RuntimeException("Task failed: ${taskId}")
         }
         return state.isSuccessful()
     }
 
-    BoshTask.State getBoshTaskState(String taskId) {
+    BoshDirectorTask.State getBoshDirectorTaskState(String taskId) {
         Assert.hasText(taskId, "Task ID cannot be empty!")
-        BoshTask task = this.boshClient.getTask(taskId)
+        BoshDirectorTask task = this.boshClient.getTask(taskId)
         return task.state
     }
 
@@ -240,7 +239,7 @@ class BoshFacade {
         return DEPLOYMENT_PREFIX + serviceInstanceGuid
     }
 
-    private static String findBoshTaskIdForDeploy(Collection<ServiceDetail> details) {
+    private static String findBoshDirectorTaskIdForDeploy(Collection<ServiceDetail> details) {
         Assert.notNull(details, "details should not be null")
         return from(details).getValue(BOSH_TASK_ID_FOR_DEPLOY)
     }
