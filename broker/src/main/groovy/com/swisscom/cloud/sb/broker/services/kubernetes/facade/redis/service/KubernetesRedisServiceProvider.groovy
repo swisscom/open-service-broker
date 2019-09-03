@@ -51,7 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-@Log4j
 @CompileStatic
 class KubernetesRedisServiceProvider
         extends AsyncServiceProvider<KubernetesRedisConfig>

@@ -19,9 +19,13 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.services.relationaldb.RelationalDbClient
 import groovy.sql.Sql
 import groovy.util.logging.Log4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-@Log4j
 class MariaDBClient extends RelationalDbClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MariaDBClient.class)
+
     MariaDBClient(String driver, String vendor, String host, int port, String adminUser, String adminPassword) {
         super(driver, vendor, host, port, adminUser, adminPassword)
     }
@@ -62,7 +66,7 @@ class MariaDBClient extends RelationalDbClient {
         conn.execute("REVOKE LOCK TABLES ON ${database}.* FROM ?@'%'", [user])
 
         if (maxConnections > 0) {
-            log.info("GRANT USAGE for database: ${database} for user: ${user} max_user_connections: ${maxConnections}")
+            LOGGER.info("GRANT USAGE for database: ${database} for user: ${user} max_user_connections: ${maxConnections}")
             conn.execute("GRANT USAGE ON ${database}.* TO ?@'%' WITH MAX_USER_CONNECTIONS ?", [user, maxConnections])
         }
     }
