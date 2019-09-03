@@ -26,7 +26,6 @@ import spock.lang.IgnoreIf
 
 import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
-@Log4j
 @IgnoreIf({!Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.runMariaDBUsageFunctionalSpec'])})
 class MariaDBUsageFunctionalSpec extends BaseFunctionalSpec {
 

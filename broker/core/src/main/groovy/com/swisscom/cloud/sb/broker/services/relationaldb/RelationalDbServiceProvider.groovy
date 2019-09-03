@@ -28,7 +28,6 @@ import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.util.logging.Log4j
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 
-@Log4j
 abstract class RelationalDbServiceProvider implements ServiceProvider, CloudFoundryContextRestrictedOnly {
     protected final RelationalDbClientFactory dbClientFactory
     protected final RelationalDbConfig dbConfig

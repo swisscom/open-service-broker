@@ -17,13 +17,16 @@ package com.swisscom.cloud.sb.broker.services.relationaldb
 
 import groovy.sql.Sql
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.sql.SQLException
 
-@Log4j
 @CompileStatic
 abstract class RelationalDbClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelationalDbClient.class)
+
     protected final String driverClass
     protected final String vendor
     protected final String host
@@ -55,7 +58,7 @@ abstract class RelationalDbClient {
     }
 
     void createDatabase(String database) {
-        log.info("Creating database: ${database}")
+        LOGGER.info("Creating database: ${database}")
         handleSql { Sql sql -> this.&handleCreateDatabase(sql, database) }
     }
 
@@ -63,7 +66,7 @@ abstract class RelationalDbClient {
     protected abstract void handleCreateDatabase(Sql sql, String database)
 
     Boolean databaseExists(String database) {
-        log.info("Searching for database: ${database}")
+        LOGGER.info("Searching for database: ${database}")
         boolean exists = false
         handleSql { Sql sql ->
             exists = this.&handleDatabaseExists(sql, database)
@@ -75,7 +78,7 @@ abstract class RelationalDbClient {
     protected abstract boolean handleDatabaseExists(Sql sql, String database)
 
     void dropDatabase(String database) {
-        log.info("Drop database: ${database}")
+        LOGGER.info("Drop database: ${database}")
         handleSql { Sql sql -> this.&handleDropDatabase(sql, database) }
     }
 
@@ -83,7 +86,7 @@ abstract class RelationalDbClient {
     protected abstract void handleDropDatabase(Sql sql, String database)
 
     Boolean userExists(String user) {
-        log.info("Search for user: ${user}")
+        LOGGER.info("Search for user: ${user}")
         Boolean exists = false
         handleSql { Sql sql ->
             exists = this.&handleUserExists(sql, user)
@@ -95,7 +98,7 @@ abstract class RelationalDbClient {
     protected abstract boolean handleUserExists(Sql sql, String user)
 
     RelationalDbBindResponseDto createUserAndGrantRights(String database, String user, String password, int maxConnections) {
-        log.info("Create user: ${user} on database:${database} and grant rights")
+        LOGGER.info("Create user: ${user} on database:${database} and grant rights")
         handleSql { Sql sql -> this.&handleCreateUserAndGrantRights(sql, database, user, password, maxConnections) }
         return generateCredentials(database, user, password)
     }
@@ -109,7 +112,7 @@ abstract class RelationalDbClient {
     abstract void handleCreateUserAndGrantRights(Sql sql, String database, String user, String password, int maxConnections)
 
     void revokeRightsAndDropUser(String database, String user) {
-        log.info("Revoke privileges for database: ${database} for user: ${user}")
+        LOGGER.info("Revoke privileges for database: ${database} for user: ${user}")
         handleSql { Sql sql -> this.&handleRevokeRightsAndDropUser(sql, database, user) }
     }
 
@@ -120,7 +123,7 @@ abstract class RelationalDbClient {
             Class.forName(driverClass)
             Sql.withInstance(getJdbcUrl(), adminUser, adminPassword, driverClass, closure)
         } catch (SQLException e) {
-            log.info("Error: ${e.message}")
+            LOGGER.info("Error: ${e.message}")
             throw e
         }
     }
