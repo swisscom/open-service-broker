@@ -7,9 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshUserAuthentication.EMPTY;
+
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = ImmutableBoshInfo.Builder.class)
+@JsonDeserialize(builder = BoshInfo.Builder.class)
 @Value.Style(
         visibility = Value.Style.ImplementationVisibility.PUBLIC,
         overshadowImplementation = true,
@@ -19,13 +21,29 @@ import org.immutables.value.Value;
 @Value.Immutable
 public abstract class BoshInfo {
 
-    public abstract String getName();
+    @Value.Default
+    public String getName() {
+        return "";
+    }
 
     public abstract String getUuid();
 
-    public abstract String getVersion();
-
+    @Value.Default
+    public String getVersion() {
+        return "";
+    }
 
     @JsonProperty("user_authentication")
-    public abstract BoshUserAuthentication getUserAuthentication();
+    @Value.Default
+    public BoshUserAuthentication getUserAuthentication() {
+        return EMPTY;
+    }
+
+    public static class Builder extends ImmutableBoshInfo.Builder {
+
+    }
+
+    public static BoshInfo.Builder info() {
+        return new BoshInfo.Builder();
+    }
 }

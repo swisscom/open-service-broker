@@ -19,7 +19,7 @@ instance_groups:
       - name: "{{guid}}"
     jobs:
       - name: dummy
-        release: dummy
+    release: dummy
 
 update:
   canaries: 1

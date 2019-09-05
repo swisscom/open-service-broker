@@ -16,6 +16,7 @@ import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpServerErrorException
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -36,6 +37,7 @@ import static java.util.Collections.singletonList
  */
 // TODO: Test failing authentication
 // TODO: Test basic authentication (without uaa)
+@Ignore("We are deprecating BoshFacade and just for getting the mapping files of this test you need to wait several minutes.")
 @Stepwise
 class BoshFacadeTest extends Specification {
     private static final Logger LOG = LoggerFactory.getLogger(BoshFacadeTest.class)

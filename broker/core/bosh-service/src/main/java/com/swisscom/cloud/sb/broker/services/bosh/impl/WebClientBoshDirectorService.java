@@ -1,25 +1,18 @@
 package com.swisscom.cloud.sb.broker.services.bosh.impl;
 
-import com.swisscom.cloud.sb.broker.model.Parameter;
+import com.google.common.collect.ImmutableMap;
 import com.swisscom.cloud.sb.broker.services.bosh.BoshDirectorService;
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate;
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig;
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeployment;
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask;
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient;
+import com.swisscom.cloud.sb.broker.services.bosh.client.*;
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig;
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig;
-import com.swisscom.cloud.sb.broker.util.Resource;
+import com.swisscom.cloud.sb.broker.template.TemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,10 +21,8 @@ import static com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate.boshTempla
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient.boshWebClient;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * An implementation of {@link BoshDirectorService} which uses {@link com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient}
@@ -44,26 +35,36 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     private static final String NO_DELETE_WITH_NULL = "Can't delete a %s with null '%s'";
     private static final String BOSH_DEPLOYMENT = BoshDeployment.class.getSimpleName();
     private static final String BOSH_CLOUD_CONFIG = BoshCloudConfig.class.getSimpleName();
+    private static final String BOSH_DEPLOYMENT_PREFIX = "d";
 
     private final BoshWebClient boshWebClient;
     private final List<GenericConfig> genericConfigs;
     private final TemplateConfig templates;
-    private final String boshManifestFolder;
+    private final TemplateEngine templateEngine;
+    private final String defaultBoshDeploymentTemplateId;
 
     private WebClientBoshDirectorService(BoshWebClient boshWebClient,
                                          List<GenericConfig> genericConfigs,
-                                         TemplateConfig templates, String boshManifestFolder) {
+                                         TemplateConfig templates,
+                                         TemplateEngine templateEngine,
+                                         String defaultBoshDeploymentTemplateId) {
         this.boshWebClient = boshWebClient;
         this.genericConfigs = genericConfigs;
         this.templates = templates;
-        this.boshManifestFolder = boshManifestFolder;
+        this.templateEngine = templateEngine;
+        this.defaultBoshDeploymentTemplateId = defaultBoshDeploymentTemplateId;
     }
 
     public static WebClientBoshDirectorService of(BoshWebClient boshWebClient,
                                                   List<GenericConfig> genericConfigs,
                                                   TemplateConfig templates,
-                                                  String boshManifestFolder) {
-        return new WebClientBoshDirectorService(boshWebClient, genericConfigs, templates, boshManifestFolder);
+                                                  TemplateEngine templateEngine,
+                                                  String defaultBoshDeploymentTemplateId) {
+        return new WebClientBoshDirectorService(boshWebClient,
+                                                genericConfigs,
+                                                templates,
+                                                templateEngine,
+                                                defaultBoshDeploymentTemplateId);
     }
 
     public static WebClientBoshDirectorService of(String boshDirectorBaseUrl,
@@ -71,11 +72,13 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
                                                   char[] boshDirectorPassword,
                                                   List<GenericConfig> genericConfigs,
                                                   TemplateConfig templates,
-                                                  String boshManifestFolder) {
+                                                  TemplateEngine templateEngine,
+                                                  String defaultBoshDeploymentTemplateId) {
         return of(boshWebClient(boshDirectorBaseUrl, boshDirectorUsername, boshDirectorPassword),
                   genericConfigs,
                   templates,
-                  boshManifestFolder);
+                  templateEngine,
+                  defaultBoshDeploymentTemplateId);
     }
 
     @Override
@@ -115,7 +118,6 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
                                                                     .build());
     }
 
-
     @Override
     public BoshCloudConfig deleteBoshConfig(String name) {
         checkArgument(!isNullOrEmpty(name), NO_DELETE_WITH_NULL, BOSH_CLOUD_CONFIG, "name");
@@ -123,52 +125,22 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     }
 
     @Override
-    public BoshDeployment requestParameterizedBoshDeployment(String serviceInstanceGuid,
-                                                             String templateId,
-                                                             Set<Parameter> parameters) {
-        checkArgument(!isNullOrEmpty(serviceInstanceGuid),
-                      NO_REQUEST_WITH_NULL,
-                      BOSH_DEPLOYMENT,
-                      "serviceInstanceGuid");
-        checkArgument(parameters != null, NO_REQUEST_WITH_NULL, BOSH_DEPLOYMENT, "template parameters");
-        return this.boshWebClient.requestDeployment(getDeploymentConfigContentFor(serviceInstanceGuid,
-                                                                                  templateId,
-                                                                                  parameters));
+    public BoshDeployment requestBoshDeployment(BoshDeploymentRequest boshDeploymentRequest, String templateId) {
+        return this.boshWebClient.requestDeployment(processBoshDeploymentTemplate(boshDeploymentRequest, templateId));
     }
 
-    //FIXME CACHE BoshInfo uuid!!!
-    private String getDeploymentConfigContentFor(String serviceInstanceGuid,
-                                                 String templateId,
-                                                 Set<Parameter> parameters) {
-        return boshTemplateOf(readTemplateContent(templateId)).replaceAllNamed("guid", serviceInstanceGuid)
-                                                              .replaceAllNamed("prefix", "d-")
-                                                              .replaceAllNamed("bosh-director-uuid",
-                                                                               boshWebClient.fetchBoshInfo().getUuid())
-                                                              .replaceAllNamed(parameters)
-                                                              .build();
+    @Override
+    public BoshDeployment requestBoshDeployment(BoshDeploymentRequest request) {
+        return requestBoshDeployment(request, defaultBoshDeploymentTemplateId);
     }
 
-    private String readTemplateContent(String templateId) {
-        String result = templates.getFirstTemplateForServiceKey(templateId, "1.0.0");
-        return isEmpty(result) ? readDefaultTemplateContent(templateId) : result;
-    }
-
-    //TODO Change boshManifestFolder to be a Path!
-    private String readDefaultTemplateContent(String templateId) {
-        try {
-            // Fallback method which was used by BOSH deployments
-            String fileName = templateId.endsWith(".yml") ? templateId : templateId + ".yml";
-            File file = new File(boshManifestFolder, fileName);
-            if (file.exists()) {
-                LOGGER.debug("Using template file: {}", file.getAbsolutePath());
-                return String.join("\n", Files.readAllLines(Paths.get(file.getAbsolutePath())));
-            }
-            LOGGER.debug("Will try to read file: {} from embedded resources", fileName);
-            return Resource.readTestFileContent(fileName.startsWith("/") ? fileName : ("/" + fileName));
-        } catch (Exception ex) {
-            throw new IllegalArgumentException(
-                    format("No template could be found for templateIdentifier '%s'!", templateId));
-        }
+    private String processBoshDeploymentTemplate(BoshDeploymentRequest request, String templateId) {
+        return templateEngine.process(templateId,
+                                      ImmutableMap.<String, Object>builder()
+                                              .put("deploy", request)
+                                              .put("bosh_info", boshWebClient.fetchBoshInfo())
+                                              .put("bosh_prefix", BOSH_DEPLOYMENT_PREFIX)
+                                              .build());
     }
 
     @Override
@@ -193,6 +165,5 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     private BoshTemplate getTemplate(GenericConfig config) {
         return boshTemplateOf(templates.getFirstTemplateForServiceKey(config.getTemplateName()));
     }
-
 
 }

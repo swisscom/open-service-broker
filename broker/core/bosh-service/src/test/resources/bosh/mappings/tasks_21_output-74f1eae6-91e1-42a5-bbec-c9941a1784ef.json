@@ -1,0 +1,26 @@
+{
+  "id" : "74f1eae6-91e1-42a5-bbec-c9941a1784ef",
+  "name" : "tasks_21_output",
+  "request" : {
+    "url" : "/tasks/21/output?type=event",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "tasks_21_output-74f1eae6-91e1-42a5-bbec-c9941a1784ef.txt",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 08:57:03 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "Vary" : "Accept-Encoding",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "74f1eae6-91e1-42a5-bbec-c9941a1784ef",
+  "persistent" : true,
+  "insertionIndex" : 51
+}

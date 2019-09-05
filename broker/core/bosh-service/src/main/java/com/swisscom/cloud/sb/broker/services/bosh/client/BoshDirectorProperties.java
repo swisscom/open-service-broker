@@ -36,10 +36,10 @@ public class BoshDirectorProperties {
     }
 
     public char[] getBoshDirectorPassword() {
-        return boshDirectorPassword.toCharArray();
+        return boshDirectorPassword == null ? "".toCharArray() : boshDirectorPassword.toCharArray();
     }
 
     public void setBoshDirectorPassword(String boshDirectorPassword) {
-        this.boshDirectorPassword = boshDirectorPassword;
+        this.boshDirectorPassword = boshDirectorPassword == null ? "" : boshDirectorPassword;
     }
 }

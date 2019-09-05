@@ -9,6 +9,8 @@ import org.immutables.value.Value;
 import java.util.Collection;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
+
 /**
  * Represents a <em>BOSH Stemcell</em>
  * <p>A generic VM image that BOSH clones and configures during deployment. A stemcell is a template from which BOSH
@@ -16,7 +18,6 @@ import java.util.UUID;
  *
  * @see <a href='https://bosh.io/docs/director-api-v1/#stemcells'>BOSH Director API v1.0.0: Stemcells</a>
  * @see <a href='https://bosh.io/docs/stemcell/'>What is a Stemcell?</a>
- *
  */
 @JsonInclude(Include.NON_NULL)
 @JsonDeserialize(builder = BoshStemcell.Builder.class)
@@ -29,21 +30,43 @@ import java.util.UUID;
 @Value.Immutable
 public abstract class BoshStemcell {
 
-    public abstract UUID getCid();
+    @Value.Default
+    public String getCid() {
+        return "";
+    }
 
     public abstract String getName();
 
     @JsonProperty("operating_system")
-    public abstract String getOperatingSystem();
+    @Value.Default
+    public String getOperatingSystem() {
+        return "";
+    }
 
-    public abstract String getVersion();
+    @Value.Default
+    public String getVersion() {
+        return "";
+    }
 
+    /**
+     * Don't look at me: BOSH had the idea that this field is an integer.
+     * @return the version of the BOSH API?
+     */
     @JsonProperty("api_version")
-    public abstract String getApiVersion();
+    @Value.Default
+    public int getApiVersion() {
+        return 2;
+    }
 
-    public abstract String getCpi();
+    @Value.Default
+    public String getCpi() {
+        return "";
+    }
 
-    public abstract Collection<DeploymentName> getDeployments();
+    @Value.Default
+    public Collection<DeploymentName> getDeployments() {
+        return emptyList();
+    }
 
     @JsonInclude(Include.NON_NULL)
     @JsonDeserialize(builder = ImmutableDeploymentName.Builder.class)

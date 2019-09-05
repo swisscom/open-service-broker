@@ -7,6 +7,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 import java.util.Collection;
+import java.util.Collections;
+
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshRelease.Version.LATEST;
+import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
 
 /**
  * Represents a <em>BOSH Release</em>
@@ -14,7 +19,8 @@ import java.util.Collection;
  * A collection of configuration files, source code, jobs, packages and accompanying information needed to make a
  * software component deployable by BOSH. A self-contained release should have no dependencies that need to be fetched
  * from the internet.
- *</p>
+ * </p>
+ *
  * @see <a href='https://bosh.io/docs/director-api-v1/#releases'>BOSH Director API v1.0.0: BOSH Releases</a>
  * @see <a href='https://bosh.io/docs/release/'>What is a Release?</a>
  */
@@ -32,13 +38,29 @@ public abstract class BoshRelease {
     public abstract String getName();
 
     @JsonProperty("release_versions")
-    public abstract Collection<Version> getReleaseVersions();
+    @Value.Default
+    public  Collection<Version> getReleaseVersions(){
+        return emptyList();
+    }
+
+    @Value.Lazy
+    public Version getLatest() {
+        if (getReleaseVersions().isEmpty()) {
+            return LATEST;
+        } else {
+            return getReleaseVersions().stream()
+                                       .max(comparing(Version::getVersion))
+                                       .get();
+        }
+    }
 
 
     @JsonInclude(Include.NON_NULL)
     @JsonDeserialize(builder = ImmutableVersion.Builder.class)
     @Value.Immutable
     public static abstract class Version {
+
+        public static final Version LATEST = ImmutableVersion.of("latest", "", false, false, emptyList());
 
         public abstract String getVersion();
 
@@ -59,7 +81,7 @@ public abstract class BoshRelease {
 
     }
 
-    public static BoshStemcell.Builder release() {
-        return new BoshStemcell.Builder();
+    public static BoshRelease.Builder release() {
+        return new BoshRelease.Builder();
     }
 }

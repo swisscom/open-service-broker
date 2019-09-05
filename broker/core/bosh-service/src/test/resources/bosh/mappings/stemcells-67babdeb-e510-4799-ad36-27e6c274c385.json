@@ -1,0 +1,26 @@
+{
+  "id" : "67babdeb-e510-4799-ad36-27e6c274c385",
+  "name" : "stemcells",
+  "request" : {
+    "url" : "/stemcells",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "stemcells-67babdeb-e510-4799-ad36-27e6c274c385.txt",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 08:57:03 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "Vary" : "Accept-Encoding",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "67babdeb-e510-4799-ad36-27e6c274c385",
+  "persistent" : true,
+  "insertionIndex" : 53
+}

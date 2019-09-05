@@ -1,15 +1,14 @@
 package com.swisscom.cloud.sb.broker.services.bosh;
 
-import com.swisscom.cloud.sb.broker.model.Parameter;
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig;
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeployment;
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest;
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask;
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An interface to all the deployments related functions that BOSH provides.
@@ -26,8 +25,8 @@ import java.util.Set;
 public interface BoshDirectorService {
 
     /**
-     * Replaces placeholders in BoshTemplate and creates all configs (like networks or vm types) defined in {@link
-     * BoshBasedServiceConfig#getGenericConfigs()}.
+     * Replaces placeholders in a template of {@link BoshCloudConfig} and creates all configs (like networks or vm
+     * types) defined in {@link BoshBasedServiceConfig#getGenericConfigs()}.
      *
      * @param boshCloudConfigName the {@link BoshCloudConfig#getName()} to use
      * @param parameters          the template parameters needed for generating the {@link BoshCloudConfig}
@@ -48,15 +47,22 @@ public interface BoshDirectorService {
     /**
      * Replaces the placeholders in the deployment manifest template and request needed {@link BoshDeployment} to BOSH.
      *
-     * @param serviceInstanceGuid Id of the service instance to be deployed
-     * @param templateId          Name of the service template to be used from {@link com.swisscom.cloud.sb.broker.services.common.TemplateConfig#getServiceTemplates()}
-     * @param parameters          Parameters defined in service plan {@link com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto#getParameters()}
+     * @param request    a {@link BoshDeploymentRequest} with all the parameters needed for creating the yaml
+     *                   configuration from the bosh template
+     * @param templateId Name of the service template to be used from {@link com.swisscom.cloud.sb.broker.services.common.TemplateConfig#getServiceTemplates()}
      * @return a {@link BoshDeployment}
      * @see <a href='https://bosh.io/docs/deploying/'>Bosh Deploying</a>
      */
-    BoshDeployment requestParameterizedBoshDeployment(String serviceInstanceGuid,
-                                                      String templateId,
-                                                      Set<Parameter> parameters);
+    BoshDeployment requestBoshDeployment(BoshDeploymentRequest request, String templateId);
+
+    /**
+     * Request a {@link BoshDeployment} using the default bosh deployment template
+     *
+     * @param request a {@link BoshDeploymentRequest} with all the parameters needed for creating the yaml
+     *                        configuration from the default bosh template
+     * @return a {@link BoshDeployment}
+     */
+    BoshDeployment requestBoshDeployment(BoshDeploymentRequest request);
 
     /**
      * Cancels certain {@link BoshDeployment}

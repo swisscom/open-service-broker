@@ -1,0 +1,5 @@
+{"time":1542271953,"stage":"Update stemcell","tags":[],"total":5,"task":"Extracting stemcell archive","index":1,"state":"started","progress":0}
+{"time":1542271957,"stage":"Update stemcell","tags":[],"total":5,"task":"Extracting stemcell archive","index":1,"state":"finished","progress":100}
+{"time":1542271957,"stage":"Update stemcell","tags":[],"total":5,"task":"Verifying stemcell manifest","index":2,"state":"started","progress":0}
+{"time":1542271957,"stage":"Update stemcell","tags":[],"total":5,"task":"Verifying stemcell manifest","index":2,"state":"finished","progress":100}
+{"time":1542271969,"error":{"code":100,"message":"Unknown CPI error 'Unknown' with message 'vSphere CPI only supports a single datacenter' in 'info' CPI method (CPI request ID: 'cpi-658403')"}}

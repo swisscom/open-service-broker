@@ -1,0 +1,25 @@
+{
+  "id" : "e7bda329-029f-414e-af79-215d03e41471",
+  "name" : "deployments_d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+  "request" : {
+    "url" : "/deployments/d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"manifest\":null}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 08:56:57 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "e7bda329-029f-414e-af79-215d03e41471",
+  "persistent" : true,
+  "insertionIndex" : 10
+}

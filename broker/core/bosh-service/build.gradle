@@ -26,6 +26,7 @@ dependencies {
     compile libs.spring_credhub_starter
     compile libs.spring_boot_starter_webflux    
     compile libs.spring_boot_starter_security
+    compile libs.spring_boot_starter_freemarker
     compile libs.spring_security_oauth2_client
 
     compile libs.commons_lang

@@ -13,8 +13,10 @@ jobs:
         SPRING_PROFILES_ACTIVE: info,default,extensions,secrets,test
     steps:
       - checkout
-      - run: ./gradlew build -x integrationTest -x functionalTest --stacktrace
-
+      - run: ./gradlew build -x integrationTest -x functionalTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
+  
+  
+  
   # For integration testing we need to start a machine or setup_remote_docker because we need to use docker-compose for
   # having services up to launch the tests against
   integration_test:
@@ -29,7 +31,7 @@ jobs:
       - run: sudo killall -9 apt-get || true && sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
-      - run: ./gradlew clean build -x test -x functionalTest --stacktrace
+      - run: ./gradlew clean build -x test -x functionalTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
 
   # For functional testing we need to start a machine or setup_remote_docker because we need to use docker-compose for
   # having services up to launch the tests against
@@ -45,7 +47,7 @@ jobs:
       - run: sudo killall -9 apt-get || true && sudo apt-get update && sudo apt-get install openjdk-8-jdk && sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
-      - run: ./gradlew clean build -x test -x integrationTest --stacktrace
+      - run: ./gradlew clean build -x test -x integrationTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
 
   # For tagging in the repository tags in the form 'vn.minor+1.0' or in the form 'vn.nn.patch+1'
   tag_release:
@@ -58,7 +60,7 @@ jobs:
             - "c7:88:38:13:95:28:53:68:f3:2e:73:ee:e4:c9:5d:66"
       - run: |
           VERSION_INCREMENTER=$(git log --pretty=%B -1 | cat | grep -q  "feature/"  && echo "incrementMinor" || echo "incrementPatch")
-          ./gradlew release -Prelease.versionIncrementer=$VERSION_INCREMENTER -Prelease.customUsername=$GITHUB_USER -Prelease.customPassword=$GITHUB_PASSWORD
+          ./gradlew release -Prelease.versionIncrementer=$VERSION_INCREMENTER -Prelease.customUsername=$GITHUB_USER -Prelease.customPassword=$GITHUB_PASSWORD -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
 
 
   # For publishing build artifacts in MavenCentral and JCenter
@@ -68,7 +70,7 @@ jobs:
     steps:
       - checkout
       - run: openssl aes-256-cbc -md md5 -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
-      - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -PsigningSecretKeyRingFile=/home/circleci/project/local.secring.gpg
+      - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -PsigningSecretKeyRingFile=/home/circleci/project/local.secring.gpg -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
 
 
 workflows:

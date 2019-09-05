@@ -1,1 +1,0 @@
-{"id":21,"state":"error","description":"create deployment","timestamp":1567086668,"started_at":1567086617,"result":"Action Failed get_task: Task deb20943-b1bb-45ec-52f3-dd41fe8f2369 result: 1 of 2 pre-start scripts failed. Failed Jobs:...","user":"admin","deployment":"9222e49c-7292-3554-bd13-122284a488c3","context_id":""}
