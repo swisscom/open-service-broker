@@ -95,5 +95,5 @@ public interface BoshDirectorService {
      * @param boshDeployment the {@link BoshDeployment} we want to get all associated {@link BoshDirectorTask}
      * @return all the {@link BoshDirectorTask} ordered from older to more recent one.
      */
-    Collection<BoshDirectorTask> getBoshDirectorTask(BoshDeployment boshDeployment);
+    Collection<BoshDirectorTask> getBoshDirectorTasks(BoshDeployment boshDeployment);
 }

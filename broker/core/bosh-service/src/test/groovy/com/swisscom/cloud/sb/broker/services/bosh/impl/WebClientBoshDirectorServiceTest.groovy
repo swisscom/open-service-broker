@@ -13,6 +13,7 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshDirectorService
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeployment
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
 import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
@@ -32,6 +33,7 @@ import static com.google.common.base.Strings.isNullOrEmpty
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.Job.job
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.instanceGroup
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event.State.UNKNOWN
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshRelease.release
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshStemcell.stemcell
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClientTest.BoshInfoContentTransformer.of
@@ -97,8 +99,8 @@ class WebClientBoshDirectorServiceTest extends Specification {
         uaaWireMock.start()
 
         if (!BOSH_MOCKED) {
-            LOG.
-                    info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' and uaa wiremock targeting '${UAA_URL}'")
+            LOG.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' " +
+                     "and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_BASE_URL).
                     extractBinaryBodiesOver(10240).
@@ -394,6 +396,116 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                                                         .build())
                                        .build()
         ]
+
+    }
+
+    def "should allow to monitor deployment state"() {
+        given:
+        BoshDeployment boshDeployment = sut.requestBoshDeployment(request)
+
+        when:
+        Collection<BoshDirectorTask> result = sut.getBoshDirectorTasks(boshDeployment)
+
+        then:
+        result != null
+        !result.isEmpty()
+        result.forEach {task ->
+            assert !task.id.isEmpty()
+            assert task.state != null
+            assert !task.description.isEmpty()
+            assert task.deployment == boshDeployment.name
+            LOG.debug("{}", task)
+        }
+
+        where:
+        release = release().name("dummy").build()
+        request = deploymentRequest().name(SERVICE_INSTANCE_GUID)
+                                     .addRelease(release().name("dummy")
+                                                          .build())
+                                     .addStemcell(stemcell().name("ubuntu")
+                                                            .operatingSystem("ubuntu-xenial")
+                                                            .version("latest")
+                                                            .build())
+                                     .addInstanceGroup(instanceGroup().name("dummy")
+                                                                      .numberOfInstances(1)
+                                                                      .vmType(SERVICE_INSTANCE_GUID)
+                                                                      .stemcell(stemcell().name("ubuntu").build())
+                                                                      .release(release)
+                                                                      .addAvailabilityZone("z1")
+                                                                      .addNetwork(SERVICE_INSTANCE_GUID)
+                                                                      .addJob(job().
+                                                                              name("dummy").
+                                                                              release(release).
+                                                                              build())
+                                                                      .build())
+                                     .build()
+    }
+
+    def "should allow to monitor state of a task of certain deployment"() {
+        given: "Request a deployment"
+        BoshDeployment boshDeployment = sut.requestBoshDeployment(request)
+
+        and: "There are several tasks already done for that deployment"
+        Collection<BoshDirectorTask> result = sut.getBoshDirectorTasks(boshDeployment)
+        result != null
+        !result.isEmpty()
+        result.forEach {task ->
+            assert !task.id.isEmpty()
+            assert task.state != null
+            assert !task.description.isEmpty()
+            assert task.deployment == boshDeployment.name
+            LOG.debug("{}", task)
+        }
+
+        when: "Taking the last task, so we assure it has events and it is not queued"
+        BoshDirectorTask task = sut.getBoshDirectorTask(result.last().id)
+
+        then:
+        task != null
+        !task.id.isEmpty()
+        task.state != null
+        !task.description.isEmpty()
+        task.deployment == boshDeployment.name
+        task.events != null
+        !task.events.isEmpty()
+        task.events.each {event ->
+            if(event.hasError()){
+                assert event.time > 0
+                assert !event.error.message.isEmpty()
+                assert event.error.code > 0
+            }else{
+                assert event.time > 0
+                assert event.index > 0
+                assert event.total > 0
+                assert event.state != UNKNOWN
+                assert !event.stage.isEmpty()
+                assert !event.task.isEmpty()
+            }
+        }
+        LOG.debug("{}", task)
+
+        where:
+        release = release().name("dummy").build()
+        request = deploymentRequest().name(SERVICE_INSTANCE_GUID)
+                                     .addRelease(release().name("dummy")
+                                                          .build())
+                                     .addStemcell(stemcell().name("ubuntu")
+                                                            .operatingSystem("ubuntu-xenial")
+                                                            .version("latest")
+                                                            .build())
+                                     .addInstanceGroup(instanceGroup().name("dummy")
+                                                                      .numberOfInstances(1)
+                                                                      .vmType(SERVICE_INSTANCE_GUID)
+                                                                      .stemcell(stemcell().name("ubuntu").build())
+                                                                      .release(release)
+                                                                      .addAvailabilityZone("z1")
+                                                                      .addNetwork(SERVICE_INSTANCE_GUID)
+                                                                      .addJob(job().
+                                                                              name("dummy").
+                                                                              release(release).
+                                                                              build())
+                                                                      .build())
+                                     .build()
 
     }
 

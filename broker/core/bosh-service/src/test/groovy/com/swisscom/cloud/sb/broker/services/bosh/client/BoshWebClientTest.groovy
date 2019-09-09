@@ -192,7 +192,7 @@ class BoshWebClientTest extends Specification {
         LOG.info("POST /configs {}", response)
 
         when:
-        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment(request.getName(), ymlContent)
 
         then:
         boshDeployment != null
@@ -211,7 +211,7 @@ class BoshWebClientTest extends Specification {
 
     def "should get certain /deployments"() {
         given: "A successful boshDeployment"
-        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment("test", ymlContent)
 
         and:
         boshDeployment != null
@@ -262,7 +262,7 @@ class BoshWebClientTest extends Specification {
 
     def "should get a /task"() {
         given: "A deployment posted which has a task associated"
-        BoshDeployment boshDeployment = boshWebClient.requestDeployment(ymlContent)
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment("test", ymlContent)
 
         and:
         boshDeployment != null

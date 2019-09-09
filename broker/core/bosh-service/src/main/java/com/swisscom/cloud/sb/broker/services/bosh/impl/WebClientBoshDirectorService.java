@@ -21,6 +21,7 @@ import static com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate.boshTempla
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient.boshWebClient;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -36,6 +37,7 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     private static final String BOSH_DEPLOYMENT = BoshDeployment.class.getSimpleName();
     private static final String BOSH_CLOUD_CONFIG = BoshCloudConfig.class.getSimpleName();
     private static final String BOSH_DEPLOYMENT_PREFIX = "d";
+    public static final String BOSH_DEPLOYMENT_FORMAT = "%s-%s";
 
     private final BoshWebClient boshWebClient;
     private final List<GenericConfig> genericConfigs;
@@ -84,11 +86,11 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     @Override
     public BoshDirectorTask getBoshDirectorTask(String id) {
         checkArgument(!isNullOrEmpty(id), "Can't get a %s with null id", BoshDirectorTask.class.getSimpleName());
-        return boshWebClient.getTask(id);
+        return boshWebClient.getTaskWithEvents(id);
     }
 
     @Override
-    public Collection<BoshDirectorTask> getBoshDirectorTask(BoshDeployment boshDeployment) {
+    public Collection<BoshDirectorTask> getBoshDirectorTasks(BoshDeployment boshDeployment) {
         checkArgument(boshDeployment != null,
                       "Can't get a collection of %s with a null %s",
                       BoshDirectorTask.class.getSimpleName(),
@@ -126,7 +128,10 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
 
     @Override
     public BoshDeployment requestBoshDeployment(BoshDeploymentRequest boshDeploymentRequest, String templateId) {
-        return this.boshWebClient.requestDeployment(processBoshDeploymentTemplate(boshDeploymentRequest, templateId));
+        return this.boshWebClient.requestDeployment(format(BOSH_DEPLOYMENT_FORMAT,
+                                                           BOSH_DEPLOYMENT_PREFIX,
+                                                           boshDeploymentRequest.getName()),
+                                                    processBoshDeploymentTemplate(boshDeploymentRequest, templateId));
     }
 
     @Override

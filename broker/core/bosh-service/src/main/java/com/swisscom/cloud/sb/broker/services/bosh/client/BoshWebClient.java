@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -187,7 +186,7 @@ public class BoshWebClient {
                         .block();
     }
 
-    public BoshDeployment requestDeployment(String deploymentConfigurationYaml) {
+    public BoshDeployment requestDeployment(String deploymentName, String deploymentConfigurationYaml) {
         return getPostWithAuthorizationToken(DEPLOYMENTS.value())
                 .flatMap(cl -> cl.header(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_YAML)
                                  .body(just(deploymentConfigurationYaml), String.class)
@@ -195,6 +194,7 @@ public class BoshWebClient {
                                  .flatMap(response -> {
                                      if (response.statusCode().is3xxRedirection()) {
                                          return Mono.just(boshDeployment()
+                                                                  .name(deploymentName)
                                                                   .taskUri(create(response.headers()
                                                                                           .header(HttpHeaders.LOCATION)
                                                                                           .get(0)))

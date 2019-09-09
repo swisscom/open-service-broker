@@ -1,0 +1,23 @@
+{
+  "id" : "b4a1af61-1903-41c0-b3c8-1c89cb03d75d",
+  "name" : "tasks",
+  "request" : {
+    "url" : "/tasks?deployment=test-bosh-template-v1",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "tasks-b4a1af61-1903-41c0-b3c8-1c89cb03d75d.json",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 11:42:14 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "b4a1af61-1903-41c0-b3c8-1c89cb03d75d",
+  "persistent" : true,
+  "insertionIndex" : 53
+}

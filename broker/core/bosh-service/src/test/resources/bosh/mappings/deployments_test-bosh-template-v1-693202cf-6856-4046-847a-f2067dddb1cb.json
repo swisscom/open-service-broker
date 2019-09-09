@@ -1,0 +1,25 @@
+{
+  "id" : "693202cf-6856-4046-847a-f2067dddb1cb",
+  "name" : "deployments_test-bosh-template-v1",
+  "request" : {
+    "url" : "/deployments/test-bosh-template-v1",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"manifest\":null}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 11:42:13 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "693202cf-6856-4046-847a-f2067dddb1cb",
+  "persistent" : true,
+  "insertionIndex" : 49
+}
