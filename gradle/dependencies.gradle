@@ -15,6 +15,7 @@ ext {
             quartz                             : '2.3.0',             // THE java scheduler of tasks
             joda_time                          : '2.10', //FIXME Why using joda-time? Starting from java 8 we should be using java.time
             bouncycastle                       : '1.60',              // For cryptography
+            ineter                             : '0.1.0',              // Utility library for IP Addresses
 
             flyway                             : '5.1.4',             // Database migration
             mysql_connector_java               : '8.0.12',            // OSB uses a MySQL database
@@ -87,6 +88,7 @@ ext {
             bouncycastle_pkix                              : "org.bouncycastle:bcpkix-jdk15on:${versions.bouncycastle}", //bcpkix only necessary in jdk15on
             quartz                                         : "org.quartz-scheduler:quartz:${versions.quartz}",
             joda_time                                      : "joda-time:joda-time:${versions.joda_time}",
+            ineter                                         : "com.github.maltalex:ineter:${versions.ineter}",
 
             flyway                                         : "org.flywaydb:flyway-core:${versions.flyway}",
             mysql_connector_java                           : "mysql:mysql-connector-java:${versions.mysql_connector_java}",

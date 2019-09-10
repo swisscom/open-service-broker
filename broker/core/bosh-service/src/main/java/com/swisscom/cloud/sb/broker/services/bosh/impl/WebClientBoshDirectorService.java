@@ -139,6 +139,14 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
         return requestBoshDeployment(request, defaultBoshDeploymentTemplateId);
     }
 
+    // TODO BOSH API receives a JSON, so we can'' follow exactly same strategy we did for deployments, which receive a yaml
+    private String processBoshCloudConfigTemplate(BoshCloudConfig boshCloudConfig) {
+        return templateEngine.process("bosh-cloud-config.ftlh",
+                                      ImmutableMap.<String, Object>builder()
+                                              .put("cloud_config", boshCloudConfig)
+                                              .build());
+    }
+
     private String processBoshDeploymentTemplate(BoshDeploymentRequest request, String templateId) {
         return templateEngine.process(templateId,
                                       ImmutableMap.<String, Object>builder()
