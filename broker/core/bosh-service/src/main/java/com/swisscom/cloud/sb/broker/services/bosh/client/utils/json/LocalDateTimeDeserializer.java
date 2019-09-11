@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
-    private static final Logger LOG = LoggerFactory.getLogger(LocalDateTimeDeserializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateTimeDeserializer.class);
 
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
-        LOG.debug(jsonParser.getText());
+        LOGGER.debug(jsonParser.getText());
         return LocalDateTime.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
     }
 }

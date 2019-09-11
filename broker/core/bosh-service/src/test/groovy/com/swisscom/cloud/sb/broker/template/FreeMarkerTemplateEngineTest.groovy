@@ -11,8 +11,6 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.nio.file.Paths
-
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.Job.job
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.instanceGroup
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.Variable.Type.*
@@ -50,7 +48,7 @@ class FreeMarkerTemplateEngineTest extends Specification {
             addJob(job().name("job").release(release().name("release").build()).build())
 
     def setupSpec() {
-        templateEngine = FreeMarkerTemplateEngine.of(Paths.get("src", "main", "resources", "templates").toFile())
+        templateEngine = FreeMarkerTemplateEngine.newInstance()
     }
 
     @Unroll

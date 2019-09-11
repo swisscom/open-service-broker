@@ -27,7 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isNumeric
 
 class BoshWebClientTest extends Specification {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BoshWebClientTest.class)
+    private final static Logger LOGGER = LoggerFactory.getLogger(BoshWebClientTest.class)
 
     private final static boolean BOSH_MOCKED = Boolean.valueOf(System.getProperty("bosh.mocked"))
     private final static boolean BOSH_REPLIES_PERSISTED = Boolean.valueOf(System.getProperty("bosh.persisted"))
@@ -62,7 +62,7 @@ class BoshWebClientTest extends Specification {
                 useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
                 port(18443)
 
-        if (LOG.isTraceEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             boshWireMockConfiguration = boshWireMockConfiguration.networkTrafficListener(
                     new ConsoleNotifyingWiremockNetworkTrafficListener())
             uaaWireMockConfiguration = uaaWireMockConfiguration.networkTrafficListener(
@@ -75,7 +75,7 @@ class BoshWebClientTest extends Specification {
         uaaWireMock.start()
 
         if (!BOSH_MOCKED) {
-            LOG.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' and uaa wiremock targeting '${UAA_URL}'")
+            LOGGER.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_BASE_URL).
                     extractBinaryBodiesOver(10240).
@@ -120,7 +120,7 @@ class BoshWebClientTest extends Specification {
         !boshInfo.uuid.isEmpty()
         !boshInfo.name.isEmpty()
         boshInfo.userAuthentication != null
-        LOG.info("/info {}", boshInfo)
+        LOGGER.info("/info {}", boshInfo)
     }
 
     def "should post to /configs"() {
@@ -133,7 +133,7 @@ class BoshWebClientTest extends Specification {
         response.createdAt != null
         !response.id.isEmpty()
         !response.type.isEmpty()
-        LOG.info("POST /configs {}", response)
+        LOGGER.info("POST /configs {}", response)
 
         where:
         request = configRequest().
@@ -151,7 +151,7 @@ class BoshWebClientTest extends Specification {
         result != null
         !result.isEmpty()
         for (BoshCloudConfig config : result) {
-            LOG.info("configs/{} {}", config.id, config)
+            LOGGER.info("configs/{} {}", config.id, config)
         }
     }
 
@@ -189,7 +189,7 @@ class BoshWebClientTest extends Specification {
         response.createdAt != null
         !response.id.isEmpty()
         !response.type.isEmpty()
-        LOG.info("POST /configs {}", response)
+        LOGGER.info("POST /configs {}", response)
 
         when:
         BoshDeployment boshDeployment = boshWebClient.requestDeployment(request.getName(), ymlContent)
@@ -198,7 +198,7 @@ class BoshWebClientTest extends Specification {
         boshDeployment != null
         !boshDeployment.taskId.isEmpty()
         isNumeric(boshDeployment.taskId)
-        LOG.info("/deployments {}", boshDeployment)
+        LOGGER.info("/deployments {}", boshDeployment)
 
         where:
         request = configRequest().
@@ -217,14 +217,14 @@ class BoshWebClientTest extends Specification {
         boshDeployment != null
         !boshDeployment.taskId.isEmpty()
         isNumeric(boshDeployment.taskId)
-        LOG.info("/deployments {}", boshDeployment)
+        LOGGER.info("/deployments {}", boshDeployment)
 
         when:
         BoshDeployment result = boshWebClient.getDeployment(BOSH_TEMPLATE_TEST_NAME)
 
         then:
         result != null
-        LOG.info("get /deployments/{} {}", BOSH_TEMPLATE_TEST_NAME, result)
+        LOGGER.info("get /deployments/{} {}", BOSH_TEMPLATE_TEST_NAME, result)
 
         where:
         ymlContent = getBoshTestTemplateWithRandomName()
@@ -238,26 +238,26 @@ class BoshWebClientTest extends Specification {
         result != null
         !result.isEmpty()
         for (BoshDeployment deployment : result) {
-            LOG.info("get /deployments {}", deployment)
+            LOGGER.info("get /deployments {}", deployment)
         }
     }
 
     def "should get all tasks associated with certain deployment"() {
         when:
-        Collection<BoshDirectorTask> result = boshWebClient.getTaskAssociatedWithDeployment(BOSH_TEMPLATE_TEST_NAME)
+        Collection<BoshDirectorTask> result = boshWebClient.getTasksAssociatedWithDeployment(BOSH_TEMPLATE_TEST_NAME)
 
         then:
         result != null
-        LOG.info("################################ tasks associated to deployment '{}'", BOSH_TEMPLATE_TEST_NAME)
+        LOGGER.info("################################ tasks associated to deployment '{}'", BOSH_TEMPLATE_TEST_NAME)
         for (BoshDirectorTask task : result) {
             assert !task.id.isEmpty()
             assert task.deployment == BOSH_TEMPLATE_TEST_NAME
             if (task.state != PROCESSING && task.state != QUEUED) {
                 assert task.timestamp > 0
             }
-            LOG.info("{}", task)
+            LOGGER.info("{}", task)
         }
-        LOG.info("################################")
+        LOGGER.info("################################")
     }
 
     def "should get a /task"() {
@@ -268,7 +268,7 @@ class BoshWebClientTest extends Specification {
         boshDeployment != null
         !boshDeployment.taskId.isEmpty()
         isNumeric(boshDeployment.taskId)
-        LOG.info("/deployments {}", boshDeployment)
+        LOGGER.info("/deployments {}", boshDeployment)
 
         when:
         BoshDirectorTask task = boshWebClient.getTask(boshDeployment.taskId)
@@ -284,7 +284,7 @@ class BoshWebClientTest extends Specification {
         !task.user.isEmpty()
         !task.deployment.isEmpty()
         task.events.isEmpty()
-        LOG.info("tasks/{} {}", task.id, task)
+        LOGGER.info("tasks/{} {}", task.id, task)
 
         where:
         ymlContent = getBoshTestTemplateWithRandomName()
@@ -303,7 +303,7 @@ class BoshWebClientTest extends Specification {
         task.timestamp > 0
         !task.user.isEmpty()
         task.deployment != null
-        LOG.info("tasks/{} {}", task.id, task)
+        LOGGER.info("tasks/{} {}", task.id, task)
         for (BoshDirectorTask.Event event : task.events) {
             if(event.hasError()){
                 assert event.time > 0
@@ -317,7 +317,7 @@ class BoshWebClientTest extends Specification {
                 assert !event.stage.isEmpty()
                 assert !event.task.isEmpty()
             }
-            LOG.info("tasks/{}/events {}", task.id, event)
+            LOGGER.info("tasks/{}/events {}", task.id, event)
         }
 
         where:
@@ -336,7 +336,7 @@ class BoshWebClientTest extends Specification {
         result != null
         !result.isEmpty()
         for (BoshStemcell stemCell : result) {
-            LOG.info("get /stemcalls {}", stemCell)
+            LOGGER.info("get /stemcalls {}", stemCell)
         }
     }
 
@@ -348,13 +348,13 @@ class BoshWebClientTest extends Specification {
         result != null
         !result.isEmpty()
         for (BoshRelease release : result) {
-            LOG.info("get /stemcells {}", release)
+            LOGGER.info("get /stemcells {}", release)
         }
     }
 
 
     static class BoshInfoContentTransformer extends ResponseTransformer {
-        private static final Logger LOG = LoggerFactory.getLogger(BoshInfoContentTransformer.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(BoshInfoContentTransformer.class);
 
         private final String originalUaaUrl;
         private final String replacementUaaUrl;
@@ -376,7 +376,7 @@ class BoshWebClientTest extends Specification {
                                   FileSource files,
                                   Parameters parameters) {
             if (request.getAbsoluteUrl().endsWith("/info")) {
-                LOG.debug("transforming for url: " + request.getAbsoluteUrl());
+                LOGGER.debug("transforming for url: " + request.getAbsoluteUrl());
                 String body = new String(responseDefinition.getBody());
                 return Response.Builder.like(responseDefinition)
                                        .but()

@@ -54,7 +54,7 @@ import static reactor.core.publisher.Mono.just;
  */
 public class BoshWebClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BoshWebClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoshWebClient.class);
 
     enum BoshUri {
         INFO("/info"),
@@ -309,7 +309,7 @@ public class BoshWebClient {
                 .build();
     }
 
-    public Collection<BoshDirectorTask> getTaskAssociatedWithDeployment(String deploymentName) {
+    public Collection<BoshDirectorTask> getTasksAssociatedWithDeployment(String deploymentName) {
         return getGetWithAuthorizationToken(TASKS.value(),
                                             singletonMap("deployment", singletonList(deploymentName)))
                 .flatMap(cl -> cl.retrieve()

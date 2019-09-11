@@ -95,7 +95,7 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
                       "Can't get a collection of %s with a null %s",
                       BoshDirectorTask.class.getSimpleName(),
                       BoshDeployment.class.getSimpleName());
-        return boshWebClient.getTaskAssociatedWithDeployment(boshDeployment.getName());
+        return boshWebClient.getTasksAssociatedWithDeployment(boshDeployment.getName());
     }
 
     @Override

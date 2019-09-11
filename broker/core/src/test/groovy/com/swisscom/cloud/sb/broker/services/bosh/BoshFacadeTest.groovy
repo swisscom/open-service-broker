@@ -40,7 +40,7 @@ import static java.util.Collections.singletonList
 @Ignore("We are deprecating BoshFacade and just for getting the mapping files of this test you need to wait several minutes.")
 @Stepwise
 class BoshFacadeTest extends Specification {
-    private static final Logger LOG = LoggerFactory.getLogger(BoshFacadeTest.class)
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoshFacadeTest.class)
 
     private static final boolean BOSH_MOCKED = Boolean.valueOf(System.getProperty("bosh.mocked"))
     private static final String UAA_URL = System.getProperty("uaa.url")
@@ -91,7 +91,7 @@ class BoshFacadeTest extends Specification {
                 useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
                 port(18443)
 
-        if (LOG.isTraceEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             boshWireMockConfiguration = boshWireMockConfiguration.networkTrafficListener(
                     new ConsoleNotifyingWiremockNetworkTrafficListener())
             uaaWireMockConfiguration = uaaWireMockConfiguration.networkTrafficListener(
@@ -104,7 +104,7 @@ class BoshFacadeTest extends Specification {
         uaaWireMock.start()
 
         if (!BOSH_MOCKED) {
-            LOG.info("Start recording with bosh wiremock targeting '${BOSH_URL}' and uaa wiremock targeting '${UAA_URL}'")
+            LOGGER.info("Start recording with bosh wiremock targeting '${BOSH_URL}' and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_URL).
                     extractBinaryBodiesOver(10240).
@@ -127,10 +127,10 @@ class BoshFacadeTest extends Specification {
         this.boshFacadeConfiguration = createBoshFacadeConfig()
         sut = BoshFacade.of(this.boshFacadeConfiguration)
 
-        LOG.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
+        LOGGER.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
                  BOSH_MOCKED ? "mocked bosh" : "live bosh",
-                 boshFacadeConfiguration.getBoshDirectorBaseUrl(),
-                 boshFacadeConfiguration.getBoshDirectorUsername(),
+                    boshFacadeConfiguration.getBoshDirectorBaseUrl(),
+                    boshFacadeConfiguration.getBoshDirectorUsername(),
                  isNullOrEmpty(boshFacadeConfiguration.getBoshDirectorPassword()) ? " NO PASSWORD PROVIDED" :
                  "<CONFIDENTIAL>")
     }
@@ -229,13 +229,13 @@ class BoshFacadeTest extends Specification {
     }
 
     private BoshBasedServiceConfig createBoshBasedConfig(List<Object> params) {
-        LOG.info(params[0].toString())
+        LOGGER.info(params[0].toString())
         new BoshBasedServiceConfig() {
 
             @Override
             String getPortRange() {
-                LOG.info("getPortRange:")
-                LOG.info(params[0].toString())
+                LOGGER.info("getPortRange:")
+                LOGGER.info(params[0].toString())
                 return params[0]
             }
 

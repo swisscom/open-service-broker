@@ -114,13 +114,14 @@ public abstract class BoshCloudConfig {
                 return IPAddress.of("0.0.0.0");
             }
 
+            //FIXME It could be also an IPRange See https://bosh.io/docs/networks/#automatic-ip-assignment
             @Value.Default
             public List<IPAddress> getStatic() {
                 return emptyList();
             }
 
             @Value.Default
-            public List<IPAddress> getReserved() {
+            public List<IPSubnet> getReserved() {
                 return emptyList();
             }
         }
@@ -132,7 +133,8 @@ public abstract class BoshCloudConfig {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public abstract LocalDateTime getCreatedAt();
 
-    public abstract boolean getCurrent();
+    @JsonProperty("current")
+    public abstract boolean isCurrent();
 
     public boolean isEmpty() {
         return this.equals(EMPTY);

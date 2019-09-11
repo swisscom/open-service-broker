@@ -18,7 +18,6 @@ import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
 import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
 import com.swisscom.cloud.sb.broker.template.FreeMarkerTemplateEngine
-import freemarker.template.Configuration
 import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,7 +42,7 @@ import static java.util.Collections.singletonList
 
 @Stepwise
 class WebClientBoshDirectorServiceTest extends Specification {
-    private static final Logger LOG = LoggerFactory.getLogger(WebClientBoshDirectorServiceTest.class)
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebClientBoshDirectorServiceTest.class)
 
     private final static boolean BOSH_MOCKED = Boolean.valueOf(System.getProperty("bosh.mocked"))
     private final static boolean BOSH_REPLIES_PERSISTED = Boolean.valueOf(System.getProperty("bosh.persisted"))
@@ -70,9 +69,6 @@ class WebClientBoshDirectorServiceTest extends Specification {
     @ClassRule
     public static WireMockRule uaaWireMock
 
-    @Shared
-    Configuration freemarker
-
     def setupSpec() {
         WireMockConfiguration boshWireMockConfiguration = options().
                 withRootDirectory("src/test/resources/bosh").
@@ -86,7 +82,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
                 useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
                 port(18443)
 
-        if (LOG.isTraceEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             boshWireMockConfiguration = boshWireMockConfiguration.networkTrafficListener(
                     new ConsoleNotifyingWiremockNetworkTrafficListener())
             uaaWireMockConfiguration = uaaWireMockConfiguration.networkTrafficListener(
@@ -99,8 +95,8 @@ class WebClientBoshDirectorServiceTest extends Specification {
         uaaWireMock.start()
 
         if (!BOSH_MOCKED) {
-            LOG.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' " +
-                     "and uaa wiremock targeting '${UAA_URL}'")
+            LOGGER.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' " +
+                        "and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_BASE_URL).
                     extractBinaryBodiesOver(10240).
@@ -118,8 +114,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
 
 
     }
-    @Shared
-    private String deleteDeploymentTaskId
+
 
 
     BoshBasedServiceConfig config
@@ -134,16 +129,13 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                               config.getBoshDirectorPassword().toCharArray(),
                                               config.getGenericConfigs(),
                                               config.getTemplateConfig(),
-                                              FreeMarkerTemplateEngine.of(Paths.get("src",
-                                                                                    "main",
-                                                                                    "resources",
-                                                                                    "templates").toFile()),
+                                              FreeMarkerTemplateEngine.newInstance(),
                                               "bosh-deployment.ftlh")
 
-        LOG.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
+        LOGGER.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
                  BOSH_MOCKED ? "mocked bosh" : "live bosh",
-                 config.getBoshDirectorBaseUrl(),
-                 config.getBoshDirectorUsername(),
+                    config.getBoshDirectorBaseUrl(),
+                    config.getBoshDirectorUsername(),
                  isNullOrEmpty(config.getBoshDirectorPassword()) ? " NO PASSWORD PROVIDED" :
                  "<CONFIDENTIAL>")
     }
@@ -242,13 +234,13 @@ class WebClientBoshDirectorServiceTest extends Specification {
     }
 
     private BoshBasedServiceConfig createBoshBasedConfig(List<Object> params) {
-        LOG.info(params[0].toString())
+        LOGGER.info(params[0].toString())
         new BoshBasedServiceConfig() {
 
             @Override
             String getPortRange() {
-                LOG.info("getPortRange:")
-                LOG.info(params[0].toString())
+                LOGGER.info("getPortRange:")
+                LOGGER.info(params[0].toString())
                 return params[0]
             }
 
@@ -356,7 +348,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
         BoshCloudConfig boshConfigResponse = boshConfigResponses.first()
         !boshConfigResponse.getId().isEmpty()
         boshConfigResponse.getType() == "cloud"
-        boshConfigResponse.getCurrent()
+        boshConfigResponse.isCurrent()
         boshConfigResponse.getCreatedAt().isBefore(LocalDateTime.now())
         boshConfigResponse.getContent() == new File(this.getClass().
                 getResource("/bosh/bosh-dummy-cloud-config-manifest.yml").file).text
@@ -414,7 +406,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
             assert task.state != null
             assert !task.description.isEmpty()
             assert task.deployment == boshDeployment.name
-            LOG.debug("{}", task)
+            LOGGER.debug("{}", task)
         }
 
         where:
@@ -454,7 +446,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
             assert task.state != null
             assert !task.description.isEmpty()
             assert task.deployment == boshDeployment.name
-            LOG.debug("{}", task)
+            LOGGER.debug("{}", task)
         }
 
         when: "Taking the last task, so we assure it has events and it is not queued"
@@ -482,7 +474,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
                 assert !event.task.isEmpty()
             }
         }
-        LOG.debug("{}", task)
+        LOGGER.debug("{}", task)
 
         where:
         release = release().name("dummy").build()
@@ -556,7 +548,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
     }
 
     static class BoshInfoContentTransformer extends ResponseTransformer {
-        private static final Logger LOG = LoggerFactory.getLogger(BoshInfoContentTransformer.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(BoshInfoContentTransformer.class);
 
         private final String originalUaaUrl;
         private final String replacementUaaUrl;
@@ -578,7 +570,7 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                   FileSource files,
                                   Parameters parameters) {
             if (request.getAbsoluteUrl().endsWith("/info")) {
-                LOG.debug("transforming for url: " + request.getAbsoluteUrl());
+                LOGGER.debug("transforming for url: " + request.getAbsoluteUrl());
                 String body = new String(responseDefinition.getBody());
                 return Response.Builder.like(responseDefinition)
                                .but()

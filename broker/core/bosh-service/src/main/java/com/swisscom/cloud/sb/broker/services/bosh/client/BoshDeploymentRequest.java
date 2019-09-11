@@ -90,6 +90,7 @@ public abstract class BoshDeploymentRequest {
 
             public abstract BoshRelease getRelease();
 
+            //TODO Support more complex cases like the ones defined here https://bosh.io/docs/links/#overview
             @Value.Default
             public List<String> getConsumes() {
                 return emptyList();
@@ -172,7 +173,9 @@ public abstract class BoshDeploymentRequest {
         public enum Type {
             PASSWORD("password"),
             CERTIFICATE("certificate"),
-            CERTIFICATE_CA("certificate");
+            CERTIFICATE_CA("certificate"),
+            RSA("rsa"),
+            SSH("ssh");
 
             private final String value;
 

@@ -28,24 +28,39 @@ public class FreeMarkerTemplateEngine implements TemplateEngine {
         this.freemarker = freemarker;
     }
 
+    private FreeMarkerTemplateEngine() {
+        this.freemarker = initConfiguration();
+        this.freemarker.setClassForTemplateLoading(getClass(), "templates");
+    }
+
+
     public static FreeMarkerTemplateEngine of(Configuration configuration) {
         return new FreeMarkerTemplateEngine(configuration);
     }
 
     public static FreeMarkerTemplateEngine of(File directoryForTemplateLoading) {
         try {
-            Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
+            Configuration configuration = initConfiguration();
             configuration.setDirectoryForTemplateLoading(directoryForTemplateLoading);
-            // Recommended settings for new projects:
-            configuration.setDefaultEncoding("UTF-8");
-            configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-            configuration.setLogTemplateExceptions(false);
-            configuration.setWrapUncheckedExceptions(true);
             return new FreeMarkerTemplateEngine(configuration);
         } catch (IOException e) {
             throw new IllegalStateException(format("Can't create %s", FreeMarkerTemplateEngine.class.getSimpleName()),
                                             e);
         }
+    }
+
+    public static FreeMarkerTemplateEngine newInstance() {
+        return new FreeMarkerTemplateEngine();
+    }
+
+    private static Configuration initConfiguration() {
+        Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
+        // Recommended settings for new projects:
+        configuration.setDefaultEncoding("UTF-8");
+        configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        configuration.setLogTemplateExceptions(false);
+        configuration.setWrapUncheckedExceptions(true);
+        return configuration;
     }
 
     @Override

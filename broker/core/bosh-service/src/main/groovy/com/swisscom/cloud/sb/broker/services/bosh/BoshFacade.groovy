@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
 
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
+import static com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate.boshTemplateOf
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 import static java.lang.String.format
@@ -42,7 +43,7 @@ import static java.lang.String.format
 @CompileStatic
 @Deprecated
 class BoshFacade {
-    private static final Logger LOG = LoggerFactory.getLogger(BoshFacade.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoshFacade.class);
 
     private static final String DEPLOYMENT_PREFIX = 'd-'
     private static final String HOST_NAME_POSTFIX = '.service.consul'
@@ -85,7 +86,7 @@ class BoshFacade {
         Assert.hasText(templateUniqueIdentifier, "Template identifier cannot be empty!")
         Assert.notNull(parameters, "Parameters cannot be null!")
         Assert.notNull(templateCustomizer, "Template customizer cannot be null!")
-        BoshTemplate template = BoshTemplate.boshTemplateOf(readTemplateContent(templateUniqueIdentifier))
+        BoshTemplate template = boshTemplateOf(readTemplateContent(templateUniqueIdentifier))
 
         template.replace(PARAM_GUID, serviceInstanceGuid)
         template.replace(PARAM_PREFIX, DEPLOYMENT_PREFIX)
@@ -120,7 +121,7 @@ class BoshFacade {
         Assert.notNull(templateCustomizer, "Template customizer cannot be null!")
         List<BoshCloudConfig> result = new ArrayList<>(serviceConfig.getGenericConfigs().size())
         for (GenericConfig config : serviceConfig.getGenericConfigs()) {
-            BoshTemplate template = BoshTemplate.boshTemplateOf(
+            BoshTemplate template = boshTemplateOf(
                     templateConfig.getTemplateForServiceKey(config.templateName).first())
             template.replace(PARAM_GUID, serviceInstanceGuid)
             templateCustomizer.customizeBoshConfigTemplate(template, config.type, serviceInstanceGuid)
@@ -260,14 +261,14 @@ class BoshFacade {
                 String fileName = templateIdentifier + (templateIdentifier.endsWith('.yml') ? '' : '.yml')
                 File file = new File(serviceConfig.boshManifestFolder, fileName)
                 if (file.exists()) {
-                    LOG.info("Using template file:${file.absolutePath}")
+                    LOGGER.info("Using template file:${file.absolutePath}")
                     return file.text
                 }
-                LOG.info("Will try to read file:${fileName} from embedded resources")
+                LOGGER.info("Will try to read file:${fileName} from embedded resources")
                 return Resource.readTestFileContent(fileName.startsWith('/') ? fileName : ('/' + fileName))
             } catch (Exception ex) {
-                LOG.error(format("No template could be found for templateIdentifier \"%s\"", templateIdentifier),
-                          ex)
+                LOGGER.error(format("No template could be found for templateIdentifier \"%s\"", templateIdentifier),
+                             ex)
                 throw new IllegalArgumentException(format(
                         "No template could be found for templateIdentifier \"%s\"!",
                         templateIdentifier))
