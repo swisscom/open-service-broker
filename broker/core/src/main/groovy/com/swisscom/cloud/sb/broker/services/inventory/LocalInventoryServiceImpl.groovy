@@ -52,6 +52,11 @@ class LocalInventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    List<Pair<String, String>> getAll(String serviceInstanceGuid, String key) {
+        return null
+    }
+
+    @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
         return getServiceInstance(serviceInstanceGuid).details
                 .findAll { d -> d.key && d.value }
@@ -137,5 +142,10 @@ class LocalInventoryServiceImpl implements InventoryService {
         }
 
         return get(serviceInstanceGuid)
+    }
+
+    @Override
+    List<Pair<String, String>> replaceByKey(String serviceInstanceGuid, String key, String[] values) {
+        return null
     }
 }

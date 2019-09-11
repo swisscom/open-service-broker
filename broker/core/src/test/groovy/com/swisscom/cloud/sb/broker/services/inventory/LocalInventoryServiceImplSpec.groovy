@@ -162,6 +162,35 @@ class LocalInventoryServiceImplSpec extends Specification {
         result.get(2).second == "value_003"
     }
 
+    void "should get multiple values with identical keys"() {
+        given:
+        def guid = UUID.randomUUID().toString()
+        def serviceInstance = new ServiceInstance(
+                guid: guid,
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid(guid) >> serviceInstance
+
+        when:
+        def result = testee.getAll(guid, "key_001")
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.size() == 3
+        result.get(0).first == "key_001"
+        result.get(0).second == "value_001"
+        result.get(1).first == "key_001"
+        result.get(1).second == "value_002"
+        result.get(2).first == "key_001"
+        result.get(2).second == "value_003"
+    }
+
     void "can get multiple none existing values"() {
         given:
         def guid = UUID.randomUUID().toString()
@@ -336,6 +365,63 @@ class LocalInventoryServiceImplSpec extends Specification {
         result.get(3).second == "value_004_added"
         result.get(4).first == "key_005"
         result.get(4).second == "value_005_added"
+    }
+
+    void "should replace multiple values with identical keys correctly"() {
+        given:
+        def guid = UUID.randomUUID().toString()
+        def serviceInstance = new ServiceInstance(
+                guid: guid,
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid(guid) >> serviceInstance
+
+        when:
+        testee.replaceByKey(guid, "key_001", ["value_002", "value_004"])
+        def result = testee.get(guid)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.size() == 3
+        result.get(0).first == "key_001"
+        result.get(0).second == "value_002"
+        result.get(1).first == "key_001"
+        result.get(1).second == "value_004"
+        result.get(2).first == "key_003"
+        result.get(2).second == "value_003"
+    }
+
+    void "should add multiple values with identical keys while using replace correctly"() {
+        given:
+        def guid = UUID.randomUUID().toString()
+        def serviceInstance = new ServiceInstance(
+                guid: guid,
+                details: [
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid(guid) >> serviceInstance
+
+        when:
+        testee.replaceByKey(guid, "key_001", ["value_002", "value_004"])
+        def result = testee.get(guid)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.size() == 3
+        result.get(0).first == "key_003"
+        result.get(0).second == "value_003"
+        result.get(1).first == "key_001"
+        result.get(1).second == "value_002"
+        result.get(2).first == "key_001"
+        result.get(2).second == "value_004"
     }
 
     void "can empty"() {
