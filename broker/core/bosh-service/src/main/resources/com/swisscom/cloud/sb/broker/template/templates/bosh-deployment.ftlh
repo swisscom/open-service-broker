@@ -29,7 +29,6 @@ instance_groups:
     </#if>
     instances: ${instanceGroup.numberOfInstances}
     vm_type: ${instanceGroup.vmType}
-    release: ${instanceGroup.release.name}
     stemcell: ${instanceGroup.stemcell.name}
     networks:
     <#list instanceGroup.networks as network>

@@ -82,14 +82,14 @@ class FreeMarkerTemplateEngineTest extends Specification {
         COMPLETE   | randomUUIDString() | "d"    | randomUUIDString() | SIMPLE_RELEASE | SIMPLE_STEMCELL
 
         instanceGroup << [
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).stemcell(SIMPLE_STEMCELL).build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.stemcell(SIMPLE_STEMCELL).build(),
+                simpleInstanceGroup.
                         stemcell(SIMPLE_STEMCELL).
                         addJob("complex-job",
                                SIMPLE_RELEASE,
@@ -97,7 +97,7 @@ class FreeMarkerTemplateEngineTest extends Specification {
                                ["provides-a", "provides-b"],
                                Collections.emptyMap()).
                         build(),
-                simpleInstanceGroup.release(SIMPLE_RELEASE).
+                simpleInstanceGroup.
                         stemcell(SIMPLE_STEMCELL).
                         addJob("complex-job",
                                SIMPLE_RELEASE,
@@ -112,7 +112,7 @@ class FreeMarkerTemplateEngineTest extends Specification {
                                            .build()).
                         build(),
 
-                simpleInstanceGroup.release(SIMPLE_RELEASE).
+                simpleInstanceGroup.
                         stemcell(SIMPLE_STEMCELL).
                         addJob("complex-job",
                                SIMPLE_RELEASE,
@@ -266,7 +266,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "    azs: [az1]\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -312,7 +311,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -343,7 +341,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -389,7 +386,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -432,7 +428,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -501,7 +496,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
-                     "    release: release\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +

@@ -378,7 +378,6 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                                                         .numberOfInstances(1)
                                                                         .vmType(SERVICE_INSTANCE_GUID)
                                                                         .stemcell(stemcell().name("ubuntu").build())
-                                                                        .release(release)
                                                                         .addAvailabilityZone("z1")
                                                                         .addNetwork(SERVICE_INSTANCE_GUID)
                                                                         .addJob(job().
@@ -422,7 +421,6 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                                                       .numberOfInstances(1)
                                                                       .vmType(SERVICE_INSTANCE_GUID)
                                                                       .stemcell(stemcell().name("ubuntu").build())
-                                                                      .release(release)
                                                                       .addAvailabilityZone("z1")
                                                                       .addNetwork(SERVICE_INSTANCE_GUID)
                                                                       .addJob(job().
@@ -489,7 +487,6 @@ class WebClientBoshDirectorServiceTest extends Specification {
                                                                       .numberOfInstances(1)
                                                                       .vmType(SERVICE_INSTANCE_GUID)
                                                                       .stemcell(stemcell().name("ubuntu").build())
-                                                                      .release(release)
                                                                       .addAvailabilityZone("z1")
                                                                       .addNetwork(SERVICE_INSTANCE_GUID)
                                                                       .addJob(job().

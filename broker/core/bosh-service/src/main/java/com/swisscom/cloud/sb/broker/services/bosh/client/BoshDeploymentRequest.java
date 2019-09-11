@@ -3,6 +3,7 @@ package com.swisscom.cloud.sb.broker.services.bosh.client;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.hibernate.sql.Update;
 import org.immutables.value.Value;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -54,6 +55,9 @@ public abstract class BoshDeploymentRequest {
         return emptySet();
     }
 
+    /**
+     * @see <a href='https://bosh.io/docs/manifest-v2/#instance-groups'>Instance Groups</a>
+     */
     @Value.Immutable
     public static abstract class InstanceGroup {
 
@@ -74,8 +78,6 @@ public abstract class BoshDeploymentRequest {
         public abstract int getNumberOfInstances();
 
         public abstract String getVmType();
-
-        public abstract BoshRelease getRelease();
 
         public abstract BoshStemcell getStemcell();
 

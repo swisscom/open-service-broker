@@ -1,0 +1,25 @@
+{
+  "id" : "c0bf4b17-9ea9-4d2b-8d11-0eb66a1fbe48",
+  "name" : "tasks",
+  "request" : {
+    "url" : "/tasks?deployment=d-7eff4b56-be53-4925-a4fe-afde1e00111a",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "tasks-c0bf4b17-9ea9-4d2b-8d11-0eb66a1fbe48.json",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Wed, 11 Sep 2019 15:35:47 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "c0bf4b17-9ea9-4d2b-8d11-0eb66a1fbe48",
+  "persistent" : true,
+  "scenarioName" : "scenario-tasks",
+  "requiredScenarioState" : "scenario-tasks-2",
+  "insertionIndex" : 18
+}
