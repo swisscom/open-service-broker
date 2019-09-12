@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import org.springframework.data.util.Pair
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class LocalInventoryServiceImplSpec extends Specification {
 
@@ -16,9 +17,9 @@ class LocalInventoryServiceImplSpec extends Specification {
 
     void setup() {
         serviceInstanceRepository = Mock(ServiceInstanceRepository)
-        serviceInstanceRepository.save(_) >> { args -> args[0] }
+        serviceInstanceRepository.save(_) >> {args -> args[0]}
         serviceDetailRepository = Mock(ServiceDetailRepository)
-        serviceDetailRepository.save(_) >> { args -> args[0] }
+        serviceDetailRepository.save(_) >> {args -> args[0]}
 
         testee = new LocalInventoryServiceImpl(serviceInstanceRepository, serviceDetailRepository)
     }
@@ -31,7 +32,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def newInstance = serviceInstanceRepository.save(instance)
 
         then:
-        noExceptionThrown()
         instance.guid == newInstance.guid
         instance.dateCreated == newInstance.dateCreated
     }
@@ -55,7 +55,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
-                details: [ ServiceDetail.from(key, value) ]
+                details: [ServiceDetail.from(key, value)]
         )
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
@@ -63,7 +63,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, key)
 
         then:
-        noExceptionThrown()
         result != null
         result.first == key
         result.second == value
@@ -76,7 +75,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
-                details: [ ServiceDetail.from(key, value) ]
+                details: [ServiceDetail.from(key, value)]
         )
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
@@ -95,7 +94,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
-                details: [ ServiceDetail.from(key, value) ]
+                details: [ServiceDetail.from(key, value)]
         )
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
@@ -103,7 +102,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_001", "default_value_001")
 
         then:
-        noExceptionThrown()
         result != null
         result.first == key
         result.second == value
@@ -116,7 +114,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
-                details: [ ServiceDetail.from(key, value) ]
+                details: [ServiceDetail.from(key, value)]
         )
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
@@ -124,7 +122,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_002", "default_value_001")
 
         then:
-        noExceptionThrown()
         result != null
         result.first == "key_002"
         result.second == "default_value_001"
@@ -149,7 +146,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -178,7 +174,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.getAll(guid, "key_001")
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -211,11 +206,41 @@ class LocalInventoryServiceImplSpec extends Specification {
         ex.message == "Multiple details for key:key_001 found"
     }
 
+    @Unroll
+    void "should throw exception when trying to get keys with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.get(guid, key)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "Service Instance Guid cannot be null or empty"
+        ""                                     | "key_001" | "Service Instance Guid cannot be null or empty"
+        " "                                    | "key_001" | "Service Instance Guid cannot be null or empty"
+        "10280232"                             | "key_001" | "Service Instance Guid cannot be numeric'"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "Key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "Key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "Key cannot be null or empty"
+    }
+
     void "should get multiple none existing values"() {
         given:
         def guid = UUID.randomUUID().toString()
-        def key = "key_001"
-        def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
                 details: []
@@ -234,12 +259,10 @@ class LocalInventoryServiceImplSpec extends Specification {
     void "should add a value"() {
         given:
         def guid = UUID.randomUUID().toString()
-        def key = "key_001"
-        def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
                 details: [
-                        ServiceDetail.from(key, value),
+                        ServiceDetail.from("key_001", "value_001"),
                         ServiceDetail.from("key_002", "value_002")
                 ]
         )
@@ -250,7 +273,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -264,12 +286,10 @@ class LocalInventoryServiceImplSpec extends Specification {
     void "should update a value"() {
         given:
         def guid = UUID.randomUUID().toString()
-        def key = "key_001"
-        def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
                 details: [
-                        ServiceDetail.from(key, value),
+                        ServiceDetail.from("key_001", "value_001"),
                         ServiceDetail.from("key_002", "value_002")
                 ]
         )
@@ -280,7 +300,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 2
         result.get(0).first == "key_001"
@@ -292,12 +311,10 @@ class LocalInventoryServiceImplSpec extends Specification {
     void "should delete a value"() {
         given:
         def guid = UUID.randomUUID().toString()
-        def key = "key_001"
-        def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
                 details: [
-                        ServiceDetail.from(key, value),
+                        ServiceDetail.from("key_001", "value_001"),
                         ServiceDetail.from("key_002", "value_002")
                 ]
         )
@@ -314,7 +331,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         result.get(0).first == "key_001"
         result.get(0).second == "value_001"
     }
-    
+
     void "should replace multiple values"() {
         given:
         def guid = UUID.randomUUID().toString()
@@ -338,7 +355,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 4
         result.get(0).first == "key_001"
@@ -372,7 +388,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 5
         result.get(0).first == "key_001"
@@ -400,17 +415,16 @@ class LocalInventoryServiceImplSpec extends Specification {
                 ]
         )
         int i = 0
-        serviceInstance.details.each { d -> d.id = ++i }
+        serviceInstance.details.each {d -> d.id = ++i}
 
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
         when:
-        String[] data = [ "value_002", "value_004" ]
+        String[] data = ["value_002", "value_004"]
         testee.replaceByKey(guid, "key_001", data)
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -433,12 +447,11 @@ class LocalInventoryServiceImplSpec extends Specification {
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
         when:
-        String[] data = [ "value_002", "value_004" ]
+        String[] data = ["value_002", "value_004"]
         testee.replaceByKey(guid, "key_001", data)
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_003"
@@ -467,7 +480,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
-        noExceptionThrown()
         result != null
         result.size() == 0
     }
@@ -475,11 +487,9 @@ class LocalInventoryServiceImplSpec extends Specification {
     void "should not return details with null value"() {
         given:
         def guid = UUID.randomUUID().toString()
-        def key = "key_001"
-        def value = "value_001"
         def serviceInstance = new ServiceInstance(
                 guid: guid,
-                details: [ ServiceDetail.from("key_001", null) ]
+                details: [ServiceDetail.from("key_001", null)]
         )
         serviceInstanceRepository.findByGuid(guid) >> serviceInstance
 
