@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshRelease.Version.LATEST;
 import static java.util.Collections.emptyList;
@@ -39,7 +38,7 @@ public abstract class BoshRelease {
 
     @JsonProperty("release_versions")
     @Value.Default
-    public  Collection<Version> getReleaseVersions(){
+    public Collection<Version> getReleaseVersions() {
         return emptyList();
     }
 
@@ -65,16 +64,28 @@ public abstract class BoshRelease {
         public abstract String getVersion();
 
         @JsonProperty("commit_hash")
-        public abstract String getCommitHash();
+        @Value.Default
+        public String getCommitHash() {
+            return "";
+        }
 
         @JsonProperty("uncommitted_changes")
-        public abstract boolean hasUncommittedChanges();
+        @Value.Default
+        public boolean hasUncommittedChanges() {
+            return false;
+        }
 
         @JsonProperty("currently_deployed")
-        public abstract boolean isCurrentlyDeployed();
+        @Value.Default
+        public boolean isCurrentlyDeployed() {
+            return false;
+        }
 
         @JsonProperty("job_names")
-        public abstract Collection<String> getJobNames();
+        @Value.Default
+        public Collection<String> getJobNames() {
+            return emptyList();
+        }
     }
 
     public static class Builder extends ImmutableBoshRelease.Builder {

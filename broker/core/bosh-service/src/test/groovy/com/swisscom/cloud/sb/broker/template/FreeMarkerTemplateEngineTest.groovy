@@ -172,7 +172,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                                 name("ca").
                                 type(CERTIFICATE_CA).
                                 putOption("common_name", "ca").
-                                putOption("is_ca", "true").
                                 build()).
                         addVariable(variable().
                                 name("certificate").
@@ -207,7 +206,6 @@ class FreeMarkerTemplateEngineTest extends Specification {
                                 name("ca").
                                 type(CERTIFICATE_CA).
                                 putOption("common_name", "ca").
-                                putOption("is_ca", "true").
                                 build()).
                         addVariable(variable().
                                 name("certificate").

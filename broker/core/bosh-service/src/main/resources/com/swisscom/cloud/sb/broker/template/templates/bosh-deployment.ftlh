@@ -74,5 +74,8 @@ variables:
           <#list variable.options as key,value>
         ${key}: ${value}
           </#list>
+      <#if variable.type.name() == "CERTIFICATE_CA">
+        is_ca: true
+      </#if>
     </#list>
 </#if>
