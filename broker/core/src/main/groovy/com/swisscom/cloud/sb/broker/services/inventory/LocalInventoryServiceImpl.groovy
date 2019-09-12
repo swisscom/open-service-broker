@@ -1,5 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.inventory
 
+import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -16,7 +17,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     private final ServiceInstanceRepository serviceInstanceRepository
     private final ServiceDetailRepository serviceDetailRepository
 
-    public LocalInventoryServiceImpl(
+    LocalInventoryServiceImpl(
             ServiceInstanceRepository serviceInstanceRepository,
             ServiceDetailRepository serviceDetailRepository) {
         this.serviceDetailRepository = serviceDetailRepository
@@ -35,25 +36,26 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key) {
-        def detail = getServiceInstance(serviceInstanceGuid).details.find { d -> d.key.equalsIgnoreCase(key) }
+        def details = getServiceInstance(serviceInstanceGuid).details.findAll { d -> d.key.equalsIgnoreCase(key) }
+        Preconditions.checkArgument(details.size() > 0, "No details for key:${key} found")
+        Preconditions.checkArgument(details.size() == 1, "Multiple details for key:${key} found")
 
-        if (detail == null) {
-            ErrorCode.SERVICEBROKERSERVICEPROVIDER_INTERNAL_SERVER_ERROR.throwNew("No serviceDetail with key:${key} found.")
-        }
-
-        return Pair.of(detail.key, detail.value)
+        return Pair.of(details.get(0).key, details.get(0).value)
     }
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key, String defaultValue) {
-        def detail = getServiceInstance(serviceInstanceGuid).details.find { d -> d.key.equalsIgnoreCase(key) }
+        def details = getServiceInstance(serviceInstanceGuid).details.findAll { d -> d.key.equalsIgnoreCase(key) }
+        Preconditions.checkArgument(details.size() <= 1, "Multiple details for key:${key} found")
 
-        return Pair.of(key, detail == null ? defaultValue : detail.value)
+        return Pair.of(key, details.size() == 0 ? defaultValue : details.get(0).value)
     }
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid, String key) {
-        return null
+        return getServiceInstance(serviceInstanceGuid).details
+                .findAll { d -> d.key.equalsIgnoreCase(key) }
+                .collect { d -> Pair.of(d.key, d.value) }
     }
 
     @Override
@@ -136,7 +138,7 @@ class LocalInventoryServiceImpl implements InventoryService {
         def detail = serviceInstance.details.find { d -> d.key.equalsIgnoreCase(key) }
 
         if (detail != null) {
-            serviceInstance.details.removeIf({ d -> d.key.equals(key) })
+            serviceInstance.details.removeAll { d -> d.key.equals(key) }
             serviceDetailRepository.delete(detail)
             serviceInstance = serviceInstanceRepository.save(serviceInstance)
         }
@@ -146,6 +148,25 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> replaceByKey(String serviceInstanceGuid, String key, String[] values) {
-        return null
+        def serviceInstance = getServiceInstance(serviceInstanceGuid)
+        List<ServiceDetail> toDelete = serviceInstance.details.findAll { d -> d.key.equalsIgnoreCase(key) }
+
+        values.each {
+            v ->
+                def match = toDelete.find { d -> d.value == v }
+                if (match != null) {
+                    toDelete.removeAll { dd -> dd.id == match.id }
+                } else {
+                    serviceInstance.details.add(ServiceDetail.from(key, v))
+                }
+        }
+
+        toDelete.each { d ->
+            serviceInstance.details.removeAll { dd -> dd.id == d.id }
+            serviceDetailRepository.delete(d)
+        }
+        serviceInstance = serviceInstanceRepository.save(serviceInstance)
+
+        return get(serviceInstanceGuid)
     }
 }
