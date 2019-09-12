@@ -17,13 +17,12 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshResourceNotFoundException
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest
 import com.swisscom.cloud.sb.broker.util.Resource
 import org.junit.Ignore
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
-import static com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest.boshConfigRequest
+import static BoshConfigRequest.boshConfigRequest
 
 // TODO: Replace mocked tests with WireMock tests, similar to BoshFacadeTest
 @Ignore

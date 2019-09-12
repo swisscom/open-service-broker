@@ -1,0 +1,17 @@
+vm_types:
+  - name: "{{guid}}"
+
+disk_types:
+  - name: "{{guid}}"
+    disk_size: 1024
+
+networks:
+  - name: "{{guid}}"
+    type: manual
+    subnets:
+      - azs: [z1, z2, z3]
+        dns: [8.8.8.8]
+        range: 10.244.0.0/24
+        gateway: 10.244.0.1
+        static: [10.244.0.34]
+        reserved: []

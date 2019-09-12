@@ -1,0 +1,27 @@
+spring:
+  profiles: bosh
+
+  security:
+    oauth2:
+      client:
+        registration:
+          bosh-web-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token
+
+com:
+  swisscom:
+    cloud:
+      sb:
+        broker:
+          services:
+            bosh:
+              client:
+                boshBaseUrl: https://192.168.50.6:25555
+                boshDirectorUsername: admin
+                boshDirectorPassword: 74v98dv1cuofsj4o8mct

@@ -1,0 +1,35 @@
+{
+  "id" : "d59965f2-d026-44f7-b9d1-3a9fc5eb9861",
+  "name" : "configs",
+  "request" : {
+    "url" : "/configs",
+    "method" : "POST",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vbXlzcWwtYm9zaC5zZXJ2aWNlLmNvbnN1bDo4NDQzL3Rva2VuX2tleXMiLCJraWQiOiJrZXktMSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5ZDc1Y2ZlY2RhNTU0NWI2YWU3M2RiYjVjZWZkMjExMyIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiIzMDNiM2I0YSIsImlhdCI6MTU2ODAwODkxMiwiZXhwIjoxNTY4MjY4MTEyLCJpc3MiOiJodHRwczovL215c3FsLWJvc2guc2VydmljZS5jb25zdWw6ODQ0My9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJhZG1pbiIsImJvc2giXX0.fsAQBO1synLlvpSfrmd_ISOnBLnSmXujrhJ5o62son3GcqrkDC-L0ipIL4hUwaTDnaZIOhA3-6PqGv1t8qNB2Nyv04D407YcCY0mUN8-NKKa_TiU7APgqf5aHVonTClxOjfsHfp9SiQTlorSawi1xfiyjs7eBIhvVLpFD04dtLwAmTxrwqUCCvVT0VEoYVFuKqa7PXQpuqVhFS0qMbKlfcv7jp9v_KbaOTT5QQCOcIlMzTarogh4Yh0mLDU7aZbn_LmsoCTGxj7JQvooH4N8JHjormTt9KQHHiP-K27dYylp5QC-6uj9Hn_AtAbBLJLpnv4Ml4bFtFCJRnTPG8aX6g"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"id\":\"\",\"name\":\"7eff4b56-be53-4925-a4fe-afde1e00111a\",\"type\":\"cloud\",\"content\":\"vm_types:\\n  - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\\n\\ndisk_types:\\n  - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\\n    disk_size: 1024\\n\\nnetworks:\\n  - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\\n    type: manual\\n    subnets:\\n      - azs: [z1, z2, z3]\\n        dns: [8.8.8.8]\\n        range: 10.244.0.0/24\\n        gateway: 10.244.0.1\\n        static: [10.244.0.34]\\n        reserved: []\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 201,
+    "bodyFileName" : "configs-d59965f2-d026-44f7-b9d1-3a9fc5eb9861.txt",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 06:01:52 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "d59965f2-d026-44f7-b9d1-3a9fc5eb9861",
+  "persistent" : true,
+  "insertionIndex" : 2
+}

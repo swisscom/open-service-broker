@@ -19,10 +19,6 @@ import com.google.common.base.Preconditions
 import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshResourceNotFoundException
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigRequest
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshInfo
-import com.swisscom.cloud.sb.broker.services.bosh.resources.Task
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -77,7 +73,7 @@ class BoshClient {
         }
     }
 
-    Task getTask(String id) {
+    BoshDirectorTask getTask(String id) {
         return boshRestClient.getTask(id);
     }
 
@@ -85,7 +81,7 @@ class BoshClient {
         return boshRestClient.fetchBoshInfo();
     }
 
-    BoshConfigResponse postConfig(BoshConfigRequest config) {
+    BoshCloudConfig postConfig(BoshConfigRequest config) {
         return boshRestClient.postConfig(config.toJson())
     }
 

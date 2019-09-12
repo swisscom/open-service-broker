@@ -34,11 +34,6 @@ class DummyConfig implements BoshBasedServiceConfig, AsyncServiceConfig {
     }
 
     @Override
-    boolean getShuffleAzs() {
-        return false
-    }
-
-    @Override
     List<GenericConfig> getGenericConfigs() {
         return null
     }

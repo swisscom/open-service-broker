@@ -151,7 +151,7 @@ class MongoDbEnterpriseServiceProviderSpec extends Specification {
                                                             from(ServiceDetailKey.PORT, port)])
         1 * serviceProvider.provisioningPersistenceService.getServiceInstance(serviceInstanceGuid) >> serviceInstance
         and:
-        BoshTemplate template = BoshTemplate.of(new File(this.getClass().
+        BoshTemplate template = BoshTemplate.boshTemplateOf(new File(this.getClass().
                 getResource('/bosh/mongodbent-bosh-template.yml').file).text)
 
         when:

@@ -17,9 +17,6 @@ package com.swisscom.cloud.sb.broker.services.bosh.client
 
 import com.swisscom.cloud.sb.broker.services.bosh.BoshConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshResourceNotFoundException
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshInfo
-import com.swisscom.cloud.sb.broker.services.bosh.resources.Task
 import com.swisscom.cloud.sb.broker.services.bosh.resources.UaaLoginResponse
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.PackageScope
@@ -36,6 +33,10 @@ import org.springframework.web.client.RestTemplate
 import static com.swisscom.cloud.sb.broker.services.bosh.GenericConfigAPIQueryFilter.createQueryFilter
 import static org.springframework.http.HttpMethod.DELETE
 
+/**
+ * @deprecated Use {@link BoshWebClient} instead
+ */
+@Deprecated
 @PackageScope
 class BoshRestClient {
     private static final Logger LOG = LoggerFactory.getLogger(BoshRestClient.class);
@@ -82,14 +83,14 @@ class BoshRestClient {
         return handleRedirectonAndExtractTaskId(response);
     }
 
-    Task getTask(String id) {
+    BoshDirectorTask getTask(String id) {
         return createAuthRestTemplate().exchange(prependBaseUrl(TASKS + '/' + id),
                                                  HttpMethod.GET,
                                                  null,
-                                                 Task.class).getBody();
+                                                 BoshDirectorTask.class).getBody();
     }
 
-    BoshConfigResponse postConfig(String config) {
+    BoshCloudConfig postConfig(String config) {
         LOG.debug("Posting new config: \n${config}");
         HttpHeaders headers = new HttpHeaders()
         headers.add(CONTENT_TYPE, CONTENT_TYPE_JSON);
@@ -97,7 +98,7 @@ class BoshRestClient {
         return createAuthRestTemplate().exchange(prependBaseUrl(CONFIGS),
                                                  HttpMethod.POST,
                                                  request,
-                                                 BoshConfigResponse.class)
+                                                 BoshCloudConfig.class)
                                        .getBody();
     }
 

@@ -1,0 +1,34 @@
+{
+  "id" : "064d0ff4-924b-450c-bbb2-c4d055181d0a",
+  "name" : "deployments",
+  "request" : {
+    "url" : "/deployments",
+    "method" : "POST",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vbXlzcWwtYm9zaC5zZXJ2aWNlLmNvbnN1bDo4NDQzL3Rva2VuX2tleXMiLCJraWQiOiJrZXktMSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwYzRkNjIyODFhNGU0YTA4ODZhY2Q1N2U5ZWY4NTYxZSIsInN1YiI6ImFkbWluIiwiYXV0aG9yaXRpZXMiOlsiYm9zaC5hZG1pbiJdLCJzY29wZSI6WyJib3NoLmFkbWluIl0sImNsaWVudF9pZCI6ImFkbWluIiwiY2lkIjoiYWRtaW4iLCJhenAiOiJhZG1pbiIsInJldm9jYWJsZSI6dHJ1ZSwiZ3JhbnRfdHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsInJldl9zaWciOiIzMDNiM2I0YSIsImlhdCI6MTU2ODAwODkxMywiZXhwIjoxNTY4MjY4MTEzLCJpc3MiOiJodHRwczovL215c3FsLWJvc2guc2VydmljZS5jb25zdWw6ODQ0My9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJhZG1pbiIsImJvc2giXX0.AWeSBbKdQ86OC7f3LLxO_HKyClIErV0bhIpItZcx8vpf5YoGj26RVRu73yR3PwG-44exh18rd-aSG31MSs_CTpYyn4wTxqNaodGtdD6ZRiy8yHenY4QI3eYUdiAqzSTZmChRpbVNs_Qitg1x0575aNYUs_EVLaeebQl7cxXo-V8GuuGYUnKjtMKaPIikL2Jn6-M8yJp9HYgsC2UktbNDJTFGHLwm5zbeJmppFNbNCtoZC5PTLA_KOdqdYQOjDWU7XHEPb5u6K__UZrtItzZppF8O3lfWmpCk9UOSWkt1w2ypOjrPeTQmr1_w5jLz8BGWFpMCf3hIadGAEj32S9lCYw"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalTo" : "name: \"d-7eff4b56-be53-4925-a4fe-afde1e00111a\"\n\nreleases:\n  - name: dummy\n    version: latest\n\nstemcells:\n  - alias: ubuntu\n    os: ubuntu-xenial\n    version: latest\n\ninstance_groups:\n  - name: dummy\n    azs: [z1]\n    instances: 1\n    vm_type: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    stemcell: ubuntu\n    networks:\n      - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    jobs:\n      - name: dummy\n        release: dummy\n\nupdate:\n  canaries: 1\n  max_in_flight: 6\n  serial: false\n  canary_watch_time: 1000-60000\n  update_watch_time: 1000-60000",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Mon, 09 Sep 2019 06:01:53 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://mysql-bosh.service.consul/tasks/59118",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "064d0ff4-924b-450c-bbb2-c4d055181d0a",
+  "persistent" : true,
+  "insertionIndex" : 5
+}

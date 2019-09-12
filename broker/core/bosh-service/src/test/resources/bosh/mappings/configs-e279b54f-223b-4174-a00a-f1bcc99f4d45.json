@@ -1,0 +1,21 @@
+{
+  "id" : "e279b54f-223b-4174-a00a-f1bcc99f4d45",
+  "name" : "configs",
+  "request" : {
+    "url" : "/configs?name=7eff4b56-be53-4925-a4fe-afde1e00111a&type=cloud",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 204,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Wed, 11 Sep 2019 15:35:48 GMT",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "e279b54f-223b-4174-a00a-f1bcc99f4d45",
+  "persistent" : true,
+  "insertionIndex" : 30
+}

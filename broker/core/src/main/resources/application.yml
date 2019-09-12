@@ -5,6 +5,19 @@ spring.profiles:
 spring:
   profiles: default
 
+  security:
+    oauth2:
+      client:
+        registration:
+          credhub-client:
+            provider: uaa
+            client-id: credhub_client
+            client-secret: secret
+            authorization-grant-type: client_credentials
+        provider:
+          uaa:
+            token-uri: http://localhost:8081/uaa/oauth/token
+
 management:
   metrics:
     export:

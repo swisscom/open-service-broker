@@ -1,11 +1,14 @@
 package com.swisscom.cloud.sb.broker.services.bosh
 
+import com.github.tomakehurst.wiremock.core.Options
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
-import com.swisscom.cloud.sb.broker.services.bosh.resources.BoshConfigResponse
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
 import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
 import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
@@ -13,6 +16,7 @@ import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.client.HttpServerErrorException
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -33,9 +37,10 @@ import static java.util.Collections.singletonList
  */
 // TODO: Test failing authentication
 // TODO: Test basic authentication (without uaa)
+@Ignore("We are deprecating BoshFacade and just for getting the mapping files of this test you need to wait several minutes.")
 @Stepwise
 class BoshFacadeTest extends Specification {
-    private static final Logger LOG = LoggerFactory.getLogger(BoshFacadeTest.class)
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoshFacadeTest.class)
 
     private static final boolean BOSH_MOCKED = Boolean.valueOf(System.getProperty("bosh.mocked"))
     private static final String UAA_URL = System.getProperty("uaa.url")
@@ -66,24 +71,40 @@ class BoshFacadeTest extends Specification {
     BoshFacade sut
 
     @ClassRule
-    public static WireMockRule boshWireMock = new WireMockRule(options().
-            withRootDirectory("src/test/resources/boshFacade/bosh").
-            port(35555).
-            extensions(BoshInfoContentTransformer.of(UAA_URL,
-                                                     "http://localhost:18443",
-                                                     BOSH_INFO_TRANSFORMER_NAME)))
+    public static WireMockRule boshWireMock
 
     @ClassRule
-    public static WireMockRule uaaWireMock = new WireMockRule(options().
-            withRootDirectory("src/test/resources/boshFacade/uaa").
-            port(18443))
+    public static WireMockRule uaaWireMock
 
     def setupSpec() {
         templateCustomizer = Mock(BoshTemplateCustomizer)
+
+        WireMockConfiguration boshWireMockConfiguration = options().
+                withRootDirectory("src/test/resources/boshFacade/bosh").
+                port(35555).
+                useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
+                extensions(BoshInfoContentTransformer.of(UAA_URL,
+                                                         "http://localhost:18443",
+                                                         BOSH_INFO_TRANSFORMER_NAME))
+        WireMockConfiguration uaaWireMockConfiguration = options().
+                withRootDirectory("src/test/resources/boshFacade/uaa").
+                useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
+                port(18443)
+
+        if (LOGGER.isTraceEnabled()) {
+            boshWireMockConfiguration = boshWireMockConfiguration.networkTrafficListener(
+                    new ConsoleNotifyingWiremockNetworkTrafficListener())
+            uaaWireMockConfiguration = uaaWireMockConfiguration.networkTrafficListener(
+                    new ConsoleNotifyingWiremockNetworkTrafficListener())
+        }
+
+        boshWireMock = new WireMockRule(boshWireMockConfiguration)
+        uaaWireMock = new WireMockRule(uaaWireMockConfiguration)
         boshWireMock.start()
         uaaWireMock.start()
+
         if (!BOSH_MOCKED) {
-            LOG.info("Start recording with bosh wiremock targeting '${BOSH_URL}' and uaa wiremock targeting '${UAA_URL}'")
+            LOGGER.info("Start recording with bosh wiremock targeting '${BOSH_URL}' and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_URL).
                     extractBinaryBodiesOver(10240).
@@ -106,10 +127,10 @@ class BoshFacadeTest extends Specification {
         this.boshFacadeConfiguration = createBoshFacadeConfig()
         sut = BoshFacade.of(this.boshFacadeConfiguration)
 
-        LOG.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
+        LOGGER.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
                  BOSH_MOCKED ? "mocked bosh" : "live bosh",
-                 boshFacadeConfiguration.getBoshDirectorBaseUrl(),
-                 boshFacadeConfiguration.getBoshDirectorUsername(),
+                    boshFacadeConfiguration.getBoshDirectorBaseUrl(),
+                    boshFacadeConfiguration.getBoshDirectorUsername(),
                  isNullOrEmpty(boshFacadeConfiguration.getBoshDirectorPassword()) ? " NO PASSWORD PROVIDED" :
                  "<CONFIDENTIAL>")
     }
@@ -124,11 +145,6 @@ class BoshFacadeTest extends Specification {
             @Override
             String getBoshManifestFolder() {
                 return "."
-            }
-
-            @Override
-            boolean getShuffleAzs() {
-                return false
             }
 
             @Override
@@ -213,24 +229,19 @@ class BoshFacadeTest extends Specification {
     }
 
     private BoshBasedServiceConfig createBoshBasedConfig(List<Object> params) {
-        LOG.info(params[0].toString())
+        LOGGER.info(params[0].toString())
         new BoshBasedServiceConfig() {
 
             @Override
             String getPortRange() {
-                LOG.info("getPortRange:")
-                LOG.info(params[0].toString())
+                LOGGER.info("getPortRange:")
+                LOGGER.info(params[0].toString())
                 return params[0]
             }
 
             @Override
             String getBoshManifestFolder() {
                 return params[1]
-            }
-
-            @Override
-            boolean getShuffleAzs() {
-                return false
             }
 
             @Override
@@ -310,13 +321,13 @@ class BoshFacadeTest extends Specification {
 
     def "should create generic config"() {
         when:
-        List<BoshConfigResponse> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(SERVICE_INSTANCE_GUID,
-                                                                                            templateCustomizer)
+        List<BoshCloudConfig> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(SERVICE_INSTANCE_GUID,
+                                                                                         templateCustomizer)
 
         then:
         boshConfigResponses.size() == boshFacadeConfiguration.getGenericConfigs().size()
-        BoshConfigResponse boshConfigResponse = boshConfigResponses.first()
-        boshConfigResponse.getId() > 0
+        BoshCloudConfig boshConfigResponse = boshConfigResponses.first()
+        !boshConfigResponse.getId().isEmpty()
         boshConfigResponse.getType() == "cloud"
         boshConfigResponse.getCurrent()
         boshConfigResponse.getCreatedAt().isBefore(LocalDateTime.now())
@@ -487,7 +498,7 @@ class BoshFacadeTest extends Specification {
     @Unroll
     def "should fail creating config because #message"() {
         when:
-        List<BoshConfigResponse> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(guid, customizer)
+        List<BoshCloudConfig> boshConfigResponses = sut.handleTemplatingAndCreateConfigs(guid, customizer)
 
         then:
         boshConfigResponses == null

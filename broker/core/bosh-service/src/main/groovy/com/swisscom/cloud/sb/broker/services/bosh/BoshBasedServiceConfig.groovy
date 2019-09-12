@@ -29,8 +29,6 @@ interface BoshBasedServiceConfig extends EndpointConfig, BoshConfig {
 
     String getBoshManifestFolder();
 
-    boolean getShuffleAzs();
-
     List<GenericConfig> getGenericConfigs();
 
     TemplateConfig getTemplateConfig();

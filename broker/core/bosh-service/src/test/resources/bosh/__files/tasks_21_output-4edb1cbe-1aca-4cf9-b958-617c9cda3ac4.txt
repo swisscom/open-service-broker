@@ -1,0 +1,18 @@
+{"time":1542273033,"stage":"Extracting release","tags":[],"total":1,"task":"Extracting release","index":1,"state":"started","progress":0}
+{"time":1542273033,"stage":"Extracting release","tags":[],"total":1,"task":"Extracting release","index":1,"state":"finished","progress":100}
+{"time":1542273033,"stage":"Verifying manifest","tags":[],"total":1,"task":"Verifying manifest","index":1,"state":"started","progress":0}
+{"time":1542273033,"stage":"Verifying manifest","tags":[],"total":1,"task":"Verifying manifest","index":1,"state":"finished","progress":100}
+{"time":1542273033,"stage":"Resolving package dependencies","tags":[],"total":1,"task":"Resolving package dependencies","index":1,"state":"started","progress":0}
+{"time":1542273033,"stage":"Resolving package dependencies","tags":[],"total":1,"task":"Resolving package dependencies","index":1,"state":"finished","progress":100}
+{"time":1542273033,"stage":"Creating new packages","tags":[],"total":3,"task":"filebeat/35266e90a230a1134ebc7222404d5a1acd8de559","index":1,"state":"started","progress":0}
+{"time":1542273041,"stage":"Creating new packages","tags":[],"total":3,"task":"filebeat/35266e90a230a1134ebc7222404d5a1acd8de559","index":1,"state":"finished","progress":100}
+{"time":1542273041,"stage":"Creating new packages","tags":[],"total":3,"task":"filebeat_metrics/5162aa58d5be647cfd333c9e7995eebde669f457","index":2,"state":"started","progress":0}
+{"time":1542273041,"stage":"Creating new packages","tags":[],"total":3,"task":"filebeat_metrics/5162aa58d5be647cfd333c9e7995eebde669f457","index":2,"state":"finished","progress":100}
+{"time":1542273041,"stage":"Creating new packages","tags":[],"total":3,"task":"golang/97929b5211d41994fefda0d8c80bbe2ec0a6bcb8","index":3,"state":"started","progress":0}
+{"time":1542273055,"stage":"Creating new packages","tags":[],"total":3,"task":"golang/97929b5211d41994fefda0d8c80bbe2ec0a6bcb8","index":3,"state":"finished","progress":100}
+{"time":1542273055,"stage":"Creating new jobs","tags":[],"total":2,"task":"filebeat/f10e515f69be3468c689e43964a9da476f1cf555","index":1,"state":"started","progress":0}
+{"time":1542273055,"stage":"Creating new jobs","tags":[],"total":2,"task":"filebeat/f10e515f69be3468c689e43964a9da476f1cf555","index":1,"state":"finished","progress":100}
+{"time":1542273055,"stage":"Creating new jobs","tags":[],"total":2,"task":"filebeat_metrics/469fe61ae4ddc15412074be2bb99004f8302a33f","index":2,"state":"started","progress":0}
+{"time":1542273055,"stage":"Creating new jobs","tags":[],"total":2,"task":"filebeat_metrics/469fe61ae4ddc15412074be2bb99004f8302a33f","index":2,"state":"finished","progress":100}
+{"time":1542273055,"stage":"Release has been created","tags":[],"total":1,"task":"beats/0.4.11","index":1,"state":"started","progress":0}
+{"time":1542273055,"stage":"Release has been created","tags":[],"total":1,"task":"beats/0.4.11","index":1,"state":"finished","progress":100}

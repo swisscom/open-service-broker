@@ -15,6 +15,7 @@ ext {
             quartz                             : '2.3.0',             // THE java scheduler of tasks
             joda_time                          : '2.10', //FIXME Why using joda-time? Starting from java 8 we should be using java.time
             bouncycastle                       : '1.60',              // For cryptography
+            ineter                             : '0.1.0',              // Utility library for IP Addresses
 
             flyway                             : '5.1.4',             // Database migration
             mysql_connector_java               : '8.0.12',            // OSB uses a MySQL database
@@ -62,10 +63,11 @@ ext {
             spring_boot_starter_devtools                   : "org.springframework.boot:spring-boot-devtools:${versions.spring_boot}",
             spring_boot_starter_webflux                    : "org.springframework.boot:spring-boot-starter-webflux:${versions.spring_boot}",
             spring_boot_starter_tomcat                     : "org.springframework.boot:spring-boot-starter-tomcat:${versions.spring_boot}",
+            spring_boot_starter_freemarker                 : "org.springframework.boot:spring-boot-starter-freemarker:${versions.spring_boot}",
 
             // Spring cloud
-            spring_cloud_open_service_broker_core          : "org.springframework.cloud:spring-cloud-open-service-broker-core:${versions.spring_boot}", //FIXME Why is using 2.1.1 instead of 2.1.0?
-            spring_cloud_open_service_broker               : "org.springframework.cloud:spring-cloud-open-service-broker:${versions.spring_boot}", //FIXME Why is using 2.1.1 instead of 2.1.0?
+            spring_cloud_open_service_broker_core          : "org.springframework.cloud:spring-cloud-open-service-broker-core:${versions.spring_boot}",
+            spring_cloud_open_service_broker               : "org.springframework.cloud:spring-cloud-open-service-broker:${versions.spring_boot}",
             spring_cloud_starter_open_service_broker_webmvc: "org.springframework.cloud:spring-cloud-starter-open-service-broker-webmvc:${versions.spring_cloud}",
             spring_cloud_starter_config                    : "org.springframework.cloud:spring-cloud-starter-config:${versions.spring_cloud}",
             spring_cloud_cloudfoundry_connector            : "org.springframework.cloud:spring-cloud-cloudfoundry-connector:${versions.spring_cloud_cloudfoundry_connector}", //FIXME Why is using 2.0.4 instead of 2.1.0
@@ -86,6 +88,7 @@ ext {
             bouncycastle_pkix                              : "org.bouncycastle:bcpkix-jdk15on:${versions.bouncycastle}", //bcpkix only necessary in jdk15on
             quartz                                         : "org.quartz-scheduler:quartz:${versions.quartz}",
             joda_time                                      : "joda-time:joda-time:${versions.joda_time}",
+            ineter                                         : "com.github.maltalex:ineter:${versions.ineter}",
 
             flyway                                         : "org.flywaydb:flyway-core:${versions.flyway}",
             mysql_connector_java                           : "mysql:mysql-connector-java:${versions.mysql_connector_java}",

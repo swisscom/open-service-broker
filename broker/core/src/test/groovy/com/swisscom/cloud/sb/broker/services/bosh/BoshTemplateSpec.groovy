@@ -167,19 +167,6 @@ class BoshTemplateSpec extends Specification {
         new BoshTemplate(readTemplate(MONGODB_TEMPLATE)).instanceCount() == 3
     }
 
-    def "azs are shuffled correctly"() {
-        given:
-        def template = new BoshTemplate(readTemplate('/bosh/az-test-bosh-template.yml'))
-        and:
-        ['bosh-director-uuid', 'mms-api-key', 'mms-base-url', 'mms-group-id', 'guid', 'port', 'mongodb-binary-path',
-         'health-check-user', 'health-check-password', 'plan', 'prefix', ''].each { template.replace(it, it) }
-        when:
-        template.shuffleAzs()
-        def result = template.build()
-        then:
-        noExceptionThrown()
-        result
-    }
 
     private String readTemplate(String file) {
         return new File(this.getClass().getResource(file).getFile()).text

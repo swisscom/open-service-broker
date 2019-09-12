@@ -1,0 +1,1 @@
+{"id":1,"state":"error","description":"create stemcell","timestamp":1542271969,"started_at":1542271953,"result":"Unknown CPI error 'Unknown' with message 'vSphere CPI only supports a single datacenter' in 'info' CPI method (CPI request ID:...","user":"scis-tgdbefa3","deployment":null,"context_id":""}

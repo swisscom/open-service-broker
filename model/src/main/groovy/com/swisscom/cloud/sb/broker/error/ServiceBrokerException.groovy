@@ -36,4 +36,12 @@ class ServiceBrokerException extends RuntimeException {
     ServiceBrokerException(String description) {
         this(description, null, null, HttpStatus.INTERNAL_SERVER_ERROR)
     }
+
+    ServiceBrokerException(String message, Throwable cause) {
+        super(message, cause)
+        this.code = ""
+        this.error_code = ""
+        httpStatus = HttpStatus.valueOf(500)
+        this.description = getMessage()
+    }
 }
