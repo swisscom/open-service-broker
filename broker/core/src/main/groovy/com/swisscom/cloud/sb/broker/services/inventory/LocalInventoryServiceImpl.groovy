@@ -1,7 +1,6 @@
 package com.swisscom.cloud.sb.broker.services.inventory
 
 import com.google.common.base.Preconditions
-import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
@@ -10,9 +9,20 @@ import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Service
 
+import static org.apache.commons.lang.StringUtils.isNotBlank
+import static com.google.common.base.Preconditions.checkArgument
+import static com.google.common.base.Preconditions.checkState
+
 @CompileStatic
 @Service
 class LocalInventoryServiceImpl implements InventoryService {
+
+    public static String ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED = "service instance guid cannot be null or empty"
+    public static String ERROR_KEY_NOT_DEFINED = "key cannot be null or empty"
+    public static String ERROR_SERVICE_INSTANCE_NOT_FOUND = "service instance with id:%s not found"
+    public static String ERROR_DETAIL_NOT_FOUND = "no details for key:%s found"
+    public static String ERROR_DETAIL_NOT_UNIQUE = "multiple details for key:%s found"
+    public static String ERROR_DETAIL_MANDATORY = "details are mandatory"
 
     private final ServiceInstanceRepository serviceInstanceRepository
     private final ServiceDetailRepository serviceDetailRepository
@@ -26,33 +36,39 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     private ServiceInstance getServiceInstance(String guid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(guid)
-
-        if (serviceInstance == null) {
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew("No serviceinstance with guid:${guid} found.")
-        }
+        checkState(serviceInstance != null, ERROR_SERVICE_INSTANCE_NOT_FOUND, guid)
 
         return serviceInstance
     }
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+
         def details = getServiceInstance(serviceInstanceGuid).details.findAll { d -> d.key.equalsIgnoreCase(key) }
-        Preconditions.checkArgument(details.size() > 0, "No details for key:${key} found")
-        Preconditions.checkArgument(details.size() == 1, "Multiple details for key:${key} found")
+        checkState(details.size() > 0, ERROR_DETAIL_NOT_FOUND, key)
+        checkState(details.size() == 1, ERROR_DETAIL_NOT_UNIQUE, key)
 
         return Pair.of(details.get(0).key, details.get(0).value)
     }
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key, String defaultValue) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+
         def details = getServiceInstance(serviceInstanceGuid).details.findAll { d -> d.key.equalsIgnoreCase(key) }
-        Preconditions.checkArgument(details.size() <= 1, "Multiple details for key:${key} found")
+        checkState(details.size() <= 1, ERROR_DETAIL_NOT_UNIQUE, key)
 
         return Pair.of(key, details.size() == 0 ? defaultValue : details.get(0).value)
     }
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid, String key) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+
         return getServiceInstance(serviceInstanceGuid).details
                 .findAll { d -> d.key.equalsIgnoreCase(key) }
                 .collect { d -> Pair.of(d.key, d.value) }
@@ -60,6 +76,8 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+
         return getServiceInstance(serviceInstanceGuid).details
                 .findAll { d -> d.key && d.value }
                 .collect { d -> Pair.of(d.key, d.value) }
@@ -67,6 +85,9 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> set(String serviceInstanceGuid, Pair<String, String> data) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
         if (!addOrUpdateReturnTrueIfUpdated(serviceInstance, data)) {
@@ -97,6 +118,9 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> replace(String serviceInstanceGuid, List<Pair<String, String>> data) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
         def previousDetails = serviceInstance.details.toList()
@@ -119,6 +143,9 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> append(String serviceInstanceGuid, List<Pair<String, String>> data) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
         for (def entry in data) {
@@ -134,6 +161,9 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> delete(String serviceInstanceGuid, String key) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
         def detail = serviceInstance.details.find { d -> d.key.equalsIgnoreCase(key) }
 
@@ -148,6 +178,10 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> replaceByKey(String serviceInstanceGuid, String key, String[] values) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+        checkArgument(values != null, ERROR_DETAIL_MANDATORY)
+
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
         List<ServiceDetail> toDelete = serviceInstance.details.findAll { d -> d.key.equalsIgnoreCase(key) }
 

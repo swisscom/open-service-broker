@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.services.inventory
 
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
@@ -44,8 +43,8 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_test")
 
         then:
-        def ex = thrown(ServiceBrokerException)
-        ex.description.contains(guid)
+        def ex = thrown(IllegalArgumentException)
+        ex.message == "service instance with id:${guid} not found"
     }
 
     void "should get single pair if key exists"() {
@@ -83,8 +82,8 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_002")
 
         then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == "No details for key:key_002 found"
+        def ex = thrown(IllegalStateException)
+        ex.message == "no details for key:key_002 found"
     }
 
     void "should return correct value even though default value is set"() {
@@ -102,6 +101,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_001", "default_value_001")
 
         then:
+        noExceptionThrown()
         result != null
         result.first == key
         result.second == value
@@ -122,6 +122,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_002", "default_value_001")
 
         then:
+        noExceptionThrown()
         result != null
         result.first == "key_002"
         result.second == "default_value_001"
@@ -146,6 +147,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid)
 
         then:
+        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -174,6 +176,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.getAll(guid, "key_001")
 
         then:
+        noExceptionThrown()
         result != null
         result.size() == 3
         result.get(0).first == "key_001"
@@ -202,8 +205,8 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_001")
 
         then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == "Multiple details for key:key_001 found"
+        def ex = thrown(IllegalStateException)
+        ex.message == "multiple details for key:key_001 found"
     }
 
     @Unroll
@@ -229,13 +232,12 @@ class LocalInventoryServiceImplSpec extends Specification {
 
         where:
         guid                                   | key       | message
-        null                                   | "key_001" | "Service Instance Guid cannot be null or empty"
-        ""                                     | "key_001" | "Service Instance Guid cannot be null or empty"
-        " "                                    | "key_001" | "Service Instance Guid cannot be null or empty"
-        "10280232"                             | "key_001" | "Service Instance Guid cannot be numeric'"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "Key cannot be null or empty"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "Key cannot be null or empty"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "Key cannot be null or empty"
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
     }
 
     void "should get multiple none existing values"() {
