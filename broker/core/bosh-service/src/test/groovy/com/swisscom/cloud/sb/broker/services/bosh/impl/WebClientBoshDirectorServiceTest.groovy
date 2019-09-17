@@ -1,5 +1,8 @@
 package com.swisscom.cloud.sb.broker.services.bosh.impl
 
+import com.github.maltalex.ineter.base.IPAddress
+import com.github.maltalex.ineter.range.IPv4Range
+import com.github.maltalex.ineter.range.IPv4Subnet
 import com.github.tomakehurst.wiremock.common.FileSource
 import com.github.tomakehurst.wiremock.core.Options
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -11,34 +14,28 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.swisscom.cloud.sb.broker.services.bosh.BoshBasedServiceConfig
 import com.swisscom.cloud.sb.broker.services.bosh.BoshDirectorService
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeployment
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask
-import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
-import com.swisscom.cloud.sb.broker.services.common.ServiceTemplate
-import com.swisscom.cloud.sb.broker.services.common.TemplateConfig
+import com.swisscom.cloud.sb.broker.services.bosh.client.*
 import com.swisscom.cloud.sb.broker.template.FreeMarkerTemplateEngine
 import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import spock.lang.*
+import spock.lang.Specification
+import spock.lang.Stepwise
+import spock.lang.Unroll
 
-import java.nio.file.Paths
 import java.time.LocalDateTime
 
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.google.common.base.Strings.isNullOrEmpty
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig.Network.Type.MANUAL
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig.cloudConfig
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.Job.job
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.InstanceGroup.instanceGroup
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event.State.UNKNOWN
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshRelease.release
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshStemcell.stemcell
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClientTest.BoshInfoContentTransformer.of
-import static com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig.genericConfig
-import static java.util.Collections.emptyMap
-import static java.util.Collections.singletonList
 
 @Stepwise
 class WebClientBoshDirectorServiceTest extends Specification {
@@ -74,7 +71,9 @@ class WebClientBoshDirectorServiceTest extends Specification {
                 withRootDirectory("src/test/resources/bosh").
                 port(35555).
                 useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE).
-                extensions(of(UAA_URL, "http://localhost:18443", BOSH_INFO_TRANSFORMER_NAME))
+                extensions(BoshWebClientTest.BoshInfoContentTransformer.of(UAA_URL,
+                                                                           "http://localhost:18443",
+                                                                           BOSH_INFO_TRANSFORMER_NAME))
 
 
         WireMockConfiguration uaaWireMockConfiguration = options().
@@ -116,175 +115,25 @@ class WebClientBoshDirectorServiceTest extends Specification {
     }
 
 
-
     BoshBasedServiceConfig config
 
     BoshDirectorService sut
 
     def setup() {
-        this.config = createBoshFacadeConfig()
-
         sut = WebClientBoshDirectorService.of(boshWireMock.baseUrl(),
-                                              config.getBoshDirectorUsername(),
-                                              config.getBoshDirectorPassword().toCharArray(),
-                                              config.getGenericConfigs(),
-                                              config.getTemplateConfig(),
+                                              BOSH_USERNAME,
+                                              BOSH_PASSWORD,
                                               FreeMarkerTemplateEngine.newInstance(),
                                               "bosh-deployment.ftlh")
 
         LOGGER.info("Testing against {} and with URL '{}' with username '{}' and password '{}'",
-                 BOSH_MOCKED ? "mocked bosh" : "live bosh",
-                    config.getBoshDirectorBaseUrl(),
-                    config.getBoshDirectorUsername(),
-                 isNullOrEmpty(config.getBoshDirectorPassword()) ? " NO PASSWORD PROVIDED" :
-                 "<CONFIDENTIAL>")
+                    BOSH_MOCKED ? "mocked bosh" : "live bosh",
+                    boshWireMock.baseUrl(),
+                    BOSH_USERNAME,
+                    isNullOrEmpty(new String(BOSH_PASSWORD)) ? " NO PASSWORD PROVIDED" :
+                    "<CONFIDENTIAL>")
     }
 
-    private BoshBasedServiceConfig createBoshFacadeConfig() {
-        return new BoshBasedServiceConfig() {
-            @Override
-            String getPortRange() {
-                return ""
-            }
-
-            @Override
-            String getBoshManifestFolder() {
-                return "."
-            }
-
-            @Override
-            List<GenericConfig> getGenericConfigs() {
-                return singletonList(
-                        genericConfig().
-                                templateName(CLOUD_CONFIG_NAME).
-                                type("cloud").
-                                build())
-            }
-
-            @Override
-            TemplateConfig getTemplateConfig() {
-                return TemplateConfig.of([
-                        new ServiceTemplate() {
-                            String getName() {
-                                CLOUD_CONFIG_NAME
-                            }
-
-                            String getVersion() {
-                                "1.0.0"
-                            }
-
-                            List<String> getTemplates() {
-                                [new File(this.getClass().getResource(CLOUD_CONFIG_PATH).file).text]
-                            }
-                        },
-                        new ServiceTemplate() {
-                            String getName() {
-                                DEPLOYMENT_TEMPLATE_NAME
-                            }
-
-                            String getVersion() {
-                                "1.0.0"
-                            }
-
-                            List<String> getTemplates() {
-                                [new File(this.getClass().getResource(DEPLOYMENT_TEMPLATE_PATH).file).text]
-                            }
-                        }])
-            }
-
-            @Override
-            List<String> getIpRanges() {
-                return []
-            }
-
-            @Override
-            List<String> getProtocols() {
-                return []
-            }
-
-            @Override
-            String getBoshDirectorBaseUrl() {
-                return boshWireMock.baseUrl()
-            }
-
-            @Override
-            String getBoshDirectorUsername() {
-                return BOSH_USERNAME
-            }
-
-            @Override
-            String getBoshDirectorPassword() {
-                return BOSH_PASSWORD
-            }
-        }
-    }
-
-    private static List<GenericConfig> genericConfigs() {
-        [new GenericConfig() {
-            @Override
-            String getTemplateName() {
-                return "test"
-            }
-
-            @Override
-            String getType() {
-                return "cloud"
-            }
-        }]
-    }
-
-    private BoshBasedServiceConfig createBoshBasedConfig(List<Object> params) {
-        LOGGER.info(params[0].toString())
-        new BoshBasedServiceConfig() {
-
-            @Override
-            String getPortRange() {
-                LOGGER.info("getPortRange:")
-                LOGGER.info(params[0].toString())
-                return params[0]
-            }
-
-            @Override
-            String getBoshManifestFolder() {
-                return params[1]
-            }
-
-            @Override
-            List<GenericConfig> getGenericConfigs() {
-                return params[2]
-            }
-
-            @Override
-            TemplateConfig getTemplateConfig() {
-                return params[3]
-            }
-
-            @Override
-            List<String> getIpRanges() {
-                return params[4]
-            }
-
-            @Override
-            List<String> getProtocols() {
-                return params[5]
-            }
-
-            @Override
-            String getBoshDirectorBaseUrl() {
-                return params[6]
-            }
-
-            @Override
-            String getBoshDirectorUsername() {
-                return params[7]
-            }
-
-            @Override
-            String getBoshDirectorPassword() {
-                return params[8]
-            }
-        }
-    }
 
     def cleanupSpec() {
         if (!BOSH_MOCKED) {
@@ -295,63 +144,66 @@ class WebClientBoshDirectorServiceTest extends Specification {
         uaaWireMock.stop()
     }
 
-    @Unroll
-    @PendingFeature
-    def "instantiation should fail if the passed configuration is wrong: #message"() {
-        given:
-        BoshBasedServiceConfig testConfig = createBoshBasedConfig([portRange, manifestFolder, genericConfigs,
-                                                                   templateConfigs, ipRanges, protocols, baseUrl, user,
-                                                                   pass])
-
-        when:
-        sut = WebClientBoshDirectorService.of(testConfig.getBoshDirectorBaseUrl(),
-                                              testConfig.getBoshDirectorUsername(),
-                                              testConfig.getBoshDirectorPassword().toCharArray(),
-                                              testConfig.getGenericConfigs(),
-                                              testConfig.getTemplateConfig(),
-                                              FreeMarkerTemplateEngine.of(Paths.get("src",
-                                                                                    "main",
-                                                                                    "resources",
-                                                                                    "templates").toFile()),
-                                              "")
-
-        then:
-        def exception = thrown(IllegalArgumentException.class)
-        exception.message == message
-
-        where:
-        portRange | manifestFolder | genericConfigs   | templateConfigs | ipRanges | protocols | baseUrl | user | pass |
-        message
-        null      | "."            | genericConfigs() | []              | []       | []        | "a"     | "a"  | "a"  | "Port range cannot be null!"
-        ""        | null           | genericConfigs() | []              | []       | []        | "a"     | "a"  | "a"  | "Bosh manifest folder cannot be null!"
-        ""        | "."            | null             | []              | []       | []        | "a"     | "a"  | "a"  | "Bosh generic configs cannot be null!"
-        ""        | "."            | genericConfigs() | null            | []       | []        | "a"     | "a"  | "a"  | "TemplateConfig cannot be null!"
-        ""        | "."            | genericConfigs() | []              | null     | []        | "a"     | "a"  | "a"  | "IP ranges cannot be null!"
-        ""        | "."            | genericConfigs() | []              | []       | null      | "a"     | "a"  | "a"  | "Protocols cannot be null!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | null    | "a"  | "a"  | "Bosh director base url cannot be empty!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | ""      | "a"  | "a"  | "Bosh director base url cannot be empty!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | "a"     | null | "a"  | "Bosh director username cannot be empty!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | "a"     | ""   | "a"  | "Bosh director username cannot be empty!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | "a"     | "a"  | null | "Bosh director password cannot be empty!"
-        ""        | "."            | genericConfigs() | []              | []       | []        | "a"     | "a"  | ""   | "Bosh director password cannot be empty!"
-        ""        | ""             | genericConfigs() | []              | []       | []        | "a"     | "a"  | "a"  | "Bosh manifest folder must be set when service templates is empty!"
-    }
 
     def "should create generic config"() {
         when:
-        List<BoshCloudConfig> boshConfigResponses = sut.requestParameterizedBoshConfig(SERVICE_INSTANCE_GUID,
-                                                                                       emptyMap())
+        BoshCloudConfig boshCloudConfig = sut.requestBoshCloudConfig(request)
 
         then:
-        boshConfigResponses != null
-        boshConfigResponses.size() == config.getGenericConfigs().size()
-        BoshCloudConfig boshConfigResponse = boshConfigResponses.first()
-        !boshConfigResponse.getId().isEmpty()
-        boshConfigResponse.getType() == "cloud"
-        boshConfigResponse.isCurrent()
-        boshConfigResponse.getCreatedAt().isBefore(LocalDateTime.now())
-        boshConfigResponse.getContent() == new File(this.getClass().
-                getResource("/bosh/bosh-dummy-cloud-config-manifest.yml").file).text
+        boshCloudConfig != null
+        !boshCloudConfig.getId().isEmpty()
+        boshCloudConfig.getType() == "cloud"
+        boshCloudConfig.isCurrent()
+        boshCloudConfig.getCreatedAt().isBefore(LocalDateTime.now())
+        boshCloudConfig.getContent() == "networks:\n" +
+        "- name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n" +
+        "  type: manual\n" +
+        "  subnets:\n" +
+        "  - name: 7eff4b56-be53-4925-a4fe-afde1e00111a-subnet1\n" +
+        "    az: z1\n" +
+        "    cloud_properties:\n" +
+        "      {}\n" +
+        "    dns:\n" +
+        "    - 8.8.8.8\n" +
+        "    gateway: 10.244.0.1\n" +
+        "    range: 10.244.0.0/24\n" +
+        "    static:\n" +
+        "    - 10.244.0.34 - 10.244.0.34\n" +
+        "disk_types:\n" +
+        "- name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n" +
+        "  disk_size: 1024\n" +
+        "vm_types:\n" +
+        "- name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n" +
+        "  cloud_properties:\n" +
+        "    instance_type: \n" +
+        "    cpu: 1\n" +
+        "    ram: 1024\n" +
+        "    disk: 1024\n"
+
+        where:
+        request = cloudConfig().
+                name(SERVICE_INSTANCE_GUID).
+                addDiskType("7eff4b56-be53-4925-a4fe-afde1e00111a", 1024).
+                addVmType(ImmutableVmType.
+                        builder().
+                        name("7eff4b56-be53-4925-a4fe-afde1e00111a").
+                        numberOfCpus(1).
+                        ramSizeInMegabytes(1024).
+                        diskSizeInMegabytes(1024).
+                        build()).
+                addNetwork(ImmutableNetwork.builder().
+                        name("7eff4b56-be53-4925-a4fe-afde1e00111a").
+                        type(MANUAL).
+                        addSubnet(ImmutableSubnet.builder().
+                                name("7eff4b56-be53-4925-a4fe-afde1e00111a-subnet1").
+                                addAvailabilityZones("z1", "z2", "z3").
+                                addDns(IPAddress.of("8.8.8.8")).
+                                range(IPv4Subnet.of("10.244.0.0/24")).
+                                gateway(IPAddress.of("10.244.0.1")).
+                                addStatic(IPv4Range.of("10.244.0.34", "10.244.0.34")).
+                                build()).
+                        build()).
+                build()
     }
 
 
@@ -459,11 +311,11 @@ class WebClientBoshDirectorServiceTest extends Specification {
         task.events != null
         !task.events.isEmpty()
         task.events.each {event ->
-            if(event.hasError()){
+            if (event.hasError()) {
                 assert event.time > 0
                 assert !event.error.message.isEmpty()
                 assert event.error.code > 0
-            }else{
+            } else {
                 assert event.time > 0
                 assert event.index > 0
                 assert event.total > 0
@@ -530,18 +382,18 @@ class WebClientBoshDirectorServiceTest extends Specification {
     @Unroll
     def "should fail creating config because '#message'"() {
         when:
-        List<BoshCloudConfig> boshConfigResponses = sut.requestParameterizedBoshConfig(guid, emptyMap())
+        BoshCloudConfig result = sut.requestBoshCloudConfig(cloudConfig().name(guid).build())
 
         then:
-        boshConfigResponses == null
-        def exception = thrown(IllegalArgumentException.class)
+        result == null
+        def exception = thrown(expected)
         exception.message == message
 
         where:
-        guid | message
-        null | "Can't request a BoshCloudConfig with null name"
-        ""   | "Can't request a BoshCloudConfig with null name"
-        " "  | "Can't request a BoshCloudConfig with null name"
+        guid | expected                       | message
+        null | NullPointerException.class     | "name"
+        ""   | IllegalArgumentException.class | "Can't request a BoshCloudConfig with empty name"
+        " "  | IllegalArgumentException.class | "Can't request a BoshCloudConfig with empty name"
     }
 
     static class BoshInfoContentTransformer extends ResponseTransformer {

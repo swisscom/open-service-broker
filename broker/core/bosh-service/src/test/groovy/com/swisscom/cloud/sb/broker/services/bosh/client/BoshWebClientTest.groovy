@@ -18,7 +18,7 @@ import spock.lang.Unroll
 
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest
+import static BoshCloudConfigRequest.configRequest
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event.State.UNKNOWN
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.PROCESSING
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.QUEUED

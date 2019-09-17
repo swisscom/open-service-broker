@@ -11,6 +11,7 @@ ext {
 
             guava                              : '26.0-jre',          // THE java utilities library
             commons_lang                       : '2.6',               // Basic extensions provided to JDK
+            commons_lang3                      : '3.9',               // Basic extensions provided to JDK
             commons_codec                      : '1.11',
             quartz                             : '2.3.0',             // THE java scheduler of tasks
             joda_time                          : '2.10', //FIXME Why using joda-time? Starting from java 8 we should be using java.time
@@ -80,7 +81,9 @@ ext {
             spring_security_oauth2_client                  : "org.springframework.security:spring-security-oauth2-client:${versions.spring_framework}",
             spring_retry                                   : "org.springframework.retry:spring-retry:${versions.spring_retry}",
 
+            //FIXME in some moment should be cool just to use commons_lang3
             commons_lang                                   : "commons-lang:commons-lang:${versions.commons_lang}",
+            commons_lang3                                  : "org.apache.commons:commons-lang3:${versions.commons_lang3}",
             commons_codec                                  : "commons-codec:commons-codec:${versions.commons_codec}",
             guava                                          : "com.google.guava:guava:${versions.guava}",
             gson                                           : "com.google.code.gson:gson:${versions.gson}",

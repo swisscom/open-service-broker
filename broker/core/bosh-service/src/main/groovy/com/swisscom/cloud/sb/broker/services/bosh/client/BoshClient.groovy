@@ -81,7 +81,7 @@ class BoshClient {
         return boshRestClient.fetchBoshInfo();
     }
 
-    BoshCloudConfig postConfig(BoshConfigRequest config) {
+    BoshCloudConfig postConfig(BoshCloudConfigRequest config) {
         return boshRestClient.postConfig(config.toJson())
     }
 
