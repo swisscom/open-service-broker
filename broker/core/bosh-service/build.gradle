@@ -30,6 +30,7 @@ dependencies {
     compile libs.spring_security_oauth2_client
 
     compile libs.commons_lang
+    compile libs.commons_lang3
     compile libs.ineter
 
     testCompile libs.groovy

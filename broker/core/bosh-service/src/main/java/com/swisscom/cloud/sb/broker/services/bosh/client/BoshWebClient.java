@@ -187,6 +187,7 @@ public class BoshWebClient {
     }
 
     public BoshDeployment requestDeployment(String deploymentName, String deploymentConfigurationYaml) {
+        LOGGER.trace("requestDeployment('{}', '{}')", deploymentName, deploymentConfigurationYaml);
         return getPostWithAuthorizationToken(DEPLOYMENTS.value())
                 .flatMap(cl -> cl.header(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE_YAML)
                                  .body(just(deploymentConfigurationYaml), String.class)
@@ -200,17 +201,20 @@ public class BoshWebClient {
                                                                                           .get(0)))
                                                                   .build());
                                      } else {
-                                         return onError(response,
-                                                        format("Error accessing BOSH with %s@%s: %s",
-                                                               boshConfig.getBoshDirectorUsername(),
-                                                               boshConfig.getBoshDirectorBaseUrl(),
-                                                               response.statusCode()));
+                                         return response.bodyToMono(String.class)
+                                                        .flatMap(bodyString -> onError(response,
+                                                                                       format("Error accessing BOSH with %s@%s: %s %s",
+                                                                                              boshConfig.getBoshDirectorUsername(),
+                                                                                              boshConfig.getBoshDirectorBaseUrl(),
+                                                                                              response.statusCode(),
+                                                                                              bodyString)));
                                      }
                                  }))
                 .block();
     }
 
     public BoshDeployment deleteDeployment(BoshDeploymentRequest request) {
+        LOGGER.trace("deleteDeployment({})", request);
         BoshDeployment result = getDeployment(request.getName());
         if (!result.isEmpty()) {
             getDeleteWithAuthorizationToken(DEPLOYMENTS.value(), request.getName())
@@ -229,13 +233,15 @@ public class BoshWebClient {
     }
 
     public BoshDeployment getDeployment(String deploymentId) {
+        LOGGER.trace("getDeployment('{}')", deploymentId);
         return getGetWithAuthorizationToken(DEPLOYMENT.value(), deploymentId)
                 .flatMap(cl -> cl.retrieve()
                                  .bodyToMono(BoshDeployment.class))
                 .block();
     }
 
-    public BoshCloudConfig requestConfig(BoshConfigRequest request) {
+    public BoshCloudConfig requestConfig(BoshCloudConfigRequest request) {
+        LOGGER.trace("requestConfig('{}')", request);
         return getPostWithAuthorizationToken(CONFIGS.value())
                 .flatMap(cl -> cl.body(just(request.toJson()), String.class)
                                  .exchange()
@@ -243,11 +249,13 @@ public class BoshWebClient {
                                      if (response.statusCode() == HttpStatus.CREATED) {
                                          return response.bodyToMono(BoshCloudConfig.class);
                                      } else {
-                                         return onError(response,
-                                                        format("Error accessing BOSH with %s@%s: %s",
-                                                               boshConfig.getBoshDirectorUsername(),
-                                                               boshConfig.getBoshDirectorBaseUrl(),
-                                                               response.statusCode()));
+                                         return response.bodyToMono(String.class)
+                                                        .flatMap(bodyString -> onError(response,
+                                                                                       format("Error accessing BOSH with %s@%s: %s %s",
+                                                                                              boshConfig.getBoshDirectorUsername(),
+                                                                                              boshConfig.getBoshDirectorBaseUrl(),
+                                                                                              response.statusCode(),
+                                                                                              bodyString)));
                                      }
                                  }))
                 .block();
@@ -262,6 +270,7 @@ public class BoshWebClient {
     }
 
     public Collection<BoshCloudConfig> getConfig(String name) {
+        LOGGER.trace("getConfig('{}')", name);
         return getGetWithAuthorizationToken(CONFIGS.value(), singletonMap("name", singletonList(name)))
                 .flatMap(cl -> cl.retrieve()
                                  .bodyToFlux(BoshCloudConfig.class)
@@ -269,7 +278,8 @@ public class BoshWebClient {
                 .block();
     }
 
-    public BoshCloudConfig deleteConfig(BoshConfigRequest request) {
+    public BoshCloudConfig deleteConfig(BoshCloudConfigRequest request) {
+        LOGGER.trace("deleteConfig({})", request);
         Collection<BoshCloudConfig> result = getConfig(request.getName());
         if (!result.isEmpty()) {
             getDeleteWithAuthorizationToken(CONFIGS.value(),
@@ -343,6 +353,7 @@ public class BoshWebClient {
                 .block();
     }
 
+    //TODO At the moment is launching an exception but maybe we should return an error object
     private <T> Mono<T> onError(ClientResponse response, String message) {
         return throwException(response.statusCode(), message);
     }

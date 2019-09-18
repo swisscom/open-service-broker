@@ -1,0 +1,25 @@
+{
+  "id" : "80e26218-0fdb-496a-b619-35f0d158f93b",
+  "name" : "configs",
+  "request" : {
+    "url" : "/configs?name=",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[]",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Wed, 18 Sep 2019 12:57:04 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "80e26218-0fdb-496a-b619-35f0d158f93b",
+  "persistent" : true,
+  "insertionIndex" : 41
+}

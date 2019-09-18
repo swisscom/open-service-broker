@@ -22,8 +22,6 @@ import org.junit.Ignore
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
-import static BoshConfigRequest.boshConfigRequest
-
 // TODO: Replace mocked tests with WireMock tests, similar to BoshFacadeTest
 @Ignore
 class BoshClientSpec extends Specification {
@@ -99,7 +97,7 @@ class BoshClientSpec extends Specification {
     def "happy path:SetConfig"() {
         given:
         def cloudConfig = Resource.readTestFileContent("/bosh/cloud_config.yml")
-        BoshConfigRequest configRequestDto = boshConfigRequest().
+        BoshCloudConfigRequest configRequestDto = boshConfigRequest().
                 name("test").
                 type("cloud").
                 content(cloudConfig).

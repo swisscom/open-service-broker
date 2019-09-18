@@ -27,13 +27,12 @@ public interface BoshDirectorService {
     /**
      * Replaces placeholders in a template of {@link BoshCloudConfig} and creates all configs (like networks or vm
      * types) defined in {@link BoshBasedServiceConfig#getGenericConfigs()}.
+     * @param boshCloudConfig the parameters needed for generating a BOSH cloud config yaml
+     * @return the created {@link BoshCloudConfig}
      *
-     * @param boshCloudConfigName the {@link BoshCloudConfig#getName()} to use
-     * @param parameters          the template parameters needed for generating the {@link BoshCloudConfig}
-     * @return List of all created BoshConfigs, which is empty if there were none defined or there was an Exception
      * @see <a href='https://bosh.io/docs/configs'>Generic Configs</a>
      */
-    List<BoshCloudConfig> requestParameterizedBoshConfig(String boshCloudConfigName, Map<String, String> parameters);
+    BoshCloudConfig requestBoshCloudConfig(BoshCloudConfig boshCloudConfig);
 
     /**
      * Deletes all configured {@link BoshBasedServiceConfig#getGenericConfigs()} and throws Exception if the deletion

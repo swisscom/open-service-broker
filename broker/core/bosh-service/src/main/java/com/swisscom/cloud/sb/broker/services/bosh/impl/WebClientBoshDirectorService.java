@@ -2,28 +2,19 @@ package com.swisscom.cloud.sb.broker.services.bosh.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.swisscom.cloud.sb.broker.services.bosh.BoshDirectorService;
-import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate;
 import com.swisscom.cloud.sb.broker.services.bosh.client.*;
-import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig;
-import com.swisscom.cloud.sb.broker.services.common.TemplateConfig;
 import com.swisscom.cloud.sb.broker.template.TemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate.boshTemplateOf;
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest;
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfigRequest.configRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient.boshWebClient;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * An implementation of {@link BoshDirectorService} which uses {@link com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient}
@@ -40,31 +31,22 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     public static final String BOSH_DEPLOYMENT_FORMAT = "%s-%s";
 
     private final BoshWebClient boshWebClient;
-    private final List<GenericConfig> genericConfigs;
-    private final TemplateConfig templates;
     private final TemplateEngine templateEngine;
     private final String defaultBoshDeploymentTemplateId;
 
     private WebClientBoshDirectorService(BoshWebClient boshWebClient,
-                                         List<GenericConfig> genericConfigs,
-                                         TemplateConfig templates,
                                          TemplateEngine templateEngine,
                                          String defaultBoshDeploymentTemplateId) {
         this.boshWebClient = boshWebClient;
-        this.genericConfigs = genericConfigs;
-        this.templates = templates;
+
         this.templateEngine = templateEngine;
         this.defaultBoshDeploymentTemplateId = defaultBoshDeploymentTemplateId;
     }
 
     public static WebClientBoshDirectorService of(BoshWebClient boshWebClient,
-                                                  List<GenericConfig> genericConfigs,
-                                                  TemplateConfig templates,
                                                   TemplateEngine templateEngine,
                                                   String defaultBoshDeploymentTemplateId) {
         return new WebClientBoshDirectorService(boshWebClient,
-                                                genericConfigs,
-                                                templates,
                                                 templateEngine,
                                                 defaultBoshDeploymentTemplateId);
     }
@@ -72,13 +54,9 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     public static WebClientBoshDirectorService of(String boshDirectorBaseUrl,
                                                   String boshDirectorUsername,
                                                   char[] boshDirectorPassword,
-                                                  List<GenericConfig> genericConfigs,
-                                                  TemplateConfig templates,
                                                   TemplateEngine templateEngine,
                                                   String defaultBoshDeploymentTemplateId) {
         return of(boshWebClient(boshDirectorBaseUrl, boshDirectorUsername, boshDirectorPassword),
-                  genericConfigs,
-                  templates,
                   templateEngine,
                   defaultBoshDeploymentTemplateId);
     }
@@ -99,25 +77,13 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     }
 
     @Override
-    public List<BoshCloudConfig> requestParameterizedBoshConfig(String boshCloudConfigName,
-                                                                Map<String, String> parameters) {
-        checkArgument(!isNullOrEmpty(boshCloudConfigName) && !isBlank(boshCloudConfigName),
-                      NO_REQUEST_WITH_NULL,
-                      BOSH_CLOUD_CONFIG,
-                      "name");
-        return genericConfigs.stream()
-                             .map(requestBoshConfig(boshCloudConfigName, parameters))
-                             .collect(toList());
-    }
-
-    private Function<GenericConfig, BoshCloudConfig> requestBoshConfig(String serviceInstanceGuid,
-                                                                       Map<String, String> parameters) {
-        return config -> boshWebClient.requestConfig(configRequest().name(serviceInstanceGuid)
-                                                                    .type(config.getType())
-                                                                    .content(getConfigContentFor(serviceInstanceGuid,
-                                                                                                 parameters,
-                                                                                                 config))
-                                                                    .build());
+    public BoshCloudConfig requestBoshCloudConfig(BoshCloudConfig boshCloudConfig) {
+        checkArgument(!isNullOrEmpty(boshCloudConfig.getName().trim()),
+                      "Can't request a BoshCloudConfig with empty name");
+        return boshWebClient.requestConfig(configRequest().name(boshCloudConfig.getName())
+                                                          .type(boshCloudConfig.getType())
+                                                          .content(processBoshCloudConfigTemplate(boshCloudConfig))
+                                                          .build());
     }
 
     @Override
@@ -139,11 +105,10 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
         return requestBoshDeployment(request, defaultBoshDeploymentTemplateId);
     }
 
-    // TODO BOSH API receives a JSON, so we can'' follow exactly same strategy we did for deployments, which receive a yaml
     private String processBoshCloudConfigTemplate(BoshCloudConfig boshCloudConfig) {
         return templateEngine.process("bosh-cloud-config.ftlh",
                                       ImmutableMap.<String, Object>builder()
-                                              .put("cloud_config", boshCloudConfig)
+                                              .put("cloudConfig", boshCloudConfig)
                                               .build());
     }
 
@@ -165,18 +130,6 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     public BoshDeployment deleteBoshDeploymentIfExists(String name) {
         checkArgument(!isNullOrEmpty(name), NO_DELETE_WITH_NULL, BOSH_DEPLOYMENT, "name");
         return boshWebClient.deleteDeployment(deploymentRequest().name(name).build());
-    }
-
-    private String getConfigContentFor(String serviceInstanceGuid,
-                                       Map<String, String> parameters,
-                                       GenericConfig config) {
-        return getTemplate(config).replaceAllNamed("guid", serviceInstanceGuid)
-                                  .replaceAllNamed(parameters)
-                                  .build();
-    }
-
-    private BoshTemplate getTemplate(GenericConfig config) {
-        return boshTemplateOf(templates.getFirstTemplateForServiceKey(config.getTemplateName()));
     }
 
 }

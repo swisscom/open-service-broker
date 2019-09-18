@@ -1,0 +1,26 @@
+{
+  "id" : "847dd9f9-27d2-48d5-9ce2-5e2fb35548d6",
+  "name" : "releases",
+  "request" : {
+    "url" : "/releases",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "releases-847dd9f9-27d2-48d5-9ce2-5e2fb35548d6.txt",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Wed, 18 Sep 2019 12:57:08 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "Vary" : "Accept-Encoding",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "847dd9f9-27d2-48d5-9ce2-5e2fb35548d6",
+  "persistent" : true,
+  "insertionIndex" : 69
+}

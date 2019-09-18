@@ -34,4 +34,12 @@ class Parameter extends BaseModel{
     @JoinColumn(name="plan_id")
     @JsonIgnore
     Plan plan
+
+
+    @Override
+    public String toString() {
+        return new StringJoiner(" ", Parameter.class.getSimpleName() + "[", "]")
+                .add("'" + name + "'='" + value + "'")
+                .toString();
+    }
 }

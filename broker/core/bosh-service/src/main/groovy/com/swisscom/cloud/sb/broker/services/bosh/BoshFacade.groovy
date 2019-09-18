@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.services.bosh
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshClient
-import com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest
+import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfigRequest
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfig
 import com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask
 import com.swisscom.cloud.sb.broker.services.bosh.resources.GenericConfig
@@ -33,7 +33,7 @@ import org.springframework.util.Assert
 
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshServiceDetailKey.*
 import static com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate.boshTemplateOf
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshConfigRequest.configRequest
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfigRequest.configRequest
 import static com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper.from
 import static java.lang.String.format
 
@@ -125,7 +125,7 @@ class BoshFacade {
                     templateConfig.getTemplateForServiceKey(config.templateName).first())
             template.replace(PARAM_GUID, serviceInstanceGuid)
             templateCustomizer.customizeBoshConfigTemplate(template, config.type, serviceInstanceGuid)
-            BoshConfigRequest request = configRequest()
+            BoshCloudConfigRequest request = configRequest()
                     .name(serviceInstanceGuid)
                     .type(config.type)
                     .content(template.build())
