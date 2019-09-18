@@ -18,7 +18,7 @@ import spock.lang.Unroll
 
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import static BoshCloudConfigRequest.configRequest
+import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfigRequest.configRequest
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.Event.State.UNKNOWN
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.PROCESSING
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDirectorTask.State.QUEUED
@@ -75,7 +75,8 @@ class BoshWebClientTest extends Specification {
         uaaWireMock.start()
 
         if (!BOSH_MOCKED) {
-            LOGGER.info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' and uaa wiremock targeting '${UAA_URL}'")
+            LOGGER.
+                    info("Start recording with bosh wiremock targeting '${BOSH_BASE_URL}' and uaa wiremock targeting '${UAA_URL}'")
             boshWireMock.startRecording(recordSpec().
                     forTarget(BOSH_BASE_URL).
                     extractBinaryBodiesOver(10240).
@@ -305,11 +306,11 @@ class BoshWebClientTest extends Specification {
         task.deployment != null
         LOGGER.info("tasks/{} {}", task.id, task)
         for (BoshDirectorTask.Event event : task.events) {
-            if(event.hasError()){
+            if (event.hasError()) {
                 assert event.time > 0
                 assert !event.error.message.isEmpty()
                 assert event.error.code > 0
-            }else{
+            } else {
                 assert event.time > 0
                 assert event.index > 0
                 assert event.total > 0
@@ -379,10 +380,10 @@ class BoshWebClientTest extends Specification {
                 LOGGER.debug("transforming for url: " + request.getAbsoluteUrl());
                 String body = new String(responseDefinition.getBody());
                 return Response.Builder.like(responseDefinition)
-                                       .but()
-                                       .body(body.replaceAll('"' + originalUaaUrl + '"',
-                                                             '"' + replacementUaaUrl + '"'))
-                                       .build();
+                               .but()
+                               .body(body.replaceAll('"' + originalUaaUrl + '"',
+                                                     '"' + replacementUaaUrl + '"'))
+                               .build();
             }
             return responseDefinition;
         }
