@@ -1,0 +1,31 @@
+{
+  "id" : "f5c33b5d-21e4-49df-a774-f721c0a4d66d",
+  "name" : "deployments",
+  "request" : {
+    "url" : "/deployments",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalTo" : "name: \"d-7eff4b56-be53-4925-a4fe-afde1e00111a\"\ndirector_uuid: 'd61bdcac-ab25-4a54-810e-7e2cd5a5f927'\nreleases:\n  - name: dummy\n    version: latest\nstemcells:\n  - alias: ubuntu\n    os: ubuntu-xenial\n    version: latest\ninstance_groups:\n  - name: dummy\n    azs: [z1]\n    instances: 1\n    vm_type: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    persistent_disk_type: 7eff4b56-be53-4925-a4fe-afde1e00111a\n    stemcell: ubuntu\n    networks:\n      - name: 7eff4b56-be53-4925-a4fe-afde1e00111a\n        default:\n        - dns\n        - gateway\n    jobs:\n      - name: dummy\n        release: dummy\nupdate:\n  canaries: 1\n  max_in_flight: 1\n  serial: false\n  canary_watch_time: 1000-60000\n  update_watch_time: 1000-60000\n",
+      "caseInsensitive" : false
+    } ]
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 19 Sep 2019 14:03:57 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://mysql-bosh.service.consul/tasks/60025",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "f5c33b5d-21e4-49df-a774-f721c0a4d66d",
+  "persistent" : true,
+  "scenarioName" : "scenario-deployments",
+  "requiredScenarioState" : "scenario-deployments-3",
+  "insertionIndex" : 16
+}

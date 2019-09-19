@@ -78,6 +78,8 @@ public abstract class BoshDeploymentRequest {
 
         public abstract String getVmType();
 
+        public abstract String getPersistentDiskType();
+
         public abstract BoshStemcell getStemcell();
 
         public abstract List<String> getNetworks();

@@ -125,6 +125,7 @@ class FreeMarkerTemplateEngineTest extends Specification {
             putEnvironmentProperty("persistent_disk_mount_options", ["noatime"]).
             addAvailabilityZone("az1").
             vmType("vmType").
+            persistentDiskType("persistentDiskType").
             addNetwork("network").
             addJob(job().name("job").release(release().name("release").build()).build())
 
@@ -345,6 +346,7 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "    azs: [az1]\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
                      "      - name: \"network\"\n" +
@@ -390,9 +392,13 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
-                     "      - name: \"network\"\n" +
+                     "      - name: network\n" +
+                     "        default:\n" +
+                     "        - dns\n" +
+                     "        - gateway\n" +
                      "    jobs:\n" +
                      "      - name: job\n" +
                      "        release: release\n" +
@@ -420,9 +426,13 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
-                     "      - name: \"network\"\n" +
+                     "      - name: network\n" +
+                     "        default:\n" +
+                     "        - dns\n" +
+                     "        - gateway\n" +
                      "    jobs:\n" +
                      "      - name: job\n" +
                      "        release: release\n" +
@@ -465,9 +475,13 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
-                     "      - name: \"network\"\n" +
+                     "      - name: network\n" +
+                     "        default:\n" +
+                     "        - dns\n" +
+                     "        - gateway\n" +
                      "    jobs:\n" +
                      "      - name: job\n" +
                      "        release: release\n" +
@@ -507,9 +521,13 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
-                     "      - name: \"network\"\n" +
+                     "      - name: network\n" +
+                     "        default:\n" +
+                     "        - dns\n" +
+                     "        - gateway\n" +
                      "    jobs:\n" +
                      "      - name: job\n" +
                      "        release: release\n" +
@@ -575,9 +593,13 @@ class FreeMarkerTemplateEngineTest extends Specification {
                      "      - noatime\n" +
                      "    instances: 1\n" +
                      "    vm_type: vmType\n" +
+                     "    persistent_disk_type: persistentDiskType\n" +
                      "    stemcell: stemcell\n" +
                      "    networks:\n" +
-                     "      - name: \"network\"\n" +
+                     "      - name: network\n" +
+                     "        default:\n" +
+                     "        - dns\n" +
+                     "        - gateway\n" +
                      "    jobs:\n" +
                      "      - name: job\n" +
                      "        release: release\n" +

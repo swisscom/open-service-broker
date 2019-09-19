@@ -1,0 +1,23 @@
+{
+  "id" : "130369ba-151a-4463-a2fe-70f93a9fa025",
+  "name" : "tasks_21",
+  "request" : {
+    "url" : "/tasks/21",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\":21,\"state\":\"done\",\"description\":\"create release\",\"timestamp\":1542273055,\"started_at\":1542273033,\"result\":\"Created release 'beats/0.4.11'\",\"user\":\"scis-tgdbefa3\",\"deployment\":null,\"context_id\":\"\"}",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 19 Sep 2019 14:04:03 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "130369ba-151a-4463-a2fe-70f93a9fa025",
+  "persistent" : true,
+  "insertionIndex" : 63
+}
