@@ -1,0 +1,26 @@
+{
+  "id" : "4d4e55fb-133e-46fc-b974-edcec938fffe",
+  "name" : "configs",
+  "request" : {
+    "url" : "/configs",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "configs-4d4e55fb-133e-46fc-b974-edcec938fffe.txt",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 19 Sep 2019 14:04:00 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "Vary" : "Accept-Encoding",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "4d4e55fb-133e-46fc-b974-edcec938fffe",
+  "persistent" : true,
+  "insertionIndex" : 37
+}

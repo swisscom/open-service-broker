@@ -1,0 +1,25 @@
+{
+  "id" : "52b74c0d-673a-4fa1-af37-7e7767a75f00",
+  "name" : "info",
+  "request" : {
+    "url" : "/info",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "info-52b74c0d-673a-4fa1-af37-7e7767a75f00.json",
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Thu, 19 Sep 2019 14:03:57 GMT",
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "X-Content-Type-Options" : "nosniff"
+    }
+  },
+  "uuid" : "52b74c0d-673a-4fa1-af37-7e7767a75f00",
+  "persistent" : true,
+  "scenarioName" : "scenario-info",
+  "requiredScenarioState" : "scenario-info-11",
+  "newScenarioState" : "scenario-info-12",
+  "insertionIndex" : 17
+}

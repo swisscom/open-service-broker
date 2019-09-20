@@ -22,6 +22,7 @@ instance_groups:
     azs: [${instanceGroup.availabilityZones?join(", ")}]
     instances: ${instanceGroup.numberOfInstances}
     vm_type: ${instanceGroup.vmType}
+    persistent_disk_type: ${instanceGroup.persistentDiskType}
     stemcell: ${instanceGroup.stemcell.name}
     networks:
     <#list instanceGroup.networks as network>
