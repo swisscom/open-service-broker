@@ -22,4 +22,12 @@ class ParameterDto implements Serializable {
     String template
     String name
     String value
+
+    @Override
+    public String toString() {
+        return new StringJoiner(" ", ParameterDto.class.getSimpleName() + "[", "]")
+                .add("'" + name + "' = '" + value + "'")
+                .add(template != null ? "template='" + template + "'" : "")
+                .toString();
+    }
 }
