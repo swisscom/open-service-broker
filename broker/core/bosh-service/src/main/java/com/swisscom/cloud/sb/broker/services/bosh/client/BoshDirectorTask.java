@@ -33,6 +33,14 @@ import static java.util.stream.Collectors.toMap;
 @Value.Immutable
 public abstract class BoshDirectorTask {
 
+    public static final BoshDirectorTask EMPTY = BoshDirectorTask.boshTask()
+                                                           .id("")
+                                                           .state(State.UNKNOWN)
+                                                           .description("")
+                                                           .timestamp(-1L)
+                                                           .user("")
+                                                           .build();
+
     public abstract String getId();
 
     public abstract State getState();
@@ -241,7 +249,7 @@ public abstract class BoshDirectorTask {
 
     }
 
-    static Builder boshTask() {
+    public static Builder boshTask() {
         return new BoshDirectorTask.Builder();
     }
 
