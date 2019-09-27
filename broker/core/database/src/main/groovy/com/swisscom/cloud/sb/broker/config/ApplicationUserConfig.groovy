@@ -17,10 +17,10 @@ package com.swisscom.cloud.sb.broker.config
 
 import groovy.transform.CompileStatic
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
 @CompileStatic
-@Configuration
+@Component
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.security')
 class ApplicationUserConfig {
     List<UserConfig> platformUsers

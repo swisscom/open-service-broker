@@ -16,8 +16,6 @@
 package com.swisscom.cloud.sb.broker.config
 
 import groovy.transform.CompileStatic
-import org.apache.commons.lang.builder.ToStringBuilder
-import org.apache.commons.lang.builder.ToStringStyle
 
 @CompileStatic
 class UserConfig {
@@ -26,8 +24,13 @@ class UserConfig {
     String role
     String platformId
 
+
     @Override
-    String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE)
+    public String toString() {
+        return new StringJoiner(", ", UserConfig.class.getSimpleName() + "[", "]")
+                .add("username='" + username + "'")
+                .add("role='" + role + "'")
+                .add("platformId='" + platformId + "'")
+                .toString();
     }
 }

@@ -19,18 +19,19 @@ import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.model.ApplicationUser
 import com.swisscom.cloud.sb.broker.repository.ApplicationUserRepository
-import groovy.util.logging.Slf4j
+import groovy.transform.CompileStatic
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
+@CompileStatic
 @Component
-@EnableConfigurationProperties
-@Slf4j
 class ApplicationUserInitializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationUserInitializer.class);
 
     private ApplicationUserRepository userRepository
 
@@ -47,6 +48,7 @@ class ApplicationUserInitializer {
 
     @PostConstruct
     void init() throws Exception {
+        LOGGER.info("Synchronizing {}", applicationUserConfig.toString())
         checkForDuplicatedApplicationUserConfigurations()
         synchronizeApplicationUsers()
     }
@@ -57,7 +59,7 @@ class ApplicationUserInitializer {
         }
 
         if (duplicatedUserConfigurations.size() > 0) {
-            throw new RuntimeException("Duplicated application users defined - ${duplicatedUserConfigurations}")
+            throw new IllegalStateException("Duplicated application users defined - ${duplicatedUserConfigurations}")
         }
     }
 
