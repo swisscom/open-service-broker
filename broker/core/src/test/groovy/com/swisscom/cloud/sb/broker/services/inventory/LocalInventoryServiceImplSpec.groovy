@@ -43,7 +43,7 @@ class LocalInventoryServiceImplSpec extends Specification {
         def result = testee.get(guid, "key_test")
 
         then:
-        def ex = thrown(IllegalArgumentException)
+        def ex = thrown(IllegalStateException)
         ex.message == "service instance with id:${guid} not found"
     }
 
