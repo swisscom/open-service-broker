@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.services.inventory
 
-import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
@@ -9,9 +8,9 @@ import groovy.transform.CompileStatic
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Service
 
-import static org.apache.commons.lang.StringUtils.isNotBlank
 import static com.google.common.base.Preconditions.checkArgument
 import static com.google.common.base.Preconditions.checkState
+import static org.apache.commons.lang.StringUtils.isNotBlank
 
 @CompileStatic
 @Service
@@ -23,6 +22,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     public static String ERROR_DETAIL_NOT_FOUND = "no details for key:%s found"
     public static String ERROR_DETAIL_NOT_UNIQUE = "multiple details for key:%s found"
     public static String ERROR_DETAIL_MANDATORY = "details are mandatory"
+    public static String ERROR_DETAIL_BLANK = "detail key may not be blank"
 
     private final ServiceInstanceRepository serviceInstanceRepository
     private final ServiceDetailRepository serviceDetailRepository
@@ -87,6 +87,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     List<Pair<String, String>> set(String serviceInstanceGuid, Pair<String, String> data) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+        checkArgument(isNotBlank(data.first), ERROR_DETAIL_BLANK)
 
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
@@ -120,6 +121,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     List<Pair<String, String>> replace(String serviceInstanceGuid, List<Pair<String, String>> data) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+        checkArgument(data.size() == 0 || data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
 
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
@@ -145,6 +147,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     List<Pair<String, String>> append(String serviceInstanceGuid, List<Pair<String, String>> data) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
+        checkArgument(data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
 
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 

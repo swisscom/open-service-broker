@@ -209,37 +209,6 @@ class LocalInventoryServiceImplSpec extends Specification {
         ex.message == "multiple details for key:key_001 found"
     }
 
-    @Unroll
-    void "should throw exception when trying to get keys with invalid arguments, instance guid '#guid' and key '#key'"() {
-        given:
-        def serviceInstance = new ServiceInstance(
-                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
-                details: [
-                        ServiceDetail.from("key_001", "value_001"),
-                        ServiceDetail.from("key_001", "value_002"),
-                        ServiceDetail.from("key_001", "value_003"),
-                        ServiceDetail.from("key_003", "value_003")
-                ]
-        )
-        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
-
-        when:
-        testee.get(guid, key)
-
-        then:
-        def ex = thrown(IllegalArgumentException)
-        ex.message == message
-
-        where:
-        guid                                   | key       | message
-        null                                   | "key_001" | "service instance guid cannot be null or empty"
-        ""                                     | "key_001" | "service instance guid cannot be null or empty"
-        " "                                    | "key_001" | "service instance guid cannot be null or empty"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
-        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
-    }
-
     void "should get multiple none existing values"() {
         given:
         def guid = UUID.randomUUID().toString()
@@ -502,5 +471,280 @@ class LocalInventoryServiceImplSpec extends Specification {
         noExceptionThrown()
         result != null
         result.size() == 0
+    }
+
+    @Unroll
+    void "should throw exception when trying to get keyValuePairs with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.get(guid, key)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
+    }
+
+    @Unroll
+    void "should throw exception when trying to get keyValuePairs with default with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.get(guid, key, null)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
+    }
+
+    @Unroll
+    void "should throw exception when trying to getAll keyValuePairs with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.getAll(guid, key)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
+    }
+
+    @Unroll
+    void "should throw exception when trying to get All keyValuePairs with invalid arguments, instance guid '#guid'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.get(guid)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | message
+        null                                   | "service instance guid cannot be null or empty"
+        ""                                     | "service instance guid cannot be null or empty"
+        " "                                    | "service instance guid cannot be null or empty"
+    }
+
+    @Unroll
+    void "should throw exception when trying to set keyValuePair with invalid arguments, instance guid '#guid' and data '#data_key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.set(guid, Pair.of(data_key, "value_001"))
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | data_key                            | message
+        null                                   | "key_001"                           | "service instance guid cannot be null or empty"
+        ""                                     | "key_001"                           | "service instance guid cannot be null or empty"
+        " "                                    | "key_001"                           | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                  | "detail key may not be blank"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | " "                                 | "detail key may not be blank"
+    }
+
+    @Unroll
+    void "should throw exception when trying to replace keyValuePair with invalid arguments, instance guid '#guid' and data '#data_key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.replace(guid, [ Pair.of(data_key, "value_001") ])
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | data_key                            | message
+        null                                   | "key_001"                           | "service instance guid cannot be null or empty"
+        ""                                     | "key_001"                           | "service instance guid cannot be null or empty"
+        " "                                    | "key_001"                           | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                  | "detail key may not be blank"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | " "                                 | "detail key may not be blank"
+    }
+
+    @Unroll
+    void "should throw exception when trying to append keyValuePair with invalid arguments, instance guid '#guid' and data '#data_key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.replace(guid, [ Pair.of(data_key, "value_001") ])
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | data_key                            | message
+        null                                   | "key_001"                           | "service instance guid cannot be null or empty"
+        ""                                     | "key_001"                           | "service instance guid cannot be null or empty"
+        " "                                    | "key_001"                           | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                  | "detail key may not be blank"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | " "                                 | "detail key may not be blank"
+    }
+
+    @Unroll
+    void "should throw exception when trying to delete keyValuePairs with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.delete(guid, key)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
+    }
+
+    @Unroll
+    void "should throw exception when trying to replaceByKey keyValuePairs with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+        String[] values = [ "value_1", "value_2" ]
+
+
+        when:
+        testee.replaceByKey(guid, key, values)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
     }
 }
