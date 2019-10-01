@@ -76,6 +76,11 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
+        return getAll(serviceInstanceGuid)
+    }
+
+    @Override
+    List<Pair<String, String>> getAll(String serviceInstanceGuid) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
 
         return getServiceInstance(serviceInstanceGuid).details
@@ -180,7 +185,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    List<Pair<String, String>> replaceByKey(String serviceInstanceGuid, String key, String[] values) {
+    List<Pair<String, String>> createOrReplaceByKey(String serviceInstanceGuid, String key, String[] values) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
         checkArgument(values != null, ERROR_DETAIL_MANDATORY)

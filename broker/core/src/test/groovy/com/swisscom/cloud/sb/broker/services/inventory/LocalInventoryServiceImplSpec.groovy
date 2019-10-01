@@ -392,7 +392,7 @@ class LocalInventoryServiceImplSpec extends Specification {
 
         when:
         String[] data = ["value_002", "value_004"]
-        testee.replaceByKey(guid, "key_001", data)
+        testee.createOrReplaceByKey(guid, "key_001", data)
         def result = testee.get(guid)
 
         then:
@@ -419,7 +419,7 @@ class LocalInventoryServiceImplSpec extends Specification {
 
         when:
         String[] data = ["value_002", "value_004"]
-        testee.replaceByKey(guid, "key_001", data)
+        testee.createOrReplaceByKey(guid, "key_001", data)
         def result = testee.get(guid)
 
         then:
@@ -732,7 +732,7 @@ class LocalInventoryServiceImplSpec extends Specification {
 
 
         when:
-        testee.replaceByKey(guid, key, values)
+        testee.createOrReplaceByKey(guid, key, values)
 
         then:
         def ex = thrown(IllegalArgumentException)
