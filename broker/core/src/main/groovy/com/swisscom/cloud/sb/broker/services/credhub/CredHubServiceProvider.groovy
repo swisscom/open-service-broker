@@ -42,20 +42,18 @@ import org.springframework.credhub.support.permissions.Permission
 import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
-import static com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceDetailKey.*
 
 @Component
 @CompileStatic
 @Slf4j
-@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider, CloudFoundryContextRestrictedOnly {
 
-    private final CredHubServiceImpl credHubServiceImpl
+    private final OAuth2CredHubService credHubServiceImpl
 
     private final ServiceBindingRepository serviceBindingRepository
 
     @Autowired
-    CredHubServiceProvider(CredHubServiceImpl credHubServiceImpl, ServiceBindingRepository serviceBindingRepository){
+    CredHubServiceProvider(OAuth2CredHubService credHubServiceImpl, ServiceBindingRepository serviceBindingRepository){
         this.credHubServiceImpl = credHubServiceImpl
         this.serviceBindingRepository = serviceBindingRepository
     }
