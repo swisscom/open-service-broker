@@ -42,6 +42,14 @@ class LocalInventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    boolean has(String serviceInstanceGuid, String key) {
+        checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
+        checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
+
+        return getServiceInstance(serviceInstanceGuid).details.findAll { d -> d.key.equalsIgnoreCase(key) }.size() > 0
+    }
+
+    @Override
     Pair<String, String> get(String serviceInstanceGuid, String key) {
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)

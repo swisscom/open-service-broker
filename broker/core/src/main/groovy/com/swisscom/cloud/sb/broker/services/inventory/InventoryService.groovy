@@ -5,6 +5,11 @@ import org.springframework.data.util.Pair
 
 interface InventoryService {
     /**
+     * Checks if at least one {@link Pair} exists with the given key for a given {@link ServiceInstance}.
+     */
+    boolean has(String serviceInstanceGuid, String key);
+
+    /**
      * @return First {@link Pair} with given key; If no {@link Pair} is found an {@link IllegalStateException} is thrown.
      */
     Pair<String, String> get(String serviceInstanceGuid, String key)

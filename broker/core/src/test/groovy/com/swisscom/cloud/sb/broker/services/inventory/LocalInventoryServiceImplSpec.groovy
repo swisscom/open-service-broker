@@ -23,6 +23,66 @@ class LocalInventoryServiceImplSpec extends Specification {
         testee = new LocalInventoryServiceImpl(serviceInstanceRepository, serviceDetailRepository)
     }
 
+    @Unroll
+    void "should return '#flag' for has '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid(serviceInstance.guid) >> serviceInstance
+
+        when:
+        def result = testee.has(serviceInstance.guid, key)
+
+        then:
+        noExceptionThrown()
+        result == flag
+
+        where:
+        flag                                   | key
+        true                                   | "key_001"
+        true                                   | "key_003"
+        false                                  | "key_004"
+    }
+
+
+    @Unroll
+    void "should throw exception when trying to has keyValuePairs with invalid arguments, instance guid '#guid' and key '#key'"() {
+        given:
+        def serviceInstance = new ServiceInstance(
+                guid: "d6445c23-275f-48b0-ac80-d0a04b3eae46",
+                details: [
+                        ServiceDetail.from("key_001", "value_001"),
+                        ServiceDetail.from("key_001", "value_002"),
+                        ServiceDetail.from("key_001", "value_003"),
+                        ServiceDetail.from("key_003", "value_003")
+                ]
+        )
+        serviceInstanceRepository.findByGuid("d6445c23-275f-48b0-ac80-d0a04b3eae46") >> serviceInstance
+
+        when:
+        testee.has(guid, key)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        guid                                   | key       | message
+        null                                   | "key_001" | "service instance guid cannot be null or empty"
+        ""                                     | "key_001" | "service instance guid cannot be null or empty"
+        " "                                    | "key_001" | "service instance guid cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null      | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""        | "key cannot be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "  "      | "key cannot be null or empty"
+    }
+
     void "should return correct instance from mock"() {
         given:
         def instance = new ServiceInstance(guid: "00")
