@@ -22,7 +22,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.servicedefinition.converter.PlanDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ParameterDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.PlanDto
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
@@ -40,9 +39,6 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
 
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
-
-    @Autowired
-    private PlanDtoConverter planDtoConverter
 
     @Autowired
     private ServiceDefinitionInitializer serviceDefinitionInitializer
@@ -65,7 +61,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
             serviceDtoList << new ServiceDto(guid: it.guid, name: it.name, internalName: it.internalName,
                     displayIndex: it.displayIndex, asyncRequired: it.asyncRequired, id: it.id,
                     description: it.description, bindable: it.bindable, tags: new ArrayList<>(it.tags),
-                    plans: planDtoConverter.convertAll(it.plans), metadata: metaData)
+                    plans: it.plans, metadata: metaData)
         }
 
         serviceDefinitionConfig.serviceDefinitions = serviceDtoList

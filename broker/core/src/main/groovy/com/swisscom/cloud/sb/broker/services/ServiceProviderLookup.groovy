@@ -19,7 +19,8 @@ import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
@@ -27,8 +28,8 @@ import org.springframework.stereotype.Component
 import java.beans.Introspector
 
 @Component
-@Slf4j
-class ServiceProviderLookup implements ServiceProviderService{
+class ServiceProviderLookup implements ServiceProviderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceProviderLookup.class)
     public static final String POSTFIX_SERVICE_PROVIDER = "ServiceProvider"
 
     @Autowired
@@ -37,7 +38,7 @@ class ServiceProviderLookup implements ServiceProviderService{
     @Override
     ServiceProvider findServiceProvider(String name) {
 
-        log.info("Lookup for bean:${name}")
+        LOGGER.info("Lookup for bean:${name}")
 
         return appContext.getBean(name)
     }
@@ -46,17 +47,17 @@ class ServiceProviderLookup implements ServiceProviderService{
     ServiceProvider findServiceProvider(Plan plan) {
         Preconditions.checkNotNull(plan, "A valid plan is needed for finding the corresponding ServiceProvider")
 
-        if (plan?.serviceProviderClass) {
-            log.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderClass}")
+        if (plan.serviceProviderClass) {
+            LOGGER.info("Service provider lookup will be based on PLAN serviceProviderName:${plan.serviceProviderClass}")
             return findServiceProvider(plan.serviceProviderClass)
         }
 
-        if (plan?.internalName) {
-            log.info("Service provider lookup will be based on PLAN internalName:${plan.internalName}")
+        if (plan.internalName) {
+            LOGGER.info("Service provider lookup will be based on PLAN internalName:${plan.internalName}")
             return findServiceProvider(plan.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
-        if (plan?.service?.serviceProviderClass){
+        if (plan.service?.serviceProviderClass) {
             return findServiceProvider(plan.service.serviceProviderClass)
         }
 
@@ -64,14 +65,14 @@ class ServiceProviderLookup implements ServiceProviderService{
     }
 
     @Override
-    ServiceProvider findServiceProvider(CFService service, Plan plan){
+    ServiceProvider findServiceProvider(CFService service, Plan plan) {
         Preconditions.checkNotNull(service, "A valid service is needed for finding the corresponding ServiceProvider")
 
-        if(service?.serviceProviderClass){
+        if (service.serviceProviderClass) {
             return findServiceProvider(service.serviceProviderClass)
         }
 
-        if(service?.internalName){
+        if (service.internalName) {
             return findServiceProvider(service.internalName + POSTFIX_SERVICE_PROVIDER)
         }
 
@@ -79,7 +80,8 @@ class ServiceProviderLookup implements ServiceProviderService{
     }
 
     static String findInternalName(Class clazz) {
-        def partialClassName = clazz.getSimpleName().substring(0, clazz.getSimpleName().lastIndexOf(POSTFIX_SERVICE_PROVIDER))
+        def partialClassName = clazz.getSimpleName().substring(0, clazz.getSimpleName().lastIndexOf(
+                POSTFIX_SERVICE_PROVIDER))
         return Introspector.decapitalize(partialClassName)
     }
 }

@@ -19,17 +19,19 @@ import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import groovy.util.logging.Slf4j
+import groovy.transform.CompileStatic
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
 @Component
-@EnableConfigurationProperties
-@Slf4j
+@CompileStatic
 class ServiceDefinitionInitializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDefinitionInitializer.class)
+
     private CFServiceRepository cfServiceRepository
     private PlanRepository planRepository
     private PlanMetadataRepository planMetadataRepository
@@ -46,8 +48,7 @@ class ServiceDefinitionInitializer {
             ParameterRepository parameterRepository,
             ServiceInstanceRepository serviceInstanceRepository,
             ServiceDefinitionConfig serviceDefinitionConfig,
-            ServiceDefinitionProcessor serviceDefinitionProcessor)
-    {
+            ServiceDefinitionProcessor serviceDefinitionProcessor) {
         this.cfServiceRepository = cfServiceRepository
         this.planRepository = planRepository
         this.planMetadataRepository = planMetadataRepository
@@ -58,68 +59,69 @@ class ServiceDefinitionInitializer {
     }
 
     @PostConstruct
-    void init() {
-        List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions ?: new ArrayList<ServiceDto>()
+    private void init() {
+        List<ServiceDto> cfServiceListFromConfig = serviceDefinitionConfig.serviceDefinitions ?:
+                                                   new ArrayList<ServiceDto>()
         Map<String, CFService> cfServiceListFromDB = getServicesFromDB()
 
         synchroniseServiceDefinitions(cfServiceListFromConfig, cfServiceListFromDB)
     }
 
-    HashMap<String, CFService> getServicesFromDB(){
+    private HashMap<String, CFService> getServicesFromDB() {
         HashMap<String, CFService> cfServiceMap = new HashMap<String, CFService>()
         List<CFService> cfServiceList = cfServiceRepository.findAll()
-        cfServiceList.each { cfService ->
+        cfServiceList.each {cfService ->
             cfServiceMap.put(cfService.guid, cfService)
         }
         return cfServiceMap
     }
 
-    void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
-        log.info("Start ServiceDefinition Synchronization (Is:${toBeDeleted.size()},Should:${services.size()})")
-        services.each{ service ->
-            log.info("Add or Update (name:${service.name}).")
+    private void synchroniseServiceDefinitions(List<ServiceDto> services, HashMap<String, CFService> toBeDeleted) {
+        LOGGER.info("Start ServiceDefinition Synchronization (Is:${toBeDeleted.size()},Should:${services.size()})")
+        services.each {service ->
+            LOGGER.info("Add or Update (name:${service.name}).")
             addOrUpdateServiceDefinitions(service)
 
-            if(toBeDeleted.containsKey(service.guid)) {
+            if (toBeDeleted.containsKey(service.guid)) {
                 toBeDeleted.remove(service.guid)
             }
         }
 
-        toBeDeleted.each{ key, service ->
-            log.info("Delete/Disable Service (name:${service.name})")
+        toBeDeleted.each {key, service ->
+            LOGGER.info("Delete/Disable Service (name:${service.name})")
             def canDeleteService = true
 
-            service.plans.toList().each{ plan ->
-                log.info("+ Delete/Disable Plan (serviceName:${service.name},name:${plan.name},id:${plan.id})")
+            service.plans.toList().each {Plan plan ->
+                LOGGER.info("+ Delete/Disable Plan (serviceName:${service.name},name:${plan.name},id:${plan.id})")
                 canDeleteService = canDeleteService & tryDeletePlan(plan)
             }
 
             def currentService = cfServiceRepository.getOne(service.id)
-            if(canDeleteService) {
-                log.info("DELETE Service (name:${currentService.name})")
+            if (canDeleteService) {
+                LOGGER.info("DELETE Service (name:${currentService.name})")
                 deleteServiceHibernateCacheSavely(currentService)
             } else {
-                log.info("DISABLE Service (name:${currentService.name})")
+                LOGGER.info("DISABLE Service (name:${currentService.name})")
                 currentService.active = false
                 cfServiceRepository.saveAndFlush(currentService)
             }
         }
     }
 
-    void addOrUpdateServiceDefinitions(ServiceDto service) {
+    private void addOrUpdateServiceDefinitions(ServiceDto service) {
         serviceDefinitionProcessor.createOrUpdateServiceDefinitionFromYaml(service)
     }
 
-    boolean tryDeletePlan(Plan plan) {
-        if(serviceInstanceRepository.findByPlan(plan)) {
-            if(plan.active) {
-                log.info("+ DISABLE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
+    private boolean tryDeletePlan(Plan plan) {
+        if (serviceInstanceRepository.findByPlan(plan)) {
+            if (plan.active) {
+                LOGGER.info("+ DISABLE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
                 plan.active = false
                 planRepository.saveAndFlush(plan)
             }
             return false
         } else {
-            log.info("+ DELETE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
+            LOGGER.info("+ DELETE Plan (serviceName:${plan.service.name},name:${plan.name},id:${plan.id})")
             planRepository.delete(plan)
             planRepository.flush()
 
@@ -131,7 +133,7 @@ class ServiceDefinitionInitializer {
         }
     }
 
-    void deleteServiceHibernateCacheSavely(CFService service) {
+    private void deleteServiceHibernateCacheSavely(CFService service) {
         cfServiceRepository.delete(cfServiceRepository.findByGuid(service.guid))
         cfServiceRepository.flush()
     }

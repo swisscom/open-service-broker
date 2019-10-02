@@ -15,17 +15,21 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.util.Resource
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
 import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
+
+import static com.swisscom.cloud.sb.broker.util.Resource.readTestFileContent
 
 class TestHelperServiceSpec extends BaseFunctionalSpec {
 
@@ -50,11 +54,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
     def "set all services and plans to active"() {
         given:
         serviceBrokerClientExtended = createServiceBrokerClient()
+        ServiceDto serviceDto = new ObjectMapper().readValue(
+                readTestFileContent("/service-data/serviceDefinitionWithInstance.json"), ServiceDto)
         def serviceId = "serviceDefinitionWithInstance"
         def planId = "planForServiceDefinitionFromServiceManifestWithInstance"
 
         and:
-        serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/serviceDefinitionWithInstance.json"))
+        serviceDefinitionInitializer.addOrUpdateServiceDefinitions(serviceDto)
         assert (cfServiceRepository.findByGuid(serviceId))
         assert (planRepository.findByGuid(planId))
 
@@ -95,11 +101,13 @@ class TestHelperServiceSpec extends BaseFunctionalSpec {
     def "set selected services and plans to active"() {
         given:
         serviceBrokerClientExtended = createServiceBrokerClient()
+        ServiceDto serviceDto = new ObjectMapper().readValue(
+                readTestFileContent("/service-data/serviceDefinitionWithInstance.json"), ServiceDto)
         def serviceId = "serviceDefinitionWithInstance"
         def planId = "planForServiceDefinitionFromServiceManifestWithInstance"
 
         and:
-        serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/serviceDefinitionWithInstance.json"))
+        serviceDefinitionInitializer.addOrUpdateServiceDefinitions(serviceDto)
         assert (cfServiceRepository.findByGuid(serviceId))
         assert (planRepository.findByGuid(planId))
 

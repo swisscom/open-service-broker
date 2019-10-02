@@ -122,17 +122,6 @@ class ServiceBrokerClientExtended extends ServiceBrokerClient implements IServic
     }
 
     @Override
-    ResponseEntity<Void> createOrUpdateServiceDefinition(String definition){
-        return extendedExchange('/custom/admin/service-definition',HttpMethod.POST,
-                createExtendedHttpEntity(definition),Void.class)
-    }
-
-    @Override
-    ResponseEntity<Void> deleteServiceDefinition(String id){
-        return extendedExchange('/custom/admin/service-definition/{id}',HttpMethod.DELETE,Void.class,id)
-    }
-
-    @Override
     ResponseEntity<BackupDto> createBackup(String serviceInstanceId){
         return extendedExchange('/custom/service_instances/{service_instance}/backups', HttpMethod.POST, BackupDto.class, serviceInstanceId)
     }
