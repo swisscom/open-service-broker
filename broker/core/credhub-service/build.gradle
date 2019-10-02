@@ -21,6 +21,8 @@ dependencies {
     annotationProcessor "org.immutables:value:2.7.5"
     compile project(':model')
 
+    compile libs.commons_lang
+    compile libs.guava
     compile libs.spring_credhub_starter
 
     testCompile libs.groovy

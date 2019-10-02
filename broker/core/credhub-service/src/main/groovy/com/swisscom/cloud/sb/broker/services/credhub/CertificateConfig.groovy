@@ -20,7 +20,7 @@ import groovy.transform.CompileStatic
 import org.springframework.credhub.support.KeyLength
 
 @CompileStatic
-trait CertificateConfig implements Config {
+class CertificateConfig implements Config {
     KeyLength keyLength
     String commonName
     String organization
