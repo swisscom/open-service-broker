@@ -57,4 +57,3 @@ class PlanDto extends CFPlanDto {
         this.parameters = plan.parameters.collect {Parameter parameter -> new ParameterDto(parameter)}
     }
 }
-
