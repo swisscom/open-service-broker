@@ -1,0 +1,31 @@
+{
+  "id" : "420e6a9a-b599-4ebd-87ed-da229ad6bbe3",
+  "name" : "api_v1_data_72e4b5ba-9097-4e91-a51c-f8327ad365c4",
+  "request" : {
+    "url" : "/api/v1/data/72e4b5ba-9097-4e91-a51c-f8327ad365c4",
+    "method" : "GET",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImxlZ2FjeS10b2tlbi1rZXkiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiJhZDExMGJkNWI1ZTI0NDI3ODcyYjAyNGE2MDY0MjZkYiIsInN1YiI6ImNyZWRodWJfY2xpZW50IiwiYXV0aG9yaXRpZXMiOlsiY3JlZGh1Yi53cml0ZSIsImNyZWRodWIucmVhZCJdLCJzY29wZSI6WyJjcmVkaHViLndyaXRlIiwiY3JlZGh1Yi5yZWFkIl0sImNsaWVudF9pZCI6ImNyZWRodWJfY2xpZW50IiwiY2lkIjoiY3JlZGh1Yl9jbGllbnQiLCJhenAiOiJjcmVkaHViX2NsaWVudCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJyZXZfc2lnIjoiMzI0NWQ4NGMiLCJpYXQiOjE1NzAwMTgyMDIsImV4cCI6MTU3MDEwNDYwMiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3VhYS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJjcmVkaHViIiwiY3JlZGh1Yl9jbGllbnQiXX0.TcDDKYWbgEAkMq0HI6Op1J_YEAvtCVOYX-SArYXx8MVe3YBsWGn6Uv0KSmAUOAZDTnd85dwcRrFuTxuA_XsySF7ahKkSqKrcEd_p5-yXM_qwy8CEQsFWxIi-uJdqmXCQIRzE105aokSRs8BoAju02rjwGuOyp0DFlr9m8l3x-qgct7EWT9pVqnVp-Yct9ob2LMF9q_th68odkumPPtetlmAHj1seNgFf6WEPb20UghLFXaNDOTQVBDq8ALh_3dV6hTnO6OF5lkJdQsmfMIJA-2utMqpjWpq5yM1t9nvaOx1RbYI4YUb15MXW8_6r-eRYQpoJv49YwUTPJsIne1pslg"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"type\":\"json\",\"version_created_at\":\"2019-10-02T12:10:02Z\",\"id\":\"72e4b5ba-9097-4e91-a51c-f8327ad365c4\",\"name\":\"/1b4acee2-e509-11e9-81b4-2a2ae2dbcce4\",\"value\":{\"1b4ad018-e509-11e9-81b4-2a2ae2dbcce4\":\"1b4ad14e-e509-11e9-81b4-2a2ae2dbcce4\"}}",
+    "headers" : {
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Content-Type" : "application/json;charset=UTF-8",
+      "Date" : "Wed, 02 Oct 2019 12:10:02 GMT"
+    }
+  },
+  "uuid" : "420e6a9a-b599-4ebd-87ed-da229ad6bbe3",
+  "persistent" : true,
+  "insertionIndex" : 12
+}
