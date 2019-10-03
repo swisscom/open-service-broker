@@ -15,11 +15,13 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.metrics.LifecycleTimeMetricsService
 import com.swisscom.cloud.sb.broker.metrics.ServiceBrokerMetricsConfig
 import com.swisscom.cloud.sb.broker.metrics.ServiceInstanceMetricsService
-import com.swisscom.cloud.sb.broker.util.Resource
+import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.client.ServiceBrokerClientExtended
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
@@ -28,10 +30,12 @@ import org.influxdb.impl.InfluxDBResultMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest
 import org.springframework.web.client.RestTemplate
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
+import static com.swisscom.cloud.sb.broker.util.Resource.readTestFileContent
 import static junit.framework.Assert.assertEquals
 
 @IgnoreIf({ !Boolean.valueOf(System.properties['com.swisscom.cloud.sb.broker.run3rdPartyDependentTests']) })
@@ -49,6 +53,9 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
     ServiceBrokerMetricsConfig serviceBrokerMetricsConfig
 
+    @Autowired
+    ServiceDefinitionInitializer serviceDefinitionInitializer
+
     def setup() {
         serviceBrokerClientExtended = new ServiceBrokerClientExtended(
                 new RestTemplate(),
@@ -58,7 +65,8 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
                 serviceLifeCycler.cfExtUser.username,
                 serviceLifeCycler.cfExtUser.password)
 
-        serviceBrokerClientExtended.createOrUpdateServiceDefinition(Resource.readTestFileContent("/service-data/metricsService.json"))
+        ServiceDto serviceDto = new ObjectMapper().readValue(readTestFileContent("/service-data/metricsService.json"), ServiceDto)
+        serviceDefinitionInitializer.addOrUpdateServiceDefinitions(serviceDto)
 
         if (serviceBrokerMetricsConfig.userName && serviceBrokerMetricsConfig.password) {
             influxDB = InfluxDBFactory.connect(
@@ -133,7 +141,7 @@ class ServiceBrokerMetricsServiceFunctionalSpec extends BaseFunctionalSpec {
 
         and:
         def deletionTime = System.currentTimeMillis()
-        serviceBrokerClientExtended.deleteServiceInstance(org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest.
+        serviceBrokerClientExtended.deleteServiceInstance(DeleteServiceInstanceRequest.
                 builder().
                 serviceDefinitionId(SERVICE_GUID).
                 planId(PLAN_GUID).

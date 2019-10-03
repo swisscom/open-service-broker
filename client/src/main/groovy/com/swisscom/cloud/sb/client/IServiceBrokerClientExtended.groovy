@@ -36,8 +36,6 @@ interface IServiceBrokerClientExtended extends IServiceBrokerClient {
     ResponseEntity<ServiceUsage> getUsage(String serviceInstanceId)
     ResponseEntity<Set<ServiceUsage>> getExtendedUsage(String serviceInstanceId)
     ResponseEntity<ServiceHealth> getHealth(String serviceInstanceId)
-    ResponseEntity<Void> createOrUpdateServiceDefinition(String definition)
-    ResponseEntity<Void> deleteServiceDefinition(String definition)
     ResponseEntity<BackupDto> createBackup(String serviceInstanceId)
     ResponseEntity<String> deleteBackup(String serviceInstanceId, String backupId)
     ResponseEntity<BackupDto> getBackup(String serviceInstanceId, String backupId)

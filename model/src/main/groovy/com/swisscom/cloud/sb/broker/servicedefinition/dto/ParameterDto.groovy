@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition.dto
 
+import com.swisscom.cloud.sb.broker.model.Parameter
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -29,5 +30,12 @@ class ParameterDto implements Serializable {
                 .add("'" + name + "' = '" + value + "'")
                 .add(template != null ? "template='" + template + "'" : "")
                 .toString();
+    }
+
+    ParameterDto() {}
+    ParameterDto(Parameter parameter) {
+        this.template = parameter.template
+        this.name = parameter.name
+        this.value = parameter.value
     }
 }

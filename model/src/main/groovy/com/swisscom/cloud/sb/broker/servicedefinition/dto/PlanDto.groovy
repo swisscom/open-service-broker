@@ -16,6 +16,10 @@
 package com.swisscom.cloud.sb.broker.servicedefinition.dto
 
 import com.swisscom.cloud.sb.broker.cfapi.dto.CFPlanDto
+import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
+import com.swisscom.cloud.sb.broker.model.Parameter
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.PlanMetadata
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -30,5 +34,26 @@ class PlanDto extends CFPlanDto {
     int maxBackups
     List<ParameterDto> parameters
     List<ParameterDto> containerParams
-}
 
+    PlanDto() {
+        super()
+    }
+
+    PlanDto(Plan plan) {
+        super()
+        this.guid = plan.guid
+        this.name = plan.name
+        this.active = plan.active
+        this.description = plan.description
+        this.free = plan.free
+        this.metadata = plan.metadata.collectEntries {PlanMetadata meta -> [(meta.key): meta.value]}
+        this.schemas = new SchemasDto(plan)
+        this.internalName = plan.internalName
+        this.displayIndex = plan.displayIndex
+        this.asyncRequired = plan.asyncRequired
+        this.templateId = plan.templateUniqueIdentifier
+        this.templateVersion = plan.templateVersion
+        this.maxBackups = plan.maxBackups
+        this.parameters = plan.parameters.collect {Parameter parameter -> new ParameterDto(parameter)}
+    }
+}

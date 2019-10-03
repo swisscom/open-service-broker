@@ -16,34 +16,29 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.base.Preconditions
-import com.google.common.base.Strings
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.repository.*
-import com.swisscom.cloud.sb.broker.servicedefinition.converter.ServiceDtoConverter
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.JsonSchemaHelper
-import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 @Transactional
-@Slf4j
 class ServiceDefinitionProcessor {
-    @Autowired
-    ServiceProviderLookup serviceProviderLookup
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDefinitionProcessor.class)
 
     @Autowired
-    ServiceDtoConverter serviceDtoConverter
+    ServiceProviderLookup serviceProviderLookup
 
     @Autowired
     private CFServiceRepository cfServiceRepository
@@ -69,61 +64,12 @@ class ServiceDefinitionProcessor {
     @Autowired
     private List<PlanBasedMetricsService> planBasedMetricServices
 
-    @Deprecated
-    def createOrUpdateServiceDefinition(String content) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(content), "Service Definition can't be empty")
-        // Preconditions.checkArgument() // TODO: check content type is application/json
-
-        def serviceJson
-        try {
-            serviceJson = new JsonSlurper().parseText(content)
-        } catch (Exception e) {
-            ErrorCode.INVALID_JSON.throwNew()
-        }
-
-        CFService service = processServiceBasicDefiniton(serviceJson)
-        processServiceTags(service, serviceJson)
-        processServiceMetadata(service, serviceJson)
-        processServicePermissions(service, serviceJson)
-        processPlans(service, serviceJson)
-    }
-
     def createOrUpdateServiceDefinitionFromYaml(ServiceDto serviceDto) {
         CFService service = processServiceBasicDefiniton(serviceDto)
         processServiceTags(service, serviceDto)
         processServiceMetadata(service, serviceDto)
         processServicePermissions(service, serviceDto)
         processPlans(service, serviceDto)
-    }
-
-    @Deprecated
-    def deleteServiceDefinition(String id) {
-        CFService service = cfServiceRepository.findByGuid(id)
-        if (!service) {
-            ErrorCode.SERVICE_NOT_FOUND.throwNew()
-        }
-        def plans = service.plans
-
-        def serviceInstances = serviceInstanceRepository.findByPlanIdIn(plans.collect { it.id })
-        if (serviceInstances && serviceInstances.size() > 0) {
-            ErrorCode.SERVICE_IN_USE.throwNew()
-        }
-        plans.each { plan -> planRepository.delete(plan) }
-        planRepository.flush()
-        service.plans = null
-        cfServiceRepository.delete(service)
-        cfServiceRepository.flush()
-    }
-
-    @Deprecated
-    ServiceDto getServiceDefinition(String id) {
-        CFService service = cfServiceRepository.findByGuid(id)
-        if (!service) {
-            ErrorCode.SERVICE_NOT_FOUND.throwNew()
-        }
-        def serviceDto = serviceDtoConverter.convert(service)
-        serviceDto.plans = serviceDto.plans.sort { it.displayIndex }
-        return serviceDto
     }
 
     private CFService processServiceBasicDefiniton(serviceJson) {
@@ -264,7 +210,7 @@ class ServiceDefinitionProcessor {
         }
 
         if (!isPlanInUse(plan)) {
-            log.warn("Plan:${plan.guid} will be removed(there are no service instances with this plan.")
+            LOGGER.warn("Plan:${plan.guid} will be removed(there are no service instances with this plan.")
             service.plans.remove(plan)
             cfServiceRepository.saveAndFlush(service)
             planRepository.delete(plan)
@@ -274,7 +220,7 @@ class ServiceDefinitionProcessor {
         }
     }
 
-    protected boolean isPlanIncludedInJson(serviceJson, Plan plan) {
+    private static boolean isPlanIncludedInJson(serviceJson, Plan plan) {
         return serviceJson.plans.find { plan.guid == it.guid }
     }
 
@@ -330,7 +276,7 @@ class ServiceDefinitionProcessor {
         if (json) {
             def validationMessages = JsonSchemaHelper.validateJson(json)
             if (!validationMessages.isEmpty()) {
-                log.error("Invalid schema for ${schemaName}: " + JsonHelper.toJsonString(validationMessages))
+                LOGGER.error("Invalid schema for ${schemaName}: " + JsonHelper.toJsonString(validationMessages))
                 ErrorCode.INVALID_PLAN_SCHEMAS.throwNew()
             }
         }
@@ -392,7 +338,7 @@ class ServiceDefinitionProcessor {
         planRepository.saveAndFlush(plan)
     }
 
-    def processPlanMetadata(Plan plan, planJson) {
+    private void processPlanMetadata(Plan plan, planJson) {
         removeExistingPlanMetadata(plan)
         addPlanMetadataFromJson(planJson, plan)
     }
@@ -421,7 +367,7 @@ class ServiceDefinitionProcessor {
     }
 
 
-    static HashSet copyOf(collection2copy) {
+    private static HashSet copyOf(collection2copy) {
         new HashSet<>(collection2copy)
     }
 }

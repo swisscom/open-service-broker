@@ -1,16 +1,20 @@
 package com.swisscom.cloud.sb.broker.functional
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.model.ServiceContextDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.util.Resource
+import com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionInitializer
+import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
 import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.Context
 import spock.lang.Shared
+
+import static com.swisscom.cloud.sb.broker.util.Resource.readTestFileContent
 
 class CustomContext extends Context {
 
@@ -26,6 +30,8 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
     PlanRepository planRepository
     @Autowired
     ServiceDetailRepository serviceDetailRepository
+    @Autowired
+    ServiceDefinitionInitializer serviceDefinitionInitializer
 
     @Shared
     boolean serviceDefinitionsSetUp = false
@@ -65,10 +71,10 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
     def setup() {
         if (!serviceDefinitionsSetUp) {
-            serviceBrokerClient.createOrUpdateServiceDefinition(
-                    Resource.readTestFileContent("/service-data/serviceDefinition_updateTest_updateable.json"))
-            serviceBrokerClient.createOrUpdateServiceDefinition(
-                    Resource.readTestFileContent("/service-data/serviceDefinition_updateTest_notUpdateable.json"))
+            ServiceDto updateableServiceDto = new ObjectMapper().readValue(readTestFileContent("/service-data/serviceDefinition_updateTest_updateable.json"), ServiceDto)
+            ServiceDto notUpdateableServiceDto = new ObjectMapper().readValue(readTestFileContent("/service-data/serviceDefinition_updateTest_notUpdateable.json"), ServiceDto)
+            serviceDefinitionInitializer.addOrUpdateServiceDefinitions(updateableServiceDto)
+            serviceDefinitionInitializer.addOrUpdateServiceDefinitions(notUpdateableServiceDto)
             serviceDefinitionsSetUp = true
         }
 

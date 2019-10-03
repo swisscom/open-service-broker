@@ -33,8 +33,6 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
     private final String TEST_GUID3 = "TEST_GUID3"
     private final String PLAN_GUID = "PLAN_GUID"
 
-
-
     private ServiceDefinitionConfig serviceDefinitionConfig
     private ServiceDefinitionInitializer serviceDefinitionInitializer
     private CFServiceRepository cfServiceRepository
@@ -71,7 +69,10 @@ class ServiceDefinitionInitializerUnitSpec extends Specification {
     }
 
     def "Adding service definition from config"() {
-        given:
+        given: "findAll() returns empty list if no entries in table"
+        cfServiceRepository.findAll() >> new ArrayList<CFService>()
+
+        and:
         serviceDefinitionConfig.serviceDefinitions << new ServiceDto(name: TEST_GUID2)
 
         when:
