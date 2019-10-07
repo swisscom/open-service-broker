@@ -4,4 +4,5 @@ dependencies {
     compile libs.spring_boot_starter_security
     compile libs.micrometer_registry_influx
     compile project(':model')
+    compile project(':broker:core:utils')
 }

@@ -23,6 +23,7 @@ dependencies {
     compile project(':client')
     compile project(':broker:core:bosh-service')
     compile project(':broker:core:database')
+    compile project(':broker:core:utils')
 
     compile libs.gpars
 
@@ -47,8 +48,7 @@ dependencies {
     compile libs.springfox_swagger2
     compile libs.springfox_swagger_ui
     compile libs.swagger_parser
-    compile libs.json_schema_validator
-    
+
     compile libs.immutables
 
     compile libs.slf4j

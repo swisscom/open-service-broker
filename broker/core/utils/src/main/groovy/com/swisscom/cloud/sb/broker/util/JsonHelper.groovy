@@ -17,7 +17,7 @@ package com.swisscom.cloud.sb.broker.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
-abstract class JsonHelper {
+final class JsonHelper {
     static final ObjectMapper objectMapper = new ObjectMapper()
 
     static Object parse(String json, Class cls) {

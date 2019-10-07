@@ -17,8 +17,6 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.ParameterRepository
 import com.swisscom.cloud.sb.broker.repository.PlanMetadataRepository

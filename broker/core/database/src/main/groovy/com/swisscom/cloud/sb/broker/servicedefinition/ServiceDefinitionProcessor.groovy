@@ -16,14 +16,12 @@
 package com.swisscom.cloud.sb.broker.servicedefinition
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
-import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.JsonSchemaHelper
 import org.slf4j.Logger
@@ -38,11 +36,7 @@ class ServiceDefinitionProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceDefinitionProcessor.class)
 
     @Autowired
-    ServiceProviderLookup serviceProviderLookup
-
-    @Autowired
     private CFServiceRepository cfServiceRepository
-
     @Autowired
     private PlanRepository planRepository
     @Autowired
@@ -160,8 +154,11 @@ class ServiceDefinitionProcessor {
             k, v ->
                 def value = demapify(v)
                 // Do not use ObjectMapper for String values because it will add quotes
-                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(value)
-                def serviceMetadata = new CFServiceMetadata(key: k, value: serializedObject, type: value.getClass().name)
+                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(
+                        value)
+                def serviceMetadata = new CFServiceMetadata(key: k,
+                                                            value: serializedObject,
+                                                            type: value.getClass().name)
                 cfServiceMetaDataRepository.saveAndFlush(serviceMetadata)
                 service.metadata.add(serviceMetadata)
                 cfServiceRepository.saveAndFlush(service)
@@ -221,7 +218,7 @@ class ServiceDefinitionProcessor {
     }
 
     private static boolean isPlanIncludedInJson(serviceJson, Plan plan) {
-        return serviceJson.plans.find { plan.guid == it.guid }
+        return serviceJson.plans.find {plan.guid == it.guid}
     }
 
 
@@ -258,16 +255,21 @@ class ServiceDefinitionProcessor {
         if (planJson.schemas != null) {
             SchemasDto schemaDto = om.readValue(om.writeValueAsString(planJson.schemas), SchemasDto.class)
 
-            validateJsonSchema(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema, 'ServiceInstanceCreate')
-            validateJsonSchema(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema, 'ServiceInstanceUpdate')
-            validateJsonSchema(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema, 'ServiceBindingCreate')
+            validateJsonSchema(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema,
+                               'ServiceInstanceCreate')
+            validateJsonSchema(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema,
+                               'ServiceInstanceUpdate')
+            validateJsonSchema(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema,
+                               'ServiceBindingCreate')
 
-            plan.serviceInstanceCreateSchema = JsonHelper.toJsonString(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema)
-            plan.serviceInstanceUpdateSchema = JsonHelper.toJsonString(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema)
-            plan.serviceBindingCreateSchema = JsonHelper.toJsonString(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema)
+            plan.serviceInstanceCreateSchema =  JsonHelper.
+                    toJsonString(schemaDto.serviceInstanceSchema?.createMethodSchema?.configParametersSchema)
+            plan.serviceInstanceUpdateSchema = JsonHelper.
+                    toJsonString(schemaDto.serviceInstanceSchema?.updateMethodSchema?.configParametersSchema)
+            plan.serviceBindingCreateSchema = JsonHelper.
+                    toJsonString(schemaDto.serviceBindingSchema?.createMethodSchema?.configParametersSchema)
         }
 
-        checkBackupSanity(service, plan)
         return planRepository.saveAndFlush(plan)
     }
 
@@ -279,16 +281,6 @@ class ServiceDefinitionProcessor {
                 LOGGER.error("Invalid schema for ${schemaName}: " + JsonHelper.toJsonString(validationMessages))
                 ErrorCode.INVALID_PLAN_SCHEMAS.throwNew()
             }
-        }
-    }
-
-    private def checkBackupSanity(CFService cfService, Plan plan) {
-        if (plan.maxBackups <= 0) {
-            return
-        }
-        def provider = serviceProviderLookup.findServiceProvider(cfService, plan)
-        if (!(provider instanceof BackupRestoreProvider)) {
-            throw new RuntimeException("Not allowed to set up maxBackups:${plan.maxBackups} for a service provider that does not support backup/restore")
         }
     }
 
@@ -330,8 +322,8 @@ class ServiceDefinitionProcessor {
         params.each {
             def param ->
                 Parameter parameter = new Parameter(template: param.template,
-                        name: param.name,
-                        value: param.value)
+                                                    name: param.name,
+                                                    value: param.value)
                 parameterRepository.saveAndFlush(parameter)
                 plan.parameters.add(parameter)
         }
@@ -358,7 +350,8 @@ class ServiceDefinitionProcessor {
             k, v ->
                 def value = demapify(v)
                 // Do not use ObjectMapper for String values because it will add quotes
-                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(value)
+                def serializedObject = (value.getClass() == String.class) ? value : objectMapper.writeValueAsString(
+                        value)
                 def planMetadata = new PlanMetadata(key: k, value: serializedObject, type: value.getClass().name)
                 planMetadataRepository.saveAndFlush(planMetadata)
                 plan.metadata.add(planMetadata)

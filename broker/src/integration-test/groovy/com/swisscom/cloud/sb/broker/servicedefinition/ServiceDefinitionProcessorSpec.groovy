@@ -15,36 +15,15 @@
 
 package com.swisscom.cloud.sb.broker.servicedefinition
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.cfapi.converter.MetadataJsonHelper
-import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.CFServiceMetadata
 import com.swisscom.cloud.sb.broker.model.CFServicePermission
-import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.repository.CFServiceMetaDataRepository
-import com.swisscom.cloud.sb.broker.repository.CFServicePermissionRepository
-import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.repository.TagRepository
-import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
+import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.Resource
-import com.swisscom.cloud.sb.broker.util.test.ErrorCodeHelper
 import groovy.json.JsonSlurper
-import org.skyscreamer.jsonassert.JSONAssert
-import org.skyscreamer.jsonassert.JSONCompareMode
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import spock.lang.Shared
 import spock.lang.Unroll
 
