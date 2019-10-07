@@ -21,12 +21,13 @@ import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.client.model.LastOperationState
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import java.time.LocalDateTime
+
+import static com.swisscom.cloud.sb.broker.model.LastOperation.Status.*
 
 @Component
 @Slf4j
@@ -125,7 +126,7 @@ class MetricsCache {
 
         Map<String, Double> failedCountByPlanId = new HashMap<>()
         lastOperationMap.values().each { lastOperation ->
-            if (lastOperation.status == LastOperationState.FAILED) {
+            if (lastOperation.status == FAILED) {
                 def planGuid = serviceInstanceGuidToPlanGuid.get(lastOperation.guid)
                 failedCountByPlanId.put(planGuid, failedCountByPlanId.get(planGuid, 0.0D) + 1)
             }

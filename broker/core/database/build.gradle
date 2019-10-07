@@ -2,5 +2,6 @@
 dependencies {
     compile libs.flyway
     compile libs.spring_boot_starter_security
+    compile libs.micrometer_registry_influx
     compile project(':model')
 }

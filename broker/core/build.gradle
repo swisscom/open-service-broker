@@ -48,8 +48,7 @@ dependencies {
     compile libs.springfox_swagger_ui
     compile libs.swagger_parser
     compile libs.json_schema_validator
-
-    compile libs.micrometer_registry_influx
+    
     compile libs.immutables
 
     compile libs.slf4j
