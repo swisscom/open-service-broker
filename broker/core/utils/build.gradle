@@ -1,0 +1,6 @@
+
+dependencies {
+    compile libs.groovy
+    compile libs.jackson_databind
+    compile libs.json_schema_validator
+}

@@ -21,7 +21,7 @@ import com.networknt.schema.JsonSchema
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.ValidationMessage
 
-abstract class JsonSchemaHelper {
+final class JsonSchemaHelper {
     static final String JSON_SCHEMA_V4_FILENAME = 'json_schema_v4.json'
 
     static JsonSchema getJsonSchema(String filename) throws Exception {
@@ -41,6 +41,4 @@ abstract class JsonSchemaHelper {
         JsonNode node = getJsonNodeFromStringContent(json)
         schema.validate(node)
     }
-
-
 }
