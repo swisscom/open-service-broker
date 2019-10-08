@@ -1,6 +1,8 @@
 
 dependencies {
+    compile project(':model')
     compile libs.groovy
     compile libs.jackson_databind
     compile libs.json_schema_validator
+    compile libs.spring_cloud_open_service_broker_core
 }
