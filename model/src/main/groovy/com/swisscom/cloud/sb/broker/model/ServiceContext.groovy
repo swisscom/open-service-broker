@@ -31,4 +31,39 @@ class ServiceContext extends BaseModel {
     @JoinColumn(name = "service_context_id")
     Set<ServiceContextDetail> details = []
 
+    @Override
+    public String toString() {
+        return new StringJoiner(" ", ServiceContext.class.getSimpleName() + "[", "]")
+                .add("id='" + id + "'")
+                .add("platform='" + platform + "'")
+                .add("details=" + details)
+                .toString();
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (!(o instanceof ServiceContext)) {
+            return false
+        }
+
+        ServiceContext that = (ServiceContext) o
+
+        if (details != that.details) {
+            return false
+        }
+        if (platform != that.platform) {
+            return false
+        }
+
+        return true
+    }
+
+    int hashCode() {
+        int result
+        result = (platform != null ? platform.hashCode() : 0)
+        result = 31 * result + (details != null ? details.hashCode() : 0)
+        return result
+    }
 }

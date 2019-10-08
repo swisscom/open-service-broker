@@ -36,4 +36,38 @@ class ServiceContextDetail extends BaseModel {
         return new ServiceContextDetail(key: key, value: value)
     }
 
+    @Override
+    public String toString() {
+        return new StringJoiner(" ", ServiceContextDetail.class.getSimpleName() + "[", "]")
+                .add("key='" + key + "'")
+                .add("value='" + value + "'")
+                .toString();
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (getClass() != o.class) {
+            return false
+        }
+
+        ServiceContextDetail that = (ServiceContextDetail) o
+
+        if (key != that.key) {
+            return false
+        }
+        if (value != that.value) {
+            return false
+        }
+
+        return true
+    }
+
+    int hashCode() {
+        int result
+        result = key.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
+    }
 }
