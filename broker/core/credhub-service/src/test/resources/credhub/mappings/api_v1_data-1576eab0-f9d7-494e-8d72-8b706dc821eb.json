@@ -1,0 +1,36 @@
+{
+  "id" : "1576eab0-f9d7-494e-8d72-8b706dc821eb",
+  "name" : "api_v1_data",
+  "request" : {
+    "url" : "/api/v1/data",
+    "method" : "POST",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImxlZ2FjeS10b2tlbi1rZXkiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI0NzJkZjdjYjhjODU0ZWY5OTc2YWVjZjU3YWU5Y2NmMiIsInN1YiI6ImNyZWRodWJfY2xpZW50IiwiYXV0aG9yaXRpZXMiOlsiY3JlZGh1Yi53cml0ZSIsImNyZWRodWIucmVhZCJdLCJzY29wZSI6WyJjcmVkaHViLndyaXRlIiwiY3JlZGh1Yi5yZWFkIl0sImNsaWVudF9pZCI6ImNyZWRodWJfY2xpZW50IiwiY2lkIjoiY3JlZGh1Yl9jbGllbnQiLCJhenAiOiJjcmVkaHViX2NsaWVudCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJyZXZfc2lnIjoiNzRkNjY3MTYiLCJpYXQiOjE1NzAxNzg1MTMsImV4cCI6MTU3MDI2NDkxMywiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3VhYS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJjcmVkaHViIiwiY3JlZGh1Yl9jbGllbnQiXX0.WsYzmKRrV8oGJ2VofF8cV6w4XUM37zPtlLzef2OrNtkQ4Tvv4tTDPfBpXtGlJoCwNS2W97rVGdx_hQQJgrbSXbMbn97d59ZyzmhyvioM1smjDWDPjx1r4Qh52_JG15T2XnxXQo-Q6iIAAnMAu79VMBrdVgaFp7J1GDfhMaREIAyb5QAgNIQLdwoCfmF59C13u9GqgTomoOypyHZPWjyXP7OYfZUK4H9Yp4R7hN_9Qw8TX0yHX7kICW1Tmsi6k7fL2ELGf1y1v1g3KibxCFKX1vJibzRyIjMyYDx_IEiZ7L-MSNxFa9i29H_b1NdDmBVfgWJ2XfTdd2zTeKrtAPUSaQ"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\":\"/7962256e-d5c7-4fa7-bc51-908d53c47626\",\"parameters\":{\"key_length\":2048,\"common_name\":\"test.local\",\"organization\":\"swisscom\",\"organization_unit\":\"bua\",\"locality\":\"bern\",\"state\":\"bern\",\"country\":\"CH\",\"self_sign\":false,\"duration\":365,\"is_ca\":true},\"type\":\"certificate\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "api_v1_data-1576eab0-f9d7-494e-8d72-8b706dc821eb.json",
+    "headers" : {
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Content-Type" : "application/json;charset=UTF-8",
+      "Date" : "Fri, 04 Oct 2019 08:41:53 GMT"
+    }
+  },
+  "uuid" : "1576eab0-f9d7-494e-8d72-8b706dc821eb",
+  "persistent" : true,
+  "insertionIndex" : 28
+}

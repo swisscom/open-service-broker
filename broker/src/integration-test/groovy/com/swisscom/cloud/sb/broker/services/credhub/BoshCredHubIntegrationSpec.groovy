@@ -17,8 +17,6 @@ package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
-import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubConfig
-import com.swisscom.cloud.sb.broker.services.bosh.BoshCredHubTemplate
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils
@@ -37,11 +35,6 @@ import spock.lang.Shared
 @IgnoreIf({ !BoshCredHubIntegrationSpec.checkCredHubConfigSet() })
 @ActiveProfiles("info,default,extensions,secrets,test")
 class BoshCredHubIntegrationSpec extends BaseSpecification {
-    @Autowired
-    private BoshCredHubTemplate boshCredHubTemplate
-
-    @Autowired
-    private BoshCredHubConfig boshCredHubConfig
 
     @Shared
     private String credentialId

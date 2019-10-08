@@ -1,0 +1,29 @@
+{
+  "id" : "e5ac6b0e-ac44-4216-b4d6-65e57d1820ac",
+  "name" : "api_v1_data",
+  "request" : {
+    "url" : "/api/v1/data?name=%2Facfe68c8-3759-4daf-b363-1e2ebe076647",
+    "method" : "DELETE",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImxlZ2FjeS10b2tlbi1rZXkiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI4MmFhODZmZjU5YjM0NDY3OGY3MjM3Y2QwNjFmYmZjNyIsInN1YiI6ImNyZWRodWJfY2xpZW50IiwiYXV0aG9yaXRpZXMiOlsiY3JlZGh1Yi53cml0ZSIsImNyZWRodWIucmVhZCJdLCJzY29wZSI6WyJjcmVkaHViLndyaXRlIiwiY3JlZGh1Yi5yZWFkIl0sImNsaWVudF9pZCI6ImNyZWRodWJfY2xpZW50IiwiY2lkIjoiY3JlZGh1Yl9jbGllbnQiLCJhenAiOiJjcmVkaHViX2NsaWVudCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJyZXZfc2lnIjoiNzRkNjY3MTYiLCJpYXQiOjE1NzAxNzg1MTIsImV4cCI6MTU3MDI2NDkxMiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3VhYS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJjcmVkaHViIiwiY3JlZGh1Yl9jbGllbnQiXX0.N5-h6FAn9eiJNpZGxmKqm-G_deR7g-9MBDKxTk06GI00cNf3nDpP2c_O9jF17HMg4nW1AtZV3A_v0jPf2DCwGEr-Tk3pjXOdkxQCU0f5HSpFzAjPg-fD75nTVXQqTTZBKuIIf7lTQpeiCG_dHhGULDYki1-Z2P4AHAia4ZDf5KuZpp5sbNEPT1KLE5oPfwXiTF9qpo5IqrPjprupRqwzx3L4yeER88PQMmI3b9WV064hNynH9_TAqO-fxKZrQFf5pW2iEuek2YvneFeBdISnGslXyaoLzfYu1xOtEEd3IJTCroS32Z39bXtSUJeA1904sDxDu77x6YFE4cqK9EHLCg"
+      }
+    }
+  },
+  "response" : {
+    "status" : 204,
+    "headers" : {
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Date" : "Fri, 04 Oct 2019 08:41:53 GMT"
+    }
+  },
+  "uuid" : "e5ac6b0e-ac44-4216-b4d6-65e57d1820ac",
+  "persistent" : true,
+  "insertionIndex" : 27
+}

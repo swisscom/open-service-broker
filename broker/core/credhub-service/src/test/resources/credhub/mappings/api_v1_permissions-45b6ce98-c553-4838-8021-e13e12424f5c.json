@@ -1,0 +1,29 @@
+{
+  "id" : "45b6ce98-c553-4838-8021-e13e12424f5c",
+  "name" : "api_v1_permissions",
+  "request" : {
+    "url" : "/api/v1/permissions?credential_name=%2Fd0c80776-bcf7-45e0-8737-b48ad688d7fb&actor=mtls-app%3Afcd7fa96-319b-4f2b-9fb8-38c617fbaf3d",
+    "method" : "DELETE",
+    "headers" : {
+      "Authorization" : {
+        "equalTo" : "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImxlZ2FjeS10b2tlbi1rZXkiLCJ0eXAiOiJKV1QifQ.eyJqdGkiOiI5ZGQ0MmQxMTkxOGY0ODQ5OGU1OWUwY2FmZjI2ZDk0YyIsInN1YiI6ImNyZWRodWJfY2xpZW50IiwiYXV0aG9yaXRpZXMiOlsiY3JlZGh1Yi53cml0ZSIsImNyZWRodWIucmVhZCJdLCJzY29wZSI6WyJjcmVkaHViLndyaXRlIiwiY3JlZGh1Yi5yZWFkIl0sImNsaWVudF9pZCI6ImNyZWRodWJfY2xpZW50IiwiY2lkIjoiY3JlZGh1Yl9jbGllbnQiLCJhenAiOiJjcmVkaHViX2NsaWVudCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJyZXZfc2lnIjoiNzRkNjY3MTYiLCJpYXQiOjE1NzAxNzg1MTAsImV4cCI6MTU3MDI2NDkxMCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3VhYS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImF1ZCI6WyJjcmVkaHViIiwiY3JlZGh1Yl9jbGllbnQiXX0.OGLOGMXH-eaqifGV0XXH2hh5EfOAcDjQOoMSHZOaLjkwNnvWgIc2yo7UEKuJXJgdItaYLMi4eH7mQHwFVzFWKidLh6XkJ9XhUCrDcVy5Ei2fCEX2VC7rLwvDLRXoRwiOVxmIwParfy1o2tQsZVipM1YsJVAlY5M_BfvaOpEnBebSQDNxHAUOF5yMn37REgF6BVUCuDSBVXw0c5JIuPevrmt7mHM6I3eLrUlO6N1vkCexy1zd2exmOAXiE4BuwLeLSwTGYRcXPivNDHYKn1kS2lb6pM4YzDkfGfxPu0rA5eKOkyrRIpCUxzSo_mwSwit9dRJrbaqTthKP-oQ-uTLMPA"
+      }
+    }
+  },
+  "response" : {
+    "status" : 204,
+    "headers" : {
+      "X-Content-Type-Options" : "nosniff",
+      "X-XSS-Protection" : "1; mode=block",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Pragma" : "no-cache",
+      "Expires" : "0",
+      "Strict-Transport-Security" : "max-age=31536000 ; includeSubDomains",
+      "X-Frame-Options" : "DENY",
+      "Date" : "Fri, 04 Oct 2019 08:41:49 GMT"
+    }
+  },
+  "uuid" : "45b6ce98-c553-4838-8021-e13e12424f5c",
+  "persistent" : true,
+  "insertionIndex" : 19
+}

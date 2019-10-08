@@ -9,12 +9,15 @@ import org.slf4j.LoggerFactory
 import org.springframework.credhub.core.CredHubException
 import org.springframework.credhub.support.ClientOptions
 import org.springframework.credhub.support.CredentialType
+import org.springframework.credhub.support.KeyLength
 import org.springframework.credhub.support.json.JsonCredential
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import spock.lang.Specification
+import spock.lang.Stepwise
+import spock.lang.Unroll
 
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
@@ -23,16 +26,17 @@ class CredHubServiceIntegrationSpec extends Specification {
     private static final Logger LOGGER = LoggerFactory.getLogger(CredHubServiceIntegrationSpec.class)
 
     public static final String registrationId = "credhub-client"
+    public static final String UAA_URL = "http://localhost:9091"
+    public static final String CREDHUB_URL = "https://localhost:9000"
+    public static final boolean MOCKED = true
+    public static final boolean RECORD = false
+
     OAuth2CredHubService testee
 
-    private static final String UAA_URL = "http://localhost:9091"
-    private static final String CREDHUB_URL = "https://localhost:9000"
     @ClassRule
     public static WireMockRule uaaWireMock
     @ClassRule
     public static WireMockRule credhubMock
-
-    private static final RECORD = true
 
     def setupSpec() {
 
@@ -50,7 +54,7 @@ class CredHubServiceIntegrationSpec extends Specification {
         credhubMock = new WireMockRule(credhubWireMockConfiguration)
         credhubMock.start()
 
-        if (RECORD) {
+        if (!MOCKED) {
             LOGGER.info("Start recording with bosh wiremock targeting '..' and uaa wiremock targeting '${UAA_URL}'")
 
             uaaWireMock.startRecording(recordSpec()
@@ -58,18 +62,18 @@ class CredHubServiceIntegrationSpec extends Specification {
                     .extractBinaryBodiesOver(10240)
                     .extractTextBodiesOver(256)
                     .captureHeader("Authorization")
-                    .makeStubsPersistent(true))
+                    .makeStubsPersistent(RECORD))
             credhubMock.startRecording(recordSpec()
                     .forTarget(CREDHUB_URL)
                     .extractBinaryBodiesOver(10240)
                     .extractTextBodiesOver(256)
                     .captureHeader("Authorization")
-                    .makeStubsPersistent(true))
+                    .makeStubsPersistent(RECORD))
         }
     }
 
     def cleanupSpec() {
-        if (RECORD) {
+        if (!MOCKED) {
             uaaWireMock.stopRecording()
             credhubMock.stopRecording()
         }
@@ -217,5 +221,334 @@ class CredHubServiceIntegrationSpec extends Specification {
 
         cleanup:
         testee.deleteCredential(cred.name.name)
+    }
+
+    void 'should generateCertificate'() {
+        given:
+        def name = "99d5db2c-3ef9-43e2-91aa-0d308929493e"
+        def certificateConfig = new CertificateConfig(
+                keyLength: KeyLength.LENGTH_2048,
+                commonName: "testone.service.consul",
+                organization: "swisscom",
+                organizationUnit: "bua",
+                locality: "bern",
+                state: "bern",
+                countryTwoLetterIdentifier: "CH",
+                duration: 365,
+                certificateAuthority: true,
+                certificateAuthorityCredential: "",
+                selfSign: false
+        )
+
+        when:
+        def result = testee.generateCertificate(name, certificateConfig)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.name.name == name
+        def certificate = testee.getCertificateCredentialByName(result.name.name)
+        certificate != null
+        certificate.name.name == name
+
+        cleanup:
+        testee.deleteCredential(result.name.name)
+    }
+
+    void 'should fail with correct credhub exception if country is too long'() {
+        given:
+        def name = "99d5db2c-3ef9-43e2-91aa-0d308929493e"
+        def certificateConfig = new CertificateConfig(
+                keyLength: KeyLength.LENGTH_2048,
+                commonName: "testone.service.consul",
+                organization: "swisscom",
+                organizationUnit: "bua",
+                locality: "bern",
+                state: "bern",
+                countryTwoLetterIdentifier: "CHSS",
+                duration: 365,
+                certificateAuthority: true,
+                certificateAuthorityCredential: "",
+                selfSign: false
+        )
+
+        when:
+        def result = testee.generateCertificate(name, certificateConfig)
+
+        then:
+        CredHubException ex = thrown(CredHubException)
+        ex.responseBodyAsString == "{\"error\":\"The request could not be completed because the country is too long. The max length for country is 2 characters.\"}"
+    }
+
+    void 'should generateRSA'() {
+        given:
+        def name = "acfe68c8-3759-4daf-b363-1e2ebe076647"
+
+        when:
+        def result = testee.generateRSA(name)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.name.name == name
+
+        cleanup:
+        testee.deleteCredential(name)
+    }
+
+    void 'should writeCertificate'() {
+        given:
+        def name = "82865f0c-483d-4e60-bdf2-4620cdca6b44"
+        def exampleName = "7962256e-d5c7-4fa7-bc51-908d53c47626"
+        def certificateConfig = new CertificateConfig(
+                keyLength: KeyLength.LENGTH_2048,
+                commonName: "test.local",
+                organization: "swisscom",
+                organizationUnit: "bua",
+                locality: "bern",
+                state: "bern",
+                countryTwoLetterIdentifier: "CH",
+                duration: 365,
+                certificateAuthority: true,
+                certificateAuthorityCredential: "",
+                selfSign: false
+        )
+        def cert = testee.generateCertificate(exampleName, certificateConfig)
+
+        when:
+        def result = testee.writeCertificate(name, cert.value.certificate, cert.value.certificateAuthority, cert.value.privateKey)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.name.name == name
+
+        cleanup:
+        testee.deleteCredential(name)
+        testee.deleteCredential(exampleName)
+    }
+
+    void 'should getCertificateCredentialByName'() {
+        given:
+        def name = "acfe68c8-3759-4daf-b363-1e2ebe076647"
+        def example = testee.generateRSA(name)
+
+        when:
+        def result = testee.getCertificateCredentialByName(name)
+
+        then:
+        noExceptionThrown()
+        result != null
+        result.name.name == name
+
+        cleanup:
+        testee.deleteCredential(name)
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `writeCredential` with invalid arguments, name:#name and credentials:#credentials'() {
+        given:
+        Map<String, String> prepCredentials = null
+        if (credentials == null)
+            prepCredentials = null
+        else if (credentials == "")
+            prepCredentials = new HashMap()
+        else
+            prepCredentials = credentials.split(";").collectEntries { [(it.split(":")[0]): it.split(":")[1] ] }
+
+        when:
+        testee.writeCredential(name, prepCredentials)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                   | credentials         | message
+        null                                   | "key_001:value_001" | "name may not be null or empty"
+        ""                                     | "key_001:value_001" | "name may not be null or empty"
+        " "                                    | "key_001:value_001" | "name may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null                | "credentials may not be null"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                  | "credentials may not be null"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `getCredential` with invalid arguments, id:#id'() {
+        when:
+        testee.getCredential(id)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        id                                   | message
+        null                                 | "id may not be null or empty"
+        ""                                   | "id may not be null or empty"
+        " "                                  | "id may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `getPasswordCredentialByName` with invalid arguments, name:#name'() {
+        when:
+        testee.getPasswordCredentialByName(name)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                 | message
+        null                                 | "name may not be null or empty"
+        ""                                   | "name may not be null or empty"
+        " "                                  | "name may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `getCertificateCredentialByName` with invalid arguments, name:#name'() {
+        when:
+        testee.getCertificateCredentialByName(name)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                 | message
+        null                                 | "name may not be null or empty"
+        ""                                   | "name may not be null or empty"
+        " "                                  | "name may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `deleteCredential` with invalid arguments, name:#name'() {
+        when:
+        testee.deleteCredential(name)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                 | message
+        null                                 | "name may not be null or empty"
+        ""                                   | "name may not be null or empty"
+        " "                                  | "name may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `generateRSA` with invalid arguments, name:#name'() {
+        when:
+        testee.generateRSA(name)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                 | message
+        null                                 | "name may not be null or empty"
+        ""                                   | "name may not be null or empty"
+        " "                                  | "name may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `getPermissions` with invalid arguments, name:#name'() {
+        when:
+        testee.getPermissions(name)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                 | message
+        null                                 | "name may not be null or empty"
+        ""                                   | "name may not be null or empty"
+        " "                                  | "name may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `addReadPermission` with invalid arguments, name:#name,appGuid:#appGuid'() {
+        when:
+        testee.addReadPermission(name, appGuid)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                   | appGuid                                | message
+        null                                   | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        ""                                     | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        " "                                    | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null                                   | "appGUID may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                     | "appGUID may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                     | "appGUID may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `deletePermission` with invalid arguments, name:#name,appGuid:#appGuid'() {
+        when:
+        testee.deletePermission(name, appGuid)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                   | appGuid                                | message
+        null                                   | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        ""                                     | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        " "                                    | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null                                   | "appGUID may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                     | "appGUID may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""                                     | "appGUID may not be null or empty"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `generateCertificate` with invalid arguments, name:#name,config:#config'() {
+        given:
+        def generatedconfig = config ? new CertificateConfig() : null
+
+        when:
+        testee.generateCertificate(name, generatedconfig)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                   | config                                 | message
+        null                                   | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        ""                                     | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        " "                                    | "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "name may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null                                   | "parameters may not be null"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"                                 | "keyLength must not be null"
+    }
+
+    @Unroll
+    void 'should throw IllegalArgumentException when trying to `writeCertificate` with invalid arguments, name:#name,certificate:#certificate,certificateAuthority:#certificateAuthority,privatekey:#privatekey'() {
+        when:
+        testee.writeCertificate(name, certificate, certificateAuthority, privatekey)
+
+        then:
+        def ex = thrown(IllegalArgumentException)
+        ex.message == message
+
+        where:
+        name                                   | certificate    | certificateAuthority | privatekey     | message
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | null           | "data"               | "data"         | "certificate may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | ""             | "data"               | "data"         | "certificate may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | " "            | "data"               | "data"         | "certificate may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | null                 | "data"         | "certificateAuthority may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | ""                   | "data"         | "certificateAuthority may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | " "                  | "data"         | "certificateAuthority may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | "data"               | null           | "privateKey may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | "data"               | ""             | "privateKey may not be null or empty"
+        "d6445c23-275f-48b0-ac80-d0a04b3eae46" | "data"         | "data"               | " "            | "privateKey may not be null or empty"
+        null                                   | "data"         | "data"               | "data"         | "name may not be null or empty"
+        ""                                     | "data"         | "data"               | "data"         | "name may not be null or empty"
+        " "                                    | "data"         | "data"               | "data"         | "name may not be null or empty"
     }
 }

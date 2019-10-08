@@ -41,8 +41,11 @@ import org.springframework.credhub.support.permissions.Operation
 import org.springframework.credhub.support.permissions.Permission
 import org.springframework.credhub.support.rsa.RsaCredential
 import org.springframework.credhub.support.rsa.RsaParametersRequest
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 
 import static com.google.common.base.Preconditions.checkState
 import static com.google.common.base.Preconditions.checkArgument
@@ -99,6 +102,24 @@ class OAuth2CredHubService implements CredHubService {
         checkArgument(authorizedClientService != null)
 
         return new OAuth2CredHubService(credHubUri, oAuth2RegistrationId, clientOptions, clientRegistrationRepository, authorizedClientService)
+    }
+
+    static OAuth2CredHubService of(
+            URI credHubUri,
+            String oAuth2RegistrationId,
+            List<ClientRegistration> clientRegistrations) {
+        checkArgument(credHubUri != null)
+        checkArgument(isNotBlank(oAuth2RegistrationId))
+        checkArgument(clientRegistrations != null && clientRegistrations.size() > 0)
+
+        def clientRegistrationRepository = new InMemoryClientRegistrationRepository(clientRegistrations)
+
+        return new OAuth2CredHubService(
+                credHubUri,
+                oAuth2RegistrationId,
+                new ClientOptions(),
+                clientRegistrationRepository,
+                new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository))
     }
 
     CredHubPermissionOperations getCredHubPermissionOperations() {
@@ -198,7 +219,7 @@ class OAuth2CredHubService implements CredHubService {
                     .organization(parameters.organization)
                     .locality(parameters.locality)
                     .state(parameters.state)
-                    .country(parameters.country)
+                    .country(parameters.countryTwoLetterIdentifier)
                     .duration(parameters.duration)
                     .certificateAuthority(parameters.certificateAuthority)
                     .certificateAuthorityCredential(parameters.certificateAuthorityCredential)

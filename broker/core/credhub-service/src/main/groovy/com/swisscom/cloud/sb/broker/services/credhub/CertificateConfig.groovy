@@ -27,7 +27,7 @@ class CertificateConfig implements Config {
     String organizationUnit
     String locality
     String state
-    String country
+    String countryTwoLetterIdentifier
     int duration
     boolean certificateAuthority
     String certificateAuthorityCredential
