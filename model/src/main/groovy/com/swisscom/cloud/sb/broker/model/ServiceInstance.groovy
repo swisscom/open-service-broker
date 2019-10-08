@@ -42,7 +42,7 @@ class ServiceInstance extends BaseModel{
     List<ServiceDetail> details = []
     @Column(name="plan_id", updatable = false, insertable = false)
     Integer planId
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="plan_id")
     Plan plan
     @ManyToOne(fetch = FetchType.LAZY)
