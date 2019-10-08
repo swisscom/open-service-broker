@@ -16,8 +16,13 @@
 package com.swisscom.cloud.sb.broker.repository
 
 import com.swisscom.cloud.sb.broker.model.Plan
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 
 interface PlanRepository extends BaseRepository<Plan, Integer> {
     Plan findByGuid(String guid)
+
+    @Query("SELECT p FROM Plan p JOIN FETCH p.parameters WHERE p.guid = (:guid)")
+    Plan findByGuidAndFetchParametersEagerly(@Param("guid") String guid)
 }
