@@ -1,0 +1,25 @@
+{
+  "id" : "624af362-448a-44f9-a5c6-8d6c36ce3de4",
+  "name" : "deployments_test-bosh-template-v1",
+  "request" : {
+    "url" : "/deployments/test-bosh-template-v1",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Server" : "nginx",
+      "Date" : "Wed, 09 Oct 2019 18:58:23 GMT",
+      "Content-Type" : "text/html;charset=utf-8",
+      "Connection" : "keep-alive",
+      "WWW-Authenticate" : "Basic realm=\"BOSH Director\"",
+      "Location" : "https://mysql-bosh.service.consul/tasks/62122",
+      "X-XSS-Protection" : "1; mode=block",
+      "X-Content-Type-Options" : "nosniff",
+      "X-Frame-Options" : "SAMEORIGIN"
+    }
+  },
+  "uuid" : "624af362-448a-44f9-a5c6-8d6c36ce3de4",
+  "persistent" : true,
+  "insertionIndex" : 75
+}

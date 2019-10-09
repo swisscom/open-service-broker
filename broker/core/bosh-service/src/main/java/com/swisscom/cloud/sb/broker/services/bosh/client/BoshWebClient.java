@@ -213,23 +213,33 @@ public class BoshWebClient {
                 .block();
     }
 
-    public BoshDeployment deleteDeployment(BoshDeploymentRequest request) {
-        LOGGER.trace("deleteDeployment({})", request);
-        BoshDeployment result = getDeployment(request.getName());
-        if (!result.isEmpty()) {
-            getDeleteWithAuthorizationToken(DEPLOYMENTS.value(), request.getName())
-                    .flatMap(cl -> cl.retrieve()
-                                     .bodyToMono(Void.class)
-                                     .onErrorResume(WebClientResponseException.class, t -> {
-                                         if (t.getStatusCode() == HttpStatus.NOT_FOUND) {
-                                             return Mono.empty();
-                                         } else {
-                                             throw t;
-                                         }
-                                     }))
-                    .block();
-        }
-        return result;
+    public BoshDeployment deleteDeployment(String deploymentName) {
+        LOGGER.trace("deleteDeployment({})", deploymentName);
+        BoshDeployment result = getDeployment(deploymentName);
+        Mono<ClientResponse> response = getDeleteWithAuthorizationToken(DEPLOYMENTS.value(), deploymentName)
+                .flatMap(cl -> cl.exchange());
+        return response
+                .flatMap(r -> {
+                    if (r.statusCode().is3xxRedirection()) {
+                        return Mono.just(boshDeployment().from(result)
+                                                         .name(deploymentName)
+                                                         .taskUri(create(r.headers()
+                                                                          .header(HttpHeaders.LOCATION)
+                                                                          .get(0)))
+                                                         .build());
+                    } else {
+                        return r.bodyToMono(String.class)
+                                .flatMap(bodyString -> onError(r,
+                                                               format("Error accessing BOSH with %s@%s: %s %s",
+                                                                      boshConfig.getBoshDirectorUsername(),
+                                                                      boshConfig.getBoshDirectorBaseUrl(),
+                                                                      r.statusCode(),
+                                                                      bodyString)));
+                    }
+
+
+                }).block();
+
     }
 
     public BoshDeployment getDeployment(String deploymentId) {
@@ -286,8 +296,7 @@ public class BoshWebClient {
                                             ImmutableMap.of("name", singletonList(request.getName()),
                                                             "type", singletonList(request.getType())))
                     .flatMap(cl -> cl.retrieve()
-                                     .bodyToMono(
-                                             Void.class))
+                                     .bodyToMono(Void.class))
                     .block();
             return result.iterator().next();
         }
