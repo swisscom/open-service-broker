@@ -45,14 +45,14 @@ class ServiceInstance extends BaseModel{
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="plan_id")
     Plan plan
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_service_instance_id")
     ServiceInstance parentServiceInstance
     @OneToMany(mappedBy = "parentServiceInstance", fetch = FetchType.LAZY)
     Set<ServiceInstance> childs = []
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     ServiceContext serviceContext
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
 

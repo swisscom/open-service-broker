@@ -33,15 +33,15 @@ class ServiceContextHelper {
         }
         def platform = serviceContext.platform
         switch (platform) {
-            case { it == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM }:
+            case {it == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM }:
                 String organizationGuid = serviceContext.details.find { it -> it.key == CF_ORGANIZATION_GUID }.value
                 String spaceGuid = serviceContext.details.find { it -> it.key == CF_SPACE_GUID }.value
                 return CloudFoundryContext.builder().organizationGuid(organizationGuid).spaceGuid(spaceGuid).build();
-            case { it == KubernetesContext.KUBERNETES_PLATFORM }:
+            case {it == KubernetesContext.KUBERNETES_PLATFORM }:
                 String namespace = serviceContext.details.find { it -> it.key == KUBERNETES_NAMESPACE }.value
                 return KubernetesContext.builder().namespace(namespace).build()
             default:
-                return new Context(serviceContext.platform, serviceContext.details.collectEntries { d -> [(d.key): (d.value)] })
+                return new Context(serviceContext.platform, serviceContext.details.collectEntries {d -> [(d.key): (d.value)] })
         }
     }
 }

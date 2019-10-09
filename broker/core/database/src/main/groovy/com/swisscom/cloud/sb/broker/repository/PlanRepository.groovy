@@ -23,6 +23,6 @@ import org.springframework.data.repository.query.Param
 interface PlanRepository extends BaseRepository<Plan, Integer> {
     Plan findByGuid(String guid)
 
-    @Query("SELECT p FROM Plan p JOIN FETCH p.parameters WHERE p.guid = (:guid)")
+    @Query("SELECT p FROM Plan p JOIN FETCH p.parameters JOIN FETCH p.metadata JOIN FETCH p.service WHERE p.guid = (:guid)")
     Plan findByGuidAndFetchParametersEagerly(@Param("guid") String guid)
 }
