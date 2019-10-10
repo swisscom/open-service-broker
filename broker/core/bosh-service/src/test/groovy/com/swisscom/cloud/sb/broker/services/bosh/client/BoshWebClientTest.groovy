@@ -210,6 +210,28 @@ class BoshWebClientTest extends Specification {
         ymlContent = getBoshTestTemplate()
     }
 
+    def "should delete /deployments"(){
+        given: "A successful boshDeployment"
+        BoshDeployment boshDeployment = boshWebClient.requestDeployment("test", ymlContent)
+
+        when:
+        BoshDeployment deleted = boshWebClient.deleteDeployment("test-bosh-template-v1")
+
+        then:
+        deleted != null
+        !deleted.taskId.isEmpty()
+        isNumeric(deleted.taskId)
+        LOGGER.info("/deployments {}", deleted)
+
+        where:
+        request = configRequest().
+                name("test").
+                type("cloud").
+                content(getBoshTestConfig()).
+                build()
+        ymlContent = getBoshTestTemplate()
+    }
+
     def "should get certain /deployments"() {
         given: "A successful boshDeployment"
         BoshDeployment boshDeployment = boshWebClient.requestDeployment("test", ymlContent)

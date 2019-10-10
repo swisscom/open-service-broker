@@ -129,7 +129,7 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
     @Override
     public BoshDeployment deleteBoshDeploymentIfExists(String name) {
         checkArgument(!isNullOrEmpty(name), NO_DELETE_WITH_NULL, BOSH_DEPLOYMENT, "name");
-        return boshWebClient.deleteDeployment(deploymentRequest().name(name).build());
+        return boshWebClient.deleteDeployment(name);
     }
 
 }
