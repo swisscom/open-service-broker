@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.util
 
+import org.apache.commons.lang3.RandomStringUtils
 import org.passay.CharacterData
 import org.passay.CharacterRule
 import org.passay.EnglishCharacterData
@@ -40,7 +41,7 @@ class StringGenerator {
     }
 
     private static String random(int length, char[] chars) {
-        org.apache.commons.lang.RandomStringUtils.random(length, 0, chars.length, false, false, chars, new SecureRandom())
+        RandomStringUtils.random(length, 0, chars.length, false, false, chars, new SecureRandom())
     }
 
     static String randomUuid() {

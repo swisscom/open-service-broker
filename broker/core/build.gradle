@@ -42,7 +42,7 @@ dependencies {
     compile libs.flyway
     compile libs.joda_time
     compile libs.commons_lang
-    compile libs.passay
+
 
     compile libs.httpclient
     compile libs.springfox_swagger2
