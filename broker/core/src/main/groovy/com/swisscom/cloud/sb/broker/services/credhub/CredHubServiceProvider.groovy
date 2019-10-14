@@ -43,7 +43,6 @@ import org.springframework.stereotype.Component
 
 import static com.swisscom.cloud.sb.broker.model.ServiceDetail.from
 
-@Component
 @CompileStatic
 @Slf4j
 class CredHubServiceProvider implements ServiceProvider, SensitiveParameterProvider, CloudFoundryContextRestrictedOnly {

@@ -5,16 +5,11 @@ jar{
 }
 
 test{
-    systemProperty 'bosh.mocked', "${boshMocked}"
-    systemProperty 'bosh.url', "${boshUrl}"
-    systemProperty 'bosh.username', "${boshUsername}"
-    systemProperty 'bosh.password', "${boshPassword}"
+    systemProperty 'credhub.mocked', "${credhubMocked}"
+    systemProperty 'credhub.recording', "${credhubRecording}"
     systemProperty 'uaa.url', "${uaaUrl}"
-    systemProperty 'shield.mocked', "${shieldMocked}"
-    systemProperty 'shield.url', "${shieldUrl}"
-    systemProperty 'shield.username', "${shieldUsername}"
-    systemProperty 'shield.password', "${shieldPassword}"
-    systemProperty 'shield.api.key', "${shieldApiKey}"
+    systemProperty 'credhub.url', "${credhubUrl}"
+    systemProperty 'credhub.registrationId', "client_secret"
 }
 
 dependencies {

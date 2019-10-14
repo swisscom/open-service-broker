@@ -25,7 +25,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 class CredHubServiceIntegrationSpec extends Specification {
     private static final Logger LOGGER = LoggerFactory.getLogger(CredHubServiceIntegrationSpec.class)
 
-    public static final String registrationId = "credhub-client"
+    public static final String registrationId = System.getProperty("credhub.registrationId")
     public static final String UAA_URL = "http://localhost:9091"
     public static final String CREDHUB_URL = "https://localhost:9000"
     public static final boolean MOCKED = true

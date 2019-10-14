@@ -41,7 +41,6 @@ class BoshWebClientTest extends Specification {
 
     private static final String BOSH_TEMPLATE_TEST_NAME = "test-bosh-template-v1"
 
-
     @ClassRule
     public static WireMockRule boshWireMock
 
