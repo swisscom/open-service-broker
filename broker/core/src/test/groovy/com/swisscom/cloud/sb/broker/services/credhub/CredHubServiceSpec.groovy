@@ -11,7 +11,7 @@ class CredHubServiceSpec extends Specification {
         byte[] body = "{\"error\":\"The request could not be completed because the credential does not exist or you do not have sufficient authorization.\"}".getBytes()
         HttpStatusCodeException httpStatusCodeException = new HttpStatusCodeException(HttpStatus.NOT_FOUND, null, body, null) {}
 
-        CredHubServiceImpl.ignore404 {
+        OAuth2CredHubService.ignore404 {
             throw new CredHubException(httpStatusCodeException)
         }
 
@@ -21,7 +21,7 @@ class CredHubServiceSpec extends Specification {
 
     def "CredHubException is ignored with HttpStatus 404"() {
         when:
-        CredHubServiceImpl.ignore404 {
+        OAuth2CredHubService.ignore404 {
             throw new CredHubException(HttpStatus.NOT_FOUND)
         }
 
@@ -31,7 +31,7 @@ class CredHubServiceSpec extends Specification {
 
     def "CredHubException is not ignored with HttpStatus 401"() {
         when:
-        CredHubServiceImpl.ignore404 {
+        OAuth2CredHubService.ignore404 {
             throw new CredHubException(HttpStatus.UNAUTHORIZED)
         }
 

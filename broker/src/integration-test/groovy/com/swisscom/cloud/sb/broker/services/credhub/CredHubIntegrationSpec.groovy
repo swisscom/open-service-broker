@@ -36,9 +36,6 @@ import spock.lang.Shared
 @ActiveProfiles("info,default,extensions,secrets,test")
 class CredHubIntegrationSpec extends BaseSpecification {
 
-    @Autowired
-    private DefaultCredHubConfig defaultCredHubConfig
-
     @Shared
     private String credentialId
     @Shared

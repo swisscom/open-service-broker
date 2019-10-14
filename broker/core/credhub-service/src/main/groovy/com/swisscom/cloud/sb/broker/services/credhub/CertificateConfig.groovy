@@ -20,14 +20,14 @@ import groovy.transform.CompileStatic
 import org.springframework.credhub.support.KeyLength
 
 @CompileStatic
-trait CertificateConfig implements Config {
+class CertificateConfig implements Config {
     KeyLength keyLength
     String commonName
     String organization
     String organizationUnit
     String locality
     String state
-    String country
+    String countryTwoLetterIdentifier
     int duration
     boolean certificateAuthority
     String certificateAuthorityCredential

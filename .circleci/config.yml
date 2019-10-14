@@ -14,8 +14,6 @@ jobs:
     steps:
       - checkout
       - run: ./gradlew build -x integrationTest -x functionalTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
-      - store_artifacts:
-          path: broker/build/test-results
   
   
   # For integration testing we need to start a machine or setup_remote_docker because we need to use docker-compose for
@@ -33,9 +31,11 @@ jobs:
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
       - run: ./gradlew clean build -x test -x functionalTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
+      - store_test_results:
+          path: broker/build/test-results
       - store_artifacts:
           path: broker/build/test-results
-  
+
   # For functional testing we need to start a machine or setup_remote_docker because we need to use docker-compose for
   # having services up to launch the tests against
   functional_test:
@@ -51,8 +51,6 @@ jobs:
       - run: sudo keytool -importkeystore -srckeystore broker/src/functional-test/resources/credhub_client.jks -srcstorepass changeit -destkeystore $(readlink -f /usr/bin/java | sed "s:bin/java::")/lib/security/cacerts -deststorepass changeit
       - run: pushd docker && ./setup_docker.sh ; popd
       - run: ./gradlew clean build -x test -x integrationTest --stacktrace -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
-      - store_artifacts:
-          path: broker/build/test-results
 
   # For tagging in the repository tags in the form 'vn.minor+1.0' or in the form 'vn.nn.patch+1'
   tag_release:
@@ -76,7 +74,6 @@ jobs:
       - checkout
       - run: openssl aes-256-cbc -md md5 -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
       - run: ./gradlew publish -PbintrayUser=$BINTRAY_USER -PbintrayApiKey=$BINTRAY_API_KEY -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -PsigningSecretKeyRingFile=/home/circleci/project/local.secring.gpg -PboshUrl=https://localhost:25555 -PuaaUrl=https://localhost:8443 -PboshUsername=admin -PboshPassword=aPassword
-
 
 workflows:
   version: 2
@@ -111,4 +108,3 @@ workflows:
               only: develop
             tags:
               only: /v.*/
-

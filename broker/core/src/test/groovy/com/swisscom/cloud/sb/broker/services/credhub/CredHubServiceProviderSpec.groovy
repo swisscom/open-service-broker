@@ -27,11 +27,11 @@ class CredHubServiceProviderSpec extends Specification{
     private final String SERVICE_INSTANCE = "TEST_UUID"
 
     private CredHubServiceProvider credHubServiceProvider
-    private CredHubServiceImpl credHubServiceImpl
+    private OAuth2CredHubService credHubServiceImpl
     private ServiceBindingRepository serviceBindingRepository
 
     def setup() {
-        credHubServiceImpl = Mock(CredHubServiceImpl)
+        credHubServiceImpl = Mock(OAuth2CredHubService)
         serviceBindingRepository = Mock(ServiceBindingRepository)
         credHubServiceProvider = new CredHubServiceProvider(credHubServiceImpl, serviceBindingRepository)
     }
