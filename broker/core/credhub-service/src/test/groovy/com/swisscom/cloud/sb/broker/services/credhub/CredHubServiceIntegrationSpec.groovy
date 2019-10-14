@@ -25,11 +25,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 class CredHubServiceIntegrationSpec extends Specification {
     private static final Logger LOGGER = LoggerFactory.getLogger(CredHubServiceIntegrationSpec.class)
 
-    public static final String registrationId = System.getProperty("credhub.registrationId")
-    public static final String UAA_URL = "http://localhost:9091"
-    public static final String CREDHUB_URL = "https://localhost:9000"
-    public static final boolean MOCKED = true
-    public static final boolean RECORD = false
+    public static final String registrationId = Boolean.valueOf(System.getProperty("credhub.registrationId"))
+    public static final String UAA_URL = Boolean.valueOf(System.getProperty("uaa.url"))
+    public static final String CREDHUB_URL = System.getProperty("credhub.url")
+    public static final boolean MOCKED = System.getProperty("credhub.mocked")
+    public static final boolean RECORD = System.getProperty("credhub.recording")
 
     OAuth2CredHubService testee
 

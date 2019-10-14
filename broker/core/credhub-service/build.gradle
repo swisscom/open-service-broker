@@ -9,7 +9,7 @@ test{
     systemProperty 'credhub.recording', "${credhubRecording}"
     systemProperty 'uaa.url', "${uaaUrl}"
     systemProperty 'credhub.url', "${credhubUrl}"
-    systemProperty 'credhub.registrationId', "client_secret"
+    systemProperty 'credhub.registrationId', "${credhubRegistrationId}"
 }
 
 dependencies {
