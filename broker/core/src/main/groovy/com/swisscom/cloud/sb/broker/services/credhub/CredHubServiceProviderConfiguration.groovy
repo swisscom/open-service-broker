@@ -22,7 +22,6 @@ class CredHubServiceProviderConfiguration {
     @ConditionalOnProperty("com.swisscom.cloud.sb.broker.credhub.url")
     @ConditionalOnMissingBean
     CredHubServiceProvider getBrokerDefault(
-            ClientOptions clientOptions,
             ClientRegistrationRepository clientRegistrationRepository,
             OAuth2AuthorizedClientService authorizedClientService,
             ServiceBindingRepository serviceBindingRepository) {
@@ -30,7 +29,7 @@ class CredHubServiceProviderConfiguration {
                 OAuth2CredHubService.of(
                         brokerCredHubUri,
                         brokerOAuth2RegistrationId,
-                        clientOptions,
+                        new ClientOptions(),
                         clientRegistrationRepository,
                         authorizedClientService
                 ),
