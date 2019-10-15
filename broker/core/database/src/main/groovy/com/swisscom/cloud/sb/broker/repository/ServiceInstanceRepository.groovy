@@ -17,10 +17,15 @@ package com.swisscom.cloud.sb.broker.repository
 
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.transaction.annotation.Transactional
 
 interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Integer>, ServiceInstanceRepositoryCustom {
     ServiceInstance findByGuid(String guid)
+
+    @Query("SELECT s FROM ServiceInstance s LEFT JOIN FETCH s.childs WHERE s.guid = (:guid)")
+    ServiceInstance findByGuidAndFetchChildsEagerly(@Param("guid") String guid)
 
     List<ServiceInstance> findByPlanIdIn(List<Integer> planIds)
 
