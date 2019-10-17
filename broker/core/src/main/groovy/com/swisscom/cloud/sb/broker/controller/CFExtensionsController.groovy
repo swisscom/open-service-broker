@@ -72,6 +72,7 @@ class CFExtensionsController extends BaseController {
         }
     }
 
+    //See BUA-495
     @ApiOperation(value = "Get endpoint information about a service", response = Endpoint.class,
             notes = "provides information to create security groups for a given service instance", responseContainer = "List")
     @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/endpoint',//deprecated, prefer the path below
