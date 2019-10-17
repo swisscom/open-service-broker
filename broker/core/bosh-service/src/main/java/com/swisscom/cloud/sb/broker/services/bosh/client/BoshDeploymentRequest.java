@@ -26,6 +26,7 @@ import static org.yaml.snakeyaml.DumperOptions.FlowStyle.BLOCK;
 public abstract class BoshDeploymentRequest {
 
     private static final Yaml YAML = new Yaml();
+    public static final BoshDeploymentRequest EMPTY = deploymentRequest().name("").build();
 
     public abstract String getName();
 

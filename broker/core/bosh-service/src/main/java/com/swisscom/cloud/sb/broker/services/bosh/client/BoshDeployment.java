@@ -38,6 +38,11 @@ public abstract class BoshDeployment {
     public static final BoshDeployment EMPTY = boshDeployment().build();
 
     @Value.Default
+    public BoshDeploymentRequest getBoshDeploymentRequest(){
+        return BoshDeploymentRequest.EMPTY;
+    }
+
+    @Value.Default
     public String getName() {
         return "";
     }

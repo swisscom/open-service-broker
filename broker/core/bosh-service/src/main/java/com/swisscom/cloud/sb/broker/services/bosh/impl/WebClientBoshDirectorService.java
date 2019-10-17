@@ -12,7 +12,6 @@ import java.util.Collection;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshCloudConfigRequest.configRequest;
-import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshDeploymentRequest.deploymentRequest;
 import static com.swisscom.cloud.sb.broker.services.bosh.client.BoshWebClient.boshWebClient;
 import static java.lang.String.format;
 
@@ -94,10 +93,15 @@ public class WebClientBoshDirectorService implements BoshDirectorService {
 
     @Override
     public BoshDeployment requestBoshDeployment(BoshDeploymentRequest boshDeploymentRequest, String templateId) {
-        return this.boshWebClient.requestDeployment(format(BOSH_DEPLOYMENT_FORMAT,
-                                                           BOSH_DEPLOYMENT_PREFIX,
-                                                           boshDeploymentRequest.getName()),
-                                                    processBoshDeploymentTemplate(boshDeploymentRequest, templateId));
+        return BoshDeployment.boshDeployment().from(
+                this.boshWebClient.requestDeployment(format(BOSH_DEPLOYMENT_FORMAT,
+                                                            BOSH_DEPLOYMENT_PREFIX,
+                                                            boshDeploymentRequest.getName()),
+                                                     processBoshDeploymentTemplate(
+                                                             boshDeploymentRequest,
+                                                             templateId)))
+                             .boshDeploymentRequest(boshDeploymentRequest)
+                             .build();
     }
 
     @Override
