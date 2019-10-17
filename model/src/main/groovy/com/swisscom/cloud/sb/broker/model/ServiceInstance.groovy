@@ -35,7 +35,7 @@ class ServiceInstance extends BaseModel{
     @OneToMany
     @JoinColumn(name="service_instance_id")
     List<ServiceBinding> bindings = []
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "service_instance_service_detail",
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
