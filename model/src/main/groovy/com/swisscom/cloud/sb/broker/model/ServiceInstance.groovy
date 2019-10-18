@@ -56,6 +56,17 @@ class ServiceInstance extends BaseModel{
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
 
+    /**
+     * Get the value of the desired ServiceDetail identified by its key
+     * FIXME we should use a Map for ServiceDetail instead of a List
+     *
+     * @param key the identifier of the ServiceDetail
+     * @return the value associated to the key
+     */
+    public String getDetail(String key){
+        details.find{d -> d.key == key}.value
+    }
+
     @Override
     String toString() {
         return "ServiceInstance{" +
