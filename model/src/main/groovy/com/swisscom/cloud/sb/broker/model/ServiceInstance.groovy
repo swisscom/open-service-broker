@@ -35,7 +35,7 @@ class ServiceInstance extends BaseModel{
     @OneToMany
     @JoinColumn(name="service_instance_id")
     List<ServiceBinding> bindings = []
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "service_instance_service_detail",
             joinColumns = @JoinColumn(name = "service_instance_details_id"),
             inverseJoinColumns = @JoinColumn(name = "service_detail_id"))
@@ -55,6 +55,17 @@ class ServiceInstance extends BaseModel{
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "application_user_id")
     ApplicationUser applicationUser
+
+    /**
+     * Get the value of the desired ServiceDetail identified by its key
+     * FIXME we should use a Map for ServiceDetail instead of a List
+     *
+     * @param key the identifier of the ServiceDetail
+     * @return the value associated to the key
+     */
+    public String getDetail(String key){
+        details.find{d -> d.key == key}.value
+    }
 
     @Override
     String toString() {

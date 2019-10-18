@@ -40,7 +40,6 @@ class ServiceDetailHelperSpec extends BaseSpecification {
                 guid: UUID.randomUUID().toString(),
                 details: [ detail ]
         )
-        serviceDetailRepository.save(detail)
         serviceInstanceRepository.saveAndFlush(serviceInstance)
 
         when:
@@ -55,7 +54,6 @@ class ServiceDetailHelperSpec extends BaseSpecification {
 
         cleanup:
         serviceInstanceRepository.delete(serviceInstance)
-        serviceDetailRepository.delete(detail)
     }
 
     def 'Can resolve serviceInstance by key and value'() {
@@ -68,7 +66,6 @@ class ServiceDetailHelperSpec extends BaseSpecification {
                 guid: uuid,
                 details: [ detail ]
         )
-        serviceDetailRepository.save(detail)
         serviceInstanceRepository.saveAndFlush(serviceInstance)
 
         when:
@@ -85,6 +82,5 @@ class ServiceDetailHelperSpec extends BaseSpecification {
 
         cleanup:
         serviceInstanceRepository.delete(serviceInstance)
-        serviceDetailRepository.delete(detail)
     }
 }
