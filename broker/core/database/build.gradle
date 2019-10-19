@@ -6,4 +6,5 @@ dependencies {
     compile libs.micrometer_registry_influx
     compile project(':model')
     compile project(':broker:core:utils')
+    compile project(':broker:core:credhub-service')
 }
