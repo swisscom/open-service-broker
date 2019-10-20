@@ -52,6 +52,17 @@ class ServiceBinding extends BaseModel {
 
     String credhubCredentialId
 
+    /**
+     * Get the value of the desired ServiceDetail identified by its key
+     * FIXME WE should implement a equals in ServiceDetail using its key so we could use collections get
+     *
+     * @param key the identifier of the ServiceDetail
+     * @return the value associated to the key
+     */
+    public String getDetail(String key){
+        details.find{d -> d.key == key}.value
+    }
+
     @Override
     String toString() {
         return "ServiceBinding{" +
