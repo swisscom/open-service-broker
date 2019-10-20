@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 interface ServiceInstanceRepository extends BaseRepository<ServiceInstance, Integer>, ServiceInstanceRepositoryCustom {
     ServiceInstance findByGuid(String guid)
 
-    @Query("SELECT s FROM ServiceInstance s LEFT JOIN FETCH s.childs LEFT JOIN FETCH s.details WHERE s.guid = (:guid)")
+    @Query("SELECT s FROM ServiceInstance s LEFT JOIN FETCH s.childs LEFT JOIN FETCH s.details LEFT JOIN FETCH s.bindings WHERE s.guid = (:guid)")
     ServiceInstance findByGuidAndFetchChildsAndDetailsEagerly(@Param("guid") String guid)
 
     List<ServiceInstance> findByPlanIdIn(List<Integer> planIds)

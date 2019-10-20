@@ -17,9 +17,13 @@ package com.swisscom.cloud.sb.broker.repository
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 interface ServiceBindingRepository extends BaseRepository<ServiceBinding, Integer> {
     ServiceBinding findByGuid(String guid)
+
+    @Query("select sb from ServiceBinding sb LEFT JOIN FETCH sb.details where sb.guid = (:guid) ")
+    ServiceBinding findByGuidAndFetchDetailsEagerly(@Param("guid") String guid)
 
     @Query("select sb from ServiceBinding sb where sb.credhubCredentialId is null")
     List<ServiceBinding> findNotMigratedCredHubBindings()
