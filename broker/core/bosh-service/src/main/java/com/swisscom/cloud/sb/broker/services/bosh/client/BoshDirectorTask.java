@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.services.bosh.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.lang.StringUtils;
 import org.immutables.value.Value;
@@ -16,9 +18,8 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 /**
- *  The basic unit of work performed by the Director. You can get the status and logs for any task. You
- *  can monitor the task throughout its lifecycle, which progresses through states like queued, processing, done, and
- *  error.
+ * The basic unit of work performed by the Director. You can get the status and logs for any task. You can monitor the
+ * task throughout its lifecycle, which progresses through states like queued, processing, done, and error.
  *
  * @see <a href='https://bosh.io/docs/director-api-v1/#tasks'>Director API v1.0.0: Tasks</a>
  * @see <a href='https://bosh.io/docs/director-tasks/'>BOSH Documentation: Reviewing Tasks</a>
@@ -34,12 +35,12 @@ import static java.util.stream.Collectors.toMap;
 public abstract class BoshDirectorTask {
 
     public static final BoshDirectorTask EMPTY = BoshDirectorTask.boshTask()
-                                                           .id("")
-                                                           .state(State.UNKNOWN)
-                                                           .description("")
-                                                           .timestamp(-1L)
-                                                           .user("")
-                                                           .build();
+                                                                 .id("")
+                                                                 .state(State.UNKNOWN)
+                                                                 .description("")
+                                                                 .timestamp(-1L)
+                                                                 .user("")
+                                                                 .build();
 
     public abstract String getId();
 
@@ -49,7 +50,7 @@ public abstract class BoshDirectorTask {
 
     @Value.Default
     @Nullable
-    public  String getDeployment(){
+    public String getDeployment() {
         return "";
     }
 
@@ -79,6 +80,28 @@ public abstract class BoshDirectorTask {
     @Value.Default
     public Collection<Event> getEvents() {
         return emptyList();
+    }
+
+    @Value.Derived
+    public Event lastEvent() {
+        if (getEvents().size() == 0) {
+            return Event.EMPTY;
+        }
+        Iterator<Event> iterator = getEvents().iterator();
+        Event result;
+        do {
+            result = iterator.next();
+        } while (iterator.hasNext());
+        return result;
+    }
+
+    @Value.Lazy
+    public String getEventsAsJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(getEvents());
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Can't convert events to JSON", e);
+        }
     }
 
     public enum State {
@@ -126,6 +149,16 @@ public abstract class BoshDirectorTask {
     @JsonDeserialize(builder = ImmutableEvent.Builder.class)
     @Value.Immutable
     public static abstract class Event implements Comparable<Event> {
+        public static final Event EMPTY = ImmutableEvent.of(-1L,
+                                                            0,
+                                                            0,
+                                                            State.UNKNOWN,
+                                                            0,
+                                                            "",
+                                                            emptyMap(),
+                                                            Error.EMPTY,
+                                                            "",
+                                                            emptyList());
 
         public abstract long getTime();
 
@@ -144,7 +177,7 @@ public abstract class BoshDirectorTask {
             return UNKNOWN;
         }
 
-        public enum State{
+        public enum State {
             @JsonProperty("started")
             STARTED("started"),
             @JsonProperty("finished")
