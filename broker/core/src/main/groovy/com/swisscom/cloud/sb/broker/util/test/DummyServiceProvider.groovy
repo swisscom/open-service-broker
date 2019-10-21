@@ -42,11 +42,15 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+
+import static org.apache.commons.lang.StringUtils.isBlank
+import static org.apache.commons.lang.StringUtils.isNotBlank
 
 @Component
 @Slf4j
@@ -99,9 +103,9 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
         if (request.acceptsIncomplete) {
             asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(ServiceProvisioningJob.class, request, RETRY_INTERVAL_IN_SECONDS, 5))
         }
-        return (dashboardUrl?.isEmpty()) ?
+        return (dashboardUrl == null || isBlank(dashboardUrl as String)) ?
                 new ProvisionResponse(details: serviceDetails, isAsync: request.acceptsIncomplete) :
-                new ProvisionResponse(details: serviceDetails, isAsync: request.acceptsIncomplete, dashboardURL: dashboardUrl)
+                new ProvisionResponse(details: serviceDetails, isAsync: request.acceptsIncomplete, dashboardURL: dashboardUrl as String)
     }
 
     @Override
@@ -139,9 +143,14 @@ class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
         def serviceDetails = ServiceDetailsHelper.from(context.serviceInstance.details)
-        int delay = serviceDetails.details.size() != 0 ?
-                serviceDetails.getValue(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS) as int :
-                DEFAULT_PROCESSING_DELAY_IN_SECONDS
+
+        int delay = DEFAULT_PROCESSING_DELAY_IN_SECONDS
+        java.util.Optional<String> delayInSeconds = serviceDetails.findValue(DummyServiceProviderServiceDetailKey.DELAY_IN_SECONDS)
+
+        if (delayInSeconds != null && delayInSeconds.isPresent() && isNotBlank(delayInSeconds.get())) {
+            delay = Integer.parseInt(delayInSeconds.get())
+        }
+
         return Optional.of(processOperationResultBasedOnIfEnoughTimeHasElapsed(context, delay))
     }
 

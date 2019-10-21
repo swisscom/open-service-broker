@@ -130,7 +130,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
         ex.statusCode == HttpStatus.BAD_REQUEST
     }
 
-    def "deprovision async parent service instance with deleted children"() {
+    def "should delete child"() {
         when:
         serviceBrokerClient.deleteServiceInstance(DeleteServiceInstanceRequest.builder().
                 serviceDefinitionId(serviceLifeCycler.cfService.guid).
@@ -140,8 +140,16 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                 build()
         )
         serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
-                                                        childServiceInstanceGuid)
+                childServiceInstanceGuid)
 
+        then:
+        noExceptionThrown()
+        def child = serviceInstanceRepository.findByGuid(childServiceInstanceGuid)
+        child.deleted == true
+    }
+
+    def "deprovision async parent service instance with deleted children"() {
+        when:
         serviceBrokerClient.deleteServiceInstance(DeleteServiceInstanceRequest.builder().
                 serviceDefinitionId(serviceLifeCycler.cfService.guid).
                 planId((serviceLifeCycler.cfService.plans[0] as Plan).guid).
@@ -154,6 +162,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                                                         parentServiceInstanceGuid)
 
         then:
+        noExceptionThrown()
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
 
