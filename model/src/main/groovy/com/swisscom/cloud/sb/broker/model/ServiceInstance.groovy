@@ -32,9 +32,9 @@ class ServiceInstance extends BaseModel{
     Date dateDeleted
     @Column
     String parameters
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name="service_instance_id")
-    List<ServiceBinding> bindings = []
+    Set<ServiceBinding> bindings = []
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "service_instance_service_detail",
             joinColumns = @JoinColumn(name = "service_instance_details_id"),

@@ -88,4 +88,47 @@ class LastOperation extends BaseModel{
             return action
         }
     }
+
+    boolean equals(o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (!(o instanceof LastOperation)) {
+            return false
+        }
+
+        LastOperation that = (LastOperation) o
+
+        if (dateCreation != that.dateCreation) {
+            return false
+        }
+        if (description != that.description) {
+            return false
+        }
+        if (guid != that.guid) {
+            return false
+        }
+        if (internalState != that.internalState) {
+            return false
+        }
+        if (operation != that.operation) {
+            return false
+        }
+        if (status != that.status) {
+            return false
+        }
+
+        return true
+    }
+
+    int hashCode() {
+        int result
+        result = guid.hashCode()
+        result = 31 * result + (operation != null ? operation.hashCode() : 0)
+        result = 31 * result + (dateCreation != null ? dateCreation.hashCode() : 0)
+        result = 31 * result + (status != null ? status.hashCode() : 0)
+        result = 31 * result + (description != null ? description.hashCode() : 0)
+        result = 31 * result + (internalState != null ? internalState.hashCode() : 0)
+        return result
+    }
 }
