@@ -82,9 +82,8 @@ public abstract class BoshDirectorTask {
         return emptyList();
     }
 
-    @Value.Derived
     public Event lastEvent() {
-        if (getEvents().size() == 0) {
+        if (getEvents().isEmpty()) {
             return Event.EMPTY;
         }
         Iterator<Event> iterator = getEvents().iterator();
@@ -247,6 +246,10 @@ public abstract class BoshDirectorTask {
 
         @Override
         public String toString() {
+            if(isEmpty()){
+                return "Empty Event";
+            }
+            
             if (hasError()) {
                 return new StringJoiner(" ", Event.class.getSimpleName() + "[", "]")
                         .add(valueOf(getTime()))
@@ -266,6 +269,10 @@ public abstract class BoshDirectorTask {
 
         public boolean hasError() {
             return !Objects.equals(getError(), Error.EMPTY);
+        }
+
+        public boolean isEmpty() {
+            return Objects.equals(this, Event.EMPTY);
         }
 
         @Override
