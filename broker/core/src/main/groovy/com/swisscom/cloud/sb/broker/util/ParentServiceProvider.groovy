@@ -3,10 +3,12 @@ package com.swisscom.cloud.sb.broker.util
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 
 import static com.swisscom.cloud.sb.broker.model.LastOperation.Status.IN_PROGRESS
 
+@CompileStatic
 trait ParentServiceProvider {
     private static final String MAX_CHILDREN = "max_children"
 
@@ -18,7 +20,7 @@ trait ParentServiceProvider {
     }
 
     boolean isFull(ServiceInstance serviceInstance) {
-        Parameter param = serviceInstance.plan.parameters.find { it.name == MAX_CHILDREN }
+        Parameter param = serviceInstance.plan.parameters.find { p -> p.name == MAX_CHILDREN }
         if (param == null) {
             return false
         } else {
@@ -28,7 +30,7 @@ trait ParentServiceProvider {
 
     int getActiveChildrenCount(ServiceInstance serviceInstance) {
         def undeletedChildren = serviceInstance.childs.findAll { si -> !si.deleted }
-        int completedUndeletedChildrenCount = undeletedChildren.count { si -> si.completed }
+        def completedUndeletedChildrenCount = undeletedChildren.count { si -> si.completed }
 
         def uncompletedChildren = undeletedChildren.findAll { si -> !si.completed }
 
