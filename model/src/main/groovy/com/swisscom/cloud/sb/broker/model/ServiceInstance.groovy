@@ -16,11 +16,9 @@
 package com.swisscom.cloud.sb.broker.model
 
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
 
 @Entity
 class ServiceInstance extends BaseModel{
-    @NotBlank
     @Column(unique = true)
     String guid
     Date dateCreated = new Date()
