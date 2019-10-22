@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.cfapi.dto
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ProvisioningDto implements Serializable {
     @NotBlank(message = "service_id must not be blank")
     String service_id
