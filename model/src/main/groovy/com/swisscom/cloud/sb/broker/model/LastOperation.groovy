@@ -25,7 +25,6 @@ import javax.validation.constraints.NotBlank
 
 @Entity
 class LastOperation extends BaseModel{
-    @NotBlank
     @Column(unique = true)
     @Description("ServiceInstanceGuid")
     String guid

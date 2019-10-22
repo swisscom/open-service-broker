@@ -18,12 +18,10 @@ package com.swisscom.cloud.sb.broker.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 import javax.persistence.*
-import javax.validation.constraints.NotBlank
 
 @Entity
 class Plan extends BaseModel{
 
-    @NotBlank
     @Column(unique = true)
     String guid
     String name

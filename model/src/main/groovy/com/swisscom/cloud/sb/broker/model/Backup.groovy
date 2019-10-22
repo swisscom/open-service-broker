@@ -22,7 +22,6 @@ import javax.validation.constraints.NotBlank
 
 @Entity
 class Backup extends BaseModel{
-    @NotBlank
     @Column(unique = true)
     String guid
 

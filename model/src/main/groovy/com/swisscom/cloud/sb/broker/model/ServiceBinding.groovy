@@ -23,7 +23,6 @@ import javax.validation.constraints.NotBlank
 @Entity
 class ServiceBinding extends BaseModel {
 
-    @NotBlank
     @Column(unique = true)
     String guid
     @Column(columnDefinition = 'text')
