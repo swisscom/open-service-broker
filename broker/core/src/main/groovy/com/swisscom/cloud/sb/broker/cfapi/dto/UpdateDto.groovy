@@ -15,9 +15,11 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class UpdateDto implements Serializable {
     @NotBlank(message = "service_id must not be blank")
     String service_id

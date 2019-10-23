@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.cloud.servicebroker.model.Context
 
