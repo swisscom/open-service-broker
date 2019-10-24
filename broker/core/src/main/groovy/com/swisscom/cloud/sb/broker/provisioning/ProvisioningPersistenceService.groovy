@@ -130,7 +130,9 @@ class ProvisioningPersistenceService {
         details.each {
             ServiceDetail detail ->
                 if (tmpServiceInstance.details.any { d -> d.equals(detail) } && detail.isUniqueKey()) {
-                    detail.value = detail.value
+                    def existingServiceDetail = tmpServiceInstance.details.find { d -> d.equals(detail) }
+                    existingServiceDetail.value = detail.value
+                    existingServiceDetail.uniqueKey = detail.uniqueKey
                 } else {
                     tmpServiceInstance.details.add(detail)
                 }
