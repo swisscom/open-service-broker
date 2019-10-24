@@ -52,17 +52,17 @@ class ProvisioningPersistenceService {
     protected ApplicationUserRepository applicationUserRepository
 
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
-        LOGGER.info("saveProvisionRequest({})", provisionRequest)
+        LOGGER.debug("saveProvisionRequest({})", provisionRequest)
         provisionRequestRepository.save(provisionRequest)
     }
 
     def saveDeprovisionRequest(DeprovisionRequest deprovisionRequest) {
-        LOGGER.info("saveDeprovisionRequest({})", deprovisionRequest)
+        LOGGER.debug("saveDeprovisionRequest({})", deprovisionRequest)
         deprovisionRequestRepository.save(deprovisionRequest)
     }
 
     ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
-        LOGGER.info("createServiceInstance({})", provisionRequest)
+        LOGGER.debug("createServiceInstance({})", provisionRequest)
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
         instance.plan = provisionRequest.plan
@@ -78,7 +78,7 @@ class ProvisioningPersistenceService {
     }
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
-        LOGGER.info("setParentServiceInstance({}, {})", provisionRequest, instance)
+        LOGGER.debug("setParentServiceInstance({}, {})", provisionRequest, instance)
         ServiceInstance parentInstance = null
         if (!provisionRequest.parameters || !provisionRequest.parameters.contains("parent_reference"))
             return parentInstance;
@@ -100,7 +100,7 @@ class ProvisioningPersistenceService {
      * @return Parent ServiceInstance if found, otherwise null
      */
     ServiceInstance findParentServiceInstance(String parameters) {
-        LOGGER.info("findParentServiceInstance({})", parameters)
+        LOGGER.debug("findParentServiceInstance({})", parameters)
         ServiceInstance parentInstance = null
         def jsonSlurper = new JsonSlurper()
         def parametersMap = jsonSlurper.parseText(parameters) as Map
@@ -112,7 +112,7 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
-        LOGGER.info("createServiceInstance({}, {})", provisionRequest, provisionResponse)
+        LOGGER.debug("createServiceInstance({}, {})", provisionRequest, provisionResponse)
         ServiceInstance instance = createServiceInstance(provisionRequest)
         instance.completed = !provisionResponse.isAsync
 
@@ -120,7 +120,7 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance updateServiceDetails(final Collection<ServiceDetail> details, final ServiceInstance instance) {
-        LOGGER.info("updateServiceDetails({}, {})", details, instance)
+        LOGGER.debug("updateServiceDetails({}, {})", details, instance)
 
         if (details == null) {
             return instance
@@ -142,7 +142,7 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance createServiceInstanceOrUpdateDetails(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
-        LOGGER.info("createServiceInstanceOrUpdateDetails({}, {})", provisionRequest, provisionResponse)
+        LOGGER.debug("createServiceInstanceOrUpdateDetails({}, {})", provisionRequest, provisionResponse)
         def serviceInstance = getServiceInstance(provisionRequest.serviceInstanceGuid)
         if (serviceInstance) {
             return updateServiceDetails(provisionResponse.details, serviceInstance)
@@ -152,7 +152,7 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance updateServiceDetails(UpdateRequest updateRequest, UpdateResponse updateResponse) {
-        LOGGER.info("updateServiceDetails({}, {})", updateRequest, updateResponse)
+        LOGGER.debug("updateServiceDetails({}, {})", updateRequest, updateResponse)
         def serviceInstance = getServiceInstance(updateRequest.serviceInstanceGuid)
         if (serviceInstance) {
             return updateServiceDetails(updateResponse.details, serviceInstance)
@@ -160,26 +160,26 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
-        LOGGER.info("updateServiceInstanceCompletion({}, {})", instance, completed)
+        LOGGER.debug("updateServiceInstanceCompletion({}, {})", instance, completed)
         def tmpInstance = getServiceInstance(instance.guid)
         tmpInstance.completed = completed
         return serviceInstanceRepository.saveAndFlush(tmpInstance)
     }
 
     ServiceInstance markServiceInstanceAsDeleted(ServiceInstance instance) {
-        LOGGER.info("markServiceInstanceAsDeleted({})", instance)
+        LOGGER.debug("markServiceInstanceAsDeleted({})", instance)
         instance.deleted = true
         instance.dateDeleted = new Date()
         return serviceInstanceRepository.save(instance)
     }
 
     ServiceInstance getServiceInstance(String guid) {
-        LOGGER.info("getServiceInstance({})", guid)
+        LOGGER.debug("getServiceInstance({})", guid)
         return serviceInstanceRepository.findByGuid(guid)
     }
 
     ServiceInstance deleteServiceInstance(ServiceInstance serviceInstance) {
-        LOGGER.info("deleteServiceInstance({})", serviceInstance)
+        LOGGER.debug("deleteServiceInstance({})", serviceInstance)
         Set<ServiceDetail> details = new HashSet<ServiceDetail>(serviceInstance.details ?: new ArrayList<ServiceDetail>())
         details.each {
             ServiceDetail detail ->
@@ -191,14 +191,14 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(ServiceInstance serviceInstance) {
-        LOGGER.info("deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists({})", serviceInstance)
+        LOGGER.debug("deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists({})", serviceInstance)
         removeDeprovisionRequestIfExists(serviceInstance.guid)
 
         return deleteServiceInstance(serviceInstance)
     }
 
     def removeProvisionRequestIfExists(String guid) {
-        LOGGER.info("removeProvisionRequestIfExists({})", guid)
+        LOGGER.debug("removeProvisionRequestIfExists({})", guid)
         ProvisionRequest provisionRequest = provisionRequestRepository.findByServiceInstanceGuid(guid)
         if (provisionRequest) {
             log.info("Deleting provisionRequest with id:${guid}")
@@ -209,7 +209,7 @@ class ProvisioningPersistenceService {
     }
 
     def removeDeprovisionRequestIfExists(String guid) {
-        LOGGER.info("removeDeprovisionRequestIfExists({})", guid)
+        LOGGER.debug("removeDeprovisionRequestIfExists({})", guid)
         DeprovisionRequest deprovisionRequest = deprovisionRequestRepository.findByServiceInstanceGuid(guid)
         if (deprovisionRequest) {
             log.info("Deleting deprovisionRequest(s) with id:${guid}")

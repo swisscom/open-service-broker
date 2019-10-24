@@ -47,7 +47,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     boolean has(String serviceInstanceGuid, String key) {
-        LOGGER.info("has({}, {})", serviceInstanceGuid, key)
+        LOGGER.debug("has({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -56,7 +56,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key) {
-        LOGGER.info("get({}, {})", serviceInstanceGuid, key)
+        LOGGER.debug("get({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -69,7 +69,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key, String defaultValue) {
-        LOGGER.info("get({}, {}, default:{})", serviceInstanceGuid, key, defaultValue)
+        LOGGER.debug("get({}, {}, default:{})", serviceInstanceGuid, key, defaultValue)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -81,7 +81,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid, String key) {
-        LOGGER.info("getAll({}, {})", serviceInstanceGuid, key)
+        LOGGER.debug("getAll({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -92,13 +92,13 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
-        LOGGER.info("get({})", serviceInstanceGuid)
+        LOGGER.debug("get({})", serviceInstanceGuid)
         return getAll(serviceInstanceGuid)
     }
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid) {
-        LOGGER.info("getAll({})", serviceInstanceGuid)
+        LOGGER.debug("getAll({})", serviceInstanceGuid)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
 
         return getServiceInstance(serviceInstanceGuid).details
@@ -108,7 +108,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> set(String serviceInstanceGuid, Pair<String, String> data) {
-        LOGGER.info("set({}, {})", serviceInstanceGuid, data)
+        LOGGER.debug("set({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(isNotBlank(data.first), ERROR_DETAIL_BLANK)
@@ -121,7 +121,7 @@ class LocalInventoryServiceImpl implements InventoryService {
     }
 
     private boolean addOrUpdateReturnTrueIfUpdated(ServiceInstance serviceInstance, Pair<String, String> data) {
-        LOGGER.info("addOrUpdateReturnTrueIfUpdated({}, {})", serviceInstance, data)
+        LOGGER.debug("addOrUpdateReturnTrueIfUpdated({}, {})", serviceInstance, data)
         ServiceDetail detail = serviceInstance.details.find { d -> d.key.equals(data.first) }
 
         if (detail != null) {
@@ -140,7 +140,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> replace(String serviceInstanceGuid, List<Pair<String, String>> data) {
-        LOGGER.info("replace({}, {})", serviceInstanceGuid, data)
+        LOGGER.debug("replace({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(data.size() == 0 || data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
@@ -165,7 +165,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> append(String serviceInstanceGuid, List<Pair<String, String>> data) {
-        LOGGER.info("append({}, {})", serviceInstanceGuid, data)
+        LOGGER.debug("append({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
@@ -183,7 +183,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> delete(String serviceInstanceGuid, String key) {
-        LOGGER.info("delete({}, {})", serviceInstanceGuid, key)
+        LOGGER.debug("delete({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -200,7 +200,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> createOrReplaceByKey(String serviceInstanceGuid, String key, String[] values) {
-        LOGGER.info("createOrReplaceByKey({}, {}, {})", serviceInstanceGuid, key, values)
+        LOGGER.debug("createOrReplaceByKey({}, {}, {})", serviceInstanceGuid, key, values)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
         checkArgument(values != null, ERROR_DETAIL_MANDATORY)
