@@ -5,6 +5,8 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.data.util.Pair
 import org.springframework.stereotype.Service
 
@@ -15,6 +17,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank
 @CompileStatic
 @Service
 class LocalInventoryServiceImpl implements InventoryService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalInventoryServiceImpl.class)
 
     public static String ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED = "service instance guid cannot be null or empty"
     public static String ERROR_KEY_NOT_DEFINED = "key cannot be null or empty"
@@ -43,6 +47,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     boolean has(String serviceInstanceGuid, String key) {
+        LOGGER.debug("has({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -51,6 +56,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key) {
+        LOGGER.debug("get({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -63,6 +69,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     Pair<String, String> get(String serviceInstanceGuid, String key, String defaultValue) {
+        LOGGER.debug("get({}, {}, default:{})", serviceInstanceGuid, key, defaultValue)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -74,6 +81,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid, String key) {
+        LOGGER.debug("getAll({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -84,11 +92,13 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> get(String serviceInstanceGuid) {
+        LOGGER.debug("get({})", serviceInstanceGuid)
         return getAll(serviceInstanceGuid)
     }
 
     @Override
     List<Pair<String, String>> getAll(String serviceInstanceGuid) {
+        LOGGER.debug("getAll({})", serviceInstanceGuid)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
 
         return getServiceInstance(serviceInstanceGuid).details
@@ -98,33 +108,31 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> set(String serviceInstanceGuid, Pair<String, String> data) {
+        LOGGER.debug("set({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(isNotBlank(data.first), ERROR_DETAIL_BLANK)
 
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
-
-        if (!addOrUpdateReturnTrueIfUpdated(serviceInstance, data)) {
-            serviceInstance = serviceInstanceRepository.save(serviceInstance)
-        }
+        addOrUpdateReturnTrueIfUpdated(serviceInstance, data)
+        serviceInstanceRepository.save(serviceInstance)
 
         return get(serviceInstanceGuid)
     }
 
     private boolean addOrUpdateReturnTrueIfUpdated(ServiceInstance serviceInstance, Pair<String, String> data) {
+        LOGGER.debug("addOrUpdateReturnTrueIfUpdated({}, {})", serviceInstance, data)
         ServiceDetail detail = serviceInstance.details.find { d -> d.key.equals(data.first) }
 
         if (detail != null) {
             if (detail.value != data.second) {
                 detail.value = data.second
-                detail = serviceDetailRepository.save(detail)
             }
 
             return true
         }
 
         def serviceDetail = ServiceDetail.from(data.first, data.second)
-        serviceDetail = serviceDetailRepository.save(serviceDetail)
         serviceInstance.details.add(serviceDetail)
 
         return false
@@ -132,12 +140,12 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> replace(String serviceInstanceGuid, List<Pair<String, String>> data) {
+        LOGGER.debug("replace({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(data.size() == 0 || data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
 
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
-
         def previousDetails = serviceInstance.details.toList()
 
         for (def entry in data) {
@@ -148,16 +156,16 @@ class LocalInventoryServiceImpl implements InventoryService {
 
         for (def entry in previousDetails) {
             serviceInstance.details.removeIf({ d -> d.key.equalsIgnoreCase(entry.key) })
-            serviceDetailRepository.delete(entry)
         }
 
-        serviceInstance = serviceInstanceRepository.save(serviceInstance)
+        serviceInstanceRepository.save(serviceInstance)
 
         return get(serviceInstanceGuid)
     }
 
     @Override
     List<Pair<String, String>> append(String serviceInstanceGuid, List<Pair<String, String>> data) {
+        LOGGER.debug("append({}, {})", serviceInstanceGuid, data)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(data != null, ERROR_DETAIL_MANDATORY)
         checkArgument(data.any { kvp -> isNotBlank(kvp.first) }, ERROR_DETAIL_BLANK)
@@ -165,18 +173,17 @@ class LocalInventoryServiceImpl implements InventoryService {
         def serviceInstance = getServiceInstance(serviceInstanceGuid)
 
         for (def entry in data) {
-            def serviceDetail = ServiceDetail.from(entry.first, entry.second)
-            serviceDetail = serviceDetailRepository.save(serviceDetail)
-            serviceInstance.details.add(serviceDetail)
+            serviceInstance.details.add(ServiceDetail.from(entry.first, entry.second))
         }
 
-        serviceInstance = serviceInstanceRepository.save(serviceInstance)
+        serviceInstanceRepository.save(serviceInstance)
 
         return get(serviceInstanceGuid)
     }
 
     @Override
     List<Pair<String, String>> delete(String serviceInstanceGuid, String key) {
+        LOGGER.debug("delete({}, {})", serviceInstanceGuid, key)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
 
@@ -185,7 +192,6 @@ class LocalInventoryServiceImpl implements InventoryService {
 
         if (detail != null) {
             serviceInstance.details.removeAll { d -> d.key.equals(key) }
-            serviceDetailRepository.delete(detail)
             serviceInstance = serviceInstanceRepository.save(serviceInstance)
         }
 
@@ -194,6 +200,7 @@ class LocalInventoryServiceImpl implements InventoryService {
 
     @Override
     List<Pair<String, String>> createOrReplaceByKey(String serviceInstanceGuid, String key, String[] values) {
+        LOGGER.debug("createOrReplaceByKey({}, {}, {})", serviceInstanceGuid, key, values)
         checkArgument(isNotBlank(serviceInstanceGuid), ERROR_SERVICE_INSTANCE_ID_NOT_DEFINED)
         checkArgument(isNotBlank(key), ERROR_KEY_NOT_DEFINED)
         checkArgument(values != null, ERROR_DETAIL_MANDATORY)
@@ -213,9 +220,8 @@ class LocalInventoryServiceImpl implements InventoryService {
 
         toDelete.each { d ->
             serviceInstance.details.removeAll { dd -> dd.id == d.id }
-            serviceDetailRepository.delete(d)
         }
-        serviceInstance = serviceInstanceRepository.save(serviceInstance)
+        serviceInstanceRepository.save(serviceInstance)
 
         return get(serviceInstanceGuid)
     }

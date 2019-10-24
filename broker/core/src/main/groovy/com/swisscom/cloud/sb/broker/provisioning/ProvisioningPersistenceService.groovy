@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
+
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.repository.*
@@ -23,6 +23,8 @@ import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @CompileStatic
 class ProvisioningPersistenceService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProvisioningPersistenceService.class)
+
     @Autowired
     private ProvisionRequestRepository provisionRequestRepository
 
@@ -45,20 +49,20 @@ class ProvisioningPersistenceService {
     private ServiceDetailRepository serviceDetailRepository
 
     @Autowired
-    private ServiceContextPersistenceService contextPersistenceService
-
-    @Autowired
     protected ApplicationUserRepository applicationUserRepository
 
     def saveProvisionRequest(ProvisionRequest provisionRequest) {
+        LOGGER.debug("saveProvisionRequest({})", provisionRequest)
         provisionRequestRepository.save(provisionRequest)
     }
 
     def saveDeprovisionRequest(DeprovisionRequest deprovisionRequest) {
+        LOGGER.debug("saveDeprovisionRequest({})", deprovisionRequest)
         deprovisionRequestRepository.save(deprovisionRequest)
     }
 
     ServiceInstance createServiceInstance(ProvisionRequest provisionRequest) {
+        LOGGER.debug("createServiceInstance({})", provisionRequest)
         ServiceInstance instance = new ServiceInstance()
         instance.guid = provisionRequest.serviceInstanceGuid
         instance.plan = provisionRequest.plan
@@ -74,6 +78,7 @@ class ProvisioningPersistenceService {
     }
 
     private ServiceInstance setParentServiceInstance(ProvisionRequest provisionRequest, ServiceInstance instance) {
+        LOGGER.debug("setParentServiceInstance({}, {})", provisionRequest, instance)
         ServiceInstance parentInstance = null
         if (!provisionRequest.parameters || !provisionRequest.parameters.contains("parent_reference"))
             return parentInstance;
@@ -83,7 +88,6 @@ class ProvisioningPersistenceService {
             ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
 
         instance.parentServiceInstance = parentInstance
-        serviceInstanceRepository.merge(instance)
         parentInstance.childs << instance
         serviceInstanceRepository.merge(parentInstance)
 
@@ -96,6 +100,7 @@ class ProvisioningPersistenceService {
      * @return Parent ServiceInstance if found, otherwise null
      */
     ServiceInstance findParentServiceInstance(String parameters) {
+        LOGGER.debug("findParentServiceInstance({})", parameters)
         ServiceInstance parentInstance = null
         def jsonSlurper = new JsonSlurper()
         def parametersMap = jsonSlurper.parseText(parameters) as Map
@@ -107,6 +112,7 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance createServiceInstance(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+        LOGGER.debug("createServiceInstance({}, {})", provisionRequest, provisionResponse)
         ServiceInstance instance = createServiceInstance(provisionRequest)
         instance.completed = !provisionResponse.isAsync
 
@@ -114,30 +120,29 @@ class ProvisioningPersistenceService {
     }
 
     ServiceInstance updateServiceDetails(final Collection<ServiceDetail> details, final ServiceInstance instance) {
-        details?.each {
+        LOGGER.debug("updateServiceDetails({}, {})", details, instance)
+
+        if (details == null) {
+            return instance
+        }
+
+        def tmpServiceInstance = getServiceInstance(instance.guid)
+        details.each {
             ServiceDetail detail ->
-                if (detail.isUniqueKey()) {
-                    removeExistingServiceDetailsForKey(detail, instance)
+                if (tmpServiceInstance.details.any { d -> d.equals(detail) } && detail.isUniqueKey()) {
+                    def existingServiceDetail = tmpServiceInstance.details.find { d -> d.equals(detail) }
+                    existingServiceDetail.value = detail.value
+                    existingServiceDetail.uniqueKey = detail.uniqueKey
+                } else {
+                    tmpServiceInstance.details.add(detail)
                 }
-                serviceDetailRepository.save(detail)
-
-                if (!instance.details.any { d -> d == detail })
-                    instance.details.add(detail)
         }
-        serviceInstanceRepository.save(instance)
-    }
 
-    private void removeExistingServiceDetailsForKey(ServiceDetail newServiceDetail, ServiceInstance instance) {
-        def existingDetails = instance.details.findAll { it.key == newServiceDetail.key }
-        existingDetails?.each {
-            ServiceDetail existing ->
-                instance.details.remove(existing)
-                serviceDetailRepository.delete(existing)
-        }
-        serviceInstanceRepository.save(instance)
+        return serviceInstanceRepository.saveAndFlush(tmpServiceInstance)
     }
 
     ServiceInstance createServiceInstanceOrUpdateDetails(ProvisionRequest provisionRequest, ProvisionResponse provisionResponse) {
+        LOGGER.debug("createServiceInstanceOrUpdateDetails({}, {})", provisionRequest, provisionResponse)
         def serviceInstance = getServiceInstance(provisionRequest.serviceInstanceGuid)
         if (serviceInstance) {
             return updateServiceDetails(provisionResponse.details, serviceInstance)
@@ -146,48 +151,54 @@ class ProvisioningPersistenceService {
         }
     }
 
-    ServiceInstance updateServiceDetails(UpdateRequest updateRequest, UpdateResponse provisionResponse) {
+    ServiceInstance updateServiceDetails(UpdateRequest updateRequest, UpdateResponse updateResponse) {
+        LOGGER.debug("updateServiceDetails({}, {})", updateRequest, updateResponse)
         def serviceInstance = getServiceInstance(updateRequest.serviceInstanceGuid)
         if (serviceInstance) {
-            return updateServiceDetails(provisionResponse.details, serviceInstance)
+            return updateServiceDetails(updateResponse.details, serviceInstance)
         }
     }
 
     ServiceInstance updateServiceInstanceCompletion(ServiceInstance instance, boolean completed) {
-        instance = serviceInstanceRepository.merge(instance)
-        instance.completed = completed
-        serviceInstanceRepository.save(instance)
-        return instance
+        LOGGER.debug("updateServiceInstanceCompletion({}, {})", instance, completed)
+        def tmpInstance = getServiceInstance(instance.guid)
+        tmpInstance.completed = completed
+        return serviceInstanceRepository.saveAndFlush(tmpInstance)
     }
 
-    def markServiceInstanceAsDeleted(ServiceInstance instance) {
-        instance = serviceInstanceRepository.merge(instance)
+    ServiceInstance markServiceInstanceAsDeleted(ServiceInstance instance) {
+        LOGGER.debug("markServiceInstanceAsDeleted({})", instance)
         instance.deleted = true
         instance.dateDeleted = new Date()
-        serviceInstanceRepository.save(instance)
+        return serviceInstanceRepository.save(instance)
     }
 
     ServiceInstance getServiceInstance(String guid) {
+        LOGGER.debug("getServiceInstance({})", guid)
         return serviceInstanceRepository.findByGuid(guid)
     }
 
-    def deleteServiceInstance(ServiceInstance serviceInstance) {
+    ServiceInstance deleteServiceInstance(ServiceInstance serviceInstance) {
+        LOGGER.debug("deleteServiceInstance({})", serviceInstance)
         Set<ServiceDetail> details = new HashSet<ServiceDetail>(serviceInstance.details ?: new ArrayList<ServiceDetail>())
         details.each {
             ServiceDetail detail ->
                 serviceInstance.details.remove(detail)
                 serviceDetailRepository.delete(detail)
         }
-        serviceInstanceRepository.delete(serviceInstance)
+
+        return serviceInstanceRepository.delete(serviceInstance)
     }
 
-    def deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(ServiceInstance serviceInstance) {
-        log.info("Delete request for:${serviceInstance.toString()}")
+    ServiceInstance deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(ServiceInstance serviceInstance) {
+        LOGGER.debug("deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists({})", serviceInstance)
         removeDeprovisionRequestIfExists(serviceInstance.guid)
-        deleteServiceInstance(serviceInstance)
+
+        return deleteServiceInstance(serviceInstance)
     }
 
     def removeProvisionRequestIfExists(String guid) {
+        LOGGER.debug("removeProvisionRequestIfExists({})", guid)
         ProvisionRequest provisionRequest = provisionRequestRepository.findByServiceInstanceGuid(guid)
         if (provisionRequest) {
             log.info("Deleting provisionRequest with id:${guid}")
@@ -198,6 +209,7 @@ class ProvisioningPersistenceService {
     }
 
     def removeDeprovisionRequestIfExists(String guid) {
+        LOGGER.debug("removeDeprovisionRequestIfExists({})", guid)
         DeprovisionRequest deprovisionRequest = deprovisionRequestRepository.findByServiceInstanceGuid(guid)
         if (deprovisionRequest) {
             log.info("Deleting deprovisionRequest(s) with id:${guid}")
