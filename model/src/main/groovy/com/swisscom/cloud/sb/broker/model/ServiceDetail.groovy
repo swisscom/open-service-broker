@@ -20,7 +20,7 @@ import com.swisscom.cloud.sb.broker.util.servicedetail.AbstractServiceDetailKey
 import javax.persistence.*
 
 @Entity
-class ServiceDetail extends BaseModel{
+class ServiceDetail extends BaseModel {
 
     @Column(name = '_key')
     String key
@@ -28,7 +28,7 @@ class ServiceDetail extends BaseModel{
     String value
     @Column(name = '_type')
     String type
-    @Column(columnDefinition='tinyint(1) default 0')
+    @Column(columnDefinition = 'tinyint(1) default 0')
     boolean uniqueKey
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,26 +48,24 @@ class ServiceDetail extends BaseModel{
     @Override
     boolean equals(Object obj) {
         ServiceDetail otherServiceDetail = obj as ServiceDetail
-        if (otherServiceDetail == null)
+        if (otherServiceDetail == null) {
             return false
+        }
 
         return isSameServiceDetail(otherServiceDetail)
     }
 
     private boolean isSameServiceDetail(ServiceDetail serviceDetail) {
         return (serviceDetail.id > 0 && serviceDetail.id == this.id) ||
-                (this.uniqueKey && serviceDetail.key == this.key)
+               (this.uniqueKey && serviceDetail.key == this.key)
     }
 
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", ServiceDetail.class.getSimpleName() + "[", "]")
-                .add("key='" + key + "'")
-                .add("value='" + value + "'")
-                .add("type='" + type + "'")
-                .add("uniqueKey=" + uniqueKey)
-                .add("serviceInstance=" + serviceInstance)
+        return new StringJoiner(" ", ServiceDetail.class.getSimpleName() + "[" + getId() + "][", "] of[" + serviceInstance.getId() + "]")
+                .add((uniqueKey ? "*" : "") + "'" + key + "'=")
+                .add("'" + value + "'")
                 .toString();
     }
 }
