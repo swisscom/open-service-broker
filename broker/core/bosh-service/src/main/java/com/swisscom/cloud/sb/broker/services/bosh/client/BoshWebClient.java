@@ -216,6 +216,9 @@ public class BoshWebClient {
     public BoshDeployment deleteDeployment(String deploymentName) {
         LOGGER.trace("deleteDeployment({})", deploymentName);
         BoshDeployment result = getDeployment(deploymentName);
+        if(BoshDeployment.EMPTY.equals(result)){
+            return BoshDeployment.EMPTY;
+        }
         Mono<ClientResponse> response = getDeleteWithAuthorizationToken(DEPLOYMENTS.value(), deploymentName)
                 .flatMap(cl -> cl.exchange());
         return response
@@ -236,18 +239,21 @@ public class BoshWebClient {
                                                                       r.statusCode(),
                                                                       bodyString)));
                     }
-
-
                 }).block();
-
     }
 
     public BoshDeployment getDeployment(String deploymentId) {
         LOGGER.trace("getDeployment('{}')", deploymentId);
-        return getGetWithAuthorizationToken(DEPLOYMENT.value(), deploymentId)
-                .flatMap(cl -> cl.retrieve()
-                                 .bodyToMono(BoshDeployment.class))
-                .block();
+        Mono<ClientResponse> response = getGetWithAuthorizationToken(DEPLOYMENT.value(),
+                                                                     deploymentId)
+                .flatMap(cl -> cl.exchange());
+        return response.flatMap(r -> {
+            if(r.statusCode().is2xxSuccessful()){
+                return r.bodyToMono(BoshDeployment.class);
+            }else{
+                return Mono.just(BoshDeployment.EMPTY);
+            }
+        }).block();
     }
 
     public BoshCloudConfig requestConfig(BoshCloudConfigRequest request) {
