@@ -19,6 +19,7 @@ dependencies {
     compile project(':client')
     compile project(':broker:core:bosh-service')
     compile project(':broker:core:database')
+    compile project(':broker:core:metrics')
     compile project(':broker:core:utils')
 
     compile libs.gpars
