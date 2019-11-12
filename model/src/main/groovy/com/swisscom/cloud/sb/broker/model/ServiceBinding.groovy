@@ -62,17 +62,14 @@ class ServiceBinding extends BaseModel {
         details.find{d -> d.key == key}.value
     }
 
+
     @Override
-    String toString() {
-        return "ServiceBinding{" +
-                "id=" + id +
-                ", guid='" + guid + '\'' +
-                ", credentials=" + credentials +
-                ", parameters=" + parameters +
-                ", details=" + details +
-                ", serviceContext=" + serviceContext +
-                "}"
+    public String toString() {
+        return new StringJoiner(", ", ServiceBinding.class.getSimpleName() + "[", "]")
+                .add("guid='" + guid + "'")
+                .add("credentials='" + credentials + "'")
+                .add("serviceInstanceId=" + serviceInstanceId)
+                .add("credhubCredentialId='" + credhubCredentialId + "'")
+                .toString();
     }
-
-
 }
