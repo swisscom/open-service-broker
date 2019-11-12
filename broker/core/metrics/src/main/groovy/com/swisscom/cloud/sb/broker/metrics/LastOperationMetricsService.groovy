@@ -20,8 +20,7 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
 
-@Component
-class LastOperationMetricsService extends PlanBasedMetricsService {
+class LastOperationMetricsService extends PlanBasedMetricsService implements LastOperationMetricService {
     static String LAST_OPERATIONS = "LastOperations"
     static String LAST_OPERATION_EVENTS = "LastOperationEvents"
 

@@ -18,9 +18,12 @@ package com.swisscom.cloud.sb.broker.metrics
 import com.swisscom.cloud.sb.broker.model.Plan
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 //FIXME For modularizing the metrics com.swisscom.cloud.sb.broker.servicedefinition.ServiceDefinitionProcessor is not depending in PlanBasedMetrics anymore
-abstract class PlanBasedMetricsService extends ServiceBrokerMetricsService {
+abstract class PlanBasedMetricsService extends ServiceBrokerMetricsService implements PlanMetricService {
+
     protected PlanBasedMetricsService(
             MeterRegistry meterRegistry,
             MetricsCache metricsCache,

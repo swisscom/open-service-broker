@@ -21,7 +21,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
-@Component
 @CompileStatic
 class LifecycleTimeMetricsService extends PlanBasedMetricsService {
 

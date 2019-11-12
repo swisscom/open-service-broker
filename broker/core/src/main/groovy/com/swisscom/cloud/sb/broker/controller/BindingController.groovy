@@ -22,6 +22,7 @@ import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.metrics.BindingMetricService
 import com.swisscom.cloud.sb.broker.metrics.BindingMetricsService
 import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.Plan
@@ -61,7 +62,7 @@ class BindingController extends BaseController {
     private ServiceInstanceBindingDtoConverter bindingDtoConverter
 
     @Autowired
-    private BindingMetricsService bindingMetricsService
+    private BindingMetricService bindingMetricsService
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}/service_bindings/{id}', method = RequestMethod.PUT)
