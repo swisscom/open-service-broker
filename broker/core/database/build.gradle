@@ -3,7 +3,5 @@ dependencies {
     compile libs.flyway
     compile libs.spring_boot_starter_security
     compile libs.spring_cloud_open_service_broker_core
-    compile libs.micrometer_registry_influx
-    compile project(':model')
     compile project(':broker:core:utils')
 }

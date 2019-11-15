@@ -18,7 +18,7 @@ package com.swisscom.cloud.sb.broker.servicedefinition
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.swisscom.cloud.sb.broker.cfapi.dto.SchemasDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
-import com.swisscom.cloud.sb.broker.metrics.PlanBasedMetricsService
+import com.swisscom.cloud.sb.broker.metrics.PlanMetricService
 import com.swisscom.cloud.sb.broker.model.*
 import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.broker.servicedefinition.dto.ServiceDto
@@ -56,7 +56,7 @@ class ServiceDefinitionProcessor {
     ObjectMapper objectMapper
 
     @Autowired
-    private List<PlanBasedMetricsService> planBasedMetricServices
+    private List<PlanMetricService> planBasedMetricServices
 
     def createOrUpdateServiceDefinitionFromYaml(ServiceDto serviceDto) {
         CFService service = processServiceBasicDefiniton(serviceDto)

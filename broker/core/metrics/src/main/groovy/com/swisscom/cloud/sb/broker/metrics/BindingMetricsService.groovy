@@ -23,10 +23,9 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
-@Component
 @CompileStatic
 @Slf4j
-class BindingMetricsService extends PlanBasedMetricsService {
+class BindingMetricsService extends PlanBasedMetricsService implements BindingMetricService {
 
     static String BINDING_SERVICE_KEY = "ServiceBindings"
     static String NEW_SERVICE_BINDINGS_KEY = "NewServiceBindings"

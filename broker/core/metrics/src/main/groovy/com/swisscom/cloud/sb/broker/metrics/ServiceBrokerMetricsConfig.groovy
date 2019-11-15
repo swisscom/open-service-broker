@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration
 @CompileStatic
 @Configuration
 @ConfigurationProperties(prefix = 'management.metrics.export.influx')
-class ServiceBrokerMetricsConfig implements Config{
+class ServiceBrokerMetricsConfig implements Config {
     String uri
     String step
     String userName

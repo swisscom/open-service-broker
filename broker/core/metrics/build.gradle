@@ -1,0 +1,8 @@
+
+dependencies {
+    compile project(':model')
+    compile project(':broker:core:database')
+    compile project(':broker:core:utils')
+    compile libs.micrometer_registry_influx
+
+}

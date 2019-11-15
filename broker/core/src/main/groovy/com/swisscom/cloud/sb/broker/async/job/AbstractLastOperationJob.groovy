@@ -18,6 +18,7 @@ package com.swisscom.cloud.sb.broker.async.job
 import com.swisscom.cloud.sb.broker.cfapi.converter.ErrorDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.metrics.LastOperationMetricService
 import com.swisscom.cloud.sb.broker.metrics.LastOperationMetricsService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
@@ -44,7 +45,7 @@ abstract class AbstractLastOperationJob extends AbstractJob {
     @Autowired
     protected ErrorDtoConverter errorDtoConverter
     @Autowired
-    protected LastOperationMetricsService lastOperationMetricsService
+    protected LastOperationMetricService lastOperationMetricsService
 
     @Override
     void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
