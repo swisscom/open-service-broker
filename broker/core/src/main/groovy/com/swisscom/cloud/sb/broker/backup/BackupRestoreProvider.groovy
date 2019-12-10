@@ -40,8 +40,15 @@ trait BackupRestoreProvider extends BackupOnShield {
         shieldClient.registerAndRunJob(jobName, targetName, shieldTarget, shieldServiceConfig, shieldAgentUrl(serviceInstance))
     }
 
+    /**
+     * Backups with externalId set to null are seen as already deleted,
+     * and therefore no action is taken
+     * @param backup to be deleted
+     */
     void deleteBackup(Backup backup) {
-        shieldClient.deleteBackupIfExisting(backup.externalId)
+        if (backup.externalId != null) {
+            shieldClient.deleteBackupIfExisting(backup.externalId)
+        }
     }
 
     Backup.Status getBackupStatus(Backup backup) {
