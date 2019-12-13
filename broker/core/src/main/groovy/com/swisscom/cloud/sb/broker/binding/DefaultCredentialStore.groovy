@@ -40,19 +40,28 @@ import org.springframework.stereotype.Component
  * It stores the credentials in string fields that should not be  used for storing secrets (char[] should be
  * used instead. It's main use is for testing without needing to prepare a suitable {@link CredentialStore}
  */
-@Component
 @CompileStatic
-@ConditionalOnProperty(name = "osb.credential.store", havingValue = "default", matchIfMissing = true)
 class DefaultCredentialStore implements CredentialStore {
 
-    def save(ServiceBinding key, String credentialJson) {
+    private DefaultCredentialStore() {}
+
+    public static DefaultCredentialStore of() {
+        return new DefaultCredentialStore()
+    }
+
+    @Override
+    ServiceBinding save(ServiceBinding key, String credentialJson) {
         key.credentials = credentialJson
+        return key
     }
 
-    def delete(ServiceBinding key) {
+    @Override
+    ServiceBinding delete(ServiceBinding key) {
         key.credentials = null
+        return key
     }
 
+    @Override
     String get(ServiceBinding key) {
         return key.credentials
     }

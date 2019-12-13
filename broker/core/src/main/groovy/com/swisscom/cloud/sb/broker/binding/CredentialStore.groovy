@@ -35,16 +35,18 @@ interface CredentialStore {
 
     /**
      * Save the credentials needed for using certain service specified as a {@link ServiceBinding}
-     * @param key the {@link ServiceBinding} that points to a service where this credentials are valid
+     * Note: The given
+     * @param key the {@link ServiceBinding} that points to a service where this credentials are valid.
+     * WARNING: The key parameter will be MODIFIED in this method!
      * @param credentialJson a map of objects defining credentials codified as a JSON string
      */
-    def save(ServiceBinding key, String credentialJson)
+    ServiceBinding save(ServiceBinding key, String credentialJson)
 
     /**
      * Delete the credentials associated to the passed {@link ServiceBinding}
-     * @param key
+     * @param key WARNING: The key parameter will be MODIFIED in this method!
      */
-    def delete(ServiceBinding key)
+    ServiceBinding delete(ServiceBinding key)
 
     /**
      * Returns a map of objects constituting the credentials available for certain {@link ServiceBinding} codified as

@@ -30,19 +30,20 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           uaa:
-            token-uri: http://localhost:8081/uaa/oauth/token
-com:
-  swisscom:
-    cloud:
-      sb:
-        broker:
-          services:
-            bosh:
-              client:
-                boshBaseUrl: https://192.168.50.6:25555
-                boshDirectorUsername: admin
-                boshDirectorPassword: 74v98dv1cuofsj4o8mct
-                
+            token-uri: http://localhost:9091/uaa/oauth/token
+
+com.swisscom.cloud.sb.broker:
+  credhub:
+    url: https://localhost:9000
+    oauth2:
+      registration-id: credhub-client
+  services.bosh.client:
+    boshBaseUrl: https://192.168.50.6:25555
+    boshDirectorUsername: admin
+    boshDirectorPassword: 74v98dv1cuofsj4o8mct
+
+osb.credential.store: credhub
+
 com.swisscom.cloud.sb.broker.security.platformUsers:
   - username: cc_admin
     password: change_me
@@ -127,3 +128,4 @@ com.swisscom.cloud.sb.broker.shield:
   password: 'password'
   maxNumberOfApiRetries: 3
   waitBetweenApiRetries: 1s
+

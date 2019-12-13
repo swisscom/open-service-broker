@@ -19,12 +19,9 @@ import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.ApplicationContext
-import org.springframework.stereotype.Component
+import org.apache.logging.log4j.util.Strings
 
+import static com.google.common.base.Preconditions.checkArgument
 import static com.swisscom.cloud.sb.broker.util.JsonHelper.toJsonString
 
 /**
@@ -42,29 +39,38 @@ import static com.swisscom.cloud.sb.broker.util.JsonHelper.toJsonString
  * </p>
  *
  */
-@Component
 @CompileStatic
-@Slf4j
-@ConditionalOnProperty(name = "osb.credential.store", havingValue = "credhub")
 class CredHubCredentialStore implements CredentialStore {
 
-    @Autowired
-    private ApplicationContext applicationContext
-
-    @Autowired
     private CredHubService credHubService
 
-    def save(ServiceBinding key, String credentialJson) {
+    public static CredHubCredentialStore of(CredHubService credHubService) {
+        return new CredHubCredentialStore(credHubService);
+    }
+
+    private CredHubCredentialStore(CredHubService credHubService) {
+        this.credHubService = credHubService
+    }
+
+    @Override
+    ServiceBinding save(ServiceBinding key, String credentialJson) {
+        checkArgument(Strings.isNotEmpty(key.getGuid()), "ServiceBinding key must not be empty")
+        checkArgument(Strings.isNotEmpty(credentialJson), "Credential must not be empty")
         Map credentials = JsonHelper.parse(credentialJson, Map) as Map
-        def credhubJsonCredential = credHubService.writeCredential(key.guid, credentials)
-        key.credhubCredentialId = credhubJsonCredential.id
+        def credhubJsonCredential = credHubService.writeCredential(key.getGuid(), credentials)
+        key.credhubCredentialId = credhubJsonCredential.getId()
         key.credentials = null
+        return key
     }
 
-    def delete(ServiceBinding key) {
+    @Override
+    ServiceBinding delete(ServiceBinding key) {
         credHubService.deleteCredential(key.guid)
+        key.setCredhubCredentialId(null)
+        return key
     }
 
+    @Override
     String get(ServiceBinding key) {
         toJsonString(credHubService.getCredential(key.credhubCredentialId).value)
     }
