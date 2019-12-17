@@ -44,12 +44,12 @@ public class CredentialStoreConfiguration {
     public CredentialStore credHubCredentialStore(CredHubService credHubService) {
         return CredHubCredentialStore.of(credHubService);
     }
-/*
+
     @Bean
     @ConditionalOnProperty(name = "osb.credential.store", havingValue = "default", matchIfMissing = true)
     public CredentialStore defaultCredentialStore() {
         return DefaultCredentialStore.of();
-    }*/
+    }
 
     public static class CredHubConfigurationProperties {
         private URI url;
