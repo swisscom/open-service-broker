@@ -1,6 +1,5 @@
 package com.swisscom.cloud.sb.broker.functional
 
-
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubServiceProvider
 import groovy.json.JsonSlurper
