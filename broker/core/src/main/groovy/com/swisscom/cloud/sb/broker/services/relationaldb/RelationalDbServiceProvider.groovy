@@ -15,9 +15,9 @@
 
 package com.swisscom.cloud.sb.broker.services.relationaldb
 
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
@@ -25,7 +25,6 @@ import com.swisscom.cloud.sb.broker.provisioning.DeprovisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
-import groovy.util.logging.Log4j
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 
 abstract class RelationalDbServiceProvider implements ServiceProvider, CloudFoundryContextRestrictedOnly {

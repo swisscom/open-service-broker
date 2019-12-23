@@ -13,13 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import groovy.transform.CompileStatic
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.annotation.Bean
-import org.springframework.stereotype.Component
 
 /**
  * A simple implementation of a {@link CredentialStore}: uses {@link ServiceBinding#credentials} for storing the
@@ -45,7 +42,7 @@ class DefaultCredentialStore implements CredentialStore {
 
     private DefaultCredentialStore() {}
 
-    public static DefaultCredentialStore of() {
+    public static DefaultCredentialStore create() {
         return new DefaultCredentialStore()
     }
 

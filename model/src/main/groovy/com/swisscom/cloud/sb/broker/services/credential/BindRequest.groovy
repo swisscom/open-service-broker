@@ -13,8 +13,17 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
-interface BindResponseDto extends Serializable {
-    String toJson()
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
+
+class BindRequest {
+    ServiceInstance serviceInstance
+    String binding_guid
+    String app_guid
+    Plan plan
+    CFService service
+    Map parameters
 }

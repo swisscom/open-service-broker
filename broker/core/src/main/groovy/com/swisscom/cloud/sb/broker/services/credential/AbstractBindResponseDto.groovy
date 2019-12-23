@@ -13,17 +13,14 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+class AbstractBindResponseDto implements BindResponseDto {
+    String syslog_drain_url
+    String route_service_url
 
-class BindRequest {
-    ServiceInstance serviceInstance
-    String binding_guid
-    String app_guid
-    Plan plan
-    CFService service
-    Map parameters
+    @Override
+    String toJson() {
+        return null
+    }
 }

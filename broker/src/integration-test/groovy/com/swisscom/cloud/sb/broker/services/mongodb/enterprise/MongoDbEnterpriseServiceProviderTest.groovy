@@ -16,8 +16,8 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.BaseTransactionalSpecification
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper

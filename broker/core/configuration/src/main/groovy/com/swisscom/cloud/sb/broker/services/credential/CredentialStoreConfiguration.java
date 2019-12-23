@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.binding;
+package com.swisscom.cloud.sb.broker.services.credential;
 
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService;
 import com.swisscom.cloud.sb.broker.services.credhub.OAuth2CredHubService;
@@ -48,7 +48,7 @@ public class CredentialStoreConfiguration {
     @Bean
     @ConditionalOnProperty(name = "osb.credential.store", havingValue = "default", matchIfMissing = true)
     public CredentialStore defaultCredentialStore() {
-        return DefaultCredentialStore.of();
+        return DefaultCredentialStore.create();
     }
 
     public static class CredHubConfigurationProperties {

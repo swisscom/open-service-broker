@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.google.common.annotations.VisibleForTesting
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Status
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider

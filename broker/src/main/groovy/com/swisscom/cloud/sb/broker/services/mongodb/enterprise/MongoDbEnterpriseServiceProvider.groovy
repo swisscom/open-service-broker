@@ -19,9 +19,9 @@ import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance

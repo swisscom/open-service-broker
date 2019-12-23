@@ -1,4 +1,4 @@
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.model.ServiceBinding

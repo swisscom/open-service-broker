@@ -16,7 +16,7 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
-import com.swisscom.cloud.sb.broker.binding.CredHubCredentialStore
+import com.swisscom.cloud.sb.broker.services.credential.CredHubCredentialStore
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator
 import org.apache.commons.io.FileUtils

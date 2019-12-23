@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
@@ -22,7 +22,6 @@ import groovy.transform.CompileStatic
 import org.apache.logging.log4j.util.Strings
 
 import static com.google.common.base.Preconditions.checkArgument
-import static com.swisscom.cloud.sb.broker.util.JsonHelper.toJsonString
 
 /**
  * A {@link CredentialStore} which uses <a href='https://github.com/cloudfoundry-incubator/credhub'>CredHub</a> as
@@ -72,7 +71,7 @@ class CredHubCredentialStore implements CredentialStore {
 
     @Override
     String get(ServiceBinding key) {
-        toJsonString(credHubService.getCredential(key.credhubCredentialId).value)
+        JsonHelper.toJsonString(credHubService.getCredential(key.credhubCredentialId).value)
     }
 
 }
