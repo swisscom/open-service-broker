@@ -17,9 +17,9 @@ package com.swisscom.cloud.sb.broker.util.test
 
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.cfextensions.serviceusage.ServiceUsageProvider
 import com.swisscom.cloud.sb.broker.error.ErrorCode

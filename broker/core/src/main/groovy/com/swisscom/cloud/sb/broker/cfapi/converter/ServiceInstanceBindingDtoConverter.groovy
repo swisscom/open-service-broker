@@ -15,8 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
-import com.swisscom.cloud.sb.broker.binding.CredentialService
-import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
+import com.swisscom.cloud.sb.broker.services.credential.CredentialService
+import com.swisscom.cloud.sb.broker.services.credential.ServiceInstanceBindingResponseDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import groovy.util.logging.Slf4j

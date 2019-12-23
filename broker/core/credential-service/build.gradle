@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':model')
+    compile project(':broker:core:utils')
+    compile project(':broker:core:credhub-service')
+
+    testCompile libs.spock
+}

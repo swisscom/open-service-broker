@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.functional
 
-import com.swisscom.cloud.sb.broker.binding.CredentialService
+import CredentialService
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import com.swisscom.cloud.sb.broker.util.StringGenerator

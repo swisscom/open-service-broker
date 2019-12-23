@@ -20,9 +20,9 @@ import com.google.common.base.Optional
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldBackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindRequest
+import com.swisscom.cloud.sb.broker.services.credential.BindResponse
+import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
 import com.swisscom.cloud.sb.broker.cfextensions.extensions.Extension
 import com.swisscom.cloud.sb.broker.context.CloudFoundryContextRestrictedOnly
 import com.swisscom.cloud.sb.broker.error.ErrorCode
@@ -46,7 +46,6 @@ import com.swisscom.cloud.sb.broker.updating.UpdateResponse
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import com.swisscom.cloud.sb.broker.util.servicedetail.ShieldServiceDetailKey
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

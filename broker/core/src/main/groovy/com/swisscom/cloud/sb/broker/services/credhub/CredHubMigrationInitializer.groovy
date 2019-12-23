@@ -16,8 +16,8 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
 
-import com.swisscom.cloud.sb.broker.binding.CredentialStore
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.services.credential.CredentialStore
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

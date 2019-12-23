@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.kubernetes.dto
 
-import com.swisscom.cloud.sb.broker.binding.BindResponseDto
+import com.swisscom.cloud.sb.broker.services.credential.BindResponseDto
 import groovy.json.JsonBuilder
 
 class RedisBindResponseDto implements BindResponseDto {

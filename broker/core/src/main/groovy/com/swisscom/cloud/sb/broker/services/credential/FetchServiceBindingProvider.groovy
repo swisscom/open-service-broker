@@ -13,28 +13,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.binding
+package com.swisscom.cloud.sb.broker.services.credential
 
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 
-@Component
-class CredentialService {
-
-    @Autowired
-    private CredentialStore credentialStore
-
-    def writeCredential(ServiceBinding serviceBinding, String credentialJson) {
-        credentialStore.save(serviceBinding, credentialJson)
-    }
-
-    def deleteCredential(ServiceBinding serviceBinding) {
-        credentialStore.delete(serviceBinding)
-    }
-
-    String getCredential(ServiceBinding serviceBinding) {
-        credentialStore.get(serviceBinding)
-    }
-
+interface FetchServiceBindingProvider {
+    ServiceInstanceBindingResponseDto fetchServiceBinding(ServiceBinding serviceBinding)
 }
