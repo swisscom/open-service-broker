@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.relationaldb
 
-import com.swisscom.cloud.sb.broker.services.credential.BindResponseDto
+import com.swisscom.cloud.sb.broker.binding.BindResponseDto
 import groovy.json.JsonBuilder
 
 

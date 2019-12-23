@@ -1,9 +1,9 @@
 package com.swisscom.cloud.sb.broker.services.statemachine
 
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
-import com.swisscom.cloud.sb.broker.services.credential.BindRequest
-import com.swisscom.cloud.sb.broker.services.credential.BindResponse
-import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
+import com.swisscom.cloud.sb.broker.binding.BindRequest
+import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.StateMachine
