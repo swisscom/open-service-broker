@@ -22,7 +22,6 @@ dependencies {
     compile project(':broker:core:metrics')
     compile project(':broker:core:utils')
     compile project(':broker:core:credential-service')
-    compile project(':broker:core:configuration')
 
     compile libs.gpars
 

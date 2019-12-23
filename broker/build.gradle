@@ -32,6 +32,7 @@ dependencies {
     compile project(':model')
     compile project(':client')
     compile project(':broker:core')
+    compile project(':broker:core:configuration')
 
     compile libs.spring_boot_starter_log4j2
     compile libs.spring_boot_starter_autoconfigure
