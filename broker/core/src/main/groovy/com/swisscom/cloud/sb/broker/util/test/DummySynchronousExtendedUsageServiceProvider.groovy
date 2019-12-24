@@ -17,10 +17,10 @@ package com.swisscom.cloud.sb.broker.util.test
 
 
 import com.google.gson.Gson
-import com.swisscom.cloud.sb.broker.services.credential.BindRequest
-import com.swisscom.cloud.sb.broker.services.credential.BindResponse
-import com.swisscom.cloud.sb.broker.services.credential.BindResponseDto
-import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
+import com.swisscom.cloud.sb.broker.binding.BindRequest
+import com.swisscom.cloud.sb.broker.binding.BindResponse
+import com.swisscom.cloud.sb.broker.binding.BindResponseDto
+import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.DeprovisionRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest

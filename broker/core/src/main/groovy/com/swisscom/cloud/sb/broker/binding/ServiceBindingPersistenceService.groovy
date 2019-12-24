@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.credential
+package com.swisscom.cloud.sb.broker.binding
 
 import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
@@ -23,6 +23,7 @@ import com.swisscom.cloud.sb.broker.repository.ApplicationUserRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.credential.CredentialService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.Context

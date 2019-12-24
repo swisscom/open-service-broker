@@ -13,8 +13,14 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.credential
+package com.swisscom.cloud.sb.broker.binding
 
-interface BindResponseDto extends Serializable {
-    String toJson()
+class AbstractBindResponseDto implements BindResponseDto {
+    String syslog_drain_url
+    String route_service_url
+
+    @Override
+    String toJson() {
+        return null
+    }
 }

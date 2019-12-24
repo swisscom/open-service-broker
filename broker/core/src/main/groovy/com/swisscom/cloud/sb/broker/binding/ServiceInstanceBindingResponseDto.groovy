@@ -13,10 +13,21 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.swisscom.cloud.sb.broker.services.credential
+package com.swisscom.cloud.sb.broker.binding
 
-import com.swisscom.cloud.sb.broker.model.ServiceBinding
+import com.fasterxml.jackson.annotation.JsonProperty
 
-interface FetchServiceBindingProvider {
-    ServiceInstanceBindingResponseDto fetchServiceBinding(ServiceBinding serviceBinding)
+class ServiceInstanceBindingResponseDto {
+    @JsonProperty("credentials")
+    String credentials
+    @JsonProperty("syslog_drain_url")
+    String syslogDrainUrl
+    @JsonProperty("route_service_url")
+    String routeServiceUrl
+    @JsonProperty("volume_mounts")
+    Object[] volumeMounts
+    @JsonProperty("parameters")
+    def parameters = [:]
+    @JsonProperty("details")
+    def details = [:]
 }

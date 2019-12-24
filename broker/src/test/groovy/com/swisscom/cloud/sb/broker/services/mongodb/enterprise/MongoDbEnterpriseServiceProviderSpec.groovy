@@ -16,8 +16,8 @@
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise
 
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
-import com.swisscom.cloud.sb.broker.services.credential.BindRequest
-import com.swisscom.cloud.sb.broker.services.credential.UnbindRequest
+import com.swisscom.cloud.sb.broker.binding.BindRequest
+import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.*
