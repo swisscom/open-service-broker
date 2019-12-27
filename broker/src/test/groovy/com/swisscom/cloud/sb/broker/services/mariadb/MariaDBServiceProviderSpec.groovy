@@ -110,8 +110,8 @@ class MariaDBServiceProviderSpec extends Specification {
         def request = new ProvisionRequest(serviceInstanceGuid: serviceInstanceGuid, serviceContext: new ServiceContext(
                 platform: CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM,
                 details: [
-                        ServiceContextDetail.from(ServiceContextHelper.CF_ORGANIZATION_GUID, 'my-org'),
-                        ServiceContextDetail.from(ServiceContextHelper.CF_SPACE_GUID, 'my-space')]
+                        ServiceContextDetail.of(ServiceContextHelper.CF_ORGANIZATION_GUID, 'my-org'),
+                        ServiceContextDetail.of(ServiceContextHelper.CF_SPACE_GUID, 'my-space')]
         ))
         mariaDBClient.databaseExists(db) >>> [false, true]
         when:

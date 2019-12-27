@@ -29,8 +29,8 @@ class ServiceContextHelperSpec extends Specification {
         setup:
         def serviceContext = new ServiceContext()
         serviceContext.platform = "cloudfoundry"
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_ORGANIZATION_GUID, value: "org_id")
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_SPACE_GUID, value: "space_id")
+        serviceContext.details << ServiceContextDetail.of(ServiceContextHelper.CF_ORGANIZATION_GUID, "org_id")
+        serviceContext.details << ServiceContextDetail.of(ServiceContextHelper.CF_SPACE_GUID, "space_id")
 
         when:
         def context = ServiceContextHelper.convertFrom(serviceContext) as CloudFoundryContext
@@ -45,7 +45,7 @@ class ServiceContextHelperSpec extends Specification {
         setup:
         def serviceContext = new ServiceContext()
         serviceContext.platform = "kubernetes"
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.KUBERNETES_NAMESPACE, value: "my_namespace")
+        serviceContext.details << ServiceContextDetail.of( ServiceContextHelper.KUBERNETES_NAMESPACE, "my_namespace")
 
         when:
         def context = ServiceContextHelper.convertFrom(serviceContext) as KubernetesContext
@@ -60,7 +60,7 @@ class ServiceContextHelperSpec extends Specification {
         setup:
         def serviceContext = new ServiceContext()
         serviceContext.platform = "unknown"
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.KUBERNETES_NAMESPACE, value: "my_namespace")
+        serviceContext.details << ServiceContextDetail.of(ServiceContextHelper.KUBERNETES_NAMESPACE, "my_namespace")
 
         when:
         def context = ServiceContextHelper.convertFrom(serviceContext) as Context

@@ -22,14 +22,12 @@ import com.swisscom.cloud.sb.broker.repository.ServiceContextRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.servicecontext.ServiceContextHelper
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.Context
 import org.springframework.cloud.servicebroker.model.KubernetesContext
 import org.springframework.stereotype.Service
 
-@Slf4j
 @Service
 @CompileStatic
 class ServiceContextPersistenceService {
@@ -149,6 +147,6 @@ class ServiceContextPersistenceService {
     }
 
     private ServiceContextDetail createServiceContextDetailRecord(String key, String value, ServiceContext serviceContext) {
-        return serviceContextDetailRepository.saveAndFlush(new ServiceContextDetail(key: key, value: value, serviceContext: serviceContext))
+        return serviceContextDetailRepository.saveAndFlush(ServiceContextDetail.of(key, value, serviceContext))
     }
 }

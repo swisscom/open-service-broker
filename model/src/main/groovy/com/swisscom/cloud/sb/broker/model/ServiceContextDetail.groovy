@@ -16,24 +16,74 @@
 package com.swisscom.cloud.sb.broker.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.google.common.base.Preconditions
 
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @Entity
 class ServiceContextDetail extends BaseModel {
 
     @Column(name = '_key')
-    String key
+    @NotNull
+    private String key
     @Column(name = '_value')
-    String value
+    @NotNull
+    private String value
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_context_id")
     @JsonIgnore
-    ServiceContext serviceContext
+    private ServiceContext serviceContext
 
-    static ServiceContextDetail from(String key, String value) {
-        return new ServiceContextDetail(key: key, value: value)
+    /**
+     * Public no-arg constructor is needed for JPA compliance for more infos check
+     * <a href="https://en.wikipedia.org/wiki/Java_Persistence_API">here</a>
+     */
+    ServiceContextDetail() {}
+
+    private ServiceContextDetail(String key, String value) {
+        this(key, value, null);
+    }
+
+    private ServiceContextDetail(String key, String value, ServiceContext serviceContext) {
+        Preconditions.checkNotNull(key, "Key is not allowed to be null for ServiceContextDetail")
+        Preconditions.checkNotNull(key, "Value is not allowed to be null for ServiceContextDetail")
+        this.key = key
+        this.value = value
+        this.serviceContext = serviceContext
+    }
+
+    static ServiceContextDetail of(String key, String value, ServiceContext serviceContext) {
+        return new ServiceContextDetail(key, value, serviceContext)
+    }
+
+    static ServiceContextDetail of(String key, String value) {
+        return new ServiceContextDetail(key, value)
+    }
+
+    String getKey() {
+        return key
+    }
+
+    void setKey(String key) {
+        this.key = key
+    }
+
+    String getValue() {
+        return value
+    }
+
+    void setValue(String value) {
+        this.value = value
+    }
+
+    ServiceContext getServiceContext() {
+        return serviceContext
+    }
+
+    void setServiceContext(ServiceContext serviceContext) {
+        this.serviceContext = serviceContext
     }
 
     @Override
