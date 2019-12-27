@@ -1,11 +1,11 @@
 package com.swisscom.cloud.sb.broker.metrics
 
-
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 
 @Configuration
 class MetricsConfiguration {
@@ -29,6 +29,7 @@ class MetricsConfiguration {
     }
 
     @Bean
+    @Primary
     @ConditionalOnProperty(name = "management.metrics.export.influx.enabled", havingValue = "true")
     List<PlanMetricService> getInfluxMetricServices(
             MeterRegistry meterRegistry,
@@ -50,6 +51,7 @@ class MetricsConfiguration {
     }
 
     @Bean
+    @Primary
     @ConditionalOnProperty(name = "management.metrics.export.influx.enabled", havingValue = "true")
     BindingMetricService getBindingMetricsService(
                     MeterRegistry meterRegistry,
@@ -62,6 +64,7 @@ class MetricsConfiguration {
     }
 
     @Bean
+    @Primary
     @ConditionalOnProperty(name = "management.metrics.export.influx.enabled", havingValue = "true")
     LastOperationMetricService getLastOperationMetricsService(
             MeterRegistry meterRegistry,
