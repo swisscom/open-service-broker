@@ -102,9 +102,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         noExceptionThrown()
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         serviceInstance.serviceContext.platform == "CUSTOM"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_a" }.getValue() == "Some Value"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_c" }.getValue() == "13.37"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_d" }.getValue() == "1337"
 
         when:
         context = new CustomContext([
@@ -119,9 +119,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance2
         serviceInstance2.serviceContext.platform == "CUSTOM"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Other Value"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_b" }.value == "Some New Value"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "42.42"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_a" }.getValue() == "Some Other Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_b" }.getValue() == "Some New Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_c" }.getValue() == "42.42"
         serviceInstance2.serviceContext.details.size() == 3
 
         cleanup:
@@ -144,9 +144,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
         ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         serviceInstance.serviceContext.platform == "CUSTOM"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_a" }.getValue() == "Some Value"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_c" }.getValue() == "13.37"
+        serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_d" }.getValue() == "1337"
         serviceInstance.serviceContext.details.size() == 4
 
         when:
@@ -160,9 +160,9 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         def serviceInstance2 = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         assert serviceInstance2
         serviceInstance2.serviceContext.platform == "CUSTOM"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_a" }.value == "Some Value"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_c" }.value == "13.37"
-        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.key == "field_d" }.value == "1337"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_a" }.getValue() == "Some Value"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_c" }.getValue() == "13.37"
+        serviceInstance2.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_d" }.getValue() == "1337"
         serviceInstance2.serviceContext.details.size() == 4
 
         cleanup:

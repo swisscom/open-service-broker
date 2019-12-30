@@ -271,8 +271,8 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_ORGANIZATION_GUID }.value == org_guid
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.CF_SPACE_GUID }.value == space_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.getKey() == ServiceContextHelper.CF_ORGANIZATION_GUID }.getValue() == org_guid
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.getKey() == ServiceContextHelper.CF_SPACE_GUID }.getValue() == space_guid
     }
 
     void assertKubernetesContext(String serviceInstanceGuid) {
@@ -280,7 +280,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         assert serviceInstance != null
         assert serviceInstance.serviceContext != null
         assert serviceInstance.serviceContext.platform == KubernetesContext.KUBERNETES_PLATFORM
-        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.key == ServiceContextHelper.KUBERNETES_NAMESPACE }.value == "namespace_guid"
+        assert serviceInstance.serviceContext.details.<ServiceContextDetail>find { it.getKey() == ServiceContextHelper.KUBERNETES_NAMESPACE }.getValue() == "namespace_guid"
     }
 
 }

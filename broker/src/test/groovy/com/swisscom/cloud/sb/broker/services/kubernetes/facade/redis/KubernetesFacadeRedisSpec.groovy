@@ -191,8 +191,8 @@ kind: Namespace""")
         plan.setGuid("test")
         ServiceContext ctx = new ServiceContext()
         ctx.setPlatform("cloudfoundry")
-        ctx.setDetails([ServiceContextDetail.from("space_guid", "test"), ServiceContextDetail.from("organization_guid",
-                                                                                                   "test")].toSet())
+        ctx.setDetails([ServiceContextDetail.of("space_guid", "test"), ServiceContextDetail.of("organization_guid",
+                                                                                               "test")].toSet())
 
         when:
         List threads = new ArrayList()
@@ -245,8 +245,8 @@ kind: Namespace""")
     private void mockProvisionRequest() {
         def serviceContext = new ServiceContext()
         serviceContext.platform = CloudFoundryContext.CLOUD_FOUNDRY_PLATFORM
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_ORGANIZATION_GUID, value: "ORG")
-        serviceContext.details << new ServiceContextDetail(key: ServiceContextHelper.CF_SPACE_GUID, value: "SPACE")
+        serviceContext.details << ServiceContextDetail.of(ServiceContextHelper.CF_ORGANIZATION_GUID, "ORG")
+        serviceContext.details << ServiceContextDetail.of(ServiceContextHelper.CF_SPACE_GUID, "SPACE")
 
         provisionRequest = Mock(ProvisionRequest)
         provisionRequest.getServiceInstanceGuid() >> "ID"
