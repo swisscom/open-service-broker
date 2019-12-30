@@ -34,17 +34,21 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            ignore404 {
-                String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-                Optional<String> optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
-                if (optionalReplicaSet.present) {
-                    context.opsManagerFacade.disableAndTerminateBackup(groupId, optionalReplicaSet.get())
-                } else {
-                    log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
-                            "the previous provisioning attempt must have failed.")
-                }
+            def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+            def optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details)
+                    .findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
+
+            if (!optionalGroupId.isPresent() || !optionalReplicaSet.isPresent()) {
+                log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
+                        "the previous provisioning attempt must have failed.")
+                return new StateChangeActionResult(go2NextState: true)
             }
-            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isBackupInInactiveState(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext), ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET).get()))
+
+            ignore404 {
+                context.opsManagerFacade.disableAndTerminateBackup(optionalGroupId.get(), optionalReplicaSet.get())
+            }
+
+            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isBackupInInactiveState(optionalGroupId.get(), optionalReplicaSet.get()))
         }
     }),
     UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
@@ -52,7 +56,10 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
 
             ignore404 {
-                context.opsManagerFacade.undeploy(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
+                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+                if (optionalGroupId.isPresent()) {
+                    context.opsManagerFacade.undeploy(optionalGroupId.get())
+                }
             }
             return new StateChangeActionResult(go2NextState: true)
         }
@@ -62,7 +69,12 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             boolean automationConfigComplete
             boolean is404 = ignore404 {
-                automationConfigComplete = context.opsManagerFacade.isAutomationUpdateComplete(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
+                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+                if (optionalGroupId.isPresent()) {
+                    automationConfigComplete = context.opsManagerFacade.isAutomationUpdateComplete(optionalGroupId.get())
+                } else {
+                    automationConfigComplete = true
+                }
             }
             return new StateChangeActionResult(go2NextState: automationConfigComplete || is404)
         }
@@ -71,7 +83,10 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             ignore404 {
-                context.opsManagerFacade.deleteAllHosts(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext))
+                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+                if (optionalGroupId.isPresent()) {
+                    context.opsManagerFacade.deleteAllHosts(optionalGroupId.get())
+                }
             }
             return new StateChangeActionResult(go2NextState: true)
         }

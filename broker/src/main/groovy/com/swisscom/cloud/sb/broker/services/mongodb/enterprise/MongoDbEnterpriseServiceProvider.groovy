@@ -239,6 +239,7 @@ class MongoDbEnterpriseServiceProvider
         def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).
                 findAllWithServiceDetailType(ServiceDetailType.HOST)
         def groupId = getMongoDbGroupId(request.serviceInstance)
+                .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDB GroupId is not present, please contact support") })
         opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
         opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
@@ -268,15 +269,16 @@ class MongoDbEnterpriseServiceProvider
     void unbind(UnbindRequest request) {
         try {
             def groupId = getMongoDbGroupId(request.serviceInstance)
-            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
-            opsManagerFacade.deleteDbUser(groupId,
-                                          ServiceDetailsHelper.from(request.binding.details).
-                                                  getValue(ServiceDetailKey.USER),
-                                          ServiceDetailsHelper.from(request.serviceInstance.details).
-                                                  getValue(ServiceDetailKey.DATABASE))
-            opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
-                    getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
-            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
+
+            if (groupId.isPresent()) {
+                opsManagerFacade.checkAndRetryForOnGoingChanges(groupId.get())
+                opsManagerFacade.deleteDbUser(groupId.get(),
+                        ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
+                        ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
+                opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
+                        getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+                opsManagerFacade.checkAndRetryForOnGoingChanges(groupId.get())
+            }
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")
@@ -286,12 +288,12 @@ class MongoDbEnterpriseServiceProvider
         }
     }
 
-    static String getMongoDbGroupId(LastOperationJobContext context) {
+    static java.util.Optional<String> getMongoDbGroupId(LastOperationJobContext context) {
         return getMongoDbGroupId(context.serviceInstance)
     }
 
-    static String getMongoDbGroupId(ServiceInstance serviceInstance) {
+    static java.util.Optional<String> getMongoDbGroupId(ServiceInstance serviceInstance) {
         return ServiceDetailsHelper.from(serviceInstance.details).
-                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
+                findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 }
