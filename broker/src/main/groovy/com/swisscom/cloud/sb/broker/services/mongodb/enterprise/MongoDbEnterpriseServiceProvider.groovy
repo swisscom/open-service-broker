@@ -268,17 +268,16 @@ class MongoDbEnterpriseServiceProvider
     @Override
     void unbind(UnbindRequest request) {
         try {
-            def groupId = getMongoDbGroupId(request.serviceInstance)
+            String groupId = getMongoDbGroupId(request.serviceInstance)
+                    .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support") })
 
-            if (groupId.isPresent()) {
-                opsManagerFacade.checkAndRetryForOnGoingChanges(groupId.get())
-                opsManagerFacade.deleteDbUser(groupId.get(),
-                        ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
-                        ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
-                opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
-                        getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
-                opsManagerFacade.checkAndRetryForOnGoingChanges(groupId.get())
-            }
+            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
+            opsManagerFacade.deleteDbUser(groupId,
+                    ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
+                    ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
+            opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
+                    getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
+            opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         } catch (HttpClientErrorException e) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 log.info(this.getClass().getSimpleName() + ".unbind(): Ignore 404 error during unbind")

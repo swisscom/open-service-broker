@@ -61,7 +61,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
             int targetAgentCount = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) as int
             return new StateChangeActionResult(go2NextState:
                     stateContext.opsManagerFacade.areAgentsReady(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
-                                .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")}),
+                                .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support") }),
                             targetAgentCount))
         }
     }),
@@ -189,7 +189,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
     DELETE_DEFAULT_ALERTS(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-            def groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
             return new StateChangeActionResult(go2NextState: !groupId.isPresent() || stateContext.opsManagerFacade.deleteDefaultAlerts(groupId.get()))
         }
     }),

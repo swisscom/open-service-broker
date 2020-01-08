@@ -34,21 +34,21 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-            def optionalReplicaSet = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details)
+            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+            Optional<String> replicaSetId = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details)
                     .findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
 
-            if (!optionalGroupId.isPresent() || !optionalReplicaSet.isPresent()) {
+            if (!groupId.isPresent() || !replicaSetId.isPresent()) {
                 log.warn("ReplicaSet not found for LastOperation:${context.lastOperationJobContext.lastOperation.guid}, " +
                         "the previous provisioning attempt must have failed.")
                 return new StateChangeActionResult(go2NextState: true)
             }
 
             ignore404 {
-                context.opsManagerFacade.disableAndTerminateBackup(optionalGroupId.get(), optionalReplicaSet.get())
+                context.opsManagerFacade.disableAndTerminateBackup(groupId.get(), replicaSetId.get())
             }
 
-            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isBackupInInactiveState(optionalGroupId.get(), optionalReplicaSet.get()))
+            return new StateChangeActionResult(go2NextState: context.opsManagerFacade.isBackupInInactiveState(groupId.get(), replicaSetId.get()))
         }
     }),
     UPDATE_AUTOMATION_CONFIG(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
