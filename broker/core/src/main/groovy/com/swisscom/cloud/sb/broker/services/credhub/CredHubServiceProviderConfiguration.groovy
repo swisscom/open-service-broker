@@ -1,6 +1,8 @@
 package com.swisscom.cloud.sb.broker.services.credhub
 
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -12,10 +14,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 
 @Configuration
 class CredHubServiceProviderConfiguration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CredHubServiceProviderConfiguration.class);
 
-    @Value("com.swisscom.cloud.sb.broker.credhub.url")
+    @Value("\${com.swisscom.cloud.sb.broker.credhub.url}")
     URI brokerCredHubUri
-    @Value("com.swisscom.cloud.sb.broker.credhub.oauth2.registration-id")
+    @Value("\${com.swisscom.cloud.sb.broker.credhub.oauth2.registration-id}")
     String brokerOAuth2RegistrationId
 
     // Name must be `credHubServiceProvider` so that the name is correctly resolved.
