@@ -18,7 +18,8 @@ class CredHubServiceProviderConfiguration {
     @Value("com.swisscom.cloud.sb.broker.credhub.oauth2.registration-id")
     String brokerOAuth2RegistrationId
 
-    @Bean
+    // Name must be `credHubServiceProvider` so that the name is correctly resolved.
+    @Bean(name = "credHubServiceProvider")
     @ConditionalOnProperty("com.swisscom.cloud.sb.broker.credhub.url")
     @ConditionalOnMissingBean
     CredHubServiceProvider getBrokerDefault(
