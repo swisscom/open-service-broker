@@ -92,8 +92,8 @@ class MongoDbEnterpriseServiceProvider
     Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, String serviceInstanceGuid) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
 
-        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).
-                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
+        String opsManagerGroupId = getMongoDbGroupId(serviceInstance.details)
+                                    .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")})
         Preconditions.checkArgument(!isNullOrEmpty(opsManagerGroupId), "A valid OpsManager GroupId is required")
 
         String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).
@@ -238,7 +238,7 @@ class MongoDbEnterpriseServiceProvider
         def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
         def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).
                 findAllWithServiceDetailType(ServiceDetailType.HOST)
-        def groupId = getMongoDbGroupId(request.serviceInstance)
+        def groupId = getMongoDbGroupId(request.serviceInstance.details)
                 .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDB GroupId is not present, please contact support") })
         opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
@@ -268,7 +268,7 @@ class MongoDbEnterpriseServiceProvider
     @Override
     void unbind(UnbindRequest request) {
         try {
-            String groupId = getMongoDbGroupId(request.serviceInstance)
+            String groupId = getMongoDbGroupId(request.serviceInstance.details)
                     .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support") })
 
             opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
@@ -287,12 +287,27 @@ class MongoDbEnterpriseServiceProvider
         }
     }
 
+    /**
+     * Deprecated: use {@link #getMongoDbGroupId(Collection<ServiceDetail> details)} instead.
+     */
+    @Deprecated
     static java.util.Optional<String> getMongoDbGroupId(LastOperationJobContext context) {
         return getMongoDbGroupId(context.serviceInstance)
     }
 
+    /**
+     * Deprecated: use {@link #getMongoDbGroupId(Collection<ServiceDetail> details)} instead.
+     */
+    @Deprecated
     static java.util.Optional<String> getMongoDbGroupId(ServiceInstance serviceInstance) {
-        return ServiceDetailsHelper.from(serviceInstance.details).
+        return getMongoDbGroupId(serviceInstance.details)
+    }
+
+    /**
+     * Fetches MongoDbGroupId from service details.
+     */
+    static java.util.Optional<String> getMongoDbGroupId(Collection<ServiceDetail> details) {
+        return ServiceDetailsHelper.from(details).
                 findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 }

@@ -34,7 +34,7 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
     DISABLE_BACKUP_IF_ENABLED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
-            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
+            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext.serviceInstance.details)
             Optional<String> replicaSetId = ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details)
                     .findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_REPLICA_SET)
 
@@ -56,9 +56,9 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
 
             ignore404 {
-                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-                if (optionalGroupId.isPresent()) {
-                    context.opsManagerFacade.undeploy(optionalGroupId.get())
+                Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext.serviceInstance.details)
+                if (groupId.isPresent()) {
+                    context.opsManagerFacade.undeploy(groupId.get())
                 }
             }
             return new StateChangeActionResult(go2NextState: true)
@@ -69,9 +69,9 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             boolean automationConfigComplete
             boolean is404 = ignore404 {
-                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-                if (optionalGroupId.isPresent()) {
-                    automationConfigComplete = context.opsManagerFacade.isAutomationUpdateComplete(optionalGroupId.get())
+                Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext.serviceInstance.details)
+                if (groupId.isPresent()) {
+                    automationConfigComplete = context.opsManagerFacade.isAutomationUpdateComplete(groupId.get())
                 } else {
                     automationConfigComplete = true
                 }
@@ -83,9 +83,9 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             ignore404 {
-                def optionalGroupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext)
-                if (optionalGroupId.isPresent()) {
-                    context.opsManagerFacade.deleteAllHosts(optionalGroupId.get())
+                Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext.serviceInstance.details)
+                if (groupId.isPresent()) {
+                    context.opsManagerFacade.deleteAllHosts(groupId.get())
                 }
             }
             return new StateChangeActionResult(go2NextState: true)
@@ -95,7 +95,10 @@ enum MongoDbEnterpriseDeprovisionState implements ServiceStateWithAction<MongoDb
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext context) {
             ignore404 {
-                context.opsManagerFacade.deleteGroup(ServiceDetailsHelper.from(context.lastOperationJobContext.serviceInstance.details).getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID))
+                Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(context.lastOperationJobContext.serviceInstance.details)
+                if (groupId.isPresent()) {
+                    context.opsManagerFacade.deleteGroup(groupId.get())
+                }
             }
             return new StateChangeActionResult(go2NextState: true)
         }

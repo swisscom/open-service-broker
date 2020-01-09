@@ -60,7 +60,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
             int targetAgentCount = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AGENT_COUNT) as int
             return new StateChangeActionResult(go2NextState:
-                    stateContext.opsManagerFacade.areAgentsReady(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+                    stateContext.opsManagerFacade.areAgentsReady(MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext.serviceInstance.details)
                                 .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support") }),
                             targetAgentCount))
         }
@@ -69,7 +69,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
 
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext.serviceInstance.details)
                     .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")})
             int initialAutomationVersion = stateContext.opsManagerFacade.getAndCheckInitialAutomationGoalVersion(groupId)
             if (stateContext.lastOperationJobContext.updateRequest) {
@@ -129,7 +129,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
     CHECK_AUTOMATION_UPDATE_STATUS(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext.serviceInstance.details)
                     .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")})
             if (stateContext.lastOperationJobContext.provisionRequest) {
                 int targetAutomationGoalVersion = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_TARGET_AUTOMATION_GOAL_VERSION) as int
@@ -142,7 +142,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
     ENABLE_BACKUP_IF_CONFIGURED(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            String groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext.serviceInstance.details)
                     .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")})
             String replicaSet = ServiceDetailsHelper.from(stateContext.lastOperationJobContext.serviceInstance.details).getValue(MONGODB_ENTERPRISE_REPLICA_SET)
             updateBackupConfigurationIfEnabled(stateContext, groupId, replicaSet)
@@ -189,7 +189,7 @@ enum MongoDbEnterpriseProvisionState implements ServiceStateWithAction<MongoDbEn
     DELETE_DEFAULT_ALERTS(LastOperation.Status.IN_PROGRESS, new OnStateChange<MongoDbEnterperiseStateMachineContext>() {
         @Override
         StateChangeActionResult triggerAction(MongoDbEnterperiseStateMachineContext stateContext) {
-            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext)
+            Optional<String> groupId = MongoDbEnterpriseServiceProvider.getMongoDbGroupId(stateContext.lastOperationJobContext.serviceInstance.details)
             return new StateChangeActionResult(go2NextState: !groupId.isPresent() || stateContext.opsManagerFacade.deleteDefaultAlerts(groupId.get()))
         }
     }),
