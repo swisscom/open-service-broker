@@ -30,7 +30,7 @@ spring:
             authorization-grant-type: client_credentials
         provider:
           uaa:
-            token-uri: http://localhost:9091/uaa/oauth/token
+            token-uri: http://localhost:8081/uaa/oauth/token
 
 com.swisscom.cloud.sb.broker:
   credhub:
