@@ -92,6 +92,13 @@ class ServiceInstanceCleanup {
         ServiceInstance serviceInstanceToPurge = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
         checkArgument(serviceInstanceToPurge != null, "Service Instance Guid does not exist")
 
+        Audit.log("Purging service instance",
+                  [
+                          serviceInstanceGuid: serviceInstanceGuid,
+                          action             : Audit.AuditAction.Delete
+                  ]
+        )
+
         try {
             serviceInstanceToPurge.
                     getBindings().
