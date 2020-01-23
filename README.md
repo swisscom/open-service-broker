@@ -303,3 +303,12 @@ Admin actions are not for the default user and therefor are only usable with use
 
 This will stop all scheduled actions for this service and set the current last action to failed. This command should be
 used if a service creation has failed without aprioriate feedback or if the broker isn't in sync anymore.
+
+### Purge Service Instance
+```
+[DELETE] /admin/service_instances/{serviceInstanceGuid}/purge
+```
+
+This will mark the service instance to be cleaned up in the database and delete any CredHub credentials of any existing
+bindings to this service instance. This command should be used if the service instance cannot be removed anymore due to
+unavailability of the service instance in the backend.

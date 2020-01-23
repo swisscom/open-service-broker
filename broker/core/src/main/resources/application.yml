@@ -47,7 +47,7 @@ endpoints:
 # Sets the Credential Store to use for storing credentials needed to connect to Service instances
 osb:
   credential:
-    store: "default"    # WARNING: 'default' is INSECURE for production use
+    store: "credhub"    # WARNING: 'default' is INSECURE for production use
 
 com.swisscom.cloud.sb.broker.credhub:
   url: https://localhost:9000

@@ -15,11 +15,15 @@
 
 package com.swisscom.cloud.sb.broker.controller
 
+
+import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
 import com.swisscom.cloud.sb.broker.services.LastOperationService
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,19 +33,32 @@ import org.springframework.web.bind.annotation.RestController
 @Api(value = "Admin", description = "Endpoint for admin operations")
 @RestController
 @CompileStatic
-@Slf4j
 class AdminController extends BaseController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class)
 
     private final LastOperationService lastOperationService
+    private final ServiceInstanceCleanup serviceInstanceCleanup
 
     @Autowired
-    AdminController(LastOperationService lastOperationService) {
+    AdminController(LastOperationService lastOperationService,
+                    ServiceInstanceCleanup serviceInstanceCleanup) {
         this.lastOperationService = lastOperationService
+        this.serviceInstanceCleanup = serviceInstanceCleanup
     }
 
     @ApiOperation(value = "Terminate Last Operation")
-    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/last_operation/terminate', method = RequestMethod.POST)
+    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/last_operation/terminate', method =
+            RequestMethod.
+                    POST)
     void terminateLastOperation(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
+        LOGGER.info("Request to terminate last operation for service instance '{}'", serviceInstanceGuid)
         lastOperationService.terminateLastOperation(serviceInstanceGuid)
+    }
+
+    @ApiOperation(value = "Purge Service Instance")
+    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/purge', method = RequestMethod.DELETE)
+    ServiceInstance purgeServiceInstance(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
+        LOGGER.info("Request to purge service instance '{}'", serviceInstanceGuid)
+        return serviceInstanceCleanup.markServiceInstanceForPurge(serviceInstanceGuid)
     }
 }
