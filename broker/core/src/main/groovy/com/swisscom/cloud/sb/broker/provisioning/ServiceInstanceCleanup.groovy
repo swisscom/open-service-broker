@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
 import com.google.common.base.Preconditions
+import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -45,16 +46,18 @@ class ServiceInstanceCleanup {
     private final ServiceInstanceRepository serviceInstanceRepository
     private final LastOperationPersistenceService lastOperationPersistenceService
     private final LastOperationRepository lastOperationRepository
-    private final CredentialStore credentialStore
+    private final ServiceBindingPersistenceService serviceBindingPersistenceService
 
     ServiceInstanceCleanup(ProvisioningPersistenceService provisioningPersistenceService,
                            ServiceInstanceRepository serviceInstanceRepository,
                            LastOperationPersistenceService lastOperationPersistenceService,
-                           LastOperationRepository lastOperationRepository) {
+                           LastOperationRepository lastOperationRepository,
+                           ServiceBindingPersistenceService serviceBindingPersistenceService) {
         this.provisioningPersistenceService = provisioningPersistenceService
         this.serviceInstanceRepository = serviceInstanceRepository
         this.lastOperationPersistenceService = lastOperationPersistenceService
         this.lastOperationRepository = lastOperationRepository
+        this.serviceBindingPersistenceService = serviceBindingPersistenceService
     }
 
     def cleanOrphanedServiceInstances() {
@@ -92,9 +95,10 @@ class ServiceInstanceCleanup {
         try {
             serviceInstanceToPurge.
                     getBindings().
-                    forEach({binding -> deleteCredentialInCredHub(binding as ServiceBinding)})
+                    forEach({binding -> serviceBindingPersistenceService.delete(binding as ServiceBinding, serviceInstanceToPurge)
+                    })
         } catch (Exception e) {
-            LOGGER.error("Ignoring any CredHub problems while purging a service instance. Got following exception:", e)
+            LOGGER.error("Ignoring any unbinding problems while purging a service instance. Got following exception:", e)
         }
 
         provisioningPersistenceService.markServiceInstanceAsDeleted(serviceInstanceToPurge)
@@ -113,13 +117,5 @@ class ServiceInstanceCleanup {
                 createOrUpdateLastOperation(serviceInstanceGuid, LastOperation.Operation.DEPROVISION)
         lastOperation.status = LastOperation.Status.SUCCESS
         lastOperationRepository.save(lastOperation)
-    }
-
-    private ServiceBinding deleteCredentialInCredHub(ServiceBinding binding) {
-        checkArgument(binding != null, "Binding to delete should not be null")
-        if (binding.credhubCredentialId != null && StringUtils.isNotBlank(binding.credhubCredentialId)) {
-            return credentialStore.delete(binding)
-        }
-        return binding
     }
 }

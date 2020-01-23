@@ -1,10 +1,10 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
-import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -12,16 +12,15 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @ContextConfiguration
 @SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
+@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.
+        ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
 class ServiceInstanceCleanupSpec extends Specification {
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
-
-    @Autowired
-    private ServiceBindingRepository serviceBindingRepository
 
     @Autowired
     private LastOperationRepository lastOperationRepository
@@ -32,19 +31,27 @@ class ServiceInstanceCleanupSpec extends Specification {
     @Autowired
     private LastOperationPersistenceService lastOperationPersistenceService
 
+    @Autowired
+    private ServiceBindingPersistenceService serviceBindingPersistenceService
+
     private ServiceInstanceCleanup sut
 
     def setup() {
         sut = new ServiceInstanceCleanup(provisioningPersistenceService,
                                          serviceInstanceRepository,
                                          lastOperationPersistenceService,
-                                         lastOperationRepository)
+                                         lastOperationRepository,
+                                         serviceBindingPersistenceService)
     }
 
     def "should successfully mark service instance for purge"() {
-        given:
+        given: "the service instance to be cleaned up"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid)
         serviceInstanceRepository.save(serviceInstance)
+
+        and: "a service binding associated to the service instance to be purged"
+        serviceBindingPersistenceService.
+                create(serviceInstance, '{"foo": "bar"}', "no parameters", bindingGuid, [], null, "cc_admin")
 
         when:
         ServiceInstance result = sut.markServiceInstanceForPurge(serviceInstanceGuid)
@@ -65,5 +72,24 @@ class ServiceInstanceCleanupSpec extends Specification {
 
         where:
         serviceInstanceGuid = UUID.randomUUID().toString()
+        bindingGuid = UUID.randomUUID().toString()
+    }
+
+    @Unroll
+    def "should fail to mark a service instance for purge which does not exist for service instance guid: '#serviceInstanceGuid'"() {
+        when:
+        ServiceInstance result = sut.markServiceInstanceForPurge(serviceInstanceGuid)
+
+        then: "should return the purged service instance"
+        result == null
+        def ex = thrown(IllegalArgumentException)
+        ex.getMessage() == message
+
+        where:
+        serviceInstanceGuid          | message
+        UUID.randomUUID().toString() | "Service Instance Guid does not exist"
+        null                         | "Service Instance Guid cannot be empty"
+        " "                          | "Service Instance Guid cannot be empty"
+
     }
 }
