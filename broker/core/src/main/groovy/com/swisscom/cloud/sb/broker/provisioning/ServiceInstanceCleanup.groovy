@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
@@ -23,7 +22,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.credential.CredentialStore
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import org.apache.commons.lang3.StringUtils
@@ -102,7 +100,9 @@ class ServiceInstanceCleanup {
         try {
             serviceInstanceToPurge.
                     getBindings().
-                    forEach({binding -> serviceBindingPersistenceService.delete(binding as ServiceBinding, serviceInstanceToPurge)
+                    forEach({binding ->
+                        serviceBindingPersistenceService.delete(binding as ServiceBinding,
+                                                                serviceInstanceToPurge)
                     })
         } catch (Exception e) {
             LOGGER.error("Ignoring any unbinding problems while purging a service instance. Got following exception:", e)

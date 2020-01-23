@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.controller
 
-
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
 import com.swisscom.cloud.sb.broker.services.LastOperationService
