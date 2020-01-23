@@ -123,6 +123,7 @@ class ServiceInstanceCleanup {
         LastOperation lastOperation = lastOperationPersistenceService.
                 createOrUpdateLastOperation(serviceInstanceGuid, LastOperation.Operation.DEPROVISION)
         lastOperation.status = LastOperation.Status.SUCCESS
+        lastOperation.description = "Set as successful deprovision by admin service instance purging"
         lastOperationRepository.save(lastOperation)
     }
 }
