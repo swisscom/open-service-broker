@@ -19,9 +19,9 @@ import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.services.credhub.CredHubService
 import com.swisscom.cloud.sb.broker.util.JsonHelper
 import groovy.transform.CompileStatic
-import org.apache.logging.log4j.util.Strings
 
 import static com.google.common.base.Preconditions.checkArgument
+import static org.apache.commons.lang3.StringUtils.isNotBlank
 
 /**
  * A {@link CredentialStore} which uses <a href='https://github.com/cloudfoundry-incubator/credhub'>CredHub</a> as
@@ -53,8 +53,9 @@ class CredHubCredentialStore implements CredentialStore {
 
     @Override
     ServiceBinding save(ServiceBinding key, String credentialJson) {
-        checkArgument(Strings.isNotEmpty(key.getGuid()), "ServiceBinding key must not be empty")
-        checkArgument(Strings.isNotEmpty(credentialJson), "Credential must not be empty")
+        checkArgument(isNotBlank(key.getGuid()), "ServiceBinding key must not be empty")
+        checkArgument(isNotBlank(credentialJson),
+                      "Credential for ServiceBinding '" + key.getGuid() + "' must not be empty")
         Map credentials = JsonHelper.parse(credentialJson, Map) as Map
         def credhubJsonCredential = credHubService.writeCredential(key.getGuid(), credentials)
         key.credhubCredentialId = credhubJsonCredential.getId()

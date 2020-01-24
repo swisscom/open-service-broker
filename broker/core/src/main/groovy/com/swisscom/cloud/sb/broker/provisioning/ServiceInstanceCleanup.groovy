@@ -15,50 +15,115 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
+import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
+import org.apache.commons.lang3.StringUtils
 import org.joda.time.LocalDateTime
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
+import static com.google.common.base.Preconditions.checkArgument
+
 @Component
 @CompileStatic
-@Slf4j
 @Transactional
 class ServiceInstanceCleanup {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInstanceCleanup.class)
     public static final int MONTHS_TO_KEEP_DELETED_INSTANCE_REFERENCES = 3
 
-    @Autowired
-    private ProvisioningPersistenceService provisioningPersistenceService
+    private final ProvisioningPersistenceService provisioningPersistenceService
+    private final ServiceInstanceRepository serviceInstanceRepository
+    private final LastOperationPersistenceService lastOperationPersistenceService
+    private final LastOperationRepository lastOperationRepository
+    private final ServiceBindingPersistenceService serviceBindingPersistenceService
 
-    @Autowired
-    private ServiceInstanceRepository serviceInstanceRepository
-
-    @Autowired
-    LastOperationPersistenceService lastOperationPersistenceService
+    ServiceInstanceCleanup(ProvisioningPersistenceService provisioningPersistenceService,
+                           ServiceInstanceRepository serviceInstanceRepository,
+                           LastOperationPersistenceService lastOperationPersistenceService,
+                           LastOperationRepository lastOperationRepository,
+                           ServiceBindingPersistenceService serviceBindingPersistenceService) {
+        this.provisioningPersistenceService = provisioningPersistenceService
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.lastOperationPersistenceService = lastOperationPersistenceService
+        this.lastOperationRepository = lastOperationRepository
+        this.serviceBindingPersistenceService = serviceBindingPersistenceService
+    }
 
     def cleanOrphanedServiceInstances() {
         def deleteOlderThan = new LocalDateTime().minusMonths(MONTHS_TO_KEEP_DELETED_INSTANCE_REFERENCES).toDate()
-        def oprhanedServiceInstances = serviceInstanceRepository.queryServiceInstanceForLastOperation(LastOperation.Operation.DEPROVISION, LastOperation.Status.SUCCESS, deleteOlderThan)
+        def oprhanedServiceInstances = serviceInstanceRepository.
+                queryServiceInstanceForLastOperation(LastOperation.Operation.DEPROVISION,
+                                                     LastOperation.Status.SUCCESS,
+                                                     deleteOlderThan)
         def candidateCount = oprhanedServiceInstances.size()
-        log.info("Found ${candidateCount} serviceInstance candidate(s) to clean up!")
-        oprhanedServiceInstances.each { ServiceInstance si ->
+        LOGGER.info("Found ${candidateCount} serviceInstance candidate(s) to clean up!")
+        oprhanedServiceInstances.each {ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
             lastOperationPersistenceService.deleteLastOperation(si.guid)
 
             Audit.log("Delete service instance",
-                    [
-                            serviceInstanceGuid: si.guid,
-                            action: Audit.AuditAction.Delete
-                    ]
+                      [
+                              serviceInstanceGuid: si.guid,
+                              action             : Audit.AuditAction.Delete
+                      ]
             )
         }
         return candidateCount
+    }
+
+    /**
+     * Marks a service instance for cleanup and removes any CredHub credentials from bindings
+     * @param serviceInstanceGuid to be purged
+     * @return the purged service instance
+     */
+    ServiceInstance markServiceInstanceForPurge(String serviceInstanceGuid) {
+        checkArgument(StringUtils.isNotBlank(serviceInstanceGuid), "Service Instance Guid cannot be empty")
+        ServiceInstance serviceInstanceToPurge = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
+        checkArgument(serviceInstanceToPurge != null, "Service Instance Guid '" + serviceInstanceGuid + "' does not exist")
+
+        Audit.log("Purging service instance",
+                  [
+                          serviceInstanceGuid: serviceInstanceGuid,
+                          action             : Audit.AuditAction.Delete
+                  ]
+        )
+
+        provisioningPersistenceService.markServiceInstanceAsDeleted(serviceInstanceToPurge)
+        setSuccessfulDeprovisionLastOperation(serviceInstanceGuid)
+        try {
+            serviceInstanceToPurge.
+                    getBindings().
+                    forEach({binding ->
+                        serviceBindingPersistenceService.delete(binding as ServiceBinding,
+                                                                serviceInstanceToPurge)
+                    })
+        } catch (Exception e) {
+            LOGGER.error("Ignoring any unbinding problems while purging a service instance. Got following exception:", e)
+        }
+
+        return serviceInstanceToPurge
+    }
+
+    /**
+     * For the cleanup process to actually cleanup a service instance there must be
+     * a successful deprovision last operation for the given service instance.
+     * @param serviceInstanceGuid to be set a successful last operation for
+     * @return crated LastOperation
+     */
+    private LastOperation setSuccessfulDeprovisionLastOperation(String serviceInstanceGuid) {
+        LastOperation lastOperation = lastOperationPersistenceService.
+                createOrUpdateLastOperation(serviceInstanceGuid, LastOperation.Operation.DEPROVISION)
+        lastOperation.status = LastOperation.Status.SUCCESS
+        lastOperation.description = "Set as successful deprovision by admin service instance purging"
+        lastOperationRepository.save(lastOperation)
     }
 }

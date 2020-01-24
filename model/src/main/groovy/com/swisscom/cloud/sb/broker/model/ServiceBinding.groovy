@@ -62,6 +62,18 @@ class ServiceBinding extends BaseModel {
         details.find{d -> d.key == key}.value
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this.is(o)) return true;
+        if (!(o instanceof ServiceBinding)) return false;
+        ServiceBinding serviceBinding = (ServiceBinding) o;
+        return getGuid() == serviceBinding.getGuid();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getGuid());
+    }
 
     @Override
     public String toString() {
