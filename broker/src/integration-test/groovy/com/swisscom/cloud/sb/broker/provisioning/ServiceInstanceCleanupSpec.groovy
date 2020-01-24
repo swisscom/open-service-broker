@@ -2,9 +2,11 @@ package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -34,6 +36,9 @@ class ServiceInstanceCleanupSpec extends Specification {
     @Autowired
     private ServiceBindingPersistenceService serviceBindingPersistenceService
 
+    @Autowired
+    private ServiceBindingRepository serviceBindingRepository
+
     private ServiceInstanceCleanup sut
 
     def setup() {
@@ -44,7 +49,8 @@ class ServiceInstanceCleanupSpec extends Specification {
                                          serviceBindingPersistenceService)
     }
 
-    def "should successfully mark service instance for purge"() {
+    @Unroll
+    def "should successfully mark service instance '#serviceInstanceGuid' for purge also remove binding '#bindingGuid'"() {
         given: "the service instance to be cleaned up"
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid)
         serviceInstanceRepository.save(serviceInstance)
@@ -70,6 +76,10 @@ class ServiceInstanceCleanupSpec extends Specification {
         lastOperation.getOperation() == LastOperation.Operation.DEPROVISION
         lastOperation.getStatus() == LastOperation.Status.SUCCESS
 
+        and: "should have removed the binding"
+        ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
+        serviceBinding == null
+
         where:
         serviceInstanceGuid = UUID.randomUUID().toString()
         bindingGuid = UUID.randomUUID().toString()
@@ -83,11 +93,11 @@ class ServiceInstanceCleanupSpec extends Specification {
         then: "should return the purged service instance"
         result == null
         def ex = thrown(IllegalArgumentException)
-        ex.getMessage() == message
+        ex.getMessage() == String.format(message, serviceInstanceGuid)
 
         where:
         serviceInstanceGuid          | message
-        UUID.randomUUID().toString() | "Service Instance Guid does not exist"
+        UUID.randomUUID().toString() | "Service Instance Guid '%s' does not exist"
         null                         | "Service Instance Guid cannot be empty"
         " "                          | "Service Instance Guid cannot be empty"
 

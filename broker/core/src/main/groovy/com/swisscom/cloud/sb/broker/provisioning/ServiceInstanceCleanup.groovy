@@ -88,7 +88,7 @@ class ServiceInstanceCleanup {
     ServiceInstance markServiceInstanceForPurge(String serviceInstanceGuid) {
         checkArgument(StringUtils.isNotBlank(serviceInstanceGuid), "Service Instance Guid cannot be empty")
         ServiceInstance serviceInstanceToPurge = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
-        checkArgument(serviceInstanceToPurge != null, "Service Instance Guid does not exist")
+        checkArgument(serviceInstanceToPurge != null, "Service Instance Guid '" + serviceInstanceGuid + "' does not exist")
 
         Audit.log("Purging service instance",
                   [
@@ -97,6 +97,8 @@ class ServiceInstanceCleanup {
                   ]
         )
 
+        provisioningPersistenceService.markServiceInstanceAsDeleted(serviceInstanceToPurge)
+        setSuccessfulDeprovisionLastOperation(serviceInstanceGuid)
         try {
             serviceInstanceToPurge.
                     getBindings().
@@ -108,8 +110,6 @@ class ServiceInstanceCleanup {
             LOGGER.error("Ignoring any unbinding problems while purging a service instance. Got following exception:", e)
         }
 
-        provisioningPersistenceService.markServiceInstanceAsDeleted(serviceInstanceToPurge)
-        setSuccessfulDeprovisionLastOperation(serviceInstanceGuid)
         return serviceInstanceToPurge
     }
 

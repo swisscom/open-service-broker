@@ -39,7 +39,7 @@ class CredHubCredentialStoreTest extends BaseSpecification {
 
         then:
         def ex = thrown(IllegalArgumentException)
-        ex.getMessage() == errorMessage
+        ex.getMessage() == String.format(errorMessage, bindingId)
         response == null
         serviceBinding.getCredhubCredentialId() == null
 
@@ -47,8 +47,8 @@ class CredHubCredentialStoreTest extends BaseSpecification {
         bindingId                    | credential         | errorMessage
         null                         | '{"test":"hello"}' | "ServiceBinding key must not be empty"
         ""                           | '{"test":"hello"}' | "ServiceBinding key must not be empty"
-        UUID.randomUUID().toString() | null               | "Credential must not be empty"
-        UUID.randomUUID().toString() | ''                 | "Credential must not be empty"
+        UUID.randomUUID().toString() | null               | "Credential for ServiceBinding '%s' must not be empty"
+        UUID.randomUUID().toString() | ''                 | "Credential for ServiceBinding '%s' must not be empty"
         UUID.randomUUID().toString() | '{}'               | "credentials may not be null"
 
     }
