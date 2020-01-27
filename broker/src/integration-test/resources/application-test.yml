@@ -109,7 +109,36 @@ com.swisscom.cloud.sb.broker.serviceDefinitions: [
     }
   }
   ]
-}]
+},
+{
+  "guid": "d40d962e-0890-43f1-b1a1-d454277346ff",
+  "name": "DummySystemBackup",
+  "description": "A Service Provider that provides System Backups",
+  "bindable": true,
+  "asyncRequired": false,
+  "internalName": "dummySystemBackup",
+  "displayIndex": 1,
+  "metadata": {
+    "version": "2.0.0",
+    "displayName": "DummySystemBackup",
+    "bullets": [
+      "Secure Store"
+    ]
+  },
+  "plans": [
+  {
+    "guid": "47273c6a-ff8b-40d6-9981-2b25663718a1",
+    "name": "test",
+    "description": "DummySystemBackup",
+    "free": false,
+    "displayIndex": 0,
+    "metadata": {
+      "displayName": "test"
+    }
+  }
+  ]
+}
+]
 
 com.swisscom.cloud.sb.broker.service.kubernetes.redis.v1:
   kubernetesRedisHost: test

@@ -15,13 +15,17 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.model.LastOperation
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
+import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import org.apache.commons.lang3.StringUtils
@@ -45,17 +49,20 @@ class ServiceInstanceCleanup {
     private final LastOperationPersistenceService lastOperationPersistenceService
     private final LastOperationRepository lastOperationRepository
     private final ServiceBindingPersistenceService serviceBindingPersistenceService
+    private final ServiceProviderLookup serviceProviderLookup
 
     ServiceInstanceCleanup(ProvisioningPersistenceService provisioningPersistenceService,
                            ServiceInstanceRepository serviceInstanceRepository,
                            LastOperationPersistenceService lastOperationPersistenceService,
                            LastOperationRepository lastOperationRepository,
-                           ServiceBindingPersistenceService serviceBindingPersistenceService) {
+                           ServiceBindingPersistenceService serviceBindingPersistenceService,
+                           ServiceProviderLookup serviceProviderLookup) {
         this.provisioningPersistenceService = provisioningPersistenceService
         this.serviceInstanceRepository = serviceInstanceRepository
         this.lastOperationPersistenceService = lastOperationPersistenceService
         this.lastOperationRepository = lastOperationRepository
         this.serviceBindingPersistenceService = serviceBindingPersistenceService
+        this.serviceProviderLookup = serviceProviderLookup
     }
 
     def cleanOrphanedServiceInstances() {
@@ -65,7 +72,7 @@ class ServiceInstanceCleanup {
                                                      LastOperation.Status.SUCCESS,
                                                      deleteOlderThan)
         def candidateCount = oprhanedServiceInstances.size()
-        LOGGER.info("Found ${candidateCount} serviceInstance candidate(s) to clean up!")
+        LOGGER.info("Found " + candidateCount + " serviceInstance candidate(s) to clean up!")
         oprhanedServiceInstances.each {ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
             lastOperationPersistenceService.deleteLastOperation(si.guid)
@@ -88,7 +95,8 @@ class ServiceInstanceCleanup {
     ServiceInstance markServiceInstanceForPurge(String serviceInstanceGuid) {
         checkArgument(StringUtils.isNotBlank(serviceInstanceGuid), "Service Instance Guid cannot be empty")
         ServiceInstance serviceInstanceToPurge = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
-        checkArgument(serviceInstanceToPurge != null, "Service Instance Guid '" + serviceInstanceGuid + "' does not exist")
+        checkArgument(serviceInstanceToPurge != null,
+                      "Service Instance Guid '" + serviceInstanceGuid + "' does not exist")
 
         Audit.log("Purging service instance",
                   [
@@ -107,8 +115,11 @@ class ServiceInstanceCleanup {
                                                                 serviceInstanceToPurge)
                     })
         } catch (Exception e) {
-            LOGGER.error("Ignoring any unbinding problems while purging a service instance. Got following exception:", e)
+            LOGGER.
+                    error("Ignoring any unbinding problems while purging a service instance. Got following exception:",
+                          e)
         }
+        deregisterFromBackup(serviceInstanceToPurge.getPlan(), serviceInstanceGuid)
 
         return serviceInstanceToPurge
     }
@@ -125,5 +136,19 @@ class ServiceInstanceCleanup {
         lastOperation.status = LastOperation.Status.SUCCESS
         lastOperation.description = "Set as successful deprovision by admin service instance purging"
         lastOperationRepository.save(lastOperation)
+    }
+
+    private boolean deregisterFromBackup(Plan plan, String serviceInstanceGuid) {
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(plan)
+        if (serviceProvider instanceof SystemBackupProvider) {
+            try {
+                serviceProvider.unregisterSystemBackupOnShield(serviceInstanceGuid)
+                return true
+            } catch (Exception e) {
+                LOGGER.error("Failed to deregister service instance {} from backup system."
+                                     + "Ignoring failure while purging a service instance.", serviceInstanceGuid, e)
+            }
+        }
+        return false
     }
 }

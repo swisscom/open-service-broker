@@ -6,21 +6,29 @@ import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.FilterType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 import spock.lang.Unroll
 
 @ContextConfiguration
+@ActiveProfiles("default,test,secrets")
 @SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.
         ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
 class ServiceInstanceCleanupSpec extends Specification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInstanceCleanupSpec.class)
+
     @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
 
@@ -39,6 +47,12 @@ class ServiceInstanceCleanupSpec extends Specification {
     @Autowired
     private ServiceBindingRepository serviceBindingRepository
 
+    @Autowired
+    private ServiceProviderLookup serviceProviderLookup
+
+    @Autowired
+    private PlanRepository planRepository
+
     private ServiceInstanceCleanup sut
 
     def setup() {
@@ -46,13 +60,16 @@ class ServiceInstanceCleanupSpec extends Specification {
                                          serviceInstanceRepository,
                                          lastOperationPersistenceService,
                                          lastOperationRepository,
-                                         serviceBindingPersistenceService)
+                                         serviceBindingPersistenceService,
+                                         serviceProviderLookup)
     }
 
     @Unroll
     def "should successfully mark service instance '#serviceInstanceGuid' for purge also remove binding '#bindingGuid'"() {
         given: "the service instance to be cleaned up"
-        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid)
+        LOGGER.info("{}", planRepository.findAll().each({p -> p.getService().getName()}))
+        LOGGER.info("Plans: {}", planRepository.findAll())
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid, plan: planRepository.findByGuid(planGuid))
         serviceInstanceRepository.save(serviceInstance)
 
         and: "a service binding associated to the service instance to be purged"
@@ -81,8 +98,9 @@ class ServiceInstanceCleanupSpec extends Specification {
         serviceBinding == null
 
         where:
-        serviceInstanceGuid = UUID.randomUUID().toString()
-        bindingGuid = UUID.randomUUID().toString()
+        serviceInstanceGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
+        bindingGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
+        planGuid << ["0ef19631-1212-47cc-9c77-22d78ddaae3a", "47273c6a-ff8b-40d6-9981-2b25663718a1"]
     }
 
     @Unroll
