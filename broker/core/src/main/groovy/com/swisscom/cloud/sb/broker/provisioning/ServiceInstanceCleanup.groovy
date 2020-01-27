@@ -88,7 +88,8 @@ class ServiceInstanceCleanup {
     }
 
     /**
-     * Marks a service instance for cleanup and removes any CredHub credentials from bindings
+     * Marks a service instance for cleanup, removes any CredHub credentials from bindings and deregisters the service
+     * instance from the backup system (if it is a {@link com.swisscom.cloud.sb.broker.backup.SystemBackupProvider})
      * @param serviceInstanceGuid to be purged
      * @return the purged service instance
      */
