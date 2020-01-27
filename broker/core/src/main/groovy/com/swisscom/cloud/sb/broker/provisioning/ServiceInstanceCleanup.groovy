@@ -72,7 +72,7 @@ class ServiceInstanceCleanup {
                                                      LastOperation.Status.SUCCESS,
                                                      deleteOlderThan)
         def candidateCount = oprhanedServiceInstances.size()
-        LOGGER.info("Found " + candidateCount + " serviceInstance candidate(s) to clean up!")
+        LOGGER.info("Found {} serviceInstance candidate(s) to clean up!", candidateCount)
         oprhanedServiceInstances.each {ServiceInstance si ->
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
             lastOperationPersistenceService.deleteLastOperation(si.guid)
@@ -116,7 +116,7 @@ class ServiceInstanceCleanup {
                                                                 serviceInstanceToPurge)
                     })
         } catch (Exception e) {
-            LOGGER.error("Ignoring any unbinding problems while purging a service instance.", e)
+            LOGGER.error("Ignoring any unbinding problems while purging service instance {}.", serviceInstanceGuid, e)
         }
         deregisterFromBackup(serviceInstanceToPurge.getPlan(), serviceInstanceGuid)
 
