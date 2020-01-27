@@ -53,8 +53,8 @@ public class CredentialStoreConfiguration {
 
     public static class CredHubConfigurationProperties {
         private URI url;
-        private List<String> cacerts = new ArrayList();
-        private Map<String, String> oauth2 = new HashMap();
+        private List<String> cacerts = new ArrayList<>();
+        private Map<String, String> oauth2 = new HashMap<>();
 
 
         public URI getUrl() {

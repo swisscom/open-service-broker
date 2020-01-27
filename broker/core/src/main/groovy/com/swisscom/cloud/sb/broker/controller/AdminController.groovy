@@ -15,7 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.controller
 
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.cfextensions.ServiceInstancePurgeInformation
 import com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup
 import com.swisscom.cloud.sb.broker.services.LastOperationService
 import groovy.transform.CompileStatic
@@ -24,10 +24,15 @@ import io.swagger.annotations.ApiOperation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
+
+import static com.swisscom.cloud.sb.broker.cfextensions.ServiceInstancePurgeInformation.serviceInstancePurgeInformation
 
 @Api(value = "Admin", description = "Endpoint for admin operations")
 @RestController
@@ -54,9 +59,19 @@ class AdminController extends BaseController {
     }
 
     @ApiOperation(value = "Purge Service Instance")
-    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/purge', method = RequestMethod.DELETE)
-    ServiceInstance purgeServiceInstance(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
+    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/purge',
+            method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    ResponseEntity<ServiceInstancePurgeInformation> purgeServiceInstance(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
         LOGGER.info("Request to purge service instance '{}'", serviceInstanceGuid)
-        return serviceInstanceCleanup.markServiceInstanceForPurge(serviceInstanceGuid)
+        try {
+            return new ResponseEntity<ServiceInstancePurgeInformation>(serviceInstanceCleanup.
+                    markServiceInstanceForPurge(serviceInstanceGuid), HttpStatus.OK)
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<ServiceInstancePurgeInformation>(serviceInstancePurgeInformation().
+                    purgedServiceInstanceGuid(serviceInstanceGuid == null ? "null" : serviceInstanceGuid).
+                    errors([e.getMessage()]).
+                    build(), HttpStatus.BAD_REQUEST)
+        }
+
     }
 }
