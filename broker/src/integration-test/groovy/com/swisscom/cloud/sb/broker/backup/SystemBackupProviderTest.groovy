@@ -17,6 +17,7 @@ package com.swisscom.cloud.sb.broker.backup
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomakehurst.wiremock.stubbing.Scenario
+import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.model.Parameter
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
@@ -26,21 +27,14 @@ import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-import spock.lang.Specification
 import spock.lang.Stepwise
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.junit.Assert.assertEquals
 
-@SpringBootTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("default,test,secrets")
 @Stepwise
-class SystemBackupProviderTest extends Specification {
+class SystemBackupProviderTest extends BaseSpecification {
     private static final Logger LOG = LoggerFactory.getLogger(SystemBackupProviderTest.class)
     private static final String SERVICE_INSTANCE_ID = "44651d63-b7c0-4f20-86bb-efef081a99ca"
     private static final boolean SHIELD_MOCKED = Boolean.valueOf(System.getProperty("shield.mocked"))

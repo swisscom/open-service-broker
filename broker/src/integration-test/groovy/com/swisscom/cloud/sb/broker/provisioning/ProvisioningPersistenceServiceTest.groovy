@@ -15,21 +15,14 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailsHelper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.FilterType
-import org.springframework.test.context.ContextConfiguration
-import spock.lang.Specification
 
-@ContextConfiguration
-@SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
-class ProvisioningPersistenceServiceTest extends Specification {
+class ProvisioningPersistenceServiceTest extends BaseSpecification {
     String serviceInstanceGuid
     final String KEY = "TESTKEY"
     final String ORIGINAL_VALUE = "ORIGINALVALUE"

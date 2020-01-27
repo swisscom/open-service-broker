@@ -21,13 +21,10 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
-import com.swisscom.cloud.sb.broker.services.ServiceProviderService
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import org.springframework.beans.factory.annotation.Autowired
 
-import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 import static com.swisscom.cloud.sb.broker.services.ServiceProviderLookup.findInternalName
 
 class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification {
@@ -58,7 +55,7 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:
-        dbTestUtil.createServiceInstace(cfService, UUID.randomUUID().toString(), [ServiceDetail.from(ServiceDetailKey.PORT, '1000')])
+        dbTestUtil.createServiceInstance(cfService, UUID.randomUUID().toString(), [ServiceDetail.from(ServiceDetailKey.PORT, '1000')])
 
         when:
         mongoDbEnterpriseFreePortFinder.findFreePorts(1)
@@ -77,13 +74,13 @@ class MongoDbEnterpriseFreePortFinderSpec extends BaseTransactionalSpecification
         cfService.plans.add(plan)
         cfServiceRepository.save(cfService)
         and:
-        def serviceInstance = dbTestUtil.createServiceInstace(cfService, UUID.randomUUID().toString())
+        def serviceInstance = dbTestUtil.createServiceInstance(cfService, UUID.randomUUID().toString())
         def detail = serviceDetailRepository.save(ServiceDetail.from(ServiceDetailKey.PORT, '1000'))
         serviceInstance.details.add(detail)
         serviceInstanceRepository.save(serviceInstance)
 
         and:
-        def serviceInstance2 = dbTestUtil.createServiceInstace(cfService, UUID.randomUUID().toString())
+        def serviceInstance2 = dbTestUtil.createServiceInstance(cfService, UUID.randomUUID().toString())
         expect:
         mongoDbEnterpriseFreePortFinder.findFreePorts(1).first() == 1001
     }
