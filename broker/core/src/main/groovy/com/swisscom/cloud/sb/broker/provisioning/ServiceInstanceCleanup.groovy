@@ -116,9 +116,7 @@ class ServiceInstanceCleanup {
                                                                 serviceInstanceToPurge)
                     })
         } catch (Exception e) {
-            LOGGER.
-                    error("Ignoring any unbinding problems while purging a service instance. Got following exception:",
-                          e)
+            LOGGER.error("Ignoring any unbinding problems while purging a service instance.", e)
         }
         deregisterFromBackup(serviceInstanceToPurge.getPlan(), serviceInstanceGuid)
 
