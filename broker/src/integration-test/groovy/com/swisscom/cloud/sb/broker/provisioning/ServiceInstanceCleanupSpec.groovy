@@ -67,8 +67,6 @@ class ServiceInstanceCleanupSpec extends Specification {
     @Unroll
     def "should successfully mark service instance '#serviceInstanceGuid' for purge also remove binding '#bindingGuid'"() {
         given: "the service instance to be cleaned up"
-        LOGGER.info("{}", planRepository.findAll().each({p -> p.getService().getName()}))
-        LOGGER.info("Plans: {}", planRepository.findAll())
         ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid, plan: planRepository.findByGuid(planGuid))
         serviceInstanceRepository.save(serviceInstance)
 
