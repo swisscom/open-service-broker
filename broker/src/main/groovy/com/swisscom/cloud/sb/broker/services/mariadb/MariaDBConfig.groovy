@@ -16,9 +16,9 @@
 package com.swisscom.cloud.sb.broker.services.mariadb
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
-@Configuration
+@Component
 @ConfigurationProperties(prefix = 'com.swisscom.cloud.sb.broker.service.mariadb')
 class MariaDBConfig {
     String nameOfDefault

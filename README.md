@@ -313,3 +313,28 @@ This will mark the service instance to be cleaned up in the database, delete any
 bindings to this service instance and if the ServiceProvider provides SystemBackups, also deregisters the service
 instance from the backup system. This command should be used if the service instance cannot be removed anymore due to
 unavailability of the service instance in the backend.
+
+Example Response when purge is partly successful:
+```
+HTTP Status 200
+{
+  "purged_service_instance_guid": "a7d660aa-5919-430a-9b07-f5db7f456b55",
+  "deleted_bindings": 3,
+  "is_system_backup_provider": true,
+  "errors": [
+    "Failed to deregister from backup system"
+  ]
+}
+```
+
+Example Response when purge failed due to invalid service instance guid:
+```
+HTTP Status 400
+{
+  "purged_service_instance_guid": "a7d660aa-5919-430a-9b07-f5db7f456b55",
+  "errors": [
+    "Service Instance Guid 'a7d660aa-5919-430a-9b07-f5db7f456b55' does not exist"
+  ]
+}
+
+```
