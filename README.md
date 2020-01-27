@@ -309,6 +309,7 @@ used if a service creation has failed without aprioriate feedback or if the brok
 [DELETE] /admin/service_instances/{serviceInstanceGuid}/purge
 ```
 
-This will mark the service instance to be cleaned up in the database and delete any CredHub credentials of any existing
-bindings to this service instance. This command should be used if the service instance cannot be removed anymore due to
+This will mark the service instance to be cleaned up in the database, delete any CredHub credentials of any existing
+bindings to this service instance and if the ServiceProvider provides SystemBackups, also deregisters the service
+instance from the backup system. This command should be used if the service instance cannot be removed anymore due to
 unavailability of the service instance in the backend.

@@ -46,9 +46,8 @@ class AdminController extends BaseController {
     }
 
     @ApiOperation(value = "Terminate Last Operation")
-    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/last_operation/terminate', method =
-            RequestMethod.
-                    POST)
+    @RequestMapping(value = 'admin/service_instances/{serviceInstanceGuid}/last_operation/terminate',
+            method = RequestMethod.POST)
     void terminateLastOperation(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
         LOGGER.info("Request to terminate last operation for service instance '{}'", serviceInstanceGuid)
         lastOperationService.terminateLastOperation(serviceInstanceGuid)
