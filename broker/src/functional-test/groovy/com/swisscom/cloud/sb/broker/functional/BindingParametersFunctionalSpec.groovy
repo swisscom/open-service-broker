@@ -75,7 +75,8 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         def serviceBinding = serviceBindingRepository.findByGuid(serviceBindingGuid)
         serviceBinding != null
-        serviceBinding.credentials != null
+        serviceBinding.credentials == null
+        serviceBinding.credhubCredentialId.size() > 0
         serviceBinding.applicationUser.username == cfAdminUser.username
 
         cleanup:
@@ -209,7 +210,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
         serviceLifeCycler.setServiceInstanceId(serviceInstanceGuid)
         def serviceBindingGuid = UUID.randomUUID().toString()
         serviceLifeCycler.setServiceBindingId(serviceBindingGuid)
-        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert()
+        serviceLifeCycler.createServiceInstanceAndServiceBindingAndAssert(0, false, false, null, [:], [foo: "bar"])
 
         when:
         serviceLifeCycler.deleteServiceBindingAndServiceInstanceAndAssert()

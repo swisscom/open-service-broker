@@ -19,26 +19,11 @@ import com.google.common.collect.Sets
 import com.swisscom.cloud.sb.broker.config.ApplicationUserConfig
 import com.swisscom.cloud.sb.broker.config.UserConfig
 import com.swisscom.cloud.sb.broker.config.WebSecurityConfig
-import com.swisscom.cloud.sb.broker.model.CFService
-import com.swisscom.cloud.sb.broker.model.Parameter
-import com.swisscom.cloud.sb.broker.model.Plan
-import com.swisscom.cloud.sb.broker.model.PlanMetadata
-import com.swisscom.cloud.sb.broker.model.Tag
-import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
-import com.swisscom.cloud.sb.broker.repository.DeprovisionRequestRepository
-import com.swisscom.cloud.sb.broker.repository.ParameterRepository
-import com.swisscom.cloud.sb.broker.repository.PlanMetadataRepository
-import com.swisscom.cloud.sb.broker.repository.PlanRepository
-import com.swisscom.cloud.sb.broker.repository.ProvisionRequestRepository
-import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
-import com.swisscom.cloud.sb.broker.repository.ServiceDetailRepository
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.repository.TagRepository
-import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
+import com.swisscom.cloud.sb.broker.model.*
+import com.swisscom.cloud.sb.broker.repository.*
 import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.LastOperationResponse
 import com.swisscom.cloud.sb.client.model.LastOperationState
-
 import com.swisscom.cloud.sb.client.model.ProvisionResponseDto
 import groovy.transform.CompileStatic
 import groovy.transform.TypeChecked
@@ -48,8 +33,8 @@ import org.joda.time.Seconds
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.Context
+import org.springframework.cloud.servicebroker.model.binding.BindResource
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
@@ -66,13 +51,12 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 
 import javax.annotation.PostConstruct
-import java.sql.SQLException
 
 @Component
 @Scope('prototype')
 @CompileStatic
 class ServiceLifeCycler {
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceLifeCycler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLifeCycler.class);
     private CFService cfService
     private Set<CFService> cfServices = []
     private Plan plan
@@ -210,7 +194,9 @@ class ServiceLifeCycler {
             planCreated = true
         } else {
             if (planName) {
-                plan = cfService.plans.find {it.name == planName}
+                plan = cfService.plans.find {
+                    it.name == planName
+                }
             } else {
                 plan = cfService.plans.first()
             }
@@ -280,14 +266,14 @@ class ServiceLifeCycler {
                                                          boolean asyncRequest = false,
                                                          boolean asyncResponse = false,
                                                          Context context = null,
-                                                         Map<String, Object> provisionParameters = null) {
+                                                         Map<String, Object> provisionParameters = null, Map<String, Object> bindingParameters = [:]) {
         createServiceInstanceAndAssert(maxDelayInSecondsBetweenProvisionAndBind,
                                        asyncRequest,
                                        asyncResponse,
                                        provisionParameters,
                                        context)
-        bindServiceInstanceAndAssert(null, [] as Map, true, context)
-        println("Created serviceInstanceId:${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
+        bindServiceInstanceAndAssert(null, bindingParameters, true, context)
+        LOGGER.info("Created serviceInstanceId: {}, serviceBindingId: {}", serviceInstanceId, serviceBindingId)
     }
 
     void createServiceInstanceAndAssert(int maxSecondsToAwaitInstance = 0,
@@ -351,14 +337,6 @@ class ServiceLifeCycler {
                                                   .build()
         return createServiceBrokerClient(throwExceptionWhenNon2xxHttpStatusCode)
                 .createServiceInstance(request)
-    }
-
-    void createServiceBindingAndAssert(int maxDelayInSecondsBetweenProvisionAndBind = 0,
-                                       boolean asyncRequest = false,
-                                       boolean asyncResponse = false,
-                                       Context context = null) {
-        bindServiceInstanceAndAssert(null, null, true, context)
-        println("Bound serviceInstanceId: ${serviceInstanceId} , serviceBindingId ${serviceBindingId}")
     }
 
     Map<String, Object> bindServiceInstanceAndAssert(String bindingId = null,
@@ -474,12 +452,6 @@ class ServiceLifeCycler {
         return parameterRepository.saveAndFlush(parameter)
     }
 
-    @TypeChecked(TypeCheckingMode.SKIP)
-    boolean removeParameters() {
-        plan.parameters.removeAll(plan.parameters)
-        planRepository.saveAndFlush(plan as Plan)
-    }
-
     CFService getCfService() {
         return cfService
     }
@@ -512,11 +484,6 @@ class ServiceLifeCycler {
         }
     }
 
-    private ServiceBrokerClient createServiceBrokerClientExternal() {
-        return new ServiceBrokerClient('http://localhost:8080', cfExtUser.username, cfExtUser.password)
-    }
-
-
     private ServiceBrokerClient createServiceBrokerClientWithCustomErrorHandler() {
         def template = new RestTemplate(new HttpComponentsClientHttpRequestFactory())
         template.errorHandler = new NoOpResponseErrorHandler()
@@ -527,7 +494,10 @@ class ServiceLifeCycler {
         if (seconds > 0) {
 
             for (def start = LocalTime.now(); start.plusSeconds(seconds).isAfter(LocalTime.now()); Thread.sleep(1000)) {
-                println("Execution continues in ${Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).getSeconds()} second(s)")
+                LOGGER.info("Execution continues in {} seconds", Seconds.
+                        secondsBetween(LocalTime.now(),
+                                       start.plusSeconds(seconds)).
+                        getSeconds())
             }
         }
     }
@@ -535,10 +505,9 @@ class ServiceLifeCycler {
     void waitUntilMaxTimeOrTargetState(int seconds, String newServiceInstanceId = serviceInstanceId) {
         int sleepTime = 1000
         if (seconds > 0) {
-            for (
-                    def start = LocalTime.now();
-                    start.plusSeconds(seconds).isAfter(LocalTime.now());
-                    Thread.sleep(sleepTime)) {
+            for (def start = LocalTime.now();
+                 start.plusSeconds(seconds).isAfter(LocalTime.now());
+                 Thread.sleep(sleepTime)) {
                 def timeUntilForcedExecution = Seconds.secondsBetween(LocalTime.now(), start.plusSeconds(seconds)).
                         getSeconds()
                 if (timeUntilForcedExecution % 10 == 0) {
@@ -546,14 +515,15 @@ class ServiceLifeCycler {
                         def operationState = createServiceBrokerClient().
                                 getServiceInstanceLastOperation(newServiceInstanceId).
                                 getBody().state
-                        if (operationState != null && operationState == LastOperationState.SUCCEEDED || operationState == LastOperationState.FAILED) {
+                        if (operationState != null && operationState == LastOperationState.
+                                SUCCEEDED || operationState == LastOperationState.FAILED) {
                             return
                         }
                     } catch (Exception ex) {
-                        println("Exception when getting lastOperation: ${ex.toString()}")
+                        LOGGER.error("Exception when getting lastOperation: {}", ex.toString())
                     }
                 }
-                println("Execution continues in ${timeUntilForcedExecution} second(s)")
+                LOGGER.info("Execution continues in {} seconds", timeUntilForcedExecution)
             }
         }
     }
@@ -603,7 +573,9 @@ class ServiceLifeCycler {
      * @return
      */
     protected UserConfig getUserByRole(String role) {
-        return userConfig.platformUsers.find {it.role == role}
+        return userConfig.platformUsers.find {
+            it.role == role
+        }
     }
 
     void setServiceInstanceId(String serviceInstanceId) {
@@ -622,10 +594,5 @@ class ServiceLifeCycler {
 
     void addCFServiceToSet(CFService cfService) {
         this.cfServices << cfService
-    }
-
-    void setAsyncRequestInPlan(boolean asyncRequired) {
-        plan.asyncRequired = asyncRequired
-        plan = planRepository.saveAndFlush(plan)
     }
 }
