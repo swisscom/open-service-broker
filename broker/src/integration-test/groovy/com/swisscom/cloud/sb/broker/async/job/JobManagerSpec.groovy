@@ -17,14 +17,12 @@ package com.swisscom.cloud.sb.broker.async.job
 
 import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.async.AsyncProvisioningService
-import com.swisscom.cloud.sb.broker.model.CFService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
-import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
 import com.swisscom.cloud.sb.broker.repository.ProvisionRequestRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.provisioning.job.ProvisioningJobConfig
 import com.swisscom.cloud.sb.broker.util.DBTestUtil
 import com.swisscom.cloud.sb.broker.util.ServiceLifeCycler
 import com.swisscom.cloud.sb.broker.util.StringGenerator
@@ -50,9 +48,6 @@ class JobManagerSpec extends BaseSpecification {
     ServiceLifeCycler serviceLifeCycler
 
     @Shared
-    CFServiceRepository cfServiceRepository
-
-    @Shared
     ServiceInstanceRepository serviceInstanceRepository
 
     @Shared
@@ -74,23 +69,18 @@ class JobManagerSpec extends BaseSpecification {
     }
 
     @Autowired
-    void poorMansSetupSpec(ServiceLifeCycler  serviceLifeCycler,CFServiceRepository cfServiceRepository,DBTestUtil dbTestUtil,ServiceInstanceRepository serviceInstanceRepository) {
+    void poorMansSetupSpec(DBTestUtil dbTestUtil,ServiceInstanceRepository serviceInstanceRepository) {
         if (!initialized) {
-            this.serviceLifeCycler = serviceLifeCycler
-            this.cfServiceRepository = cfServiceRepository
             this.dbTestUtil = dbTestUtil
             this.serviceInstanceRepository = serviceInstanceRepository
 
-            CFService cfService = serviceLifeCycler.createServiceIfDoesNotExist(serviceName, serviceName)
-            dbTestUtil.createServiceInstace(cfService, id)
+            dbTestUtil.createServiceInstance(serviceName, id)
             initialized = true
         }
     }
 
-
     def cleanupSpec() {
         serviceInstanceRepository.deleteByGuid(id)
-        serviceLifeCycler.cleanup()
     }
 
     def cleanup() {
@@ -100,13 +90,13 @@ class JobManagerSpec extends BaseSpecification {
         results = []
     }
 
-    def     "failing job is handled correctly"() {
+    def "failing job is handled correctly"() {
         given:
-        int executionIntervalInSeconds = 10
+        int executionIntervalInSeconds = 2
 
         when:
-        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(FailingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 0.5))
-        Thread.sleep((executionIntervalInSeconds * 2) * 1000)
+        asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(FailingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 0.2))
+        Thread.sleep((executionIntervalInSeconds * 1) * 1000)
 
         then:
         lastOperationRepository.findByGuid(id).status == LastOperation.Status.FAILED
@@ -141,7 +131,7 @@ class JobManagerSpec extends BaseSpecification {
 
     def "successful job is handled correctly"() {
         given:
-        int executionIntervalInSeconds = 5
+        int executionIntervalInSeconds = 2
         SuccessfulJob.ExecutionCount.set(0)
         when:
         asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(SuccessfulJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
@@ -157,7 +147,7 @@ class JobManagerSpec extends BaseSpecification {
 
     def "exception throwing job is handled correctly"() {
         given:
-        int executionIntervalInSeconds = 5
+        int executionIntervalInSeconds = 2
         when:
         asyncProvisioningService.scheduleProvision(new ProvisioningJobConfig(ExceptionThrowingJob.class, new ProvisionRequest(serviceInstanceGuid: id), executionIntervalInSeconds, 1))
         lastOperationRepository.findByGuid(id).status == LastOperation.Status.IN_PROGRESS

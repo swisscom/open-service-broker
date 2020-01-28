@@ -119,7 +119,19 @@ class DBTestUtil {
         cfServiceRepository.save(service)
     }
 
-    def createServiceInstace(CFService service, String guid, List<ServiceDetail> details = null) {
+    def createServiceInstance(String serviceName, String guid, List<ServiceDetail> details = null) {
+        CFService service = cfServiceRepository.findByName(serviceName)
+        def serviceInstance = serviceInstanceRepository.save(new ServiceInstance(guid: guid, plan: service.plans.first(), completed: true))
+        details?.each {
+            def detail = serviceDetailRepository.save(ServiceDetail.from(ServiceDetailKey.PORT, '1000'))
+            serviceInstance.details.add(detail)
+        }
+        serviceInstanceRepository.save(serviceInstance)
+
+        return serviceInstance
+    }
+
+    def createServiceInstance(CFService service, String guid, List<ServiceDetail> details = null) {
         def serviceInstance = serviceInstanceRepository.save(new ServiceInstance(guid: guid, plan: service.plans.first(), completed: true))
         details?.each {
             def detail = serviceDetailRepository.save(ServiceDetail.from(ServiceDetailKey.PORT, '1000'))

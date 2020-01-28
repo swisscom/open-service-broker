@@ -25,4 +25,7 @@ interface PlanRepository extends BaseRepository<Plan, Integer> {
 
     @Query("SELECT p FROM Plan p JOIN FETCH p.parameters JOIN FETCH p.metadata JOIN FETCH p.service WHERE p.guid = (:guid)")
     Plan findByGuidAndFetchParametersEagerly(@Param("guid") String guid)
+
+    @Query("SELECT p FROM Plan p JOIN FETCH p.service WHERE p.guid = (:guid)")
+    Plan findByGuidAndFetchServiceEagerly(@Param("guid") String guid)
 }

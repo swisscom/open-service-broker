@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.BaseSpecification
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.cfextensions.ServiceInstancePurgeInformation
 import com.swisscom.cloud.sb.broker.model.LastOperation
@@ -29,20 +30,9 @@ import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.FilterType
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import spock.lang.Specification
 import spock.lang.Unroll
 
-@ContextConfiguration
-@ActiveProfiles("default,test,secrets")
-@SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig")
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.
-        ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
-class ServiceInstanceCleanupSpec extends Specification {
+class ServiceInstanceCleanupSpec extends BaseSpecification {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInstanceCleanupSpec.class)
 
     @Autowired
@@ -77,7 +67,8 @@ class ServiceInstanceCleanupSpec extends Specification {
                                          lastOperationPersistenceService,
                                          lastOperationRepository,
                                          serviceBindingPersistenceService,
-                                         serviceProviderLookup)
+                                         serviceProviderLookup,
+                                         planRepository)
     }
 
     @Unroll

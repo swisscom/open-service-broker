@@ -61,7 +61,7 @@ class ServiceDefinitionInitializerSpec extends BaseTransactionalSpecification {
             serviceDtoList << new ServiceDto(guid: it.guid, name: it.name, internalName: it.internalName,
                     displayIndex: it.displayIndex, asyncRequired: it.asyncRequired, id: it.id,
                     description: it.description, bindable: it.bindable, tags: new ArrayList<>(it.tags),
-                    plans: it.plans.collect { plan -> new PlanDto(plan) }, metadata: metaData)
+                    plans: it.plans.collect { plan -> new PlanDto((Plan)plan) }, metadata: metaData)
         }
 
         serviceDefinitionConfig.serviceDefinitions = serviceDtoList

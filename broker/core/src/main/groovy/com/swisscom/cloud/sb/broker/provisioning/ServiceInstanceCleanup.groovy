@@ -24,6 +24,7 @@ import com.swisscom.cloud.sb.broker.model.ServiceBinding
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationPersistenceService
 import com.swisscom.cloud.sb.broker.repository.LastOperationRepository
+import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
@@ -53,19 +54,22 @@ class ServiceInstanceCleanup {
     private final LastOperationRepository lastOperationRepository
     private final ServiceBindingPersistenceService serviceBindingPersistenceService
     private final ServiceProviderLookup serviceProviderLookup
+    private final PlanRepository planRepository
 
     ServiceInstanceCleanup(ProvisioningPersistenceService provisioningPersistenceService,
                            ServiceInstanceRepository serviceInstanceRepository,
                            LastOperationPersistenceService lastOperationPersistenceService,
                            LastOperationRepository lastOperationRepository,
                            ServiceBindingPersistenceService serviceBindingPersistenceService,
-                           ServiceProviderLookup serviceProviderLookup) {
+                           ServiceProviderLookup serviceProviderLookup,
+                           PlanRepository planRepository) {
         this.provisioningPersistenceService = provisioningPersistenceService
         this.serviceInstanceRepository = serviceInstanceRepository
         this.lastOperationPersistenceService = lastOperationPersistenceService
         this.lastOperationRepository = lastOperationRepository
         this.serviceBindingPersistenceService = serviceBindingPersistenceService
         this.serviceProviderLookup = serviceProviderLookup
+        this.planRepository = planRepository
     }
 
     def cleanOrphanedServiceInstances() {
@@ -128,16 +132,16 @@ class ServiceInstanceCleanup {
                 errors.add("Failed to delete binding " + binding.getGuid())
             }
         }
-        Pair<Boolean, String> deregisterdFromBackup = deregisterFromBackup(serviceInstanceToPurge.getPlan(),
-                                                                           serviceInstanceGuid)
-        if (!deregisterdFromBackup.getRight().isEmpty()) {
-            errors.add(deregisterdFromBackup.getRight())
+        Pair<Boolean, String> deregisteredFromBackup = deregisterFromBackup(serviceInstanceToPurge.getPlan(),
+                                                                            serviceInstanceGuid)
+        if (!deregisteredFromBackup.getRight().isEmpty()) {
+            errors.add(deregisteredFromBackup.getRight())
         }
 
         return result.
                 purgedServiceInstanceGuid(serviceInstanceGuid).
                 deletedBindings(deletedBindings).
-                systemBackupProvider(deregisterdFromBackup.getLeft()).
+                systemBackupProvider(deregisteredFromBackup.getLeft()).
                 errors(errors).
                 build()
     }
@@ -160,11 +164,18 @@ class ServiceInstanceCleanup {
      * Tries to deregister service instance from the backup system
      * @param plan
      * @param serviceInstanceGuid
-     * @return ([Boolean specifying whether ServiceProvider is SystemBackupProvider],
-     * [String containing errors, empty String if no errors occurred])
+     * @return ([BooleanspecifyingwhetherServiceProviderisSystemBackupProvider],
+     *[Stringcontainingerrors,emptyStringifnoerrorsoccurred])
      */
     private Pair<Boolean, String> deregisterFromBackup(Plan plan, String serviceInstanceGuid) {
-        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(plan)
+        Plan planWithService = planRepository.findByGuidAndFetchServiceEagerly(plan.getGuid())
+        if (planWithService == null || planWithService.getService() == null) {
+            return Pair.
+                    of(false,
+                       "Failed to deregister from backup system: Could not get the service definition of the service instance.")
+        }
+        ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(planWithService)
+
         if (serviceProvider instanceof SystemBackupProvider) {
             try {
                 serviceProvider.unregisterSystemBackupOnShield(serviceInstanceGuid)
@@ -172,7 +183,9 @@ class ServiceInstanceCleanup {
             } catch (Exception e) {
                 LOGGER.error("Failed to deregister service instance {} from backup system."
                                      + "Ignoring failure while purging a service instance.", serviceInstanceGuid, e)
-                return Pair.of(true, "Failed to deregister from backup system")
+                return Pair.
+                        of(true,
+                           "Failed to deregister from backup system: Failure happened while deregistering from Shield.")
             }
         }
         return Pair.of(false, "")

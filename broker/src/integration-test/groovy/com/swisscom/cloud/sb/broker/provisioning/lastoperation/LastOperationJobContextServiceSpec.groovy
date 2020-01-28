@@ -30,7 +30,7 @@ class LastOperationJobContextServiceSpec extends BaseTransactionalSpecification 
         given:
         def id = "ServiceInstanceGUID"
         def service = dbTestUtil.createServiceWith2Plans()
-        def serviceInstance = dbTestUtil.createServiceInstace(service, id)
+        def serviceInstance = dbTestUtil.createServiceInstance(service, id)
         and:
         LastOperation lastOperation = dbTestUtil.createLastOperation(id)
         when:

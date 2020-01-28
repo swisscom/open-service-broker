@@ -137,6 +137,30 @@ com.swisscom.cloud.sb.broker.serviceDefinitions: [
     }
   }
   ]
+},
+{
+  "guid": "72d64a2e-a0e9-4634-b4ee-42e3763debce",
+  "name": "someServiceForJobQueueSpec",
+  "description": "A Service Provider For Job Queue Spec tests",
+  "bindable": true,
+  "asyncRequired": false,
+  "internalName": "someServiceForJobQueueSpec",
+  "displayIndex": 1,
+  "metadata": {
+    "displayName": "SomeServiceForJobQueueSpec"
+  },
+  "plans": [
+  {
+    "guid": "b0f5248f-4264-471a-90db-544d4fccff2d",
+    "name": "test",
+    "description": "DummyPlanForJobQueueSpec",
+    "free": false,
+    "displayIndex": 0,
+    "metadata": {
+      "displayName": "test"
+    }
+  }
+  ]
 }
 ]
 
