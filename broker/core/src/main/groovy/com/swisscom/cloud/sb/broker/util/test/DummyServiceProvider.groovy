@@ -54,7 +54,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank
 @Component
 @Slf4j
 class DummyServiceProvider implements ServiceProvider, AsyncServiceProvisioner, AsyncServiceDeprovisioner, AsyncServiceUpdater, EndpointProvider, UpdatableProvisioner {
-    public static final int RETRY_INTERVAL_IN_SECONDS = 10
+    public static final int RETRY_INTERVAL_IN_SECONDS = 2
 
     /**
      * double processing time because of the startup delay of the quartz scheduler
