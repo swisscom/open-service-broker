@@ -132,16 +132,16 @@ class ServiceInstanceCleanup {
                 errors.add("Failed to delete binding " + binding.getGuid())
             }
         }
-        Pair<Boolean, String> deregisterdFromBackup = deregisterFromBackup(serviceInstanceToPurge.getPlan(),
-                                                                           serviceInstanceGuid)
-        if (!deregisterdFromBackup.getRight().isEmpty()) {
-            errors.add(deregisterdFromBackup.getRight())
+        Pair<Boolean, String> deregisteredFromBackup = deregisterFromBackup(serviceInstanceToPurge.getPlan(),
+                                                                            serviceInstanceGuid)
+        if (!deregisteredFromBackup.getRight().isEmpty()) {
+            errors.add(deregisteredFromBackup.getRight())
         }
 
         return result.
                 purgedServiceInstanceGuid(serviceInstanceGuid).
                 deletedBindings(deletedBindings).
-                systemBackupProvider(deregisterdFromBackup.getLeft()).
+                systemBackupProvider(deregisteredFromBackup.getLeft()).
                 errors(errors).
                 build()
     }
@@ -169,6 +169,11 @@ class ServiceInstanceCleanup {
      */
     private Pair<Boolean, String> deregisterFromBackup(Plan plan, String serviceInstanceGuid) {
         Plan planWithService = planRepository.findByGuidAndFetchServiceEagerly(plan.getGuid())
+        if (planWithService == null || planWithService.getService() == null) {
+            return Pair.
+                    of(false,
+                       "Failed to deregister from backup system: Could not get the service definition of the service instance.")
+        }
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(planWithService)
 
         if (serviceProvider instanceof SystemBackupProvider) {
@@ -178,7 +183,9 @@ class ServiceInstanceCleanup {
             } catch (Exception e) {
                 LOGGER.error("Failed to deregister service instance {} from backup system."
                                      + "Ignoring failure while purging a service instance.", serviceInstanceGuid, e)
-                return Pair.of(true, "Failed to deregister from backup system")
+                return Pair.
+                        of(true,
+                           "Failed to deregister from backup system: Failure happened while deregistering from Shield.")
             }
         }
         return Pair.of(false, "")
