@@ -34,7 +34,7 @@ class FirstAsyncProvisioningStepFailsFunctionalSpec extends BaseFunctionalSpec {
 
     def "Service Instance is created when async provision request returned HttpStatus.ACCEPTED even first async step fails"() {
         when:
-        serviceLifeCycler.createServiceInstanceAndAssert(DummyFailingServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4,
+        serviceLifeCycler.createServiceInstanceAndAssert(DummyFailingServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                                                          true,
                                                          true,
                                                          ['delay': String.valueOf(DummyFailingServiceProvider.RETRY_INTERVAL_IN_SECONDS)])
@@ -45,7 +45,7 @@ class FirstAsyncProvisioningStepFailsFunctionalSpec extends BaseFunctionalSpec {
     def "Failed Service Instance can be deleted"() {
         when:
         serviceLifeCycler.deleteServiceInstanceAndAssert(true,
-                                                         DummyFailingServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4)
+                                                         DummyFailingServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20)
         then:
         noExceptionThrown()
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED

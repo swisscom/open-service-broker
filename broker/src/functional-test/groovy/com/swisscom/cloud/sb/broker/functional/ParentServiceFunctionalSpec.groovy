@@ -139,7 +139,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                 asyncAccepted(true).
                 build()
         )
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                 childServiceInstanceGuid)
 
         then:
@@ -158,7 +158,7 @@ class ParentServiceFunctionalSpec extends BaseFunctionalSpec {
                 build()
         )
         serviceLifeCycler.setServiceInstanceId(parentServiceInstanceGuid)
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(ParentDummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                                                         parentServiceInstanceGuid)
 
         then:

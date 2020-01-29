@@ -56,7 +56,7 @@ class CloudFoundryContextRestrictedAsyncServiceFunctionalSpec extends BaseFuncti
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(
-                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3,
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                 true,
                 true,
                 [] as Map,
