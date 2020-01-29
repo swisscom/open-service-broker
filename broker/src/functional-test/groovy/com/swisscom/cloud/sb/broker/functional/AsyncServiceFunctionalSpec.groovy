@@ -58,7 +58,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(
-                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 5,
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                 true,
                 true,
                 ['delay': String.valueOf(processDelayInSeconds)] as Map,
@@ -76,7 +76,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
     def "deprovision async service instance"() {
         when:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 5)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20)
         then:
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
     }
@@ -114,7 +114,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
         when:
         serviceLifeCycler.createServiceInstanceAndAssert(
-                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 4,
+                DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20,
                 true,
                 true,
                 ['delay': String.valueOf(processDelayInSeconds)] as Map,
@@ -234,11 +234,11 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         provisionResponse.body.dashboardUrl == null
 
         and:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, serviceLifeCycler.serviceInstanceId)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20, serviceLifeCycler.serviceInstanceId)
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
 
         and:
-        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3)
+        serviceLifeCycler.deleteServiceInstanceAndAssert(true, DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 6)
     }
 
     def "provision async service instance with dashboard_url"() {
@@ -259,7 +259,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
         provisionResponse.body.dashboardUrl == myDashboardUrl
 
         and:
-        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 3, serviceLifeCycler.serviceInstanceId)
+        serviceLifeCycler.waitUntilMaxTimeOrTargetState(DummyServiceProvider.RETRY_INTERVAL_IN_SECONDS * 20, serviceLifeCycler.serviceInstanceId)
         serviceLifeCycler.getServiceInstanceStatus().state == LastOperationState.SUCCEEDED
 
         and:
