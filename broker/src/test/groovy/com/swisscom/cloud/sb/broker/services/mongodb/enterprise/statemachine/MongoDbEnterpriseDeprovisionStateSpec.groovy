@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine
 
+import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
@@ -50,6 +51,26 @@ class MongoDbEnterpriseDeprovisionStateSpec extends Specification {
 
         then:
         1 * context.opsManagerFacade.disableAndTerminateBackup(groupId, replicaset)
+        result.go2NextState
+    }
+
+    def "should not throw exception when service details are missing in DISABLE_BACKUP_IF_ENABLED"() {
+        given:
+        def groupId = 'GroupId'
+        def replicaset = 'replicaset'
+        context.lastOperationJobContext = new LastOperationJobContext(
+                lastOperation: new LastOperation(guid: UUID.randomUUID().toString()),
+                serviceInstance: new ServiceInstance(details: []))
+
+        and:
+        0 * context.opsManagerFacade.isBackupInInactiveState(groupId, replicaset) >> true
+
+        when:
+        def result = MongoDbEnterpriseDeprovisionState.DISABLE_BACKUP_IF_ENABLED.triggerAction(context)
+
+        then:
+        noExceptionThrown()
+        0 * context.opsManagerFacade.disableAndTerminateBackup(groupId, replicaset)
         result.go2NextState
     }
 

@@ -36,6 +36,7 @@ import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplate
 import com.swisscom.cloud.sb.broker.services.bosh.BoshTemplateCustomizer
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineFactory
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
+import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerCredentials
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
@@ -92,8 +93,8 @@ class MongoDbEnterpriseServiceProvider
     Collection<ServiceDetail> customizeBoshTemplate(BoshTemplate template, String serviceInstanceGuid) {
         ServiceInstance serviceInstance = provisioningPersistenceService.getServiceInstance(serviceInstanceGuid)
 
-        String opsManagerGroupId = ServiceDetailsHelper.from(serviceInstance.details).
-                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
+        String opsManagerGroupId = getMongoDbGroupId(serviceInstance.details)
+                                    .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support")})
         Preconditions.checkArgument(!isNullOrEmpty(opsManagerGroupId), "A valid OpsManager GroupId is required")
 
         String agentApiKey = ServiceDetailsHelper.from(serviceInstance.details).
@@ -235,14 +236,16 @@ class MongoDbEnterpriseServiceProvider
 
     @Override
     BindResponse bind(BindRequest request) {
-        def database = ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE)
-        def hosts = ServiceDetailsHelper.from(request.serviceInstance.details).
+        String database = ServiceDetailsHelper.from(request.serviceInstance.details).findValue(ServiceDetailKey.DATABASE)
+                .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDB DataBase Key is not present, please contact support") })
+        List<String> hosts = ServiceDetailsHelper.from(request.serviceInstance.details).
                 findAllWithServiceDetailType(ServiceDetailType.HOST)
-        def groupId = getMongoDbGroupId(request.serviceInstance)
+        String groupId = getMongoDbGroupId(request.serviceInstance.details)
+                .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDB GroupId is not present, please contact support") })
         opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
         DbUserCredentials dbUserCredentials = opsManagerFacade.createDbUser(groupId, database)
         opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
-        def opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
+        OpsManagerCredentials opsManagerCredentials = opsManagerFacade.createOpsManagerUser(groupId, request.serviceInstance.guid)
         return new BindResponse(details: [from(ServiceDetailKey.USER, dbUserCredentials.username),
                                           from(ServiceDetailKey.PASSWORD, dbUserCredentials.password),
                                           from(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_NAME,
@@ -267,13 +270,13 @@ class MongoDbEnterpriseServiceProvider
     @Override
     void unbind(UnbindRequest request) {
         try {
-            def groupId = getMongoDbGroupId(request.serviceInstance)
+            String groupId = getMongoDbGroupId(request.serviceInstance.details)
+                    .orElseThrow({ ErrorCode.SERVICEPROVIDER_INTERNAL_ERROR.throwNew("MongoDbGroupId is missing, contact support") })
+
             opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
             opsManagerFacade.deleteDbUser(groupId,
-                                          ServiceDetailsHelper.from(request.binding.details).
-                                                  getValue(ServiceDetailKey.USER),
-                                          ServiceDetailsHelper.from(request.serviceInstance.details).
-                                                  getValue(ServiceDetailKey.DATABASE))
+                    ServiceDetailsHelper.from(request.binding.details).getValue(ServiceDetailKey.USER),
+                    ServiceDetailsHelper.from(request.serviceInstance.details).getValue(ServiceDetailKey.DATABASE))
             opsManagerFacade.deleteOpsManagerUser(ServiceDetailsHelper.from(request.binding.details).
                     getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_OPS_MANAGER_USER_ID))
             opsManagerFacade.checkAndRetryForOnGoingChanges(groupId)
@@ -286,12 +289,27 @@ class MongoDbEnterpriseServiceProvider
         }
     }
 
-    static String getMongoDbGroupId(LastOperationJobContext context) {
+    /**
+     * Deprecated: use {@link #getMongoDbGroupId(Collection<ServiceDetail> details)} instead.
+     */
+    @Deprecated
+    static java.util.Optional<String> getMongoDbGroupId(LastOperationJobContext context) {
         return getMongoDbGroupId(context.serviceInstance)
     }
 
-    static String getMongoDbGroupId(ServiceInstance serviceInstance) {
-        return ServiceDetailsHelper.from(serviceInstance.details).
-                getValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
+    /**
+     * Deprecated: use {@link #getMongoDbGroupId(Collection<ServiceDetail> details)} instead.
+     */
+    @Deprecated
+    static java.util.Optional<String> getMongoDbGroupId(ServiceInstance serviceInstance) {
+        return getMongoDbGroupId(serviceInstance.details)
+    }
+
+    /**
+     * Fetches MongoDbGroupId from service details.
+     */
+    static java.util.Optional<String> getMongoDbGroupId(Collection<ServiceDetail> details) {
+        return ServiceDetailsHelper.from(details).
+                findValue(MongoDbEnterpriseServiceDetailKey.MONGODB_ENTERPRISE_GROUP_ID)
     }
 }
