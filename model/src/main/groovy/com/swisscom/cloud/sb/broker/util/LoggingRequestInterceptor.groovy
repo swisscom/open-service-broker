@@ -31,11 +31,15 @@ class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         stopWatch.start()
         ClientHttpResponse response = execution.execute(request, body)
         stopWatch.stop()
-        log(request, response, stopWatch.getTotalTimeMillis())
+        log(request, body,response, stopWatch.getTotalTimeMillis())
         response
     }
 
-    private void log(HttpRequest request, ClientHttpResponse response, long durationInMS) throws IOException {
+    private void log(HttpRequest request, byte[] body, ClientHttpResponse response, long durationInMS) throws IOException {
         log.info("Request: ${request.getMethod()} ${request.getURI()} - Duration: ${durationInMS}ms - Response: ${response.getStatusCode()}")
+        log.debug("Request Header: ${request.getHeaders()}")
+        log.debug("Request Body: ${body.toString()}")
+        log.debug("Response Header: ${response.getHeaders()}")
+        log.debug("Response Body: ${response.getBody()}")
     }
 }
