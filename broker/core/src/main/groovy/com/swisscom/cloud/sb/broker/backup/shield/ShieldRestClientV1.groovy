@@ -15,12 +15,14 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.PackageScope
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import io.vavr.control.Try
+import org.apache.commons.lang.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -37,6 +39,7 @@ import java.time.Duration
 import java.util.function.Function
 import java.util.function.Supplier
 
+import static com.google.common.base.Preconditions.checkArgument
 import static io.github.resilience4j.retry.IntervalFunction.ofExponentialBackoff
 import static io.github.resilience4j.retry.RetryConfig.custom
 import static org.springframework.http.HttpMethod.DELETE
@@ -182,6 +185,12 @@ class ShieldRestClientV1 implements ShieldRestClient {
         getTarget("?name=${name}")
     }
 
+    @Override
+    Collection<TargetDto> getTargetsByName(String name) {
+        checkArgument(StringUtils.isNotBlank(name), "Target name can not be empty")
+        getTargets("?name=${name}")
+    }
+
     TargetDto getTarget(String arguments) {
         def targets = getTargets(arguments)
         targets ? targets.first() : null
@@ -241,6 +250,12 @@ class ShieldRestClientV1 implements ShieldRestClient {
         execute({-> restTemplate.exchange(jobUrl(uuid), GET, configureRequestEntity(), JobDto[].class).getBody().first()
                 }, {ex -> ShieldApiException.of("Failed to get job", ex, uuid.toString())})
 
+    }
+
+    @Override
+    Collection<JobDto> getJobsByName(String name) {
+        checkArgument(StringUtils.isNotBlank(name), "Job name can not be empty")
+        getJobs("?name=${name}")
     }
 
     JobDto getJob(String arguments) {

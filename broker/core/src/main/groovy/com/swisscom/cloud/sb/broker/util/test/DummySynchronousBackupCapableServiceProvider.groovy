@@ -91,9 +91,9 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
     }
 
     @Override
-    void notifyServiceInstanceDeletion(ServiceInstance serviceInstance) {
-        log.info("notifyServiceInstanceDeletion for ${serviceInstance}")
-
+    Map<String, Integer> notifyServiceInstanceDeletion(String serviceInstanceGuid) {
+        log.info("notifyServiceInstanceDeletion for ${serviceInstanceGuid}")
+        return null
     }
 
     @Override

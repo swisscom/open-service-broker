@@ -91,8 +91,8 @@ class ShieldClient {
         Assert.hasText(jobName, "Job name cannot be empty!")
         Assert.hasText(targetName, "Target name cannot be empty!")
         LOG.debug("Deregistering Job '{}' and Target '{}' from Shield", jobName, targetName)
-        deleteJobIfExisting(jobName)
-        deleteTargetIfExisting(targetName)
+        deleteJobsIfExisting(jobName)
+        deleteTargetsIfExisting(targetName)
     }
 
     void deleteTask(String taskUuid) {
@@ -162,24 +162,35 @@ class ShieldClient {
         }
     }
 
-    void deleteJobsAndBackups(String serviceInstanceId) {
+    /**
+     * Delete jobs and targets for a given name
+     * @param serviceInstanceId name used in shield search queries
+     * @return Map with number of deleted jobs and targets
+     */
+    public Map<String, Integer> deleteJobsAndBackups(String serviceInstanceId) {
         Assert.hasText(serviceInstanceId, "Service Instance GUID cannot be empty!")
-        deleteJobIfExisting(serviceInstanceId)
-        deleteTargetIfExisting(serviceInstanceId)
+        Map<String, Integer> result = new HashMap<>()
+        result.put("jobs", deleteJobsIfExisting(serviceInstanceId))
+        result.put("targets", deleteTargetsIfExisting(serviceInstanceId))
+        return result
     }
 
-    private void deleteJobIfExisting(String jobName) {
-        JobDto job = apiClient.getJobByName(jobName)
-        if (job != null) {
-            apiClient.deleteJob(job.uuid)
+    private int deleteJobsIfExisting(String jobName) {
+        Collection<JobDto> jobs = apiClient.getJobsByName(jobName)
+        if (jobs != null && jobs.size() > 0) {
+            jobs.each({job -> apiClient.deleteJob(job.uuid)})
+            return jobs.size()
         }
+        return 0
     }
 
-    private void deleteTargetIfExisting(String targetName) {
-        TargetDto target = apiClient.getTargetByName(targetName)
-        if (target != null) {
-            apiClient.deleteTarget(target.uuid)
+    private int deleteTargetsIfExisting(String targetName) {
+        Collection<TargetDto> targets = apiClient.getTargetsByName(targetName)
+        if (targets != null && targets.size() > 0) {
+            targets.each {target -> apiClient.deleteTarget(target.uuid)}
+            return targets.size()
         }
+        return 0
     }
 
     private JobStatus statusOfArchive(TaskDto task) {

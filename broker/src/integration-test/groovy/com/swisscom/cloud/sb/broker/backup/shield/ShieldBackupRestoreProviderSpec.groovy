@@ -171,7 +171,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
         ServiceInstance instance = new ServiceInstance(guid: 'service-id')
         1 * shieldClient.deleteJobsAndBackups('service-id')
         when:
-        shieldBackupRestoreProvider.notifyServiceInstanceDeletion(instance)
+        shieldBackupRestoreProvider.notifyServiceInstanceDeletion(instance.guid)
         then:
         noExceptionThrown()
     }

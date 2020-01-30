@@ -29,6 +29,8 @@ interface ShieldRestClient {
 
     TargetDto getTargetByName(String name)
 
+    Collection<TargetDto> getTargetsByName(String name)
+
     UUID createTarget(String targetName, ShieldTarget target, String agent)
 
     UUID updateTarget(TargetDto existingTarget, ShieldTarget target, String agent)
@@ -38,6 +40,8 @@ interface ShieldRestClient {
     JobDto getJobByName(String name)
 
     JobDto getJobByUuid(UUID uuid)
+
+    Collection<JobDto> getJobsByName(String name)
 
     UUID createJob(String jobName,
                      UUID targetUuid,
