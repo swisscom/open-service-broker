@@ -2,21 +2,48 @@ package com.swisscom.cloud.sb.broker.backup.shield;
 
 import org.immutables.value.Value;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Value.Immutable
 public abstract class BackupDeregisterInformation {
+
+    /**
+     * @return names of deleted targets
+     */
     @Value.Default
-    public int getDeletedTargets() {
-        return 0;
+    public Collection<String> getDeletedTargets() {
+        return new HashSet<>();
     }
 
+    /**
+     * @return names of deleted jobs
+     */
     @Value.Default
-    public int getDeletedJobs() {
-        return 0;
+    public Collection<String> getDeletedJobs() {
+        return new HashSet<>();
     }
 
-    public static class Builder extends ImmutableBackupDeregisterInformation.Builder {}
+    @Value.Derived
+    public int getNumberOfDeletedTargets() {
+        return getDeletedTargets().size();
+    }
+
+    @Value.Derived
+    public int getNumberOfDeletedJobs() {
+        return getDeletedJobs().size();
+    }
+
+    @Value.Derived
+    public boolean deletedSomething() {
+        return getNumberOfDeletedJobs() > 0 || getNumberOfDeletedTargets() > 0;
+    }
+
+    public static class Builder extends ImmutableBackupDeregisterInformation.Builder {
+    }
 
     public static BackupDeregisterInformation.Builder backupDeregisterInformation() {
         return new BackupDeregisterInformation.Builder();
@@ -24,6 +51,10 @@ public abstract class BackupDeregisterInformation {
 
     @Override
     public String toString() {
-        return format("Backup Deregistering removed %d jobs and %d targets", getDeletedJobs(), getDeletedTargets());
+        return format("Backup Deregistering deleted %d jobs: [%s] and %d targets: [%s]",
+                      getNumberOfDeletedJobs(),
+                      join(getDeletedJobs(), ","),
+                      getNumberOfDeletedTargets(),
+                      join(getDeletedTargets(), ","));
     }
 }

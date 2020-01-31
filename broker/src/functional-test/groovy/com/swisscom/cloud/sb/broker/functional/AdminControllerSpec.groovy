@@ -121,7 +121,7 @@ class AdminControllerSpec extends Specification {
         result != null
         result.getPurgedServiceInstanceGuid() == serviceInstanceGuid
         result.getDeletedBindings() == 1
-        result.isSystemBackupProvider() == systemBackupProvider
+        result.isBackupRestoreProvider() == systemBackupProvider
         if (systemBackupProvider) {
             result.getErrors().size() == 1
             result.getErrors().contains("Failed to deregister from backup system")

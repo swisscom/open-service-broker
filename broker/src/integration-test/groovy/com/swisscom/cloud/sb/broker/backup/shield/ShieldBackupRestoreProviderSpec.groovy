@@ -23,6 +23,8 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException
 
+import static com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation.backupDeregisterInformation
+
 class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
     class DummyShieldBackupRestoreProvider implements ShieldBackupRestoreProvider {
         DummyShieldBackupRestoreProvider() {
@@ -169,7 +171,7 @@ class ShieldBackupRestoreProviderSpec extends BaseTransactionalSpecification {
     def "notify service instance deletion"() {
         given:
         ServiceInstance instance = new ServiceInstance(guid: 'service-id')
-        1 * shieldClient.deleteJobsAndBackups('service-id')
+        1 * shieldClient.deleteJobsAndBackups('service-id') >> backupDeregisterInformation().build()
         when:
         shieldBackupRestoreProvider.notifyServiceInstanceDeletion(instance.guid)
         then:

@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
+import java.util.stream.Collectors
+
 import static com.google.common.base.Preconditions.checkState
 import static com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation.backupDeregisterInformation
 import static java.lang.String.format
@@ -175,29 +177,29 @@ class ShieldClient {
     public BackupDeregisterInformation deleteJobsAndBackups(String serviceInstanceId) {
         Assert.hasText(serviceInstanceId, "Service Instance GUID cannot be empty!")
         return backupDeregisterInformation().
-                deletedJobs(deleteJobsIfExisting(serviceInstanceId)).
-                deletedTargets(deleteTargetsIfExisting(serviceInstanceId)).
+                deletedJobs(deleteJobsIfExisting(serviceInstanceId).collect{it.getName()}).
+                deletedTargets(deleteTargetsIfExisting(serviceInstanceId).collect{it.getName()}).
                 build()
     }
 
-    private int deleteJobsIfExisting(String jobName) {
+    private Collection<JobDto> deleteJobsIfExisting(String jobName) {
         Collection<JobDto> jobs = apiClient.getJobsByName(jobName)
         if (jobs != null && jobs.size() > 0) {
             jobs.each({job -> apiClient.deleteJob(job.uuid)
             })
-            return jobs.size()
+            return jobs
         }
-        return 0
+        return []
     }
 
-    private int deleteTargetsIfExisting(String targetName) {
+    private Collection<TargetDto> deleteTargetsIfExisting(String targetName) {
         Collection<TargetDto> targets = apiClient.getTargetsByName(targetName)
         if (targets != null && targets.size() > 0) {
             targets.each {target -> apiClient.deleteTarget(target.uuid)
             }
-            return targets.size()
+            return targets
         }
-        return 0
+        return []
     }
 
     private JobStatus statusOfArchive(TaskDto task) {

@@ -208,10 +208,14 @@ class ShieldClientTest extends Specification {
         setupBackup(SHIELD_TEST + "DELETE-JOB", SHIELD_TEST + "DELETE-TARGET")
 
         when:
-        sut.deleteJobsAndBackups(SHIELD_TEST)
+        BackupDeregisterInformation result = sut.deleteJobsAndBackups(SHIELD_TEST)
 
         then:
-        noExceptionThrown()
+        result.deletedSomething()
+        result.getNumberOfDeletedJobs() == 1
+        result.getNumberOfDeletedTargets() == 1
+        result.getDeletedJobs().first() == SHIELD_TEST + "DELETE-JOB"
+        result.getDeletedTargets().first() == SHIELD_TEST + "DELETE-TARGET"
     }
 
     def "register and run system backup"() {
