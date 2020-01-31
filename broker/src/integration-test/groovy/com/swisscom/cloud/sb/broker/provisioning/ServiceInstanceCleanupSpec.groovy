@@ -27,6 +27,7 @@ import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
+import org.joda.time.LocalDateTime
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -136,4 +137,45 @@ class ServiceInstanceCleanupSpec extends BaseSpecification {
     }
 
 
+    @Unroll
+    def "should successfully cleanup a service instance for service instance guid: #serviceInstanceGuid"() {
+        given: "the service instance to be cleaned up"
+        ServiceInstance serviceInstance = new ServiceInstance(guid: serviceInstanceGuid,
+                                                              plan: planRepository.findByGuid(planGuid),
+                                                              completed: true,
+                                                              deleted: true,
+                                                              dateDeleted: new LocalDateTime().minusMonths(4).toDate())
+        serviceInstanceRepository.save(serviceInstance)
+
+        and: "lastoperation showing successfull deprovision"
+        LastOperation lastOperation = new LastOperation(guid: serviceInstanceGuid,
+                                                        operation: LastOperation.Operation.DEPROVISION,
+                                                        status: LastOperation.Status.SUCCESS,
+                                                        dateCreation: new LocalDateTime().minusMonths(4).toDate())
+        lastOperationRepository.save(lastOperation)
+
+        and: "a service binding associated to the service instance to be purged"
+        serviceBindingPersistenceService.
+                create(serviceInstance, '{"foo": "bar"}', "no parameters", bindingGuid, [], null, "cc_admin")
+
+        when:
+        int result = sut.cleanOrphanedServiceInstances()
+
+        then:
+        result == 1
+
+        and: "should have removed the service instance"
+        ServiceInstance deletedServiceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
+        deletedServiceInstance == null
+
+        and: "should have removed the binding"
+        ServiceBinding serviceBinding = serviceBindingRepository.findByGuid(bindingGuid)
+        serviceBinding == null
+
+        where:
+        serviceInstanceGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
+        bindingGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
+        planGuid << ["0ef19631-1212-47cc-9c77-22d78ddaae3a", "47273c6a-ff8b-40d6-9981-2b25663718a1"]
+        backupRestoreProvider << [false, true]
+    }
 }

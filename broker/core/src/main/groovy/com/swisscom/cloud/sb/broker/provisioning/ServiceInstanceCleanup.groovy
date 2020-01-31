@@ -73,7 +73,7 @@ class ServiceInstanceCleanup {
         this.planRepository = planRepository
     }
 
-    def cleanOrphanedServiceInstances() {
+    int cleanOrphanedServiceInstances() {
         def deleteOlderThan = new LocalDateTime().minusMonths(MONTHS_TO_KEEP_DELETED_INSTANCE_REFERENCES).toDate()
         def oprhanedServiceInstances = serviceInstanceRepository.
                 queryServiceInstanceForLastOperation(LastOperation.Operation.DEPROVISION,
@@ -81,7 +81,9 @@ class ServiceInstanceCleanup {
                                                      deleteOlderThan)
         def candidateCount = oprhanedServiceInstances.size()
         LOGGER.info("Found {} serviceInstance candidate(s) to clean up!", candidateCount)
+
         oprhanedServiceInstances.each {ServiceInstance si ->
+            deregisterFromBackup(si.getPlan(), si.getGuid())
             provisioningPersistenceService.deleteServiceInstanceAndCorrespondingDeprovisionRequestIfExists(si)
             lastOperationPersistenceService.deleteLastOperation(si.guid)
 
