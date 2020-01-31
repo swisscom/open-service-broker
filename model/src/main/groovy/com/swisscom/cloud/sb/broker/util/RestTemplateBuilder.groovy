@@ -43,10 +43,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
 import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpRequest
-import org.springframework.http.client.ClientHttpRequestExecution
-import org.springframework.http.client.ClientHttpRequestInterceptor
-import org.springframework.http.client.ClientHttpResponse
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.http.client.*
 import org.springframework.http.client.support.BasicAuthenticationInterceptor
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -83,8 +80,8 @@ class RestTemplateBuilder {
         if (disableHostNameVerification) {
             httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
         }
-        def httpClientRequestFactory = (useDigestAuth) ? new HttpComponentsClientHttpRequestFactoryDigestAuth(
-                httpClientBuilder.build()) : new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build())
+        def httpClientRequestFactory = (useDigestAuth) ? new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactoryDigestAuth(
+                httpClientBuilder.build())) : new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build()))
         addLoggingRequestInterceptor()
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
