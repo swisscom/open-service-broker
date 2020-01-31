@@ -34,9 +34,9 @@ public abstract class ServiceInstancePurgeInformation {
     @Nullable
     public abstract Integer getDeletedBindings();
 
-    @JsonProperty("is_system_backup_provider")
+    @JsonProperty("is_backup_restore_provider")
     @Nullable
-    public abstract Boolean isSystemBackupProvider();
+    public abstract Boolean isBackupRestoreProvider();
 
     @JsonProperty("errors")
     @Nullable

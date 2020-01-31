@@ -203,7 +203,7 @@ class BackupService {
 
     void notifyServiceInstanceDeletion(ServiceInstance serviceInstance) {
         if (backupRestoreProviderLookup.isBackupProvider(serviceInstance.plan)) {
-            backupRestoreProviderLookup.findBackupProvider(serviceInstance.plan).notifyServiceInstanceDeletion(serviceInstance)
+            backupRestoreProviderLookup.findBackupProvider(serviceInstance.plan).notifyServiceInstanceDeletion(serviceInstance.guid)
         }
     }
 

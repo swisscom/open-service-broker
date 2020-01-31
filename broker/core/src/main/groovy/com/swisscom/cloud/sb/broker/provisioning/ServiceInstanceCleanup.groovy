@@ -15,7 +15,8 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
-import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
+import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.cfextensions.ServiceInstancePurgeInformation
 import com.swisscom.cloud.sb.broker.model.LastOperation
@@ -141,7 +142,7 @@ class ServiceInstanceCleanup {
         return result.
                 purgedServiceInstanceGuid(serviceInstanceGuid).
                 deletedBindings(deletedBindings).
-                systemBackupProvider(deregisteredFromBackup.getLeft()).
+                backupRestoreProvider(deregisteredFromBackup.getLeft()).
                 errors(errors).
                 build()
     }
@@ -176,9 +177,10 @@ class ServiceInstanceCleanup {
         }
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(planWithService)
 
-        if (serviceProvider instanceof SystemBackupProvider) {
+        if (serviceProvider instanceof BackupRestoreProvider) {
             try {
-                serviceProvider.unregisterSystemBackupOnShield(serviceInstanceGuid)
+                BackupDeregisterInformation deletedObjects = serviceProvider.notifyServiceInstanceDeletion(serviceInstanceGuid)
+                LOGGER.info(deletedObjects.toString())
                 return Pair.of(true, "");
             } catch (Exception e) {
                 LOGGER.error("Failed to deregister service instance {} from backup system."

@@ -89,8 +89,8 @@ class ServiceInstanceCleanupSpec extends BaseSpecification {
         result != null
         result.getPurgedServiceInstanceGuid() == serviceInstanceGuid
         result.getDeletedBindings() == 1
-        result.isSystemBackupProvider() == systemBackupProvider
-        if (systemBackupProvider) {
+        result.isBackupRestoreProvider() == backupRestoreProvider
+        if (backupRestoreProvider) {
             result.getErrors().size() == 1
             result.getErrors().contains("Failed to deregister from backup system")
         } else {
@@ -115,7 +115,7 @@ class ServiceInstanceCleanupSpec extends BaseSpecification {
         serviceInstanceGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
         bindingGuid << [UUID.randomUUID().toString(), UUID.randomUUID().toString()]
         planGuid << ["0ef19631-1212-47cc-9c77-22d78ddaae3a", "47273c6a-ff8b-40d6-9981-2b25663718a1"]
-        systemBackupProvider << [false, true]
+        backupRestoreProvider << [false, true]
     }
 
     @Unroll

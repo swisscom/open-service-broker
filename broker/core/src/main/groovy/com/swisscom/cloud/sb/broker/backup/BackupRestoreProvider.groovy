@@ -16,13 +16,18 @@
 package com.swisscom.cloud.sb.broker.backup
 
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
+import com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import groovy.transform.CompileStatic
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @CompileStatic
 trait BackupRestoreProvider extends BackupOnShield {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackupRestoreProvider.class)
+
     def userBackupJobName(String jobPrefix, String serviceInstanceId) {
         backupJobName(jobPrefix, serviceInstanceId)
     }
@@ -69,8 +74,10 @@ trait BackupRestoreProvider extends BackupOnShield {
         return convertBackupStatus(status)
     }
 
-    void notifyServiceInstanceDeletion(ServiceInstance serviceInstance) {
-        shieldClient.deleteJobsAndBackups(serviceInstance.guid)
+    BackupDeregisterInformation notifyServiceInstanceDeletion(String serviceInstanceGuid) {
+        BackupDeregisterInformation result = shieldClient.deleteJobsAndBackups(serviceInstanceGuid)
+        LOGGER.debug(result.toString())
+        return result
     }
 
     static Backup.Status convertBackupStatus(JobStatus status) {

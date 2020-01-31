@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.provisioning
 
+import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
 import com.swisscom.cloud.sb.broker.backup.SystemBackupProvider
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
@@ -31,7 +32,7 @@ import groovy.json.JsonGenerator
 import org.springframework.stereotype.Service
 
 @Service
-class DummySystemBackupServiceProvider implements SystemBackupProvider, ServiceProvider {
+class DummySystemBackupServiceProvider implements SystemBackupProvider, ServiceProvider, BackupRestoreProvider {
     private static final String SHIELD_TEST = "TEST-SYSTEM-BACKUP-PROVIDER"
     private static final String SHIELD_AGENT_URL = "127.0.0.1:5444"
 

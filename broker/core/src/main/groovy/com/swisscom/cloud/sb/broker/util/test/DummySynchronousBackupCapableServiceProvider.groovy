@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.util.test
 
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation
 import com.swisscom.cloud.sb.broker.backup.shield.ShieldTarget
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
@@ -91,9 +92,9 @@ class DummySynchronousBackupCapableServiceProvider implements ServiceProvider, B
     }
 
     @Override
-    void notifyServiceInstanceDeletion(ServiceInstance serviceInstance) {
-        log.info("notifyServiceInstanceDeletion for ${serviceInstance}")
-
+    BackupDeregisterInformation notifyServiceInstanceDeletion(String serviceInstanceGuid) {
+        log.info("notifyServiceInstanceDeletion for ${serviceInstanceGuid}")
+        return null
     }
 
     @Override
