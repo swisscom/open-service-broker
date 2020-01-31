@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.provisioning
 
 import com.swisscom.cloud.sb.broker.backup.BackupRestoreProvider
+import com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation
 import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
 import com.swisscom.cloud.sb.broker.cfextensions.ServiceInstancePurgeInformation
 import com.swisscom.cloud.sb.broker.model.LastOperation
@@ -178,8 +179,8 @@ class ServiceInstanceCleanup {
 
         if (serviceProvider instanceof BackupRestoreProvider) {
             try {
-                Map<String, Integer> deletedObjects = serviceProvider.notifyServiceInstanceDeletion(serviceInstanceGuid)
-                LOGGER.info("Deleted {} jobs and {} targets", deletedObjects.get("jobs"), deletedObjects.get("targets"))
+                BackupDeregisterInformation deletedObjects = serviceProvider.notifyServiceInstanceDeletion(serviceInstanceGuid)
+                LOGGER.info(deletedObjects.toString())
                 return Pair.of(true, "");
             } catch (Exception e) {
                 LOGGER.error("Failed to deregister service instance {} from backup system."

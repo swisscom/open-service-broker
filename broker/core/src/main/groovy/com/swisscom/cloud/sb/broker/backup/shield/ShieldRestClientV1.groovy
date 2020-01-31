@@ -15,14 +15,13 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
-import com.google.common.base.Preconditions
+
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
 import com.swisscom.cloud.sb.broker.util.RestTemplateBuilder
 import groovy.transform.PackageScope
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import io.vavr.control.Try
-import org.apache.commons.lang.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -42,10 +41,8 @@ import java.util.function.Supplier
 import static com.google.common.base.Preconditions.checkArgument
 import static io.github.resilience4j.retry.IntervalFunction.ofExponentialBackoff
 import static io.github.resilience4j.retry.RetryConfig.custom
-import static org.springframework.http.HttpMethod.DELETE
-import static org.springframework.http.HttpMethod.GET
-import static org.springframework.http.HttpMethod.POST
-import static org.springframework.http.HttpMethod.PUT
+import static org.apache.commons.lang.StringUtils.isNotBlank
+import static org.springframework.http.HttpMethod.*
 
 @PackageScope
 class ShieldRestClientV1 implements ShieldRestClient {
@@ -187,7 +184,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
 
     @Override
     Collection<TargetDto> getTargetsByName(String name) {
-        checkArgument(StringUtils.isNotBlank(name), "Target name can not be empty")
+        checkArgument(isNotBlank(name), "Target name can not be empty")
         getTargets("?name=${name}")
     }
 
@@ -254,7 +251,7 @@ class ShieldRestClientV1 implements ShieldRestClient {
 
     @Override
     Collection<JobDto> getJobsByName(String name) {
-        checkArgument(StringUtils.isNotBlank(name), "Job name can not be empty")
+        checkArgument(isNotBlank(name), "Job name can not be empty")
         getJobs("?name=${name}")
     }
 

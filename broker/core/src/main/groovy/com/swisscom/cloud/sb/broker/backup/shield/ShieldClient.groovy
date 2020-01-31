@@ -15,6 +15,7 @@
 
 package com.swisscom.cloud.sb.broker.backup.shield
 
+import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
 import com.swisscom.cloud.sb.broker.backup.BackupPersistenceService
 import com.swisscom.cloud.sb.broker.backup.shield.dto.*
@@ -29,10 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.Assert
 
+import static com.google.common.base.Preconditions.checkState
+import static com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation.backupDeregisterInformation
+import static java.lang.String.format
+
 @Component
 @CompileStatic
 class ShieldClient {
-    private static final Logger LOG = LoggerFactory.getLogger(ShieldClient.class)
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShieldClient.class)
 
     private final ShieldConfig shieldConfig
     private final ShieldRestClient apiClient
@@ -48,7 +53,7 @@ class ShieldClient {
         this.apiClient = ShieldRestClientV1.of(shieldConfig)
         this.restTemplateBuilder = new RestTemplateBuilder()
         this.backupPersistenceService = backupPersistenceService
-        LOG.info(shieldConfig.toString())
+        LOGGER.info(shieldConfig.toString())
     }
 
     String registerAndRunJob(String jobName,
@@ -63,7 +68,7 @@ class ShieldClient {
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
         UUID targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         UUID jobUuid = registerJob(jobName, targetUuid, backupParameter)
-        LOG.debug("Running registered backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
+        LOGGER.debug("Running registered backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         apiClient.runJob(jobUuid)
     }
 
@@ -77,10 +82,10 @@ class ShieldClient {
         Assert.notNull(shieldTarget, "ShieldTarget cannot be null!")
         Assert.notNull(backupParameter, "BackupParameter cannot be null!")
         Assert.hasText(shieldAgentUrl, "Shield agent URL cannot be empty!")
-        LOG.debug("Registering Job '{}' and Target '{}' to Shield", jobName, targetName)
+        LOGGER.debug("Registering Job '{}' and Target '{}' to Shield", jobName, targetName)
         UUID targetUuid = createOrUpdateTarget(shieldTarget, targetName, shieldAgentUrl)
         UUID jobUuid = registerJob(jobName, targetUuid, backupParameter, false)
-        LOG.debug("Running registered system backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
+        LOGGER.debug("Running registered system backup job '{}' with jobname '{}' on shield", jobUuid, jobName)
         apiClient.runJob(jobUuid)
 
         [ServiceDetail.from(ShieldServiceDetailKey.SHIELD_JOB_UUID, jobUuid.toString()),
@@ -90,7 +95,7 @@ class ShieldClient {
     void unregisterSystemBackup(String jobName, String targetName) {
         Assert.hasText(jobName, "Job name cannot be empty!")
         Assert.hasText(targetName, "Target name cannot be empty!")
-        LOG.debug("Deregistering Job '{}' and Target '{}' from Shield", jobName, targetName)
+        LOGGER.debug("Deregistering Job '{}' and Target '{}' from Shield", jobName, targetName)
         deleteJobsIfExisting(jobName)
         deleteTargetsIfExisting(targetName)
     }
@@ -108,10 +113,10 @@ class ShieldClient {
             return JobStatus.RUNNING
         }
         if (task.status.isFailed()) {
-            LOG.warn("Shield task failed: ${task}")
+            LOGGER.warn("Shield task failed: {}", task)
             if (task.type.isBackup()) {
                 if (backup.retryBackupCount < shieldConfig.maxRetryBackup) {
-                    LOG.info("Retrying backup count: ${backup.retryBackupCount + 1}")
+                    LOGGER.info("Retrying backup count: {}", backup.retryBackupCount + 1)
                     backup.retryBackupCount++
                     backup.externalId = apiClient.runJob(task.job_uuid)
                     backupPersistenceService.saveBackup(backup)
@@ -132,7 +137,7 @@ class ShieldClient {
                 return JobStatus.SUCCESSFUL
             }
         }
-        throw new RuntimeException("Invalid task status ${task.status} for task ${taskUuid}")
+        throw new RuntimeException(format("Invalid task status %s for tasks %s", task.status, taskUuid))
     }
 
     String getJobName(UUID jobUuid) {
@@ -155,7 +160,7 @@ class ShieldClient {
         catch (ShieldApiException e) {
             if (e.isNotFound()) {
                 // either task or archive is not existing on shield (anymore); probably because it was deleted already
-                LOG.warn("Could not delete backup because it was not found anymore on Shield; do not fail though", e)
+                LOGGER.warn("Could not delete backup because it was not found anymore on Shield; do not fail though", e)
             } else {
                 throw e
             }
@@ -167,18 +172,19 @@ class ShieldClient {
      * @param serviceInstanceId name used in shield search queries
      * @return Map with number of deleted jobs and targets
      */
-    public Map<String, Integer> deleteJobsAndBackups(String serviceInstanceId) {
+    public BackupDeregisterInformation deleteJobsAndBackups(String serviceInstanceId) {
         Assert.hasText(serviceInstanceId, "Service Instance GUID cannot be empty!")
-        Map<String, Integer> result = new HashMap<>()
-        result.put("jobs", deleteJobsIfExisting(serviceInstanceId))
-        result.put("targets", deleteTargetsIfExisting(serviceInstanceId))
-        return result
+        return backupDeregisterInformation().
+                deletedJobs(deleteJobsIfExisting(serviceInstanceId)).
+                deletedTargets(deleteTargetsIfExisting(serviceInstanceId)).
+                build()
     }
 
     private int deleteJobsIfExisting(String jobName) {
         Collection<JobDto> jobs = apiClient.getJobsByName(jobName)
         if (jobs != null && jobs.size() > 0) {
-            jobs.each({job -> apiClient.deleteJob(job.uuid)})
+            jobs.each({job -> apiClient.deleteJob(job.uuid)
+            })
             return jobs.size()
         }
         return 0
@@ -187,7 +193,8 @@ class ShieldClient {
     private int deleteTargetsIfExisting(String targetName) {
         Collection<TargetDto> targets = apiClient.getTargetsByName(targetName)
         if (targets != null && targets.size() > 0) {
-            targets.each {target -> apiClient.deleteTarget(target.uuid)}
+            targets.each {target -> apiClient.deleteTarget(target.uuid)
+            }
             return targets.size()
         }
         return 0
@@ -207,17 +214,13 @@ class ShieldClient {
                              BackupParameter backupParameter,
                              boolean paused = true) {
         StoreDto store = apiClient.getStoreByName(backupParameter.getStoreName())
-        if (store == null) {
-            throw new IllegalStateException("Store ${backupParameter.getStoreName()} that is configured does not exist on shield")
-        }
+        checkState(store != null, format("Store %s that is configured does not exist on shield", backupParameter.getStoreName()))
+
         RetentionDto retention = apiClient.getRetentionByName(backupParameter.getRetentionName())
-        if (retention == null) {
-            throw new IllegalStateException("Retention ${backupParameter.getRetentionName()} that is configured does not exist on shield")
-        }
+        checkState(retention != null, format("Retention %s that is configured does not exist on shield", backupParameter.getRetentionName()))
+
         UUID scheduleUuid = apiClient.getScheduleByName(backupParameter.getScheduleName()).getUuid()
-        if (scheduleUuid == null) {
-            throw new IllegalStateException("Schedule ${backupParameter.getScheduleName()} that is configured does not exist on shield")
-        }
+        checkState(scheduleUuid != null, format("Schedule %s that is configured does not exist on shield", backupParameter.getScheduleName()))
 
         createOrUpdateJob(jobName, targetUuid, store.getUuid(), retention.getUuid(), scheduleUuid, paused)
     }

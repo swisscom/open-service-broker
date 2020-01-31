@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.backup
 
 import com.swisscom.cloud.sb.broker.async.job.JobStatus
+import com.swisscom.cloud.sb.broker.backup.shield.BackupDeregisterInformation
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
@@ -73,9 +74,9 @@ trait BackupRestoreProvider extends BackupOnShield {
         return convertBackupStatus(status)
     }
 
-    Map<String, Integer> notifyServiceInstanceDeletion(String serviceInstanceGuid) {
-        Map<String, Integer> result = shieldClient.deleteJobsAndBackups(serviceInstanceGuid)
-        LOGGER.debug("Deleted: {}", result)
+    BackupDeregisterInformation notifyServiceInstanceDeletion(String serviceInstanceGuid) {
+        BackupDeregisterInformation result = shieldClient.deleteJobsAndBackups(serviceInstanceGuid)
+        LOGGER.debug(result.toString())
         return result
     }
 
