@@ -78,7 +78,7 @@ The database tables will be generated automatically by the application. See the 
 
 To run the built artifact, from the root directory the following commands can be executed:
 ```bash
-java -jar -Dspring.config.additional-location=file:/some/path/servicebroker.yml broker/build/libs/service-broker-2.0.0-SNAPSHOT.war 
+java -jar -Dspring.config.additional-location=file:/some/path/servicebroker.yml broker/build/libs/broker-2.0.0-SNAPSHOT.jar 
 ```
 The config file passed can overwrite any default values. Providing an external config file is optional and when no
 external config file is provided, the default values are dictated by application.yml file(s).
@@ -148,7 +148,7 @@ Setting the value of serviceDefinitions to an empty list ([]), will bypass the v
 
 Example Service Definition in application.yml configuration file.
 ```yaml
-serviceDefinitions:
+com.swisscom.cloud.sb.broker.serviceDefinitions:
 - guid: 'udn9276f-hod4-5432-vw34-6c33d7359c12'
   name: 'mongodbent'
   description: 'MongoDB Enterprise HA v3.2.11'
@@ -185,7 +185,6 @@ serviceDefinitions:
 ```
 
 ## Swagger
-
 The Swagger API documentation can be accessed at <http://localhost:8080/swagger-ui.html>
 
 ## Brokered Services
