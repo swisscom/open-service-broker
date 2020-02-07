@@ -21,7 +21,6 @@ import com.swisscom.cloud.sb.broker.model.ServiceDetail
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.util.servicedetail.ServiceDetailKey
 import com.swisscom.cloud.sb.model.endpoint.Endpoint
 import spock.lang.Specification
@@ -65,7 +64,7 @@ class EndpointLookupSpec extends Specification {
         ServiceInstance serviceInstance = new ServiceInstance(plan: new Plan(templateUniqueIdentifier: null, service: new CFService()))
         serviceInstance.details.add(new ServiceDetail().from(ServiceDetailKey.PORT, '2222'))
         and:
-        EndpointConfig config = new MongoDbEnterpriseConfig(ipRanges: new ArrayList<String>(), protocols: new ArrayList<String>())
+        EndpointConfig config = new EndpointConfigImpl(ipRanges: new ArrayList<String>(), protocols: new ArrayList<String>())
         config.ipRanges.add('127.0.0.1')
         and:
         EndpointLookup el = new EndpointLookup()
@@ -82,7 +81,7 @@ class EndpointLookupSpec extends Specification {
         ServiceInstance serviceInstance = new ServiceInstance(plan: new Plan(templateUniqueIdentifier: null, service: new CFService()))
         serviceInstance.details.add(new ServiceDetail().from(ServiceDetailKey.PORT, '2222'))
         and:
-        EndpointConfig config = new MongoDbEnterpriseConfig(ipRanges: new ArrayList<String>(), protocols: new ArrayList<String>())
+        EndpointConfig config = new EndpointConfigImpl(ipRanges: new ArrayList<String>(), protocols: new ArrayList<String>())
         config.ipRanges.addAll(['127.0.0.1', '127.0.0.2'])
         and:
         EndpointLookup el = new EndpointLookup()
