@@ -23,7 +23,6 @@ import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
@@ -34,11 +33,14 @@ import org.springframework.web.bind.annotation.RestController
 class CatalogController extends BaseController {
 
     @VisibleForTesting
-    @Autowired
     private CatalogDtoConverter catalogDtoConverter
-
-    @Autowired
     private CFServiceRepository serviceRepository
+
+    CatalogController(CatalogDtoConverter catalogDtoConverter,
+                      CFServiceRepository cfServiceRepository) {
+        this.catalogDtoConverter = catalogDtoConverter
+        this.serviceRepository = cfServiceRepository
+    }
 
 
     @ApiOperation(value = "List Catalog", response = CatalogDto.class,

@@ -16,6 +16,7 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.swisscom.cloud.sb.broker.binding.*
 import com.swisscom.cloud.sb.broker.cfapi.converter.ServiceInstanceBindingDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.BindRequestDto
 import com.swisscom.cloud.sb.broker.cfapi.dto.UnbindingDto
@@ -29,19 +30,13 @@ import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
 import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceBindingRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.binding.BindRequest
-import com.swisscom.cloud.sb.broker.binding.BindResponse
-import com.swisscom.cloud.sb.broker.binding.FetchServiceBindingProvider
-import com.swisscom.cloud.sb.broker.binding.ServiceBindingPersistenceService
-import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
-import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -54,19 +49,34 @@ import java.security.Principal
 @CompileStatic
 @Slf4j
 class BindingController extends BaseController {
-    @Autowired
     private ServiceBindingPersistenceService serviceBindingPersistenceService
-    @Autowired
     private ServiceBindingRepository serviceBindingRepository
-    @Autowired
     private CFServiceRepository cfServiceRepository
-    @Autowired
     private PlanRepository planRepository
-    @Autowired
     private ServiceInstanceBindingDtoConverter bindingDtoConverter
-
-    @Autowired
     private BindingMetricService bindingMetricsService
+    private ServiceProviderLookup serviceProviderLookup
+    private ControllerHelper controllerHelper
+
+    BindingController(
+            ServiceBindingPersistenceService serviceBindingPersistenceService,
+            ServiceBindingRepository serviceBindingRepository,
+            CFServiceRepository cfServiceRepository,
+            PlanRepository planRepository,
+            ServiceInstanceBindingDtoConverter bindingDtoConverter,
+            BindingMetricService bindingMetricsService,
+            ServiceProviderLookup serviceProviderLookup,
+            ControllerHelper controllerHelper
+    ) {
+        this.controllerHelper = controllerHelper
+        this.serviceBindingPersistenceService = serviceBindingPersistenceService
+        this.serviceBindingRepository = serviceBindingRepository
+        this.cfServiceRepository = cfServiceRepository
+        this.planRepository = planRepository
+        this.bindingDtoConverter = bindingDtoConverter
+        this.bindingMetricsService = bindingMetricsService
+        this.serviceProviderLookup = serviceProviderLookup
+    }
 
     @ApiOperation(value = "Bind service")
     @RequestMapping(value = '/v2/service_instances/{serviceInstanceGuid}/service_bindings/{id}', method = RequestMethod.PUT)
@@ -75,13 +85,13 @@ class BindingController extends BaseController {
                                 @Valid @RequestBody BindRequestDto bindingDto,
                                 Principal principal) {
         log.info("Bind request for bindingId: ${bindingId}, serviceId: ${bindingDto?.service_id} and serviceInstanceGuid: ${serviceInstanceGuid}")
-        ServiceInstance serviceInstance = getAndCheckServiceInstance(serviceInstanceGuid)
+        ServiceInstance serviceInstance = controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid)
         boolean bindingSucceeded = true
         try {
             verifyServiceInstanceIsReady(serviceInstance)
             CFService service = getAndCheckService(bindingDto)
             failIfServiceBindingAlreadyExists(bindingId)
-            BindResponse bindResponse = findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingId, bindingDto, service, serviceInstance))
+            BindResponse bindResponse = serviceProviderLookup.findServiceProvider(serviceInstance.plan).bind(createBindRequest(bindingId, bindingDto, service, serviceInstance))
             serviceBindingPersistenceService.create(serviceInstance, getCredentialsAsJson(bindResponse), serializeJson(bindingDto.parameters), bindingId, bindResponse.details, bindingDto.context, principal.name)
 
             bindingMetricsService.notifyBinding(serviceInstance.plan.guid, bindingSucceeded)
@@ -171,7 +181,7 @@ class BindingController extends BaseController {
 
 
             UnbindRequest unbindRequest = new UnbindRequest(binding: serviceBinding, service: service, serviceInstance: serviceInstance)
-            findServiceProvider(serviceInstance.plan).unbind(unbindRequest)
+            serviceProviderLookup.findServiceProvider(serviceInstance.plan).unbind(unbindRequest)
 
             serviceBindingPersistenceService.delete(serviceBinding, serviceInstance)
             log.info("Servicebinding ${serviceBinding.guid} deleted")

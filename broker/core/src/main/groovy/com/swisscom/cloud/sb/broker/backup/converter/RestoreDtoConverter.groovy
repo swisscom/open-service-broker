@@ -20,16 +20,12 @@ import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.Restore
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import groovy.transform.CompileStatic
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 
 @CompileStatic
-@Component
 class RestoreDtoConverter extends AbstractGenericConverter<Restore, RestoreDto> {
 
     private RestoreStatusConverter restoreStatusConverter
 
-    @Autowired
     RestoreDtoConverter(RestoreStatusConverter restoreStatusConverter) {
         this.restoreStatusConverter = restoreStatusConverter
     }

@@ -15,20 +15,20 @@
 
 package com.swisscom.cloud.sb.broker.cfapi.converter
 
-import com.swisscom.cloud.sb.broker.services.credential.CredentialService
 import com.swisscom.cloud.sb.broker.binding.ServiceInstanceBindingResponseDto
 import com.swisscom.cloud.sb.broker.converter.AbstractGenericConverter
 import com.swisscom.cloud.sb.broker.model.ServiceBinding
-import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
+import com.swisscom.cloud.sb.broker.services.credential.CredentialService
 import org.springframework.stereotype.Component
 
-@Slf4j
 @Component
 class ServiceInstanceBindingDtoConverter extends AbstractGenericConverter<ServiceBinding, ServiceInstanceBindingResponseDto> {
 
-    @Autowired
     private CredentialService credentialService
+
+    ServiceInstanceBindingDtoConverter(CredentialService credentialService) {
+        this.credentialService = credentialService
+    }
 
     @Override
     void convert(ServiceBinding source, ServiceInstanceBindingResponseDto prototype) {

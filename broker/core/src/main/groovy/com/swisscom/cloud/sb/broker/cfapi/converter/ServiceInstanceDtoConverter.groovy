@@ -22,7 +22,6 @@ import groovy.transform.CompileStatic
 import org.springframework.stereotype.Component
 
 @CompileStatic
-@Component
 class ServiceInstanceDtoConverter extends AbstractGenericConverter<ServiceInstance, ServiceInstanceResponseDto> {
 
     @Override

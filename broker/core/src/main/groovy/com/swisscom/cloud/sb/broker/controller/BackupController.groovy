@@ -16,15 +16,17 @@
 package com.swisscom.cloud.sb.broker.controller
 
 import com.swisscom.cloud.sb.broker.backup.BackupService
+import com.swisscom.cloud.sb.broker.backup.BackupStatusConverter
+import com.swisscom.cloud.sb.broker.backup.RestoreStatusConverter
 import com.swisscom.cloud.sb.broker.backup.converter.BackupDtoConverter
 import com.swisscom.cloud.sb.broker.backup.converter.RestoreDtoConverter
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.model.backup.BackupDto
 import com.swisscom.cloud.sb.model.backup.RestoreDto
 import groovy.transform.CompileStatic
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,13 +41,18 @@ import static org.springframework.web.bind.annotation.RequestMethod.*
 @CompileStatic
 class BackupController extends BaseController {
 
-    @Autowired
     private BackupService backupService
-
-    @Autowired
     private BackupDtoConverter backupDtoConverter
-    @Autowired
     private RestoreDtoConverter restoreDtoConverter
+    private ControllerHelper controllerHelper
+
+    BackupController(BackupService backupService, ControllerHelper controllerHelper) {
+        this.controllerHelper = controllerHelper
+        this.backupService = backupService
+        RestoreStatusConverter restoreStatusConverter = new RestoreStatusConverter()
+        backupDtoConverter = new BackupDtoConverter(new BackupStatusConverter(), new RestoreDtoConverter(restoreStatusConverter))
+        restoreDtoConverter = new RestoreDtoConverter(restoreStatusConverter)
+    }
 
     @ApiOperation(value = "List Backups", response = BackupDto.class,
             notes = "List all the backups for the given service instance", responseContainer = "List")
@@ -53,7 +60,7 @@ class BackupController extends BaseController {
     @ResponseBody
     List<BackupDto> listBackups(
             @ApiParam(value = 'serviceInstanceGuid', required = true) @PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
-        def backups = backupService.listBackups(getAndCheckServiceInstance(serviceInstanceGuid))
+        def backups = backupService.listBackups(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid))
         return backupDtoConverter.convertAll(backups)
     }
 
@@ -63,13 +70,13 @@ class BackupController extends BaseController {
     BackupDto getBackup(
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
-        return backupDtoConverter.convert(backupService.getBackup(getAndCheckServiceInstance(serviceInstanceGuid), backupId))
+        return backupDtoConverter.convert(backupService.getBackup(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid), backupId))
     }
 
     @ApiOperation(value = "Create Backup", response = BackupDto.class)
     @RequestMapping(value = "/custom/service_instances/{serviceInstanceGuid}/backups", method = POST)
     ResponseEntity<BackupDto> createBackup(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
-        def backup = backupService.requestBackupCreation(getAndCheckServiceInstance(serviceInstanceGuid))
+        def backup = backupService.requestBackupCreation(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid))
         return new ResponseEntity<BackupDto>(backupDtoConverter.convert(backup), ACCEPTED)
     }
 
@@ -78,7 +85,7 @@ class BackupController extends BaseController {
     ResponseEntity<String> deleteBackup(
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
-        backupService.requestBackupDeletion(getAndCheckServiceInstance(serviceInstanceGuid), backupId)
+        backupService.requestBackupDeletion(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid), backupId)
         return new ResponseEntity<String>("{}", ACCEPTED)
     }
 
@@ -87,7 +94,7 @@ class BackupController extends BaseController {
     ResponseEntity<RestoreDto> restoreBackup(
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId) {
-        def restore = backupService.requestBackupRestoration(getAndCheckServiceInstance(serviceInstanceGuid), backupId)
+        def restore = backupService.requestBackupRestoration(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid), backupId)
         return new ResponseEntity<RestoreDto>(restoreDtoConverter.convert(restore), ACCEPTED)
     }
 
@@ -98,7 +105,7 @@ class BackupController extends BaseController {
             @PathVariable('serviceInstanceGuid') String serviceInstanceGuid,
             @PathVariable('backup_id') String backupId,
             @PathVariable('restore_id') String restoreId) {
-        def restore = backupService.getRestore(getAndCheckServiceInstance(serviceInstanceGuid), backupId, restoreId)
+        def restore = backupService.getRestore(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid), backupId, restoreId)
         return restoreDtoConverter.convert(restore)
     }
 }

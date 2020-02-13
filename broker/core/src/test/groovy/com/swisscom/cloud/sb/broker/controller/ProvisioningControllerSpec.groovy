@@ -15,28 +15,54 @@
 
 package com.swisscom.cloud.sb.broker.controller
 
+import com.swisscom.cloud.sb.broker.context.ServiceContextPersistenceService
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
+import com.swisscom.cloud.sb.broker.model.CFService
+import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
+import com.swisscom.cloud.sb.broker.provisioning.ProvisioningService
+import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationStatusService
+import com.swisscom.cloud.sb.broker.repository.CFServiceRepository
+import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import spock.lang.Specification
 
 class ProvisioningControllerSpec extends Specification {
 
-    private ProvisioningController provisioningController
+    private ProvisioningService provisioningService
+    private LastOperationStatusService lastOperationStatusService
+    private ServiceInstanceRepository serviceInstanceRepository
+    private ServiceContextPersistenceService serviceContextService
+    private CFServiceRepository cfServiceRepository
+    private PlanRepository planRepository
+    private ServiceProviderLookup serviceProviderLookup
+
+    private ProvisioningController sut
 
     def setup() {
-        provisioningController = new ProvisioningController()
+        provisioningService = Mock(ProvisioningService)
+        lastOperationStatusService = Mock(LastOperationStatusService)
+        serviceInstanceRepository = Mock(ServiceInstanceRepository)
+        serviceContextService = Mock(ServiceContextPersistenceService)
+        cfServiceRepository = Mock(CFServiceRepository)
+        planRepository = Mock(PlanRepository)
+        serviceProviderLookup = Mock(ServiceProviderLookup)
+        sut = new ProvisioningController(provisioningService,
+                                         lastOperationStatusService,
+                                         serviceInstanceRepository,
+                                         serviceContextService,
+                                         cfServiceRepository,
+                                         planRepository,
+                                         serviceProviderLookup)
     }
 
     def 'service creation success can always be deleted'() {
         given:
-        def serviceInstanceRepository = Mock(ServiceInstanceRepository)
         serviceInstanceRepository.findByGuid(_) >> new ServiceInstance(completed: true)
-        def serviceInstanceRepositoryField = provisioningController.getClass().getSuperclass().getDeclaredField('serviceInstanceRepository')
-        serviceInstanceRepositoryField.setAccessible(true)
-        serviceInstanceRepositoryField.set(provisioningController, serviceInstanceRepository)
+
         when:
-        provisioningController.createDeprovisionRequest("foo", false)
+        sut.createDeprovisionRequest("foo", false)
 
         then:
         noExceptionThrown()
@@ -44,14 +70,10 @@ class ProvisioningControllerSpec extends Specification {
 
     def 'service creation failed can always be deleted'() {
         given:
-        def serviceInstanceRepository = Mock(ServiceInstanceRepository)
         serviceInstanceRepository.findByGuid(_) >> new ServiceInstance(completed: false)
-        def serviceInstanceRepositoryField = provisioningController.getClass().getSuperclass().getDeclaredField('serviceInstanceRepository')
-        serviceInstanceRepositoryField.setAccessible(true)
-        serviceInstanceRepositoryField.set(provisioningController, serviceInstanceRepository)
 
         when:
-        provisioningController.createDeprovisionRequest("foo", false)
+        sut.createDeprovisionRequest("foo", false)
 
         then:
         noExceptionThrown()
@@ -59,17 +81,32 @@ class ProvisioningControllerSpec extends Specification {
 
     def 'delete deleted service throws exception'() {
         given:
-        def serviceInstanceRepository = Mock(ServiceInstanceRepository)
         serviceInstanceRepository.findByGuid(_) >> new ServiceInstance(deleted: true)
-        def serviceInstanceRepositoryField = provisioningController.getClass().getSuperclass().getDeclaredField('serviceInstanceRepository')
-        serviceInstanceRepositoryField.setAccessible(true)
-        serviceInstanceRepositoryField.set(provisioningController, serviceInstanceRepository)
 
         when:
-        provisioningController.createDeprovisionRequest("foo", false)
+        sut.createDeprovisionRequest("foo", false)
 
         then:
         thrown ServiceBrokerException
+    }
+
+    def 'fetch service instance throws exception when not supported'() {
+        given:
+        serviceInstanceRepository.findByGuid(serviceInstanceGuid) >> new ServiceInstance(guid: serviceInstanceGuid,
+                                                                                         plan: new Plan(service: new CFService(
+                                                                                                 instancesRetrievable: false)))
+
+        when:
+        sut.getServiceInstance(serviceInstanceGuid)
+
+        then:
+        def ex = thrown(ServiceBrokerException)
+        ex.getMessage() == "Fetching Service Instance for this service plan is not supported"
+
+        where:
+        serviceInstanceGuid          | _
+        UUID.randomUUID().toString() | _
+
     }
 }
 

@@ -49,6 +49,9 @@ class CFExtensionsController extends BaseController {
 
     @Autowired
     private ServiceProviderLookup serviceProviderLookup
+    
+    @Autowired
+    private ControllerHelper controllerHelper
 
     @ApiOperation(value = "Get service instance usage", response = ServiceUsage.class)
     @RequestMapping(value = ['/v2/cf-ext/{serviceInstanceGuid}/usage', //deprecated, prefer the path below
@@ -78,7 +81,7 @@ class CFExtensionsController extends BaseController {
                             '/custom/service_instances/{serviceInstanceGuid}/endpoint'],
                     method = RequestMethod.GET)
     def endpoint(@PathVariable('serviceInstanceGuid') String serviceInstanceGuid) {
-        endpointLookup.lookup(getAndCheckServiceInstance(serviceInstanceGuid))
+        endpointLookup.lookup(controllerHelper.getAndCheckServiceInstance(serviceInstanceGuid))
     }
 
     @ApiOperation(value = "Get extension information", response = Yaml.class,

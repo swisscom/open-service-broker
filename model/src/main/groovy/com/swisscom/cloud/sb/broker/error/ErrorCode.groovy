@@ -24,7 +24,8 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
 @CompileStatic
 enum ErrorCode {
 
-    //TODO get rid of errorCodes
+    //TODO get rid of errorCodes\
+    SERVICE_INSTANCE_NOT_RETRIEVABLE("69002", "Fetching Service Instance for this service plan is not supported", "SC-SB-SI", HttpStatus.FORBIDDEN),
     SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),
     SERVICE_BINDING_NOT_FOUND("69005", "Service Binding not found", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.NOT_FOUND),
@@ -76,7 +77,7 @@ enum ErrorCode {
     CLIENT_INVALID_REQUEST("69052", "Request Validation failed", "SC-SB-SERVICEPROVIDER-CLIENT-INVALID", HttpStatus.BAD_REQUEST),
     SERVICE_INSTANCE_GONE("69053", "Service Instance gone", "SC-SB-SI", HttpStatus.GONE),
     SERVICE_BINDING_GONE("69054", "Service Binding gone", "SC-SB-SERVICE-BINDING-NOT-FOUND", HttpStatus.GONE),
-    SERVICE_BINDING_NOT_RETRIEVABLE("69055", "Service Binding not retrievable", "SC-SB-SERVICE-BINDING-NOT-RETRIEVABLE", HttpStatus.BAD_REQUEST),
+    SERVICE_BINDING_NOT_RETRIEVABLE("69055", "Service Binding not retrievable", "SC-SB-SERVICE-BINDING-NOT-RETRIEVABLE", HttpStatus.FORBIDDEN),
     INVALID_JSON("69056", "Cannot decode JSON", "SC-BC-INPUT-JSON-INVALID", HttpStatus.BAD_REQUEST),
     SERVICEBROKERSERVICEPROVIDER_PROVISIONING_BAD_REQUEST("69057", "Provisioning of a service using the ServiceBrokerServiceProvider failed", "SC-SB-SERVICEBROKERSERVICEPROVIDER-PROVISIONING-BAD-REQUEST", HttpStatus.BAD_REQUEST),
     SERVICEBROKERSERVICEPROVIDER_PROVISIONING_CONFLICT("69058", "Conflict while provisioning a service using the ServiceBrokerServiceProvider", "SC-SB-SERVICEBROKERSERVICEPROVIDER-PROVISIONING-CONFLICT", HttpStatus.CONFLICT),
