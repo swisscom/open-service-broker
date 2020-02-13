@@ -24,7 +24,7 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
 @CompileStatic
 enum ErrorCode {
 
-    //TODO get rid of errorCodes\
+    //TODO get rid of errorCodes
     SERVICE_INSTANCE_NOT_RETRIEVABLE("69002", "Fetching Service Instance for this service plan is not supported", "SC-SB-SI", HttpStatus.FORBIDDEN),
     SERVICE_INSTANCE_NOT_FOUND("69003", "Service Instance not found", "SC-SB-SI", HttpStatus.NOT_FOUND),
     SERVICE_INSTANCE_ALREADY_EXISTS("69004", "Service Instance already exists", "SC-SB-SI", HttpStatus.CONFLICT),

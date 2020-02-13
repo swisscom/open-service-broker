@@ -20,7 +20,6 @@ import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.http.HttpStatus

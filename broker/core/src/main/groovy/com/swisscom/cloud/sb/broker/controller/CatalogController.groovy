@@ -15,7 +15,6 @@
 
 package com.swisscom.cloud.sb.broker.controller
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.common.collect.Lists
 import com.swisscom.cloud.sb.broker.cfapi.converter.CatalogDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.CatalogDto
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController
 @CompileStatic
 class CatalogController extends BaseController {
 
-    @VisibleForTesting
     private CatalogDtoConverter catalogDtoConverter
     private CFServiceRepository serviceRepository
 
