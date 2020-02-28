@@ -190,7 +190,7 @@ class AsyncServiceFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.NOT_FOUND
+        ex.statusCode == HttpStatus.FORBIDDEN
     }
 
     def "provision and get service instance is retrievable"() {

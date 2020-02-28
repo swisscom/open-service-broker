@@ -109,7 +109,7 @@ class BindingParametersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         def ex = thrown(HttpClientErrorException)
-        ex.statusCode == HttpStatus.BAD_REQUEST
+        ex.statusCode == HttpStatus.FORBIDDEN
 
         cleanup:
         serviceBindingRepository.delete(serviceBindingRepository.findByGuid(serviceBindingGuid))
