@@ -258,14 +258,14 @@ class ProvisioningController extends BaseController {
     @RequestMapping(value = "/v2/service_instances/{serviceInstanceGuid}", method = RequestMethod.GET)
     ServiceInstanceResponseDto getServiceInstance(@PathVariable("serviceInstanceGuid") String serviceInstanceGuid) {
         def serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
-        if (serviceInstance != null && !serviceInstance.plan.service.instancesRetrievable) {
+        if (serviceInstance == null || !serviceInstance.completed) {
+            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
+        } else if (!serviceInstance.plan.service.instancesRetrievable) {
             LOGGER.warn("Service Instance Fetch requested for Service Instance {} not supporting fetching",
                         serviceInstanceGuid)
             ErrorCode.SERVICE_INSTANCE_NOT_RETRIEVABLE.throwNew()
         }
-        if (serviceInstance == null || !serviceInstance.completed) {
-            ErrorCode.SERVICE_INSTANCE_NOT_FOUND.throwNew()
-        }
+
         ServiceProvider serviceProvider = serviceProviderLookup.findServiceProvider(serviceInstance.plan)
         if (!(serviceProvider instanceof FetchServiceInstanceProvider)) {
             return new ServiceInstanceDtoConverter().convert(serviceInstance)
