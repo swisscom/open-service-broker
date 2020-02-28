@@ -93,6 +93,7 @@ class ProvisioningControllerSpec extends Specification {
     def 'fetch service instance throws exception when not supported'() {
         given:
         serviceInstanceRepository.findByGuid(serviceInstanceGuid) >> new ServiceInstance(guid: serviceInstanceGuid,
+                                                                                         completed: true,
                                                                                          plan: new Plan(service: new CFService(
                                                                                                  instancesRetrievable: false)))
 
