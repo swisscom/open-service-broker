@@ -18,10 +18,8 @@ package com.swisscom.cloud.sb.broker.backup
 import com.swisscom.cloud.sb.broker.model.Backup
 import com.swisscom.cloud.sb.model.backup.RestoreStatus
 import groovy.transform.CompileStatic
-import org.springframework.stereotype.Component
 
 @CompileStatic
-@Component
 class RestoreStatusConverter {
     RestoreStatus convert(Backup.Status status) {
         switch (status) {

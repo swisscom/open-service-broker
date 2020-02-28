@@ -19,14 +19,9 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ErrorDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
 import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
-import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.services.common.ServiceProvider
-import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -43,14 +38,11 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 @Slf4j
 abstract class BaseController {
 
-    @Autowired
-    protected ServiceProviderLookup serviceProviderLookup
-
-    @Autowired
     protected ErrorDtoConverter errorDtoConverter
 
-    @Autowired
-    protected ServiceInstanceRepository serviceInstanceRepository
+    BaseController() {
+        this.errorDtoConverter = new ErrorDtoConverter()
+    }
 
     @ExceptionHandler
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -69,32 +61,20 @@ abstract class BaseController {
     @ExceptionHandler
     ResponseEntity<ErrorDto> serviceBrokerException(ServiceBrokerException exception) {
         log.error("Service Broker exception", exception)
-        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception), exception.httpStatus ?: HttpStatus.INTERNAL_SERVER_ERROR)
+        return new ResponseEntity<ErrorDto>(errorDtoConverter.convert(exception),
+                                            exception.httpStatus ?: HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
-    protected ServiceProvider findServiceProvider(Plan plan) {
-        serviceProviderLookup.findServiceProvider(plan)
-    }
-
-    protected ServiceInstance getAndCheckServiceInstance(String serviceInstanceId) {
-        ServiceInstance serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceId)
-        if (!serviceInstance) {
-            ErrorCode.SERVICE_INSTANCE_GONE.throwNew("ID = ${serviceInstanceId}")
-        }
-        if (serviceInstance.deleted) {
-            ErrorCode.SERVICE_INSTANCE_DELETED.throwNew("ID = ${serviceInstanceId}")
-        }
-        return serviceInstance
-    }
-
-    protected ServiceInstance verifyServiceInstanceIsReady(ServiceInstance serviceInstance) {
+    protected static ServiceInstance verifyServiceInstanceIsReady(ServiceInstance serviceInstance) {
         if (!serviceInstance.completed) {
-            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew("ID = ${serviceInstance.guid}")
+            ErrorCode.SERVICE_INSTANCE_PROVISIONING_NOT_COMPLETED.throwNew("ID = " + serviceInstance.guid)
         }
         return serviceInstance
     }
 
-    private String createValidationErrorMessage(Errors errors) {
-        "Validation failed. " + errors.getErrorCount() + " error(s): " + errors.getAllErrors().collect({it.getDefaultMessage()}).join(", ")
+    private static String createValidationErrorMessage(Errors errors) {
+        "Validation failed. " + errors.getErrorCount() + " error(s): " + errors.getAllErrors().collect({
+            it.getDefaultMessage()
+        }).join(", ")
     }
 }
