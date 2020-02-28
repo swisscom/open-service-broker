@@ -19,7 +19,6 @@ import com.swisscom.cloud.sb.broker.cfapi.converter.ErrorDtoConverter
 import com.swisscom.cloud.sb.broker.cfapi.dto.ErrorDto
 import com.swisscom.cloud.sb.broker.error.ServiceBrokerException
 import com.swisscom.cloud.sb.broker.metrics.LastOperationMetricService
-import com.swisscom.cloud.sb.broker.metrics.LastOperationMetricsService
 import com.swisscom.cloud.sb.broker.model.LastOperation
 import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
@@ -27,17 +26,21 @@ import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobC
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContextService
 import com.swisscom.cloud.sb.broker.util.Audit
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 
+import static java.lang.String.format
+
 @CompileStatic
 @Transactional
-@Slf4j
 abstract class AbstractLastOperationJob extends AbstractJob {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLastOperationJob.class)
+    
     @Autowired
     protected LastOperationJobContextService lastOperationContextService
     @Autowired
@@ -53,25 +56,25 @@ abstract class AbstractLastOperationJob extends AbstractJob {
         MDC.put("serviceInstanceGuid", id)
         def failed = false
         def completed = true
-        log.info("Executing job with id:${id}")
+        LOGGER.info("Executing job with id:{}", id)
         LastOperationJobContext lastOperationContext = null
 
         try {
             lastOperationContext = enrichContext(lastOperationContextService.loadContext(id))
             AsyncOperationResult jobStatus = handleJob(lastOperationContext)
             if (jobStatus.status == LastOperation.Status.SUCCESS) {
-                log.warn("Successfully finished job with id:${id}")
+                LOGGER.warn("Successfully finished job with id:{}", id)
                 lastOperationContext.notifySuccess(jobStatus.description)
                 dequeue(lastOperationContext, id)
                 lastOperationMetricsService.notifySucceeded(lastOperationContext.planGuidOrUndefined)
             } else if (jobStatus.status == LastOperation.Status.FAILED) {
-                log.warn("Job with id:${id} failed")
+                LOGGER.warn("Job with id:{} failed", id)
                 dequeueFailed(lastOperationContext, id, jobStatus.description)
                 failed = true
                 lastOperationMetricsService.notifyFailedByServiceProvider(lastOperationContext.planGuidOrUndefined)
             } else if (jobStatus.status == LastOperation.Status.IN_PROGRESS) {
                 if (isExecutedForLastTime(jobExecutionContext)) {
-                    log.warn("Giving up on job with id:${id}")
+                    LOGGER.warn("Giving up on job with id:{}", id)
                     dequeueFailed(lastOperationContext, id)
                     lastOperationMetricsService.notifyFailedWithTimeout(lastOperationContext.planGuidOrUndefined)
                     failed = true
@@ -81,12 +84,12 @@ abstract class AbstractLastOperationJob extends AbstractJob {
                 }
             }
         } catch (ServiceBrokerException sbe) {
-            log.warn("Job execution with id:${id} failed", sbe)
+            LOGGER.error(format("Job execution with id:%s failed", id), sbe)
             dequeueFailed(lastOperationContext, id, errorDtoConverter.convert(sbe))
             lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
             failed = true
         } catch (Exception e) {
-            log.warn("Job execution with id:${id} failed", e)
+            LOGGER.error(format("Job execution with id:%s failed", id), e)
             dequeueFailed(lastOperationContext, id)
             lastOperationMetricsService.notifyFailedWithException(lastOperationContext.planGuidOrUndefined)
             failed = true
