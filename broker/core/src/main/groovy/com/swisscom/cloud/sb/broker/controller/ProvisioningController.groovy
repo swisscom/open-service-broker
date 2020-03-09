@@ -139,7 +139,8 @@ class ProvisioningController extends BaseController {
                               action             : Audit.AuditAction.Provision,
                               principal          : principal.name,
                               async              : acceptsIncomplete,
-                              parameters         : hasSensitiveData ? null : provisioningDto.parameters,
+                              parameters         : hasSensitiveData ? getSensitiveParameters(provisioningDto.parameters)
+                                                                    : provisioningDto.parameters,
                               failed             : failed
                       ])
         }

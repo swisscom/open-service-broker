@@ -77,4 +77,9 @@ abstract class BaseController {
             it.getDefaultMessage()
         }).join(", ")
     }
+
+    public static String getSensitiveParameters(Map<String, Object> parameters) {
+        if (parameters == null) return ""
+        return "<CONFIDENTIAL> [Parameter Keys: " + parameters.keySet() + "]"
+    }
 }

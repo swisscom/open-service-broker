@@ -85,7 +85,8 @@ class UpdatingController extends BaseController {
                             principal: principal.name,
                             async: acceptsIncomplete,
                             failed: failed,
-                            parameters: hasSensitiveData ? null : updateDto.parameters
+                            parameters: hasSensitiveData ? getSensitiveParameters(updateDto.parameters)
+                                                         : updateDto.parameters
                     ])
         }
     }
