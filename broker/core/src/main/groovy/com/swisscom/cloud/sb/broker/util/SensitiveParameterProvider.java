@@ -1,6 +1,7 @@
 package com.swisscom.cloud.sb.broker.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -18,7 +19,10 @@ public interface SensitiveParameterProvider {
      */
     default Map<String, Object> getSanitizedParameters(Map<String, Object> parameters) {
         Map<String, Object> result = new HashMap<>();
-        if (parameters == null) return result;
+        if (parameters == null) {
+            result.put("CONFIDENTIAL", new HashSet<>());
+            return result;
+        };
         result.put("CONFIDENTIAL", parameters.keySet());
         return result;
     }

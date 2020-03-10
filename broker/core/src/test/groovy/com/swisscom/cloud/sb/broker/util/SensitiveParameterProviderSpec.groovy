@@ -20,7 +20,7 @@ class SensitiveParameterProviderSpec extends Specification {
 
         where:
         parameters                      | expectedMap
-        null                            | [:]
+        null                            | [CONFIDENTIAL: new HashSet()]
         ["test": "hello", "foo": "bar"] | [CONFIDENTIAL: new HashSet(["test", "foo"])]
         ["test": ["foo": "bar"]]        | [CONFIDENTIAL: new HashSet(["test"])]
     }
