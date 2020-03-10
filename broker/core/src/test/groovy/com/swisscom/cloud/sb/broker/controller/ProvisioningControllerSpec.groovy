@@ -107,7 +107,6 @@ class ProvisioningControllerSpec extends Specification {
         where:
         serviceInstanceGuid          | _
         UUID.randomUUID().toString() | _
-
     }
 }
 

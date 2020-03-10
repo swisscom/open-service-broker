@@ -88,21 +88,19 @@ class ProvisioningController extends BaseController {
                                                    @Valid @RequestBody ProvisioningDto provisioningDto,
                                                    Principal principal) {
         def failed = false
-        def hasSensitiveData = false
+        Map<String, Object> parametersForAudit = provisioningDto.getParameters()
 
         try {
             failIfServiceInstanceAlreadyExists(serviceInstanceGuid)
 
             def serviceProvider = serviceProviderLookup.findServiceProvider(getAndCheckPlan(provisioningDto.plan_id))
             if (serviceProvider instanceof SensitiveParameterProvider) {
-                LOGGER.
-                        info("Provision request for ServiceInstanceGuid: {}, ServiceId: {}",
+                LOGGER.info("Provision request for ServiceInstanceGuid: {}, ServiceId: {}",
                              serviceInstanceGuid,
                              provisioningDto?.service_id)
-                hasSensitiveData = true
+                parametersForAudit = serviceProvider.getSanitizedParameters(provisioningDto.getParameters())
             } else {
-                LOGGER.
-                        info("Provision request for ServiceInstanceGuid: {}, ServiceId: {}, Params: {}",
+                LOGGER.info("Provision request for ServiceInstanceGuid: {}, ServiceId: {}, Params: {}",
                              serviceInstanceGuid,
                              provisioningDto?.service_id,
                              provisioningDto.parameters)
@@ -139,7 +137,7 @@ class ProvisioningController extends BaseController {
                               action             : Audit.AuditAction.Provision,
                               principal          : principal.name,
                               async              : acceptsIncomplete,
-                              parameters         : hasSensitiveData ? null : provisioningDto.parameters,
+                              parameters         : parametersForAudit,
                               failed             : failed
                       ])
         }

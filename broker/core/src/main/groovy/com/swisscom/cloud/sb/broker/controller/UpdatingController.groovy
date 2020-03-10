@@ -63,11 +63,11 @@ class UpdatingController extends BaseController {
                                              @Valid @RequestBody UpdateDto updateDto,
                                              Principal principal) {
         def failed = false
-        def hasSensitiveData = false
+        Map<String, Object> parametersForAudit = updateDto.getParameters()
         try{
             log.info("Update request for ServiceInstanceGuid:${serviceInstanceGuid}, ServiceId: ${updateDto?.service_id}, Params: ${updateDto?.parameters}")
             ServiceInstance serviceInstance = getServiceInstanceOrFail(serviceInstanceGuid)
-            hasSensitiveData = updatingService.hasSensitiveParameters(serviceInstance.plan)
+            parametersForAudit = updatingService.getSanitizedSensitiveParameters(serviceInstance.getPlan(), updateDto?.getParameters())
             def updatingResponse = updatingService.update(
                     serviceInstance,
                     createUpdateRequest(serviceInstance, updateDto, acceptsIncomplete),
@@ -85,7 +85,7 @@ class UpdatingController extends BaseController {
                             principal: principal.name,
                             async: acceptsIncomplete,
                             failed: failed,
-                            parameters: hasSensitiveData ? null : updateDto.parameters
+                            parameters: parametersForAudit
                     ])
         }
     }
