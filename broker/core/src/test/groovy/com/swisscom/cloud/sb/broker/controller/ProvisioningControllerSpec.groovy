@@ -27,7 +27,6 @@ import com.swisscom.cloud.sb.broker.repository.PlanRepository
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import spock.lang.Specification
-import spock.lang.Unroll
 
 class ProvisioningControllerSpec extends Specification {
 
@@ -108,22 +107,6 @@ class ProvisioningControllerSpec extends Specification {
         where:
         serviceInstanceGuid          | _
         UUID.randomUUID().toString() | _
-
-    }
-
-    @Unroll
-    def 'getSensitiveParamters should return confidential string: #expectedString'() {
-        when:
-        String result = sut.getSensitiveParameters(parameters)
-
-        then:
-        result == expectedString
-
-        where:
-        parameters                      | expectedString
-        null                            | ""
-        ["test": "hello", "foo": "bar"] | "<CONFIDENTIAL> [Parameter Keys: [test, foo]]"
-        ["test": ["foo": "bar"]]        | "<CONFIDENTIAL> [Parameter Keys: [test]]"
     }
 }
 

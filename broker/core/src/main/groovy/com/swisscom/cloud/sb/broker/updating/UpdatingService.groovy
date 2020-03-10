@@ -31,10 +31,12 @@ class UpdatingService {
     protected ServiceProviderLookup serviceProviderLookup
     protected UpdatingPersistenceService updatingPersistenceService
 
-    boolean hasSensitiveParameters(Plan plan){
+    Map<String, Object> getSanitizedSensitiveParameters(Plan plan, Map<String, Object> parameters) {
         def serviceProvider = serviceProviderLookup.findServiceProvider(plan)
-
-        return serviceProvider != null && serviceProvider instanceof SensitiveParameterProvider
+        if (serviceProvider != null && serviceProvider instanceof SensitiveParameterProvider) {
+            return serviceProvider.getSanitizedParameters(parameters)
+        }
+        return parameters
     }
 
     @Autowired
