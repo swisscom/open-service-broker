@@ -53,10 +53,6 @@ class UpdatingService {
 
         def response = serviceProvider.update(updateRequest)
 
-        if(serviceProvider instanceof SensitiveParameterProvider){
-            updateRequest.parameters = null
-        }
-
         updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan, updateRequest.serviceContext)
         return response
     }
