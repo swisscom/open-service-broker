@@ -17,50 +17,66 @@ package com.swisscom.cloud.sb.broker.provisioning.job
 
 import com.swisscom.cloud.sb.broker.async.job.AbstractLastOperationJob
 import com.swisscom.cloud.sb.broker.model.LastOperation
-import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
-import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncServiceUpdater
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
+import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
+import com.swisscom.cloud.sb.broker.repository.UpdateRequestRepository
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.updating.UpdateResponse
+import com.swisscom.cloud.sb.broker.updating.UpdatingPersistenceService
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @CompileStatic
 @Component
-@Slf4j
 public class ServiceUpdateJob extends AbstractLastOperationJob {
-    @Autowired
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUpdateJob.class)
     private ServiceProviderLookup serviceProviderLookup
-    @Autowired
     private ServiceInstanceRepository serviceInstanceRepository
-    @Autowired
     private UpdateRequestRepository updateRequestRepository
+    private UpdatingPersistenceService updatingPersistenceService
+
+    ServiceUpdateJob(ServiceProviderLookup serviceProviderLookup,
+                     ServiceInstanceRepository serviceInstanceRepository,
+                     UpdateRequestRepository updateRequestRepository,
+                     UpdatingPersistenceService updatingPersistenceService) {
+        this.serviceProviderLookup = serviceProviderLookup
+        this.serviceInstanceRepository = serviceInstanceRepository
+        this.updateRequestRepository = updateRequestRepository
+        this.updatingPersistenceService = updatingPersistenceService
+    }
 
     protected LastOperationJobContext enrichContext(LastOperationJobContext jobContext) {
-        log.info("About to update service instance, ${jobContext.lastOperation.toString()}")
-        def serviceInstanceGuid = jobContext.lastOperation.guid
+        LOGGER.info("About to update service instance, {}", jobContext.lastOperation.toString())
+        String serviceInstanceGuid = jobContext.lastOperation.guid
         jobContext.serviceInstance = serviceInstanceRepository.findByGuid(serviceInstanceGuid)
         jobContext.plan = jobContext.serviceInstance.plan
         jobContext.updateRequest = updateRequestRepository.findByServiceInstanceGuid(serviceInstanceGuid)
-                .sort({it -> it.dateCreated})
-                .reverse()
-                .first()
+                                                          .sort({it -> it.getDateCreated() })
+                                                          .reverse()
+                                                          .first()
         return jobContext
     }
 
     @Override
     protected AsyncOperationResult handleJob(LastOperationJobContext context) {
-        log.info("About to update service instance, ${context.lastOperation.toString()}")
-        def updateResult = ((AsyncServiceUpdater)serviceProviderLookup.findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
+        LOGGER.info("About to update service instance, {}", context.lastOperation.toString())
+        AsyncOperationResult updateResult = ((AsyncServiceUpdater) serviceProviderLookup.
+                findServiceProvider(context.serviceInstance.plan)).requestUpdate(context)
 
-        context.serviceInstance = provisioningPersistenceService.updateServiceDetails(context.updateRequest, new UpdateResponse(details: updateResult.details, isAsync: true))
+        context.serviceInstance = provisioningPersistenceService.
+                updateServiceDetails(context.updateRequest,
+                                     new UpdateResponse(details: updateResult.details, isAsync: true))
 
         if (updateResult.status == LastOperation.Status.SUCCESS) {
-            provisioningPersistenceService.updateServiceInstanceCompletion(context.serviceInstance, true)
+            updatingPersistenceService.updatePlan(context.getServiceInstance(),
+                                                  context.getUpdateRequest().getParameters(),
+                                                  context.getUpdateRequest().getPlan(),
+                                                  context.getUpdateRequest().getServiceContext())
+            provisioningPersistenceService.updateServiceInstanceCompletion(context.getServiceInstance(), true)
         }
         return updateResult
     }
