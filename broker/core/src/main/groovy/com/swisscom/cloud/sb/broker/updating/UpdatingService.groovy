@@ -19,17 +19,26 @@ import com.swisscom.cloud.sb.broker.error.ErrorCode
 import com.swisscom.cloud.sb.broker.model.Plan
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.model.UpdateRequest
+import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.services.ServiceProviderLookup
 import com.swisscom.cloud.sb.broker.util.SensitiveParameterProvider
-import groovy.util.logging.Slf4j
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-@Slf4j
 @Service
 class UpdatingService {
-    protected ServiceProviderLookup serviceProviderLookup
-    protected UpdatingPersistenceService updatingPersistenceService
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdatingService.class)
+    private ServiceProviderLookup serviceProviderLookup
+    private UpdatingPersistenceService updatingPersistenceService
+
+    @Autowired
+    public UpdatingService(ServiceProviderLookup serviceProviderLookup,
+                           UpdatingPersistenceService updatingPersistenceService) {
+        this.serviceProviderLookup = serviceProviderLookup
+        this.updatingPersistenceService = updatingPersistenceService
+    }
 
     Map<String, Object> getSanitizedSensitiveParameters(Plan plan, Map<String, Object> parameters) {
         def serviceProvider = serviceProviderLookup.findServiceProvider(plan)
@@ -39,28 +48,33 @@ class UpdatingService {
         return parameters
     }
 
-    @Autowired
-    public UpdatingService(ServiceProviderLookup serviceProviderLookup, UpdatingPersistenceService updatingPersistenceService) {
-        this.serviceProviderLookup = serviceProviderLookup
-        this.updatingPersistenceService = updatingPersistenceService
-    }
-
     UpdateResponse update(ServiceInstance serviceInstance, UpdateRequest updateRequest, boolean acceptsIncomplete) {
-        if (isPlanChanging(updateRequest))
+        if (isPlanChanging(updateRequest)) {
             handleAsyncClientRequirement(updateRequest.plan, acceptsIncomplete)
+        }
         updatingPersistenceService.saveUpdateRequest(updateRequest)
         def serviceProvider = serviceProviderLookup.findServiceProvider(updateRequest.previousPlan)
 
         def response = serviceProvider.update(updateRequest)
 
-        updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance, updateRequest.parameters, response.details, updateRequest.plan, updateRequest.serviceContext)
+        // Update should only be persisted for async services when update was successful
+        if (!(serviceProvider instanceof AsyncServiceProvider)) {
+            LOGGER.
+                    debug("Service Provider {} is Synchronous. Updating Service Instance Entry",
+                          serviceProvider.getClass().getName())
+            updatingPersistenceService.updatePlanAndServiceDetails(serviceInstance,
+                                                                   updateRequest.parameters,
+                                                                   response.details,
+                                                                   updateRequest.plan,
+                                                                   updateRequest.serviceContext)
+        }
         return response
     }
 
-    boolean isPlanChanging(UpdateRequest updateRequest) {
+    static boolean isPlanChanging(UpdateRequest updateRequest) {
         return updateRequest.plan != null &&
-                updateRequest.previousPlan != null &&
-                updateRequest.plan.guid != updateRequest.previousPlan.guid
+               updateRequest.previousPlan != null &&
+               updateRequest.plan.guid != updateRequest.previousPlan.guid
     }
 
     private static void handleAsyncClientRequirement(Plan plan, boolean acceptsIncomplete) {
