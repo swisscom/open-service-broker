@@ -10,9 +10,7 @@ import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
 import com.swisscom.cloud.sb.broker.updating.UpdatingPersistenceService
-import org.springframework.stereotype.Component
 
-@Component
 class DummyAsyncServiceProvider extends AsyncServiceProvider<DummyAsyncServiceConfig> {
     private UpdatingPersistenceService updatingPersistenceService
 
