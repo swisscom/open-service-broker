@@ -125,8 +125,7 @@ class UpdatingServiceSpec extends Specification {
         asyncProvisioningService.scheduleUpdate(_) >> null
         DummyAsyncServiceProvider serviceProvider = new DummyAsyncServiceProvider(asyncProvisioningService,
                                                                                   Mock(ProvisioningPersistenceService),
-                                                                                  new DummyAsyncServiceConfig(),
-                                                                                  Mock(UpdatingPersistenceService))
+                                                                                  new DummyAsyncServiceConfig())
         ServiceProviderLookup asyncServiceProviderLookup = Mock(ServiceProviderLookup)
         asyncServiceProviderLookup.findServiceProvider(_) >> serviceProvider
         sut = new UpdatingService(asyncServiceProviderLookup, updatingPersistenceService)

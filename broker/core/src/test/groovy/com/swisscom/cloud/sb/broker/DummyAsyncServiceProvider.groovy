@@ -9,45 +9,44 @@ import com.swisscom.cloud.sb.broker.provisioning.ProvisioningPersistenceService
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.services.AsyncServiceProvider
-import com.swisscom.cloud.sb.broker.updating.UpdatingPersistenceService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class DummyAsyncServiceProvider extends AsyncServiceProvider<DummyAsyncServiceConfig> {
-    private UpdatingPersistenceService updatingPersistenceService
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyAsyncServiceConfig.class)
 
     DummyAsyncServiceProvider(AsyncProvisioningService asyncProvisioningService,
                               ProvisioningPersistenceService provisioningPersistenceService,
-                              DummyAsyncServiceConfig serviceConfig,
-                              UpdatingPersistenceService updatingPersistenceService) {
+                              DummyAsyncServiceConfig serviceConfig) {
         super(asyncProvisioningService, provisioningPersistenceService, serviceConfig)
-        this.updatingPersistenceService = updatingPersistenceService
     }
 
     @Override
     BindResponse bind(BindRequest request) {
+        LOGGER.debug("bind({})", request)
         return null
     }
 
     @Override
     void unbind(UnbindRequest request) {
-
+        LOGGER.debug("unbind({})", request)
     }
 
     @Override
     AsyncOperationResult requestUpdate(LastOperationJobContext context) {
-        updatingPersistenceService.updatePlan(context.getServiceInstance(),
-                                              context.getUpdateRequest().getParameters(),
-                                              context.getUpdateRequest().getPlan(),
-                                              context.getUpdateRequest().getServiceContext())
+        LOGGER.debug("requestUpdate({})", context)
         return null
     }
 
     @Override
     Optional<AsyncOperationResult> requestDeprovision(LastOperationJobContext context) {
+        LOGGER.debug("requestDeprovision({})", context)
         return null
     }
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
+        LOGGER.debug("requestProvision({})", context)
         return null
     }
 }
