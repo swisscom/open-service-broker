@@ -35,21 +35,14 @@ import org.springframework.stereotype.Component
 @Component
 public class ServiceUpdateJob extends AbstractLastOperationJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUpdateJob.class)
-    private ServiceProviderLookup serviceProviderLookup
-    private ServiceInstanceRepository serviceInstanceRepository
-    private UpdateRequestRepository updateRequestRepository
-    private UpdatingPersistenceService updatingPersistenceService
-
     @Autowired
-    ServiceUpdateJob(ServiceProviderLookup serviceProviderLookup,
-                     ServiceInstanceRepository serviceInstanceRepository,
-                     UpdateRequestRepository updateRequestRepository,
-                     UpdatingPersistenceService updatingPersistenceService) {
-        this.serviceProviderLookup = serviceProviderLookup
-        this.serviceInstanceRepository = serviceInstanceRepository
-        this.updateRequestRepository = updateRequestRepository
-        this.updatingPersistenceService = updatingPersistenceService
-    }
+    private ServiceProviderLookup serviceProviderLookup
+    @Autowired
+    private ServiceInstanceRepository serviceInstanceRepository
+    @Autowired
+    private UpdateRequestRepository updateRequestRepository
+    @Autowired
+    private UpdatingPersistenceService updatingPersistenceService
 
     protected LastOperationJobContext enrichContext(LastOperationJobContext jobContext) {
         LOGGER.info("About to update service instance, {}", jobContext.lastOperation.toString())
