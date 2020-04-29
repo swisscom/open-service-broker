@@ -74,7 +74,7 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
                                      new UpdateResponse(details: updateResult.details, isAsync: true))
 
         if (updateResult.status == LastOperation.Status.SUCCESS) {
-            updatingPersistenceService.updatePlan(context.getServiceInstance().getGuid(),
+            updatingPersistenceService.updatePlan(context.getServiceInstance(),
                                                   context.getUpdateRequest().getParameters(),
                                                   context.getUpdateRequest().getPlan(),
                                                   context.getUpdateRequest().getServiceContext())
