@@ -28,6 +28,7 @@ import com.swisscom.cloud.sb.broker.updating.UpdatingPersistenceService
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @CompileStatic
@@ -39,6 +40,7 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
     private UpdateRequestRepository updateRequestRepository
     private UpdatingPersistenceService updatingPersistenceService
 
+    @Autowired
     ServiceUpdateJob(ServiceProviderLookup serviceProviderLookup,
                      ServiceInstanceRepository serviceInstanceRepository,
                      UpdateRequestRepository updateRequestRepository,
@@ -72,7 +74,7 @@ public class ServiceUpdateJob extends AbstractLastOperationJob {
                                      new UpdateResponse(details: updateResult.details, isAsync: true))
 
         if (updateResult.status == LastOperation.Status.SUCCESS) {
-            updatingPersistenceService.updatePlan(context.getServiceInstance(),
+            updatingPersistenceService.updatePlan(context.getServiceInstance().getGuid(),
                                                   context.getUpdateRequest().getParameters(),
                                                   context.getUpdateRequest().getPlan(),
                                                   context.getUpdateRequest().getServiceContext())
