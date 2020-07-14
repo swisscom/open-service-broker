@@ -28,6 +28,12 @@ class BoshStateMachineFactory {
                           BoshProvisionState.CHECK_BOSH_DEPLOYMENT_TASK_STATE])
     }
 
+    static StateMachine createUpdatingStateFlow() {
+        new StateMachine([BoshUpdateState.UPDATE_CONFIGS,
+                          BoshUpdateState.UPDATE_DEPLOYMENT,
+                          BoshUpdateState.CHECK_BOSH_DEPLOYMENT_TASK_STATE])
+    }
+
     static StateMachine createDeprovisioningStateFlow() {
         new StateMachine([BoshDeprovisionState.DELETE_CONFIGS,
                           BoshDeprovisionState.DELETE_BOSH_DEPLOYMENT,
