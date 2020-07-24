@@ -363,14 +363,14 @@ class ShieldClientTest extends Specification {
         then:
         result == null
         def ex = thrown(ShieldApiException)
-        ex.toString() == message
+        ex.toString().startsWith(message)
 
         where:
         failure                                         | message                                                                                                                                                                                                 | reason
         aResponse().
-                withStatus(500)                         | "ShieldApiException[500 - Failed to create target: 500 Server Error]"                                                                                                                                   | "HTTP Status Code 500"
+                withStatus(500)                         | "ShieldApiException[500 - Failed to create target: 500 Server Error: [no body]]"                                                                                                                                   | "HTTP Status Code 500"
         aResponse().
-                withFault(MALFORMED_RESPONSE_CHUNK)     | "ShieldApiException[- - Failed to create target: I/O error on POST request for \"http://localhost:8082/v1/targets\": null; nested exception is org.apache.http.client.ClientProtocolException]"         | "OK Status Code withGarbage body"
+                withFault(MALFORMED_RESPONSE_CHUNK)     | "ShieldApiException[- - Failed to create target: I/O error on POST request for \"http://localhost:8082/v1/targets\": "         | "OK Status Code withGarbage body"
         aResponse().
                 withFault(CONNECTION_RESET_BY_PEER)     | "ShieldApiException[- - Failed to create target: I/O error on POST request for \"http://localhost:8082/v1/targets\": Connection reset; nested exception is java.net.SocketException: Connection reset]" | "Connection reset by peer"
 
