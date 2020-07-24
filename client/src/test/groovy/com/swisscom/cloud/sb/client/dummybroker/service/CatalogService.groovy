@@ -20,6 +20,7 @@ import groovy.transform.CompileStatic
 import org.springframework.cloud.servicebroker.model.catalog.Catalog
 import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 
 import javax.annotation.PostConstruct
 
@@ -34,12 +35,12 @@ class CatalogService implements org.springframework.cloud.servicebroker.service.
     }
 
     @Override
-    Catalog getCatalog() {
-        return catalog
+    Mono<Catalog> getCatalog() {
+        return Mono.just(catalog)
     }
 
     @Override
-    ServiceDefinition getServiceDefinition(String serviceId) {
-        return catalog.serviceDefinitions.find {it.id == serviceId}
+    Mono<ServiceDefinition> getServiceDefinition(String serviceId) {
+        return Mono.just(catalog.serviceDefinitions.find {it.id == serviceId})
     }
 }
