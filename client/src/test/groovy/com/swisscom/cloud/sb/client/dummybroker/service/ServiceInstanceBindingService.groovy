@@ -32,7 +32,7 @@ class ServiceInstanceBindingService implements org.springframework.cloud.service
     @Override
     Mono<CreateServiceInstanceBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
             throws ServiceInstanceBindingExistsException, ServiceBrokerException {
-        return Mono.just(CreateServiceInstanceAppBindingResponse.builder().build())
+        return Mono.just((CreateServiceInstanceBindingResponse)CreateServiceInstanceAppBindingResponse.builder().build())
     }
 
     @Override
