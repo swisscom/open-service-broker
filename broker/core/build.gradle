@@ -32,7 +32,6 @@ dependencies {
     compile libs.spring_retry
 
     compile libs.spring_cloud_open_service_broker_core
-    compile libs.spring_cloud_open_service_broker_autoconfigure
     compile libs.spring_credhub_starter
 
     compile libs.guava

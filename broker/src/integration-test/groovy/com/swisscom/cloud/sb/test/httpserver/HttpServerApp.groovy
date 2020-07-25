@@ -24,11 +24,14 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration
+import org.springframework.cloud.servicebroker.autoconfigure.web.servlet.ServiceBrokerWebMvcAutoConfiguration
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 
-@SpringBootApplication(scanBasePackageClasses = com.swisscom.cloud.sb.test.httpserver.HttpServerApp.class)
+@SpringBootApplication(scanBasePackageClasses = HttpServerApp.class,
+        exclude = [ServiceBrokerWebMvcAutoConfiguration.class])
 @Configuration
 @Slf4j
 @CompileStatic

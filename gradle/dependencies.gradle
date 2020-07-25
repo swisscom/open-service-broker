@@ -19,8 +19,8 @@ ext {
             bouncycastle                       : '1.60',              // For cryptography
             ineter                             : '0.1.0',              // Utility library for IP Addresses
 
-            flyway                             : '5.1.4',             // Database migration
-            mysql_connector_java               : '8.0.12',            // OSB uses a MySQL database
+            flyway                             : '5.2.4',             // Database migration
+            mysql_connector_java               : '8.0.21',            // OSB uses a MySQL database
 
             gson                               : '2.8.5',
             httpclient                         : '4.5.6',             // THE java Http client
