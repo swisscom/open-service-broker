@@ -12,16 +12,10 @@ import com.swisscom.cloud.sb.broker.util.test.DummyServiceProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext
 import org.springframework.cloud.servicebroker.model.Context
+import org.springframework.cloud.servicebroker.model.PlatformContext
 import spock.lang.Shared
 
 import static com.swisscom.cloud.sb.broker.util.Resource.readTestFileContent
-
-class CustomContext extends Context {
-
-    CustomContext(Map<String, Object> properties) {
-        super("CUSTOM", properties)
-    }
-}
 
 class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
     @Autowired
@@ -84,7 +78,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
     def "can be update serviceContext"() {
         given:
-        def context = new CustomContext([
+        def context = new PlatformContext("CUSTOM", [
                 "field_a": "Some Value",
                 "field_b": null,
                 "field_c": 13.37,
@@ -107,7 +101,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
         serviceInstance.serviceContext.details.<ServiceContextDetail>find { d -> d.getKey() == "field_d" }.getValue() == "1337"
 
         when:
-        context = new CustomContext([
+        context = new PlatformContext("CUSTOM", [
                 "field_a": "Some Other Value",
                 "field_b": "Some New Value",
                 "field_c": 42.42
@@ -130,7 +124,7 @@ class ServiceContextFunctionalSpec extends BaseFunctionalSpec {
 
     def "sending no context does not delete context"() {
         given:
-        Context context = new CustomContext([
+        Context context = new PlatformContext("CUSTOM", [
                 "field_a": "Some Value",
                 "field_b": null,
                 "field_c": 13.37,

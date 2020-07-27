@@ -44,8 +44,8 @@ import spock.lang.Unroll
 import static java.time.Duration.ofMillis
 
 @ContextConfiguration
-@ActiveProfiles("default,test,secrets")
-@SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig",
+@ActiveProfiles(["default","test","secrets"])
+@SpringBootTest(properties = "spring.autoconfigure.exclude=com.swisscom.cloud.sb.broker.util.httpserver.WebSecurityConfig,org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration,org.springframework.cloud.servicebroker.autoconfigure.web.servlet.ServiceBrokerWebMvcAutoConfiguration",
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.
         ASPECTJ, pattern = "com.swisscom.cloud.sb.broker.util.httpserver.*"))
