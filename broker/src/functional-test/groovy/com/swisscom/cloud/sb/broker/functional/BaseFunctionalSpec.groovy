@@ -39,8 +39,9 @@ import spock.lang.Stepwise
 
 @CompileStatic
 @Stepwise
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ActiveProfiles(profiles = "default,broker,test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        properties = "spring.autoconfigure.exclude=org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration,org.springframework.cloud.servicebroker.autoconfigure.web.servlet.ServiceBrokerWebMvcAutoConfiguration")
+@ActiveProfiles(profiles = ["default","test","secrets"])
 @ContextConfiguration
 abstract class BaseFunctionalSpec extends Specification {
 
