@@ -10,5 +10,5 @@
   OOOOO           OOOO                SSSSSS  BBBBB           BBB
   OOOOO           OOOO                SSSSSS  BBBBB           BBB
   OOOOO           OOOO                SSSSSS  BBBBB           BBB
-  OOOOOOOOOOOOOOOOOOOO  SSSSSSSSSSSSSSSSSSSS  BBBBBBBBBBBBBBBBBB    // Spring Boot 2.1.1.Release \\
+  OOOOOOOOOOOOOOOOOOOO  SSSSSSSSSSSSSSSSSSSS  BBBBBBBBBBBBBBBBBB    // Spring Boot 2.3.1.Release \\
    OOOOOOOOOOOOOOOOOO    SSSSSSSSSSSSSSSSSS   BBBBBBBBBBBBBBBBB     \\       ~ Swisscom ~        //

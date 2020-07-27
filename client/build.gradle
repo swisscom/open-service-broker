@@ -20,6 +20,7 @@ dependencies {
     compile libs.spring_boot_starter_security
     compile libs.spring_cloud_open_service_broker
     compile libs.spring_cloud_open_service_broker_core
+    compile libs.spring_cloud_open_service_broker_autoconfigure
     compile libs.spring_cloud_starter_open_service_broker_webmvc
 
     compile libs.commons_codec

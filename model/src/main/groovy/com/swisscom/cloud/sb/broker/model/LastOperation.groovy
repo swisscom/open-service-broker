@@ -15,18 +15,14 @@
 
 package com.swisscom.cloud.sb.broker.model
 
-import com.sun.org.glassfish.gmbal.Description
-
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.validation.constraints.NotBlank
 
 @Entity
 class LastOperation extends BaseModel{
     @Column(unique = true)
-    @Description("ServiceInstanceGuid")
     String guid
 
     @Enumerated(EnumType.STRING)
@@ -40,7 +36,6 @@ class LastOperation extends BaseModel{
     Status status
 
     String description
-    @Description("Statemachine State")
     String internalState
 
     @Override

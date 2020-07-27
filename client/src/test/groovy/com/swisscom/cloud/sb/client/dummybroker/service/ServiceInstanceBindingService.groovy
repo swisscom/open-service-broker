@@ -24,19 +24,20 @@ import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstan
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingResponse
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 
 @Service
 @CompileStatic
 class ServiceInstanceBindingService implements org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService {
     @Override
-    CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
+    Mono<CreateServiceInstanceBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest)
             throws ServiceInstanceBindingExistsException, ServiceBrokerException {
-        return CreateServiceInstanceAppBindingResponse.builder().build()
+        return Mono.just((CreateServiceInstanceBindingResponse)CreateServiceInstanceAppBindingResponse.builder().build())
     }
 
     @Override
-    DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest)
+    Mono<DeleteServiceInstanceBindingResponse> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest)
             throws ServiceBrokerException {
-        return DeleteServiceInstanceBindingResponse.builder().build()
+        return Mono.just(DeleteServiceInstanceBindingResponse.builder().build())
     }
 }

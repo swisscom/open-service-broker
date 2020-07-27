@@ -18,32 +18,33 @@ package com.swisscom.cloud.sb.client.dummybroker.service
 import groovy.transform.CompileStatic
 import org.springframework.cloud.servicebroker.model.instance.*
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 
 @Service
 @CompileStatic
 class ServiceInstanceService implements org.springframework.cloud.servicebroker.service.ServiceInstanceService{
 
     @Override
-    CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest request) {
-        return CreateServiceInstanceResponse.builder().async(request.asyncAccepted).build()
+    Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
+        return Mono.just(CreateServiceInstanceResponse.builder().async(request.asyncAccepted).build())
     }
 
     @Override
-    GetLastServiceOperationResponse getLastOperation(GetLastServiceOperationRequest request) {
-        return GetLastServiceOperationResponse
+    Mono<GetLastServiceOperationResponse> getLastOperation(GetLastServiceOperationRequest request) {
+        return Mono.just(GetLastServiceOperationResponse
                 .builder()
                 .operationState(OperationState.SUCCEEDED)
                 .description('some description')
-                .build()
+                .build())
     }
 
     @Override
-    DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest request) {
-        return DeleteServiceInstanceResponse.builder().async(false).build()
+    Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest request) {
+        return Mono.just(DeleteServiceInstanceResponse.builder().async(false).build())
     }
 
     @Override
-    UpdateServiceInstanceResponse updateServiceInstance(UpdateServiceInstanceRequest request) {
-        return UpdateServiceInstanceResponse.builder().async(false).build()
+    Mono<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
+        return Mono.just(UpdateServiceInstanceResponse.builder().async(false).build())
     }
 }

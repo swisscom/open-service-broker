@@ -4,10 +4,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+    <bean id="flywayConfig" class="org.flywaydb.core.api.configuration.ClassicConfiguration">
         <property name="dataSource" ref="dataSource" />
         <property name="table" value="FLYWAY_schema_version"/>
         <property name="validateOnMigrate" value="true"/>
+    </bean>
+
+    <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
+        <constructor-arg ref="flywayConfig"/>
     </bean>
 
     <bean id="cleanUpZombieServiceInstanceBean" class="com.swisscom.cloud.sb.broker.provisioning.ServiceInstanceCleanup">
