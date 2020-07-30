@@ -224,7 +224,7 @@ class BoshFacade {
         if (state == null) {
             throw new RuntimeException("Unknown bosh task state: ${state}")
         }
-        if ([BoshDirectorTask.State.CANCELLED, BoshDirectorTask.State.CANCELLING, BoshDirectorTask.State.ERRORED].contains(state)) {
+        if ([BoshDirectorTask.State.CANCELLED, BoshDirectorTask.State.CANCELLING, BoshDirectorTask.State.ERRORED, BoshDirectorTask.State.ERROR].contains(state)) {
             throw new RuntimeException("Task failed: ${taskId}")
         }
         return state.isSuccessful()
