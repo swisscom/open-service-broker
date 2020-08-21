@@ -41,6 +41,8 @@ dependencies {
     compile libs.joda_time
     compile libs.commons_lang
 
+    // https://docs.opsgenie.com/docs/opsgenie-java-api
+    compile group: 'com.opsgenie.integration', name: 'sdk', version: '2.11.2'
 
     compile libs.httpclient
     compile libs.springfox_swagger2
