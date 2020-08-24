@@ -337,3 +337,31 @@ HTTP Status 400
 }
 
 ```
+
+### Cleanup Service Instances
+```
+[POST] /admin/cleanup
+```
+or
+```
+[POST] /admin/service_instances/{serviceInstanceGuid}/cleanup
+```
+
+Cleanup will try to execute the a custom configured cleanup action for all service instances (1)
+or for a single service instance (2). Per default the `all cleanup` will run every day in the morning
+at 02:15.
+
+As the cleanup is running on an async schedule, feedback to operators are sent via a different channel,
+the default channel is an `OpsGenie` integration. check https://docs.opsgenie.com/docs/alert-api for
+informations about how to retrieve a api key.
+
+The cleanup can be configured with the yaml configuration and by providing a `bean` of type `CleanupAction`.
+```
+com.swisscom.cloud.sb.broker.cleanup:
+    config.cleanupThresholdInDays: 30 (default is 30)
+    opsgenie:
+        apikey: "some-key"
+        alertPriority: "P3" (default is P3)
+        tags: [ "mongodb", "osb" ]
+        teams: [ "team1", "team2", "team3" ]
+```

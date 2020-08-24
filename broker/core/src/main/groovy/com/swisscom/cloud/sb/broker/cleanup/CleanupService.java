@@ -48,6 +48,10 @@ public class CleanupService {
         LOGGER.debug("triggerCleanup() >> done");
     }
 
+    public void triggerCleanup(String serviceInstanceUuid) {
+        triggerServiceInstanceCleanup(serviceInstanceRepository.findByGuid(serviceInstanceUuid)).block();
+    }
+
     private Mono<Boolean> triggerServiceInstanceCleanup(ServiceInstance serviceInstance) {
         return Mono.just(serviceInstance.getGuid())
                 .publishOn(Schedulers.boundedElastic())
