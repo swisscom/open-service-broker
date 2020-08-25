@@ -11,9 +11,13 @@ import javax.transaction.NotSupportedException;
 @RestController
 public class CleanupController {
     private final CleanupService cleanupService;
+    private final CleanupInfoService cleanupInfoService;
 
-    CleanupController(@Autowired(required = false) CleanupService cleanupService) {
+    CleanupController(
+            @Autowired(required = false) CleanupService cleanupService,
+            CleanupInfoService cleanupInfoService) {
         this.cleanupService = cleanupService;
+        this.cleanupInfoService = cleanupInfoService;
     }
 
     @RequestMapping(value = "admin/cleanup", method = RequestMethod.POST)
@@ -32,5 +36,16 @@ public class CleanupController {
         }
 
         new Thread(() -> cleanupService.triggerCleanup(serviceInstanceUuid)).start();
+    }
+
+    @RequestMapping(value = "admin/service_instances/{serviceInstanceUuid}/cleanup/completed", method = RequestMethod.POST)
+    void setCleanupCompleted(@PathVariable("serviceInstanceUuid") String serviceInstanceUuid) {
+        cleanupInfoService.setCompletedState(serviceInstanceUuid);
+    }
+
+
+    @RequestMapping(value = "admin/service_instances/{serviceInstanceUuid}/cleanup", method = RequestMethod.GET)
+    void getCleanupState(@PathVariable("serviceInstanceUuid") String serviceInstanceUuid) {
+        cleanupInfoService.getState(serviceInstanceUuid);
     }
 }
