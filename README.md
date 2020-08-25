@@ -365,3 +365,16 @@ com.swisscom.cloud.sb.broker.cleanup:
         tags: [ "mongodb", "osb" ]
         teams: [ "team1", "team2", "team3" ]
 ```
+
+with:
+```
+[POST] /admin/service_instances/{serviceInstanceGuid}/cleanup/completed
+```
+the cleanup completed state of a service state can be set (to true), no body is 
+required.
+
+To fetch the state of a cleanup of serviceInstance the following call can be made:
+
+```
+[GET] /admin/service_instances/{serviceInstanceGuid}/cleanup
+```
