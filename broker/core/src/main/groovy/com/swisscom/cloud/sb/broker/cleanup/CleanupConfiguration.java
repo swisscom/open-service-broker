@@ -19,6 +19,11 @@ public class CleanupConfiguration {
     private CleanupServiceConfiguration config;
 
     @Bean
+    public CleanupInfoService cleanupInfoService(InventoryService inventoryService) {
+        return new CleanupInfoService(inventoryService);
+    }
+
+    @Bean
     @ConditionalOnProperty(value = "com.swisscom.cloud.sb.broker.cleanup.opsgenie.apiKey")
     public AlertingClient opsGenieAlertingClient() {
         return new OpsGenieAlertingClient(getOpsGenie());
