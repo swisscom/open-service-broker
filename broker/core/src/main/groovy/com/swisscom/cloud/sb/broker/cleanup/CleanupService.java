@@ -80,6 +80,7 @@ public class CleanupService {
         List<ServiceInstance> result = serviceInstanceRepository.findAll()
                 .stream()
                 .filter(ServiceInstance::isDeleted)
+                .filter(this::isDeletedDefined)
                 .filter(this::isAfterCleanupOffset)
                 .filter(this::isNotCleanupCompleted)
                 .collect(Collectors.toList());
@@ -90,6 +91,10 @@ public class CleanupService {
 
     private boolean isNotCleanupCompleted(ServiceInstance serviceInstance) {
         return !cleanupInfoService.isCompletedState(serviceInstance.getGuid());
+    }
+
+    private boolean isDeletedDefined(ServiceInstance serviceInstance) {
+        return serviceInstance.getDateDeleted() != null;
     }
 
     private boolean isAfterCleanupOffset(ServiceInstance serviceInstance) {
