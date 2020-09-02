@@ -360,10 +360,12 @@ The cleanup can be configured with the yaml configuration and by providing a `be
 com.swisscom.cloud.sb.broker.cleanup:
     config.cleanupThresholdInDays: 30 (default is 30)
     opsgenie:
-        apikey: "some-key"
-        alertPriority: "P3" (default is P3)
+        apiKey: "some-key"
+        alertPriority: "P4" (default is P4)
         tags: [ "mongodb", "osb" ]
         teams: [ "team1", "team2", "team3" ]
+        alertMessage: "[MongoDBEnt] "
+        alertDescription: "Issue on MongoDBEnt on Dev Env:"
 ```
 
 with:

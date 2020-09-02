@@ -140,7 +140,7 @@ class CleanupServiceSpec extends Specification {
         1 * alertingClient.alert({
             Failure f ->
                 f.message().equals("Cleanup ServiceInstance failed for ${serviceInstanceUuid}".toString()) &&
-                        f.description().equals("Error during cleanup: Craaaash") &&
+                        f.description().equals("Error during cleanup: java.lang.RuntimeException: Craaaash") &&
                         f.exception() instanceof RuntimeException;
         })
 

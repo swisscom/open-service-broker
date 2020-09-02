@@ -70,7 +70,7 @@ public class CleanupService {
     private void handleException(ServiceInstance serviceInstance, Throwable ex) {
         alertingClient.alert(Failure.builder()
                 .message(format("Cleanup ServiceInstance failed for %s", serviceInstance.getGuid()))
-                .description(format("Error during cleanup: %s", ex.getMessage()))
+                .description(format("Error during cleanup: %s", ex))
                 .exception(ex)
                 .build());
     }
