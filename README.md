@@ -338,7 +338,16 @@ HTTP Status 400
 
 ```
 
-### Cleanup Service Instances
+
+### Delete Service Instances (after being cleaned up)
+```
+[POST] /admin/service_instances/cleanup
+```
+
+Will delete service instances which have been deprovisioned for longer then 90 days. Removing them from the database
+completely.
+
+### Cleanup Service Instances (after being deprovisioned)
 ```
 [POST] /admin/cleanup
 ```
