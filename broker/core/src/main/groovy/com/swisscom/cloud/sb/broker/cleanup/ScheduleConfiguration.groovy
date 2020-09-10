@@ -14,7 +14,7 @@ class ScheduleConfiguration {
     @Autowired()
     CleanupService cleanupService;
 
-    @Scheduled(cron = "0 15 2 * * *")
+    @Scheduled(cron = "0 15 */6 * * *")
     void triggerCleanup() {
         cleanupService.triggerCleanup();
     }
