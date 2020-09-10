@@ -98,7 +98,6 @@ public class CleanupService {
     }
 
     private boolean isAfterCleanupOffset(ServiceInstance serviceInstance) {
-        LOGGER.info("isAfterCleanupOffset({})", serviceInstance);
         return serviceInstance.getDateDeleted().toInstant()
                 .plus(cleanupServiceConfiguration.getCleanupThresholdInDays(), ChronoUnit.DAYS)
                 .isBefore(Instant.now());
