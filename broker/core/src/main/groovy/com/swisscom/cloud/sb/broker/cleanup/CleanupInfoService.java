@@ -15,7 +15,12 @@ public class CleanupInfoService {
     }
 
     public String getState(String serviceInstanceUuid) {
-        return inventoryService.get(serviceInstanceUuid, STATE_FIELD_NAME, PENDING_STATE).getSecond();
+        return inventoryService
+                .getAll(serviceInstanceUuid, STATE_FIELD_NAME)
+                .stream()
+                .findFirst()
+                .orElse(Pair.of(STATE_FIELD_NAME, PENDING_STATE))
+                .getSecond();
     }
 
     public boolean isCompletedState(String serviceInstanceUuid) {
