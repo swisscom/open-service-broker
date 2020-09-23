@@ -6,10 +6,12 @@ import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -25,6 +27,8 @@ public class CleanupService {
     private final AlertingClient alertingClient;
     private final CleanupAction cleanupAction;
 
+    private static Scheduler cleanupSchedule;
+
     CleanupService(CleanupServiceConfiguration cleanupServiceConfiguration,
                    CleanupInfoService cleanupInfoService,
                    ServiceInstanceRepository serviceInstanceRepository,
@@ -35,6 +39,13 @@ public class CleanupService {
         this.serviceInstanceRepository = serviceInstanceRepository;
         this.alertingClient = alertingClient;
         this.cleanupAction = cleanupAction;
+
+        if (cleanupSchedule == null) {
+            cleanupSchedule = Schedulers.newBoundedElastic(
+                    this.cleanupServiceConfiguration.getMaxParallelExecutions(),
+                    this.cleanupServiceConfiguration.getMaxQueueSize(),
+                    "cleanup-service");
+        }
     }
 
     public void triggerCleanup() {
@@ -54,7 +65,7 @@ public class CleanupService {
 
     private Mono<Boolean> triggerServiceInstanceCleanup(ServiceInstance serviceInstance) {
         return Mono.just(serviceInstance.getGuid())
-                .publishOn(Schedulers.boundedElastic())
+                .publishOn(cleanupSchedule)
                 .flatMap(cleanupAction::executeCleanupServiceInstance)
                 .onErrorResume(ex -> {
                     handleException(serviceInstance, ex);
@@ -85,7 +96,11 @@ public class CleanupService {
                 .filter(this::isNotCleanupCompleted)
                 .collect(Collectors.toList());
 
+        // shuffle list as there will be parallel execution, this helps distributing the work.
+        Collections.shuffle(result);
+
         LOGGER.info("Found {} service instances for cleanup, took: {}ms", result.size(), watch.elapsed(TimeUnit.MILLISECONDS));
+
         return result;
     }
 

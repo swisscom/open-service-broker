@@ -3,11 +3,14 @@ package com.swisscom.cloud.sb.broker.cleanup
 import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.repository.ServiceInstanceRepository
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Scheduler
+import reactor.core.scheduler.Schedulers
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.Instant
+import java.time.LocalTime
 
 class CleanupServiceSpec extends Specification {
 
@@ -146,5 +149,28 @@ class CleanupServiceSpec extends Specification {
 
         and:
         0 * cleanupInfoService.setCompletedState(serviceInstanceUuid) >> true
+    }
+
+    void 'Mono.publishOn(): should correctly handle limits'() {
+        given:
+        List<String> elements = ["A", "B", "C", "D", "E"]
+        final Scheduler testSchedule = Schedulers.newBoundedElastic(3, 10, "test-schedule");
+        List<Mono> monos = new ArrayList<>();
+        LocalTime start = LocalTime.now();
+
+        when:
+        for (def e in elements) {
+            monos.push(Mono.just(e).publishOn(testSchedule)
+                    .doOnNext({
+                        element ->
+                            println("[${LocalTime.now()}]${Thread.currentThread().getName()}::${element}");
+                            Thread.sleep(1000);
+                    }));
+        }
+        Mono.when(monos).block();
+
+        then:
+        noExceptionThrown()
+        LocalTime.now().isAfter(start.plusSeconds(2));
     }
 }
