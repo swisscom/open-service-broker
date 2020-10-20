@@ -111,6 +111,7 @@ class RestTemplateBuilder {
         return contextBuilder.build()
     }
 
+    @Synchronized
     RestTemplateBuilder withBasicAuthentication(String username, String password) {
         List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
         if (interceptors == null) {
@@ -129,6 +130,7 @@ class RestTemplateBuilder {
         this
     }
 
+    @Synchronized
     RestTemplateBuilder withBearerAuthentication(String bearerToken) {
         List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors()
         if (interceptors == null) {
