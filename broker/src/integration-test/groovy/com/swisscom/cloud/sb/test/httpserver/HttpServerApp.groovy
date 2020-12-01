@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 
 @SpringBootApplication(scanBasePackageClasses = HttpServerApp.class,
-        exclude = [ServiceBrokerWebMvcAutoConfiguration.class])
+        exclude = [ServiceBrokerWebMvcAutoConfiguration.class, ServiceBrokerAutoConfiguration.class])
 @Configuration
 @Slf4j
 @CompileStatic
