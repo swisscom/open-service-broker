@@ -19,10 +19,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
-import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration
 import org.springframework.cloud.servicebroker.autoconfigure.web.servlet.ServiceBrokerWebMvcAutoConfiguration
@@ -31,7 +28,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 
 @SpringBootApplication(scanBasePackageClasses = HttpServerApp.class,
-        exclude = [ServiceBrokerWebMvcAutoConfiguration.class, ServiceBrokerAutoConfiguration.class])
+        exclude = [ServiceBrokerWebMvcAutoConfiguration.class, ServiceBrokerAutoConfiguration.class, FlywayAutoConfiguration.class])
 @Configuration
 @Slf4j
 @CompileStatic
