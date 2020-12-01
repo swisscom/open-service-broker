@@ -17,12 +17,14 @@ package com.swisscom.cloud.sb.broker.util
 
 import groovy.transform.CompileStatic
 import groovy.transform.Synchronized
+import org.apache.http.ConnectionReuseStrategy
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.AuthCache
 import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.HttpClient
+import org.apache.http.client.HttpRequestRetryHandler
 import org.apache.http.client.protocol.ClientContext
 import org.apache.http.conn.ssl.TrustStrategy
 import org.apache.http.conn.ssl.X509HostnameVerifier
@@ -80,8 +82,9 @@ class RestTemplateBuilder {
         if (disableHostNameVerification) {
             httpClientBuilder.setHostnameVerifier(DummyHostnameVerifier.INSTANCE)
         }
-        def httpClientRequestFactory = (useDigestAuth) ? new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactoryDigestAuth(
-                httpClientBuilder.build())) : new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build()))
+        def httpClientRequestFactory = (useDigestAuth)
+                ? new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactoryDigestAuth(httpClientBuilder.build()))
+                : new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build()))
         addLoggingRequestInterceptor()
         restTemplate.setRequestFactory(httpClientRequestFactory)
         return this.restTemplate
@@ -128,6 +131,11 @@ class RestTemplateBuilder {
         useDigestAuth = true
         httpClientBuilder.setDefaultCredentialsProvider(provider(user, password)).useSystemProperties()
         this
+    }
+
+    RestTemplateBuilder withRetryHandler(HttpRequestRetryHandler retryHandler) {
+        httpClientBuilder.setRetryHandler(retryHandler)
+        return this
     }
 
     @Synchronized

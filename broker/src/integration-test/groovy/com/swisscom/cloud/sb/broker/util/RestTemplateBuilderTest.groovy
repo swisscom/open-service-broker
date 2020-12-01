@@ -15,8 +15,17 @@
 
 package com.swisscom.cloud.sb.broker.util
 
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.http.Fault
+import com.github.tomakehurst.wiremock.junit.WireMockRule
+import com.github.tomakehurst.wiremock.stubbing.Scenario
 import com.swisscom.cloud.sb.test.httpserver.HttpServerApp
 import com.swisscom.cloud.sb.test.httpserver.HttpServerConfig
+import org.apache.http.NoHttpResponseException
+import org.apache.http.client.HttpRequestRetryHandler
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
+import org.apache.http.protocol.HttpContext
+import org.junit.ClassRule
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -26,12 +35,22 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore("The flyway migration is not working and we are substituting RestTemplateBuilder by WebClient")
 class RestTemplateBuilderTest extends Specification {
     private static final Logger LOG = LoggerFactory.getLogger(RestTemplateBuilderTest.class);
     private static final int http_port = 36000
     private static final int https_port = 36001
 
+    @ClassRule
+    public static WireMockRule wireMockRule
+
+    def setupSpec() {
+        wireMockRule = new WireMockRule()
+        wireMockRule.start()
+    }
+
+    def cleanupSpec() {
+        wireMockRule.stop()
+    }
 
     def "restTemplate with no features enabled"() {
         given:
@@ -118,7 +137,7 @@ class RestTemplateBuilderTest extends Specification {
         HttpServerApp httpServer = new HttpServerApp().startServer(HttpServerConfig.create(http_port).withHttpsPort(https_port)
                 .withKeyStore(this.getClass().getResource('/server-keystore.jks').file, 'secret', 'secure-server')
                 .withTrustStore(this.getClass().getResource('/server-truststore.jks').file,
-                'secret'))
+                        'secret'))
         when:
         def response = makeHttpsGetRequest(new RestTemplateBuilder().withSSLValidationDisabled().withClientSideCertificate(new File(this.getClass().getResource('/client.crt').file).text,
                 new File(this.getClass().getResource('/client.key').file).text).build())
@@ -173,6 +192,41 @@ class RestTemplateBuilderTest extends Specification {
         response.body.equalsIgnoreCase('hello')
         cleanup:
         httpServer?.stop()
+    }
+
+    def 'PUT request with I/O error'() {
+        given: "setup wiremock with connection reset error"
+        wireMockRule.stubFor(WireMock.put(WireMock.urlEqualTo("/ioerror"))
+                .inScenario("Retry Scenario")
+                .whenScenarioStateIs(Scenario.STARTED)
+                .willReturn(WireMock.aResponse().withFault(Fault.EMPTY_RESPONSE))
+                .willSetStateTo("Cause Success"))
+
+        wireMockRule.stubFor(WireMock.put(WireMock.urlEqualTo("/ioerror"))
+                .inScenario("Retry Scenario")
+                .whenScenarioStateIs("Cause Success")
+                .willReturn(WireMock.aResponse()
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("Hello world!")))
+
+        and: "setup retry handler"
+        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(3, true, new ArrayList<Class<? extends IOException>>()) {
+            @Override
+            boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
+                if (exception instanceof NoHttpResponseException && executionCount < 3) {
+                    return super.retryRequest(exception, executionCount, context);
+                }
+                return false
+            }
+        }
+        RestTemplate restTemplate =  new RestTemplateBuilder().withRetryHandler(retryHandler).withDigestAuthentication("test", "test").build()
+
+        when:
+        def response = restTemplate.exchange(wireMockRule.baseUrl() + "/ioerror", HttpMethod.PUT, new HttpEntity("HELLO"), String.class)
+
+        then:
+        response.statusCode == HttpStatus.OK
+        response.body.equalsIgnoreCase('Hello world!')
     }
 
     private def makeGetRequest(RestTemplate template) {
